@@ -6,7 +6,7 @@ use App\Http\Controllers\MasterController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\UserController;
-use App\Http\controllers\MyAccountController;
+use App\Http\Controllers\MyAccountController;
 use App\Http\Controllers\DocumentFolderController;
 use App\Http\Controllers\DriveAccountController;
 use App\Http\Controllers\DocumentController;
