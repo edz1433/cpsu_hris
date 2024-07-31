@@ -168,7 +168,7 @@
                             @endif
                         </th>
                         <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 0 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                     </tr>
@@ -222,7 +222,7 @@
                             @endif
                         </th>
                         <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 0 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                     </tr>
@@ -253,7 +253,7 @@
                             @endif
                         </th>
                         <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 0 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                     </tr>
@@ -338,7 +338,7 @@
                             @endif
                         </th>
                         <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 0 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                     </tr>
@@ -392,7 +392,7 @@
                             @endif
                         </th>
                         <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 0 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                     </tr>
@@ -423,7 +423,7 @@
                             @endif
                         </th>
                         <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 0 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                     </tr>
