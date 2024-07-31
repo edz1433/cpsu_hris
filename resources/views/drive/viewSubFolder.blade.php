@@ -5,9 +5,9 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-2">
-            @include('Drive.submenu')
+            @include('drive.submenu')
         </div>
-        @include('Drive.modals')
+        @include('drive.modals')
         <div class="col-lg-10">
             <div class="card card-info card-outline">   
             <nav aria-label="breadcrumb">
