@@ -140,15 +140,35 @@
                 </tr>
             </thead>
             <tbody>	
+            @php $morningcutoff = new DateTime('10:30'); @endphp
             @if ($period == 1)
                 {{-- Display days 1-15 --}}
                 @for ($day = 1; $day <= 15; $day++)
                     <tr>
                         <th class="font center" width="15">{{ $day }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['in']) > 0 ? substr(reset($time_arrays[$day]['in']), 0, strrpos(reset($time_arrays[$day]['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 0 ? substr(reset($time_arrays[$day]['out']), 0, strrpos(reset($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['in']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $inTime->format('H:i') }}
+                                @endif
+                            @endif
+                        </th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['out']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                    $outTime = new DateTime(reset($time_arrays[$day]['out']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $outTime->format('H:i') }}
+                                @endif
+                            @endif
+                        </th>
                         <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 0 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                     </tr>
@@ -177,12 +197,32 @@
                     </tr>
                 @endfor
                 @for ($day = 16; $day <= 31; $day++)
+                    
                     <tr>
                         <th class="font center" width="15">{{ $day }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['in']) > 0 ? substr(reset($time_arrays[$day]['in']), 0, strrpos(reset($time_arrays[$day]['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 0 ? substr(reset($time_arrays[$day]['out']), 0, strrpos(reset($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['in']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $inTime->format('H:i') }}
+                                @endif
+                            @endif
+                        </th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['out']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                    $outTime = new DateTime(reset($time_arrays[$day]['out']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $outTime->format('H:i') }}
+                                @endif
+                            @endif
+                        </th>
                         <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 0 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                     </tr>
@@ -191,10 +231,29 @@
                 @foreach ($time_arrays as $day => $times)
                     <tr>
                         <th class="font center" width="15">{{ $day }}</th>
-                        <th class="font1 center">{{ count($times['in']) > 0 ? substr(reset($times['in']), 0, strrpos(reset($times['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($times['out']) > 0 ? substr(reset($times['out']), 0, strrpos(reset($times['out']), ':')) : '' }}</th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['in']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $inTime->format('H:i') }}
+                                @endif
+                            @endif
+                        </th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['out']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                    $outTime = new DateTime(reset($time_arrays[$day]['out']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $outTime->format('H:i') }}
+                                @endif
+                            @endif
+                        </th>
                         <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 0 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                     </tr>
@@ -251,15 +310,35 @@
                 </tr>
             </thead>
             <tbody>	
+            @php $morningcutoff = new DateTime('10:30'); @endphp
             @if ($period == 1)
                 {{-- Display days 1-15 --}}
                 @for ($day = 1; $day <= 15; $day++)
                     <tr>
                         <th class="font center" width="15">{{ $day }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['in']) > 0 ? substr(reset($time_arrays[$day]['in']), 0, strrpos(reset($time_arrays[$day]['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 0 ? substr(reset($time_arrays[$day]['out']), 0, strrpos(reset($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['in']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $inTime->format('H:i') }}
+                                @endif
+                            @endif
+                        </th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['out']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                    $outTime = new DateTime(reset($time_arrays[$day]['out']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $outTime->format('H:i') }}
+                                @endif
+                            @endif
+                        </th>
                         <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 0 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                     </tr>
@@ -288,12 +367,32 @@
                     </tr>
                 @endfor
                 @for ($day = 16; $day <= 31; $day++)
+                    
                     <tr>
                         <th class="font center" width="15">{{ $day }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['in']) > 0 ? substr(reset($time_arrays[$day]['in']), 0, strrpos(reset($time_arrays[$day]['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 0 ? substr(reset($time_arrays[$day]['out']), 0, strrpos(reset($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['in']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $inTime->format('H:i') }}
+                                @endif
+                            @endif
+                        </th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['out']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                    $outTime = new DateTime(reset($time_arrays[$day]['out']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $outTime->format('H:i') }}
+                                @endif
+                            @endif
+                        </th>
                         <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 0 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                     </tr>
@@ -302,10 +401,29 @@
                 @foreach ($time_arrays as $day => $times)
                     <tr>
                         <th class="font center" width="15">{{ $day }}</th>
-                        <th class="font1 center">{{ count($times['in']) > 0 ? substr(reset($times['in']), 0, strrpos(reset($times['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($times['out']) > 0 ? substr(reset($times['out']), 0, strrpos(reset($times['out']), ':')) : '' }}</th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['in']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $inTime->format('H:i') }}
+                                @endif
+                            @endif
+                        </th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['out']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                    $outTime = new DateTime(reset($time_arrays[$day]['out']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $outTime->format('H:i') }}
+                                @endif
+                            @endif
+                        </th>
                         <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 0 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                     </tr>
