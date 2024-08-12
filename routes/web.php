@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\NoCacheMiddleware;
 use App\Http\Controllers\LoginAuthController;
 use App\Http\Controllers\MasterController;
 use App\Http\Controllers\EmployeeController;
@@ -13,10 +14,13 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DtrController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\AddressController;
-use App\Http\Controllers\PdsController;
 use App\Http\Controllers\DpipopController;
-use App\Http\Middleware\NoCacheMiddleware;
-
+use App\Http\Controllers\PdsController;
+use App\Http\Controllers\FamilybgController;
+use App\Http\Controllers\EducBgController;
+use App\Http\Controllers\EligibilityController;
+use App\Http\Controllers\WorkExperienceController;
+use App\Http\Controllers\VoluntaryWorkController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -44,7 +48,7 @@ Route::get('/update-pass', [EmployeeController::class, 'updateEmployeePasswords'
 Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], function() {
     // Dashboard
     Route::get('/dashboard', [MasterController::class, 'dashboard'])->name('dashboard');
-
+    
     // Drive
     Route::prefix('spms')->group(function() {
         Route::get('/', [MasterController::class, 'drive'])->name('drive');
@@ -59,7 +63,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/update-file', [DocumentController::class, 'updateFile'])->name('document-update');
         Route::get('/delete-file/{id}', [DocumentController::class, 'deleteFile'])->name('delete-file');
     });
-
+    
     // Drive Account
     Route::get('/account', [DriveAccountController::class, 'driveAccount'])->name('drive-account');
 
@@ -102,17 +106,53 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/add', [EmployeeController::class, 'empAdd'])->name('empAdd');
 
         Route::post('/create', [EmployeeController::class, 'empCreate'])->name('empCreate');
-        Route::get('/pds/{id}', [EmployeeController::class, 'PDS'])->name('PDS');
         Route::post('/update-profile/{id}', [EmployeeController::class, 'updateProfilePicture'])->name('updateProfilePicture');
         Route::post('/update', [EmployeeController::class, 'empUpdate'])->name('empUpdate');
         Route::post('/employee-update', [EmployeeController::class, 'employeeUpdate'])->name('employeeUpdate');
         Route::post('/toggle-accnt-stat', [EmployeeController::class, 'toggleAcctStat'])->name('toggleAcctStat');
         Route::get('/delete/{id}', [EmployeeController::class, 'empDelete'])->name('empDelete');
+        
+    });
+    
+    //pds
+    Route::prefix('pds')->group(function() {
+        Route::get('/', [PdsController::class, 'empPDS'])->name('empPDS');  
+        //personal Info
+        Route::get('personal-info/{id}', [EmployeeController::class, 'PDS'])->name('PDS');   
+
+        //family background
+        Route::get('/family-bg/{id?}', [FamilybgController::class, 'familybg'])->name('familybg');
+        Route::post('/update-child', [FamilyBgController::class, 'updateChild'])->name('update-child');
+        Route::post('/familybg-update', [FamilyBgController::class, 'familyBgUpdate'])->name('familyBgUpdate');
+        Route::post('/familybg-update-array', [FamilyBgController::class, 'familyBgUpdateArray'])->name('familyBgUpdateArray');
+        
+        //Educational Background
+        Route::get('/educ-bg/{id?}', [EducBgController::class, 'educbg'])->name('educbg');
+        Route::post('/educbg-update', [EducBgController::class, 'educBgUpdate'])->name('educBgUpdate');
+
+        //Eligibility
+        Route::get('/eligibility/{id?}', [EligibilityController::class, 'eligibility'])->name('eligibility');
+        Route::post('/eligibility-create', [EligibilityController::class, 'eligibilityCreate'])->name('eligibilityCreate');
+        Route::get('/eligibility-edit/{id?}/{eid}', [EligibilityController::class, 'eligibilityEdit'])->name('eligibilityEdit');
+        Route::post('/eligibility-update/{id}', [EligibilityController::class, 'eligibilityUpdate'])->name('eligibilityUpdate');
+        Route::get('/eligibility-delete/{id}', [EligibilityController::class, 'eliDelete'])->name('eliDelete');
+        Route::post('/eligibility-approve/{id}', [EligibilityController::class, 'eliApprove'])->name('eliApprove');
+
+        //Work-experience
+        Route::get('/work-experience/{id?}', [WorkExperienceController::class, 'workexperience'])->name('work-experience');
+        Route::post('/work-experience-create', [WorkExperienceController::class, 'workexperienceCreate'])->name('workexperienceCreate');
+        Route::get('/work-experience-edit/{id?}/{eid}', [WorkExperienceController::class, 'workexperienceEdit'])->name('workexperienceEdit');
+        Route::post('/work-experience-update/{id}', [WorkExperienceController::class, 'workexperienceUpdate'])->name('workexperienceUpdate');
+        Route::get('/work-experience-delete/{id}', [WorkExperienceController::class, 'workDelete'])->name('workDelete');
+
+        //Voluntary-works
+        Route::get('/voluntary-work/{id?}', [VoluntaryWorkController::class, 'voluntaryworks'])->name('voluntary-work');
+        Route::post('/voluntary-work-create', [VoluntaryWorkController::class, 'voluntaryworksCreate'])->name('voluntaryworksCreate');
+        Route::get('/voluntary-work-edit/{id?}/{eid}', [VoluntaryWorkController::class, 'voluntaryworksEdit'])->name('voluntaryworksEdit');
+        Route::post('/voluntary-work-update/{id}', [VoluntaryWorkController::class, 'voluntaryworksUpdate'])->name('voluntaryworksUpdate');
+        Route::get('/voluntary-work-delete/{id}', [VoluntaryWorkController::class, 'workDelete'])->name('workDelete');
     });
 
-    Route::prefix('pds')->group(function() {
-        Route::get('/', [PdsController::class, 'empPDS'])->name('empPDS');
-    });
     // Modify
     Route::prefix('modify')->group(function() {
         Route::post('/show', [ModifyController::class, 'modifyShow'])->name('modifyShow');

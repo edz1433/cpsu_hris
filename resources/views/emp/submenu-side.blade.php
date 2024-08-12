@@ -1,0 +1,146 @@
+<div class="col-lg-3">
+    <div class="card card-info card-outline">
+        <div class="card-body box-profile">
+            <div class="text-center position-relative">
+                <div class="profile-image-container">
+                    <img src="{{ asset('Profile/Employee/'.$employee->profile) }}" alt="User Image" class="profile-user-img img-fluid" id="changeProfilePicture">
+                </div>
+                <input type="file" id="profilePictureInput" style="display: none;" accept="image/*">
+            </div>
+    
+            <h3 class="profile-username text-center">{{ ucwords(strtolower($employee->fname)) }} {{ ucwords(strtolower($employee->lname)) }}</h3>
+            <p class="text-muted text-center">{{ $employee->position }}</p>
+    
+            <ul class="list-group list-group-unbordered custom-gap">
+                @php
+                    $hireDate = $employee->date_hired;
+                    $currentDate = date('Y-m-d'); 
+
+                    $startDate = new DateTime($hireDate);
+                    $endDate = new DateTime($currentDate);
+
+                    $interval = $startDate->diff($endDate);
+
+                    $years = $interval->y;
+                    $months = $interval->m;
+                @endphp
+                <li class="list-group-item">
+                    <b>Employee ID. :</b> <span class="float-right text-muted">{{ $employee->emp_ID }}</span>
+                </li>
+                <li class="list-group-item">
+                    <b>Item No. :</b> <span class="float-right text-muted">{{ $employee->item_no }}</span>
+                </li>
+                <li class="list-group-item">
+                    <b>Service :</b> <span class="float-right text-muted">{{ $years.' years' .' '. $months. ' months' }}</span>
+                </li>
+            </ul>
+            @if($employee->stat_1 == 1)
+            <a href="#" class="btn btn-success btn-sm btn-block mt-2"><b>Active</b></a>
+            @else
+            <a href="#" class="btn btn-danger btn-sm btn-block mt-2"><b>Suspended</b></a>
+            @endif
+        </div>
+        <!-- /.card-body -->
+    </div>
+
+    <div class="card card-info">
+        <div class="card-header" style="padding: 6px !important;">
+            <i class="fas fa-id-card"></i><b> PERSONAL DATA SHEET</b>
+        </div>
+        <div class="card-footer p-0">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a href="{{ ($guard == "web") ? route('PDS', $employee->id) : route('empPDS') }}" class="nav-link">
+                        <i class="{{ request()->is('pds/personal-info/*') ||  request()->is('pds') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-user" style="width: 20px;"></i> 
+                        <span class="{{ request()->is('pds/personal-info/*') || request()->is('pds') ? 'text-dark' : 'text-muted' }} text-bold">Personal Information</span> 
+                        <i class="float-right fas fa-check-circle text-success pt-1"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ ($guard == "web") ? route('familybg', $employee->id) : route('familybg') }}" class="nav-link">
+                        <i class="{{ request()->is('pds/family-bg') || request()->is('pds/family-bg/*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-users" style="width: 20px;"></i>
+                        <span class="{{ request()->is('pds/family-bg') || request()->is('pds/family-bg/*') ? 'text-dark' : 'text-muted' }} text-bold">Family Background</span>
+                        <i class="float-right fas {{ (isset($columnstatus) && ($columnstatus['colfamstat'] == 1)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
+                    </a>
+                </li>                        
+                <li class="nav-item">
+                    <a href="{{ ($guard == "web") ? route('educbg', $employee->id) : route('educbg') }}" class="nav-link">
+                        <i class="{{ request()->is('pds/educ-bg') || request()->is('pds/educ-bg/*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-graduation-cap" style="width: 20px;"></i>
+                        <span class="{{ request()->is('pds/educ-bg') || request()->is('pds/educ-bg/*') ? 'text-dark' : 'text-muted' }} text-bold">Educational Background</span>
+                        <i class="float-right fas {{ (isset($columnstatus) && ($columnstatus['coleducstat'] == 1)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ ($guard == "web") ? route('eligibility', $employee->id) : route('eligibility') }}" class="nav-link">
+                        <i class="{{ request()->is('pds/eligibility') || request()->is('pds/eligibility/*') || isset($eligibilityedit) ? 'text-dark' : 'text-muted' }} pr-2 fas fa-graduation-cap" style="width: 20px;"></i>
+                        <span class="{{ request()->is('pds/eligibility') || request()->is('pds/eligibility/*') || isset($eligibilityedit) ? 'text-dark' : 'text-muted' }} text-bold">Eligibility</span>
+                        <i class="float-right fas {{ (isset($columnstatus['eligibility']) && (count($columnstatus['eligibility']) > 0)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ ($guard == "web") ? route('work-experience', $employee->id) : route('work-experience') }}" class="nav-link">
+                        <i class="{{ request()->is('pds/work-experience') || request()->is('pds/work-experience/*') || isset($workexperienceedit) ? 'text-dark' : 'text-muted' }} pr-2 fas fa-graduation-cap" style="width: 20px;"></i>
+                        <span class="{{ request()->is('pds/work-experience') || request()->is('pds/work-experience/*') || isset($workexperienceedit) ? 'text-dark' : 'text-muted' }} text-bold">Work Experience</span>
+                        <i class="float-right fas {{ (isset($columnstatus['workexperience']) && (count($columnstatus['workexperience']) > 0)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ ($guard == "web") ? route('voluntary-work', $employee->id) : route('voluntary-work') }}" class="nav-link">
+                        <i class="{{ request()->is('pds/voluntary-work') || request()->is('pds/voluntary-work/*') || isset($voluntaryworksceedit) ? 'text-dark' : 'text-muted' }} pr-2 fas fa-graduation-cap" style="width: 20px;"></i>
+                        <span class="{{ request()->is('pds/voluntary-work') || request()->is('pds/voluntary-work/*') || isset($voluntaryworksceedit) ? 'text-dark' : 'text-muted' }} text-bold">Voluntary Work</span>
+                        <i class="float-right fas {{ (isset($columnstatus['voluntaryworks']) && (count($columnstatus['voluntaryworks']) > 0)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
+                    </a>
+                </li> 
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="text-muted pr-2 fas fa-chalkboard-teacher" style="width: 20px;"></i>
+                        <span class="text-muted text-bold">Learning and Development</span>
+                        <i class="float-right fas fa-times-circle text-muted pt-1"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="text-muted pr-2 fas fa-info-circle" style="width: 20px;"></i>
+                        <span class="text-muted text-bold">Other Information</span>
+                        <i class="float-right fas fa-times-circle text-muted pt-1"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="text-muted pr-2 fas fa-question-circle" style="width: 20px;"></i>
+                        <span class="text-muted text-bold">Other Information Questions</span>
+                        <i class="float-right fas fa-times-circle text-muted pt-1"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="text-muted pr-2 fas fa-address-book" style="width: 20px;"></i>
+                        <span class="text-muted text-bold">References</span>
+                        <i class="float-right fas fa-times-circle text-muted pt-1"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="text-muted pr-2 fas fa-id-card" style="width: 20px;"></i>
+                        <span class="text-muted text-bold">Government Issued ID</span>
+                        <i class="float-right fas fa-times-circle text-muted pt-1"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="text-muted pr-2 fas fa-coins" style="width: 20px;"></i>
+                        <span class="text-muted text-bold">Income And Deductions</span>
+                        <i class="float-right fas fa-times-circle text-muted pt-1"></i>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="text-muted pr-2 fas fa-eye" style="width: 20px;"></i>
+                        <span class="text-muted text-bold">Preview Personal Data Sheet</span>
+                        <i class="float-right fas fa-times-circle text-muted pt-1"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

@@ -15,7 +15,7 @@ class DocumentController extends Controller
         $request->validate([
             'file' => 'required|mimes:pdf|max:3072',
         ]);
-    
+        
         if (\Auth::guard('web')->check()) {
             $user_id = auth()->guard('web')->user()->id;
         } elseif (\Auth::guard('employee')->check()) {

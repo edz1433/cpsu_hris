@@ -25,8 +25,8 @@ class LoginAuth
                 }
             }
         } elseif (auth()->guard('employee')->check()) {
-            if ($request->is('users') || $request->is('users/*') || $request->is('dashboard') || $request->is('dashboard/*') || $request->is('office') || $request->is('office/*') || $request->is('employees')) {
-                return redirect()->route('drive')->with('error', 'You do not have permission to access this page');
+            if ($request->is('users') || $request->is('users/*') || $request->is('dashboard') || $request->is('dashboard/*') || $request->is('office') || $request->is('office/*') || $request->is('employees') || $request->is('pds/family-bg/*')) {
+                return redirect()->route('empPDS')->with('error', 'You do not have permission to access this page');
             }
         }else {
             return redirect()->route('getLogin')->with('error', 'You have to sign in first to access this page');

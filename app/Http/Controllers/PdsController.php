@@ -15,7 +15,12 @@ use App\Models\Employee;
 use App\Models\Status;
 use App\Models\Campus;
 use App\Models\Office;
+use App\Models\FamilyBg;
+use App\Models\EducBg;
 use App\Models\Qualification;
+use App\Models\Eligibility;
+use App\Models\WorkExperience;
+use App\Models\VoluntaryWork;
 use Illuminate\Support\Facades\Hash;
 
 class PdsController extends Controller
@@ -29,10 +34,29 @@ class PdsController extends Controller
         }
     }
 
+    public function columnStat($empid){
+        $familyBg = FamilyBg::where('empid', $empid)->first();
+        $educBg = EducBg::where('empid', $empid)->first();
+        $eligibility = Eligibility::where('empid', $empid)->get();
+        $workexperience = WorkExperience::where('empid', $empid)->get();
+        $voluntaryworks = VoluntaryWork::where('empid', $empid)->get();
+        $columnstatus = [
+            'colfamstat' => $familyBg->famhasAnyValue(),
+            'coleducstat' => $educBg->educhasAnyValue(),
+            'eligibility' => $eligibility,
+            'workexperience' => $workexperience,
+            'voluntaryworks' => $voluntaryworks,
+        ];
+        
+        return $columnstatus;
+    }
+
     public function empPDS(){
         $guard = $this->getGuard();
         $empid = auth()->guard($guard)->user()->id; 
         $employee = Employee::find($empid);
+
+        $columnstatus = $this->columnStat($employee->emp_ID);
         
         $hprovinces = Province::where('region_id', $employee->add_region)->get();
         $hcities = City::where('city_id', $employee->add_city)->get();
@@ -51,6 +75,6 @@ class PdsController extends Controller
         $quali = Qualification::all();
         $camp = Campus::where('id', auth()->guard($guard)->user()->camp_id)->get();
 
-        return view("emp.pds", compact('employee', 'guard', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid'));
+        return view("emp.pds", compact('employee', 'guard', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid', 'columnstatus'));
     }
 }

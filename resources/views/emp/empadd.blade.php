@@ -140,7 +140,7 @@
                                         <option>Married</option>
                                         <option>Separated</option>
                                         <option>Divorce</option>
-                                        <option>Widow</option>
+                                        <option>Widowed</option>
                                     </select>
                                 </div>
 

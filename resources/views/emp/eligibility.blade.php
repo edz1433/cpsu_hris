@@ -1,0 +1,221 @@
+@extends('layouts.master')
+
+@section('body')
+@include('emp.style')
+<style>
+    th,td{
+        padding: 3px !important;
+    }
+    .modal-body img {
+        max-width: 100%; 
+        height: auto; 
+        max-height: 80vh; 
+    }
+    .scrollable {
+        height: 600px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        padding: 10px;
+    }
+</style>
+<section class="content">
+<div class="container-fluid">
+    <div class="row">
+        @include('emp.submenu-side')
+        <div class="col-lg-9">
+            <div class="card card-info card-outline">
+                <div class="card-header">
+                    <h2 class="card-title text-success1">
+                        <b>ELIGIBILITY</b>
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div id="accordion">
+                        <div class="card card-muted">
+                          <div class="card-header">
+                            <h4 class="card-title w-100">
+                              <a class="d-block w-100 collapsed text-success1" data-toggle="collapse" href="#collapseOne" aria-expanded="false">
+                                <b>FORM</b> 
+                              </a>
+                            </h4>
+                          </div>
+                          <div id="collapseOne" class="collapse  {{ (count($eligibility) > 0) ? '' : 'show' }} {{ isset($eligibilityedit) ? 'show' : '' }}" data-parent="#accordion" style="">
+                            <div class="card-body bg-form">
+                                <form class="form-horizontal" action="{{ isset($eligibilityedit) ? route('eligibilityUpdate', $eligibilityedit->id) : route('eligibilityCreate') }}" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                    @if(isset($eligibilityedit))
+                                        <input type="hidden" name="id" value="{{ $eligibilityedit->id }}">
+                                    @endif
+                                    <input type="hidden" name="empid" value="{{ $employee->emp_ID }}">
+                                    
+                                    <div class="form-row lbel mtop">
+                                        <div class="col-md-6">
+                                            <label class="badge badge-secondary text-wrap text-center lbel">CAREER SERVICE/ RA 1080 (BOARD/ BAR) UNDER SPECIAL LAWS/ CES/ CSEE BARANGAY ELI.</label>
+                                            <input type="text" name="career_eligible" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($eligibilityedit) ? $eligibilityedit->career_eligible : '' }}" autocomplete="off">
+                                        </div>
+                                        
+                                        <div class="col-md-3">
+                                            <label class="badge badge-secondary text-wrap lbel">RATING (If Applicable)</label>
+                                            <input type="number" name="rating" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($eligibilityedit) ? $eligibilityedit->rating : '' }}" autocomplete="off">
+                                        </div>
+                                        
+                                        <div class="col-md-3">
+                                            <label class="badge badge-secondary text-wrap lbel">Date of Examination / Conferment</label>
+                                            <input type="date" name="date_exam" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($eligibilityedit) ? $eligibilityedit->date_exam : '' }}" autocomplete="off">
+                                        </div>
+                                
+                                        <div class="col-md-6">
+                                            <label class="badge badge-secondary text-wrap lbel">Place of Examination / Conferment</label>
+                                            <input type="text" name="place_exam" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($eligibilityedit) ? $eligibilityedit->place_exam : '' }}" autocomplete="off">
+                                        </div>
+                                
+                                        <div class="col-md-2">
+                                            <label class="badge badge-secondary text-wrap lbel">Number</label>
+                                            <input type="number" name="number" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($eligibilityedit) ? $eligibilityedit->number : '' }}" autocomplete="off">
+                                        </div>
+                                
+                                        <div class="col-md-2">
+                                            <label class="badge badge-secondary text-wrap lbel">Date of Validity</label>
+                                            <input type="date" name="date_valid" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($eligibilityedit) ? $eligibilityedit->date_valid : '' }}" oninput="validateDateRange(this)" autocomplete="off">
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <label class="badge badge-secondary text-wrap lbel">Attachment</label>
+                                            <input type="file" name="attachment" class="form-control form-control-sm" placeholder="N/A" {{ isset($eligibilityedit) ? '' : 'required' }}>
+                                        </div>
+                                        
+                                        <div class="col-md-12 mt-2">
+                                            <button type="submit" name="btn-submit" class="btn btn-success btn-sm mt-1 float-right">
+                                                <i class="fas fa-save"></i> {{ isset($eligibilityedit) ? 'Update' : 'Submit' }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>                                
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                    <div class="scrollable">                    
+                        <table class="table table-bordered table-hover mt-2" id="example1">
+                            <div class="card-header">
+                                <h3 class="card-title"></h3>
+                                <div class="card-tools">
+                                    <div class="input-group input-group-sm" style="width: 150px;">
+                                        <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
+                                        <div class="input-group-append">
+                                            <button type="submit" class="btn btn-default">
+                                            <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>    
+                                </div>
+                            </div>
+                            @foreach($eligibility as $eli)
+                            <tbody>
+                                <tr class="eligibility-row row-{{ $eli->id }}">
+                                    <th class="align-middle" width="50%">CAREER SERVICE/ RA 1080 (BOARD/ BAR) UNDER SPECIAL LAWS/ CES/ CSEE BARANGAY ELIGIBILITY / DRIVER'S LICENSE</th>
+                                    <td class="align-middle">{{ $eli->career_eligible }}</td>
+                                    <th class="text-center align-middle" rowspan="9" width="5%">
+                                        @if($guard == "web")
+                                            <a href="{{ route('eligibilityEdit', ['id' => $empid, 'eid' => $eli->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                            <button class="btn btn-danger btn-sm mb-2 eligible_delete" value="{{ $eli->id }}" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <button class="btn btn-success btn-sm eligible_approve" value="{{ $eli->id }}" title="Approve">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        @elseif($guard == "employee" && $eli->status == 0)
+                                            <a href="{{ route('eligibilityEdit', ['id' => $empid, 'eid' => $eli->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                            <button class="btn btn-danger btn-sm mb-2 eligible_delete" value="{{ $eli->id }}" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        @endif
+                                    </th>                                                                                                                            
+                                </tr>
+                                <tr class="eligibility-row row-{{ $eli->id }}">
+                                    <th class="align-middle">RATING (If Applicable)</th> 
+                                    <td class="align-middle">{{ $eli->rating }}</td>
+                                </tr>
+                                <tr class="eligibility-row row-{{ $eli->id }}">
+                                    <th class="align-middle">Date of Examiniation / Conferment</th>
+                                    <td class="align-middle">{{ $eli->date_exam }}</td> 
+                                </tr>
+                                <tr class="eligibility-row row-{{ $eli->id }}">
+                                    <th class="align-middle">Place of Examinination / Conferment</th>
+                                    <td class="align-middle">{{ $eli->place_exam }}</td>
+                                </tr>
+                                <tr class="eligibility-row row-{{ $eli->id }}">
+                                    <th class="align-middle">Number</th>
+                                    <td class="align-middle">{{ $eli->number }}</td>
+                                </tr>
+                                <tr class="eligibility-row row-{{ $eli->id }}">
+                                    <th class="align-middle">Date of Validity</th>
+                                    <td class="align-middle">{{ $eli->date_valid }}</td>
+                                </tr>
+                                <tr class="eligibility-row row-{{ $eli->id }}">
+                                    <th class="align-middle">Attachment</th>
+                                    <td class="align-middle">
+                                        <a href="#" class="text-info" data-toggle="modal" data-target="#imageModal" data-label="{{ $eli->career_eligible }}" data-image="{{ asset('storage/' . $eli->attachment) }}">
+                                            <i class="fas fa-eye fa-xs"></i> <b>Preview</b>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr class="eligibility-row row-{{ $eli->id }}">
+                                    <th class="align-middle">Status</th>
+                                    <td class="align-middle">
+                                        @if ($eli->status == 0)
+                                            <span class="badge badge-warning" id="status-{{ $eli->id }}">To be Reviewed</span>
+                                        @else
+                                            <span class="badge badge-success">Approved</span>
+                                        @endif
+                                    </td>                                
+                                </tr>
+                                <tr class="eligibility-row row-{{ $eli->id }}">
+                                    <td colspan="3"></td>
+                                </tr>
+                            </tbody>
+                            @endforeach
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+<!-- Image Preview Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="#" alt="Image Preview" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.querySelectorAll('[data-toggle="modal"]').forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            const imagePath = this.getAttribute('data-image');
+            const modalImage = document.getElementById('modalImage');
+
+            const labelText = this.getAttribute('data-label');
+            const modalLabel = document.getElementById('imageModalLabel');
+
+            modalLabel.innerText = labelText;
+            modalImage.src = imagePath;
+        });
+    });
+</script>
+@endsection

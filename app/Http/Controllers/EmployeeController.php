@@ -17,6 +17,11 @@ use App\Models\Status;
 use App\Models\Campus;
 use App\Models\Office;
 use App\Models\Qualification;
+use App\Models\FamilyBg;
+use App\Models\EducBg;
+use App\Models\Eligibility;
+use App\Models\WorkExperience;
+use App\Models\VoluntaryWork;
 use Illuminate\Support\Facades\Hash;
 
 class EmployeeController extends Controller
@@ -28,6 +33,23 @@ class EmployeeController extends Controller
         } elseif(\Auth::guard('employee')->check()) {
             return 'employee';
         }
+    }    
+    
+    public function columnStat($empid){
+        $familyBg = FamilyBg::where('empid', $empid)->first();
+        $educBg = EducBg::where('empid', $empid)->first();
+        $eligibility = Eligibility::where('empid', $empid)->get();
+        $workexperience = WorkExperience::where('empid', $empid)->get();
+        $voluntaryworks = VoluntaryWork::where('empid', $empid)->get();
+        $columnstatus = [
+            'colfamstat' => $familyBg->famhasAnyValue(),
+            'coleducstat' => $educBg->educhasAnyValue(),
+            'eligibility' => $eligibility,
+            'workexperience' => $workexperience,
+            'voluntaryworks' => $voluntaryworks,
+        ];
+        
+        return $columnstatus;
     }
 
     public function emp_list()
@@ -226,30 +248,30 @@ class EmployeeController extends Controller
     }
 
     public function employeeUpdate(Request $request){
-        $patient = Employee::findOrFail($request->id);
+        $employee = Employee::findOrFail($request->id);
         $column = $request->column;
         if ($column == 'bdate') {
             $bdate = Carbon::parse($request->value);
             $age = $bdate->age;
-            $patient->update([
+            $employee->update([
                 $column => $request->value,
                 'age' => $age
             ]);
         } else {
-            $patient->update([
+            $employee->update([
                 $column => $request->value
             ]);
         }
 
         return response()->json(['success' => true]);
     }
-    
 
     public function PDS($id){
         $guard = $this->getGuard();
         $empid = $id; 
         $employee = Employee::find($empid);
-        
+        $columnstatus = $this->columnStat($employee->emp_ID);
+
         $hprovinces = Province::where('region_id', $employee->add_region)->get();
         $hcities = City::where('city_id', $employee->add_city)->get();
         $hbarangays = Barangay::find($employee->add_brgy);
@@ -267,7 +289,7 @@ class EmployeeController extends Controller
         $quali = Qualification::all();
         $camp = (auth()->user()->campus_id == 1) ? Campus::all() : Campus::where('id', auth()->user()->campus_id)->get();
 
-        return view("emp.pds", compact('employee', 'guard', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid'));
+        return view("emp.pds", compact('employee', 'guard', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid', 'columnstatus'));
     }
 
     public function empEdit($id)
@@ -330,7 +352,6 @@ class EmployeeController extends Controller
     
         return response()->json(['success' => true, 'message' => 'User role updated successfully.']);
     }    
-
 
     public function updateEmployeePasswords()
     {

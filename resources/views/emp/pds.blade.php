@@ -1,193 +1,11 @@
 @extends('layouts.master')
 
 @section('body')
-<style>
-    .custom-gap .list-group-item {
-        margin: 0px; /* Adjust the value to your preference */
-        padding: 2px;
-    }
-    .profile-image-container {
-        width: 100px !important; /* Adjust as needed */
-        height: 100px !important; /* Adjust as needed */
-        border-radius: 50% !important;
-        overflow: hidden !important;
-        display: inline-block !important;
-        position: relative !;
-    }
-
-    .profile-image-container img {
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: cover !important;
-        border-radius: 50% !important;
-    }
-
-    .mtop {
-        margin-top: -15px;
-    }
-    .bg-form{
-        background-color:  #e9ecef;
-    }
-    .form-control:disabled, .form-control[readonly] {
-        background-color: #ffffff;
-        opacity: 1;
-    }
-    .form-control-sm {
-        height: calc(1.5125rem + 2px);
-        padding: .15rem .5rem;
-        font-size: .750rem;
-        line-height: 1.5;
-        border-radius: .2rem;
-        background-color: #ffffff !important;
-    }
-    .btn-sm{
-        font-size: 10px !important;
-        height: 25px !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-    }
-    .select2-container--default.select2-container--disabled .select2-selection--single {
-        background-color: #ffffff;
-        cursor: default;
-    }
-</style>
+@include('emp.style')
 <section class="content">
 <div class="container-fluid">
     <div class="row">
-        <div class="col-lg-3">
-            <div class="card card-info card-outline">
-                <div class="card-body box-profile">
-                    <div class="text-center position-relative">
-                        <div class="profile-image-container">
-                            <img src="{{ asset('Profile/Employee/'.$employee->profile) }}" alt="User Image" class="profile-user-img img-fluid" id="changeProfilePicture">
-                        </div>
-                        <input type="file" id="profilePictureInput" style="display: none;" accept="image/*">
-                    </div>
-            
-                    <h3 class="profile-username text-center">{{ ucwords(strtolower($employee->fname)) }} {{ ucwords(strtolower($employee->lname)) }}</h3>
-                    <p class="text-muted text-center">{{ $employee->position }}</p>
-            
-                    <ul class="list-group list-group-unbordered custom-gap">
-                        @php
-                            $hireDate = $employee->date_hired;
-                            $currentDate = date('Y-m-d'); 
-
-                            $startDate = new DateTime($hireDate);
-                            $endDate = new DateTime($currentDate);
-
-                            $interval = $startDate->diff($endDate);
-
-                            $years = $interval->y;
-                            $months = $interval->m;
-                        @endphp
-                        <li class="list-group-item">
-                            <b>Employee ID. :</b> <span class="float-right text-muted">{{ $employee->emp_ID }}</span>
-                        </li>
-                        <li class="list-group-item">
-                            <b>Item No. :</b> <span class="float-right text-muted">{{ $employee->item_no }}</span>
-                        </li>
-                        <li class="list-group-item">
-                            <b>Service :</b> <span class="float-right text-muted">{{ $years.' years' .' '. $months. ' months' }}</span>
-                        </li>
-                    </ul>
-                    @if($employee->stat_1 == 1)
-                    <a href="#" class="btn btn-success btn-sm btn-block mt-2"><b>Active</b></a>
-                    @else
-                    <a href="#" class="btn btn-danger btn-sm btn-block mt-2"><b>Suspended</b></a>
-                    @endif
-                </div>
-                <!-- /.card-body -->
-            </div>
-
-            <div class="card card-info">
-                <div class="card-header" style="padding: 6px !important;">
-                    <i class="fas fa-id-card"></i><b> PERSONAL DATA SHEET</b>
-                </div>
-                <div class="card-footer p-0">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a href="{{ route('empPDS') }}" class="nav-link">
-                                <i class="text-dark pr-2 fas fa-user"></i> <span class="text-dark text-bold">Personal Information</span> 
-                                <i class="float-right fas fa-check-circle text-success pt-1"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="text-muted pr-2 fas fa-users"></i>
-                                <span class="text-muted text-bold">Family Background</span>
-                                <i class="float-right fas fa-times-circle text-muted pt-1"></i>
-                            </a>
-                        </li>                        
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="text-muted pr-2 fas fa-graduation-cap"></i> <span class="text-muted text-bold">Educational Background</span>
-                                <i class="float-right fas fa-times-circle text-muted pt-1"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="text-muted pr-2 fas fa-award"></i> <span class="text-muted text-bold">Eligibility</span>
-                                <i class="float-right fas fa-times-circle text-muted pt-1"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="text-muted pr-2 fas fa-briefcase"></i> <span class="text-muted text-bold">Work Experience</span>
-                                <i class="float-right fas fa-times-circle text-muted pt-1"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="text-muted pr-2 fas fa-hands-helping"></i> <span class="text-muted text-bold">Voluntary Work</span>
-                                <i class="float-right fas fa-times-circle text-muted pt-1"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="text-muted pr-2 fas fa-chalkboard-teacher"></i> <span class="text-muted text-bold">Learning and Development</span>
-                                <i class="float-right fas fa-times-circle text-muted pt-1"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="text-muted pr-2 fas fa-info-circle"></i> <span class="text-muted text-bold">Other Information</span>
-                                <i class="float-right fas fa-times-circle text-muted pt-1"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="text-muted pr-2 fas fa-question-circle"></i> <span class="text-muted text-bold">Other Information Questions</span>
-                                <i class="float-right fas fa-times-circle text-muted pt-1"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="text-muted pr-2 fas fa-address-book"></i> <span class="text-muted text-bold">References</span>
-                                <i class="float-right fas fa-times-circle text-muted pt-1"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="text-muted pr-2 fas fa-id-card"></i> <span class="text-muted text-bold">Government Issued ID</span>
-                                <i class="float-right fas fa-times-circle text-muted pt-1"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="text-muted pr-2 fas fa-coins"></i> <span class="text-muted text-bold">Income And Deductions</span>
-                                <i class="float-right fas fa-times-circle text-muted pt-1"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="text-muted pr-2 fas fa-eye"></i> <span class="text-muted text-bold">Preview Personal Data Sheet</span>
-                                <i class="float-right fas fa-times-circle text-muted pt-1"></i>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+        @include('emp.submenu-side')
         <div class="col-lg-9">
             <div class="card card-info card-outline">
                 <div class="card-header">
@@ -236,7 +54,6 @@
                                         <option value="" data-column-id="{{ $empid }}" data-column-name="suffix" @if($employee->suffix == "") selected @endif>N/A</option>
                                     </select>
                                 </div>
-                                
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Prefix</label><br>
                                     <select class="form-control form-control-sm update-field" name="prefix" required>
@@ -286,7 +103,7 @@
                                         <option value="Married" data-column-id="{{ $empid }}" data-column-name="civil_status" @if($employee->civil_status == "Married") selected @endif>Married</option>
                                         <option value="Separated" data-column-id="{{ $empid }}" data-column-name="civil_status" @if($employee->civil_status == "Separated") selected @endif>Separated</option>
                                         <option value="Divorce" data-column-id="{{ $empid }}" data-column-name="civil_status" @if($employee->civil_status == "Divorce") selected @endif>Divorce</option>
-                                        <option value="Widow" data-column-id="{{ $empid }}" data-column-name="civil_status" @if($employee->civil_status == "Widow") selected @endif>Widow</option>
+                                        <option value="Widowed" data-column-id="{{ $empid }}" data-column-name="civil_status" @if($employee->civil_status == "Widowed") selected @endif>Widowed</option>
                                         <option value="" data-column-id="{{ $empid }}" data-column-name="civil_status" @if($employee->civil_status == "") selected @endif>N/A</option>
                                     </select>
                                 </div>                                
@@ -453,9 +270,14 @@
                                     <label class="badge badge-secondary">Barangay:</label>
                                     <select id="barangay" name="add_brgy" class="form-control select2 form-control-sm update-field" style="width: 100%;">
                                         <option disabled selected>Select</option>
-                                        <option value="{{ (isset($employee->add_brgy)) ? $employee->add_brgy : '' }}" data-column-id="{{ $empid }}" data-column-name="add_brgy" selected>{{ (isset($employee->add_brgy)) ? $hbarangays->name : '' }}</option>
+                                        <option value="{{ (isset($employee->add_brgy)) ? $employee->add_brgy : '' }}" 
+                                                data-column-id="{{ $empid }}" 
+                                                data-column-name="add_brgy" 
+                                                selected>
+                                            {{ (isset($employee->add_brgy) && $hbarangays) ? $hbarangays->name : 'N/A' }}
+                                        </option>
                                     </select>
-                                </div>
+                                </div>                                
 
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">House/Block/Lot No.</label><br>
@@ -520,9 +342,14 @@
                                     <label class="badge badge-secondary">Barangay:</label>
                                     <select id="barangay1" name="padd_brgy" class="form-control select2 form-control-sm update-field" style="width: 100%;">
                                         <option disabled selected>Select</option>
-                                        <option value="{{ (isset($employee->padd_brgy)) ? $employee->padd_brgy : '' }}" data-column-id="{{ $empid }}" data-column-name="padd_brgy" selected>{{ (isset($employee->padd_brgy)) ? $hbarangays->name : '' }}</option>
+                                        <option value="{{ (isset($employee->padd_brgy)) ? $employee->padd_brgy : '' }}" 
+                                                data-column-id="{{ $empid }}" 
+                                                data-column-name="padd_brgy" 
+                                                selected>
+                                            {{ (isset($employee->padd_brgy) && $hbarangays) ? $hbarangays->name : 'N/A' }}
+                                        </option>
                                     </select>
-                                </div>
+                                </div>                                
 
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">House/Block/Lot No.</label><br>
@@ -541,16 +368,7 @@
                                     <input type="number" name="padd_zcode" id="padd_zcode" value="{{ $employee->padd_zcode }}" data-column-id="{{ $empid }}" data-column-name="padd_zcode" class="form-control form-control-sm update-field" placeholder="N/A">
                                 </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="form-row float-right">
-                                <div class="col-md-12">
-                                    <button type="submit" name="btn-submit" class="btn btn-success">
-                                        <i class="fas fa-save"></i> Save
-                                    </button>
-                                </div>
-                            </div>
-                        </div>   
+                        </div>  
                     </form>
                 </div>
             </div>
