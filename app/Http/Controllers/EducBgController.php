@@ -12,6 +12,11 @@ use App\Models\EducBg;
 use App\Models\Eligibility;
 use App\Models\WorkExperience;
 use App\Models\VoluntaryWork;
+use App\Models\LearningDev;
+use App\Models\OtherInfo;
+use App\Models\InfoQuestion;
+use App\Models\PdsReference;
+use App\Models\GovId;
 
 class EducBgController extends Controller
 {
@@ -30,14 +35,25 @@ class EducBgController extends Controller
         $eligibility = Eligibility::where('empid', $empid)->get();
         $workexperience = WorkExperience::where('empid', $empid)->get();
         $voluntaryworks = VoluntaryWork::where('empid', $empid)->get();
+        $learningdev = LearningDev::where('empid', $empid)->get();
+        $otherinfo = OtherInfo::where('empid', $empid)->first();
+        $infoquestion = InfoQuestion::where('empid', $empid)->first();
+        $references = PdsReference::where('empid', $empid)->first();
+        $govids= GovId::where('empid', $empid)->first();
+        
         $columnstatus = [
             'colfamstat' => $familyBg->famhasAnyValue(),
             'coleducstat' => $educBg->educhasAnyValue(),
             'eligibility' => $eligibility,
             'workexperience' => $workexperience,
             'voluntaryworks' => $voluntaryworks,
+            'learningdev' => $learningdev,
+            'colotherinfo' => $otherinfo->otherinfoAnyValue(),
+            'colinfoquestion' => $infoquestion->infoquestionValue(),
+            'colreferences' => $references->referencesValue(),
+            'colgovids' => $govids->govidsValue(),
         ];
-        
+
         return $columnstatus;
     }
 

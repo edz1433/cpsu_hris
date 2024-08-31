@@ -1,11 +1,11 @@
 <style>
     .custom-gap .list-group-item {
-        margin: 0px; /* Adjust the value to your preference */
+        margin: 0px;
         padding: 2px;
     }
     .profile-image-container {
-        width: 100px !important; /* Adjust as needed */
-        height: 100px !important; /* Adjust as needed */
+        width: 100px !important;
+        height: 100px !important;
         border-radius: 50% !important;
         overflow: hidden !important;
         display: inline-block !important;
@@ -46,5 +46,28 @@
     .select2-container--default.select2-container--disabled .select2-selection--single {
         background-color: #ffffff;
         cursor: default;
+    }
+    .input-details {
+        border: none;
+        border-bottom: 1px solid #8f7f7f;
+        padding: 0;
+        outline: none;
+        box-shadow: none;
+        width: 260px;
+    }
+    .c-radio{
+        width: 20px; 
+        height: 20px; 
+        padding-top: 2px;
+        width: 20px; 
+        height: 20px; 
+        padding-top: 2px;
+    }
+    .c-label{
+        border-radius: 3px; 
+        padding: 2px; 
+        width: 90px; 
+        display: inline-block; 
+        background-color: #FFFF;
     }
 </style>

@@ -40,11 +40,13 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-        'employee' => [
+
+        'employee' => [ // Add this section
             'driver' => 'session',
             'provider' => 'employees',
         ],
     ],
+
     /*
     |--------------------------------------------------------------------------
     | User Providers
@@ -61,6 +63,7 @@ return [
     | Supported: "database", "eloquent"
     |
     */
+
     'providers' => [
         'users' => [
             'driver' => 'eloquent',

@@ -12,6 +12,11 @@ use App\Models\EducBg;
 use App\Models\Eligibility;
 use App\Models\WorkExperience;
 use App\Models\VoluntaryWork;
+use App\Models\LearningDev;
+use App\Models\OtherInfo;
+use App\Models\InfoQuestion;
+use App\Models\PdsReference;
+use App\Models\GovId;
 
 class WorkExperienceController extends Controller
 {
@@ -23,24 +28,35 @@ class WorkExperienceController extends Controller
             return 'employee';
         }
     }
-
+    
     public function columnStat($empid){
         $familyBg = FamilyBg::where('empid', $empid)->first();
         $educBg = EducBg::where('empid', $empid)->first();
         $eligibility = Eligibility::where('empid', $empid)->get();
         $workexperience = WorkExperience::where('empid', $empid)->get();
         $voluntaryworks = VoluntaryWork::where('empid', $empid)->get();
+        $learningdev = LearningDev::where('empid', $empid)->get();
+        $otherinfo = OtherInfo::where('empid', $empid)->first();
+        $infoquestion = InfoQuestion::where('empid', $empid)->first();
+        $references = PdsReference::where('empid', $empid)->first();
+        $govids= GovId::where('empid', $empid)->first();
+        
         $columnstatus = [
             'colfamstat' => $familyBg->famhasAnyValue(),
             'coleducstat' => $educBg->educhasAnyValue(),
             'eligibility' => $eligibility,
             'workexperience' => $workexperience,
             'voluntaryworks' => $voluntaryworks,
+            'learningdev' => $learningdev,
+            'colotherinfo' => $otherinfo->otherinfoAnyValue(),
+            'colinfoquestion' => $infoquestion->infoquestionValue(),
+            'colreferences' => $references->referencesValue(),
+            'colgovids' => $govids->govidsValue(),
         ];
-        
+
         return $columnstatus;
     }
-
+    
     public function workexperience($id = null){
         $guard = $this->getGuard();
         $empid = ($id) ? $id : auth()->guard($guard)->user()->id;
@@ -82,7 +98,7 @@ class WorkExperienceController extends Controller
             'service' => $request->input('service'),
         ]);
 
-        return redirect()->back()->with('success', 'Work experience added successfully!');
+        return redirect()->back()->with('success', 'Added successfully!');
     }   
 
     public function workexperienceEdit($id, $eid)

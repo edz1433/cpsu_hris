@@ -47,18 +47,18 @@
                                     @if(isset($dates[$index]))
                                         <div class="form-row mt-3 lbel" data-index="{{ $index }}">
                                             <div class="col-md-6">
-                                                <label class="badge badge-secondary text-wrap lbel">Child's Name</label>
+                                                @if($loop->first)<label class="badge badge-secondary text-wrap lbel w-100">Child's Name</label>@endif
                                                 <input type="text" value="{{ trim($name) }}" name="name_child[]" class="form-control form-control-sm update-child update-field-array" data-index="{{ $index }}" placeholder="N/A">
                                             </div>
                                             
                                             <div class="col-md-5">
-                                                <label class="badge badge-secondary text-wrap lbel">Date of Birth</label>
+                                                @if($loop->first)<label class="badge badge-secondary text-wrap lbel w-100">Date of Birth</label>@endif
                                                 <input type="date" value="{{ trim($dates[$index]) }}" name="date_birth[]" class="form-control form-control-sm update-child update-field-array" data-index="{{ $index }}" placeholder="N/A">
                                             </div>
                                             
                                             @if($index > 0)
                                                 <div class="col-md-1">
-                                                    <button type="button" class="btn btn-outline-danger btn-sm btn-delete" style="margin-top: 21px;">
+                                                    <button type="button" class="btn btn-outline-danger btn-sm btn-delete">
                                                         <i class="fas fa-trash fa-sm"></i>
                                                     </button>    
                                                 </div>
@@ -122,6 +122,10 @@
                             </div>
                     
                             <div class="form-row mt-3"> 
+                                <div class="col-md-3">
+                                    <label class="badge badge-secondary text-wrap lbel">Mother's Maiden Name</label>
+                                    <input type="text" value="{{ $familyBg->mother_maiden }}" name="mother_maiden" data-column-id="{{ $empid }}" data-column-name="mother_maiden" class="form-control form-control-sm update-field" placeholder="N/A">
+                                </div>
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary text-wrap lbel">Mother's Surname</label>
                                     <input type="text" value="{{ $familyBg->mother_sname }}" name="mother_sname" data-column-id="{{ $empid }}" data-column-name="mother_sname" class="form-control form-control-sm update-field" placeholder="N/A">

@@ -5,9 +5,9 @@
     $current_route=request()->route()->getName();
 @endphp
 <div class="container-fluid">
-    <div class="row" style="padding-top: 100px;">
+    <div class="row">
         <div class="col-lg-3">
-            <div class="card card-success card-outline">
+            <div class="card card-info card-outline">
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-plus"></i> {{ $current_route == "ulist" ? "Add" : "Edit" }}
@@ -19,17 +19,15 @@
                         <div class="form-group">
                             <div class="form-row">
                                 <div class="col-md-12">
-                                    <label for="exampleInputName">Last Name:</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">
                                                 <i class="fas fa-user"></i>
                                             </span>
                                         </div>
-                                        <input type="hidden" name="uid" value="{{ $current_route == 'uEdit' ? $uEdit->uid : '' }}">
-                                        <input type="text" name="LastName" value="{{ $current_route == 'uEdit' ? $uEdit->lname : '' }}" oninput="this.value = this.value.toUpperCase()" placeholder="Enter Last Name" class="form-control">
+                                        <input type="hidden" name="uid" value="">
+                                        <input type="text" name="lname" value="" oninput="this.value = this.value.toUpperCase()" placeholder="Enter Last Name" class="form-control form-control-sm" required="">
                                     </div>
-                                    <span id="error" style="color: #FF0000; font-size: 10pt;" class="form-text text-left LastName_error"></span>
                                 </div>
                             </div>
                         </div>
@@ -37,102 +35,84 @@
                         <div class="form-group">
                             <div class="form-row">
                                 <div class="col-md-12">
-                                    <label for="exampleInputName">First Name:</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">
                                                 <i class="fas fa-user"></i>
                                             </span>
                                         </div>
-                                        <input type="text" name="FirstName" value="{{ $current_route == 'uEdit' ? $uEdit->fname : '' }}" oninput="this.value = this.value.toUpperCase()" placeholder="Enter First Name" class="form-control">
+                                        <input type="text" name="fname" value="" oninput="this.value = this.value.toUpperCase()" placeholder="Enter First Name" class="form-control form-control-sm" required="">
                                     </div>    
-                                    <span id="error" style="color: #FF0000; font-size: 10pt;" class="form-text text-left FirstName_error"></span>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="form-row">
                                 <div class="col-md-12">
-                                    <label for="exampleInputName">Middle Name:</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">
                                                 <i class="fas fa-user"></i>
                                             </span>
                                         </div>
-                                        <input type="text" name="MiddleName" value="{{ $current_route == 'uEdit' ? $uEdit->mname : '' }}" oninput="this.value = this.value.toUpperCase()" placeholder="Enter Middle Name" class="form-control">
+                                        <input type="text" name="mname" value="" oninput="this.value = this.value.toUpperCase()" placeholder="Enter Middle Name" class="form-control form-control-sm" required="">
                                     </div>
-                                    <span id="error" style="color: #FF0000; font-size: 10pt;" class="form-text text-left MiddleName_error"></span>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="form-row">
                                 <div class="col-md-12">
-                                    <label for="exampleInputName">Username:</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">
-                                                <i class="fas fa-user"></i>
+                                                <i class="fas fa-venus-mars"></i>
                                             </span>
                                         </div>
-                                        <input type="text" name="Username" value="{{ $current_route == 'uEdit' ? $uEdit->username : '' }}" placeholder="Enter Username" class="form-control">
-                                    </div>    
-                                    <span id="error" style="color: #FF0000; font-size: 10pt;" class="form-text text-left Username_error"></span>
+                                        <select name="gender" class="form-control form-control-sm" required="">
+                                            <option value="">--- Select Gender ---</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
                         <div class="form-group">
                             <div class="form-row">
                                 <div class="col-md-12">
-                                    <label for="exampleInputName">Password:</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">
-                                                <i class="fas fa-lock"></i>
+                                                <i class="fas fa-building"></i>
                                             </span>
                                         </div>
-                                        <input type="password" name="Password" value="{{ $current_route == 'uEdit' ? "******" : '' }}" placeholder="Enter Password" class="form-control">
-                                    </div>    
-                                    <span id="error" style="color: #FF0000; font-size: 10pt;" class="form-text text-left Password_error"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="form-row">
-                                <div class="col-md-12">
-                                    <label for="exampleInputName">Campus:</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">
-                                                <i class="fas fa-map-marker"></i>
-                                            </span>
-                                        </div>
-                                        <select class="form-control select2bs4" name="CampusName">
-                                            <option value=""> --- Select Here --- </option>
+                                        <select class="form-control form-control-sm select2bs4" name="campus_id">
+                                            <option value=""> --- Select Campus --- </option>
                                             @foreach ($camp as $cp)
                                                 <option value="{{ $cp->id }}" @if($current_route == 'uEdit' && $cp->id == $uEdit->campus_id) selected @endif>{{ $cp->campus_name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    <span id="error" style="color: #FF0000; font-size: 10pt;" class="form-text text-left CampusName_error"></span>
-                               </div>
+                                </div>
                             </div>
                         </div>
+
                         <div class="form-group">
                             <div class="form-row">
                                 <div class="col-md-12">
-                                    <label for="exampleInputName">Role:</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">
                                                 <i class="fas fa-info-circle"></i>
                                             </span>
                                         </div>
-                                        <select class="form-control select_camp" name="Role">
+                                        <select class="form-control form-control-sm select_camp" name="role" id="roleSelect" onchange="updateCheckboxes()">
                                             <option value=""> --- Select Role --- </option>
-                                            <option value="Administrator" @if($current_route == 'uEdit' && $uEdit->role == "Administrator") selected @endif>Administrator</option>
-                                            <option value="HR Administrator" @if($current_route == 'uEdit' && $uEdit->role == "HR Administrator") selected @endif>HR Administrator</option>
+                                            <option value="Administrator">Administrator</option>
+                                            <option value="HR Administrator">HR Administrator</option>
+                                            <option value="Payroll Administrator">Payroll Administrator</option>
                                         </select>
                                     </div>
                                     <span id="error" style="color: #FF0000; font-size: 10pt;" class="form-text text-left Role_error"></span>
@@ -142,10 +122,81 @@
                         <div class="form-group">
                             <div class="form-row">
                                 <div class="col-md-12">
-                                    <button type="button" class="btn btn-danger" data-dismiss="modal">
-                                        Close
-                                    </button>
-                                    <button type="submit" name="btn-submit" class="btn btn-primary">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-user"></i>
+                                            </span>
+                                        </div>
+                                        <input type="text" name="username" value="" placeholder="Enter Username" class="form-control form-control-sm">
+                                    </div>    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-row">
+                                <div class="col-md-12">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-lock"></i>
+                                            </span>
+                                        </div>
+                                        <input type="password" name="password" value="" placeholder="Enter Password" class="form-control form-control-sm">
+                                    </div>    
+                                </div>
+                            </div>
+                        </div>
+
+                                                
+                        <div class="form-group">
+                            <div class="form-row">
+                                <div class="col-md-12">
+                                    <label>Access Permissions:</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="access[0]" value="1" id="access0" class="form-check-input">
+                                        <label for="access0" class="form-check-label">EMPLOYEES</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="access[1]" value="1" id="access1" class="form-check-input">
+                                        <label for="access1" class="form-check-label">OFFICES</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="access[2]" value="1" id="access2" class="form-check-input">
+                                        <label for="access2" class="form-check-label">PAYSLIP</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="access[3]" value="1" id="access3" class="form-check-input">
+                                        <label for="access3" class="form-check-label">EVENTS</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="access[4]" value="1" id="access4" class="form-check-input">
+                                        <label for="access4" class="form-check-label">DTR</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="access[5]" value="1" id="access5" class="form-check-input">
+                                        <label for="access5" class="form-check-label">SPMS</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="access[7]" value="1" id="access6" class="form-check-input">
+                                        <label for="access6" class="form-check-label">SETTINGS</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="access[7]" value="1" id="access7" class="form-check-input">
+                                        <label for="access7" class="form-check-label">KIOSK</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                                       
+
+                        <div class="form-group">
+                            <div class="form-row">
+                                <div class="col-md-12">
+                                    <button type="submit" name="btn-submit" class="btn btn-success btn-sm">
                                         <i class="fas fa-save"></i> Save
                                     </button>
                                 </div>
@@ -156,7 +207,7 @@
             </div>
         </div>
         <div class="col-lg-9">
-            <div class="card card-success card-outline">
+            <div class="card card-info card-outline">
                 @if($current_route == "uEdit")
                 <div class="card-header">
                     <div class="col-md-12">
@@ -185,7 +236,7 @@
                             </thead>
                             <tbody id="tbody">
                                 @php $no = 1; @endphp
-                                @foreach($user as $user)
+                                @foreach($users as $user)
                                 <tr id="tr-{{ $user->uid }}">
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $user->campus_name }}</td>

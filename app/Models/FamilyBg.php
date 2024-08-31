@@ -25,6 +25,7 @@ class FamilyBg extends Model
         'father_fname',
         'father_mname',
         'father_ext',
+        'mother_maiden',
         'mother_sname',
         'mother_fname',
         'mother_mname',

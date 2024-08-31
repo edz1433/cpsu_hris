@@ -61,7 +61,7 @@
         @if(auth()->guard($guard)->user()->role == "Administrator")
 
             <li class="nav-item">
-                <a href="{{ route('ulist') }}" class="nav-link text-success1 {{ request()->is('ulist') || request()->is('uEdit/*') ? 'active' : '' }}">
+                <a href="{{ route('ulist') }}" class="nav-link text-success1 {{ request()->is('user*') ? 'active' : '' }}">
                     <i class="pt-1 nav-icon fas fa-user-cog"></i>
                     <p>Users</p>
                 </a>

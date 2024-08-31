@@ -273,24 +273,60 @@
     }
 </script>
 <script>
-    function validateDateRange() {
-        const incDate1 = document.getElementById('inc_date1').value;
-        const incDate2 = document.getElementById('inc_date2').value;
+    document.addEventListener('DOMContentLoaded', function() {
+        const incDate1 = document.getElementById('inc_date1');
+        const incDate2 = document.getElementById('inc_date2');
         const errorDiv = document.getElementById('date-error');
 
-        if (incDate1 && incDate2) {
-            if (new Date(incDate1) > new Date(incDate2)) {
-                errorDiv.style.display = 'block';
-                return false;
+        function updateDate2MinDate() {
+            const date1Value = incDate1.value;
+            if (date1Value) {
+                const minDate = new Date(date1Value).toISOString().split('T')[0];
+                incDate2.setAttribute('min', minDate);
+                incDate2.value = '';
+                if (incDate2.value && new Date(incDate2.value) < new Date(minDate)) {
+                    incDate2.value = '';
+                    showError('End date cannot be earlier than the start date.');
+                } else {
+                    hideError();
+                }
             } else {
-                errorDiv.style.display = 'none';
-                return true;
+                incDate2.removeAttribute('min');
+                hideError();
             }
         }
-        errorDiv.style.display = 'none';
-        return true;
-    }
 
-    document.getElementById('inc_date1').addEventListener('change', validateDateRange);
-    document.getElementById('inc_date2').addEventListener('change', validateDateRange);
+        function validateDateRange() {
+            const date1Value = incDate1.value;
+            const date2Value = incDate2.value;
+
+            if (date1Value && date2Value) {
+                if (new Date(date1Value) > new Date(date2Value)) {
+                    showError('End date must be later than the start date.');
+                    return false;
+                } else {
+                    hideError();
+                    return true;
+                }
+            }
+            hideError();
+            return true;
+        }
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            errorDiv.style.display = 'none';
+        }
+
+        incDate1.addEventListener('change', function() {
+            updateDate2MinDate();
+            validateDateRange();
+        });
+
+        incDate2.addEventListener('change', validateDateRange);
+    });
 </script>

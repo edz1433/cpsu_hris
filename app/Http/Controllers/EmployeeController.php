@@ -22,6 +22,12 @@ use App\Models\EducBg;
 use App\Models\Eligibility;
 use App\Models\WorkExperience;
 use App\Models\VoluntaryWork;
+use App\Models\LearningDev;
+use App\Models\OtherInfo;
+use App\Models\InfoQuestion;
+use App\Models\PdsReference;
+use App\Models\GovId;
+use App\Models\PayrollEmployee;
 use Illuminate\Support\Facades\Hash;
 
 class EmployeeController extends Controller
@@ -41,14 +47,25 @@ class EmployeeController extends Controller
         $eligibility = Eligibility::where('empid', $empid)->get();
         $workexperience = WorkExperience::where('empid', $empid)->get();
         $voluntaryworks = VoluntaryWork::where('empid', $empid)->get();
+        $learningdev = LearningDev::where('empid', $empid)->get();
+        $otherinfo = OtherInfo::where('empid', $empid)->first();
+        $infoquestion = InfoQuestion::where('empid', $empid)->first();
+        $references = PdsReference::where('empid', $empid)->first();
+        $govids= GovId::where('empid', $empid)->first();
+        
         $columnstatus = [
             'colfamstat' => $familyBg->famhasAnyValue(),
             'coleducstat' => $educBg->educhasAnyValue(),
             'eligibility' => $eligibility,
             'workexperience' => $workexperience,
             'voluntaryworks' => $voluntaryworks,
+            'learningdev' => $learningdev,
+            'colotherinfo' => $otherinfo->otherinfoAnyValue(),
+            'colinfoquestion' => $infoquestion->infoquestionValue(),
+            'colreferences' => $references->referencesValue(),
+            'colgovids' => $govids->govidsValue(),
         ];
-        
+
         return $columnstatus;
     }
 
@@ -127,12 +144,12 @@ class EmployeeController extends Controller
             $fileName = date('Ymdhis');
             $fileExtension = '.jpg';
             $fullFileName = $fileName . $fileExtension;
-            $file = public_path('Profile/Patient/' . $fullFileName);
+            $file = public_path('Profile/Employee/' . $fullFileName);
             file_put_contents($file, $imageData);
         } elseif ($request->hasFile('ProfileImage1')) {
             $profileImage1 = $request->file('ProfileImage1');
             $fileName = date('Ymdhis') . '.' . $profileImage1->getClientOriginalExtension();
-            $profileImage1->move(public_path('Profile/Patient/'), $fileName);
+            $profileImage1->move(public_path('Profile/Employee/'), $fileName);
             $fullFileName = $fileName;
         } 
         else {
@@ -147,10 +164,15 @@ class EmployeeController extends Controller
 
         $lastEmployee = Employee::orderBy('emp_ID', 'desc')->first();
 
-        $lastEmpID = $lastEmployee->emp_ID;
-        $lastNumericPart = (int)substr($lastEmpID, 3);
-        $newNumericPart = $lastNumericPart + 1;
-        $newEmpID = 'EMP' . str_pad($newNumericPart, 4, '0', STR_PAD_LEFT);
+        if ($lastEmployee) {
+            $lastEmpID = $lastEmployee->emp_ID;
+            $lastNumericPart = (int)substr($lastEmpID, 3);
+            $newNumericPart = $lastNumericPart + 1;
+            $newEmpID = 'EMP' . str_pad($newNumericPart, 4, '0', STR_PAD_LEFT);
+        } else {
+            $newEmpID = 'EMP0001';
+            
+        }
         $password = substr($newEmpID, 0, 3).substr($newEmpID, 3);
 
         $employee = new Employee([
@@ -185,6 +207,8 @@ class EmployeeController extends Controller
             'sss' => $request->sss,
             'tin' => $request->tin,
             'citizenship' => $request->citizenship,
+            'c_category' => $request->c_category,
+            'country' => $request->country,
             'telephone' => $request->telephone,
             'org_email' => $request->org_email,
             'mobile' => $request->mobile,
@@ -209,31 +233,51 @@ class EmployeeController extends Controller
         ]);
         
         $employee->save();
+        
+        PayrollEmployee::create([
+            'emp_ID' => $newEmpID,
+            'lname' => $request->lname,
+            'fname' => $request->fname,
+            'mname' => $request->mname,
+            'position' => $request->position,
+            'emp_status' => $request->emp_status,
+            'emp_dept' => $request->emp_dept,
+            'camp_id' => $request->camp_id,
+            'emp_salary' => 0.00,
+        ]);
 
+        $models = ['FamilyBg', 'EducBg', 'OtherInfo', 'InfoQuestion', 'PdsReference', 'GovId'];
+        
+        foreach ($models as $model) {
+            $modelClass = "App\\Models\\{$model}";
+            $modelClass::create([
+                'empid' => $newEmpID,
+            ]);
+        }        
+        
         return redirect()->back()->with('success', 'Employee added successfully.');
     }
 
     public function updateProfilePicture(Request $request, $id)
     {
-        // Validate the incoming request
         $request->validate([
             'profileImage' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
     
-        // Find the employee by ID
         $employee = Employee::find($id);
     
         if (!$employee) {
             return response()->json(['error' => 'Employee not found.'], 404);
         }
-
+    
         if ($request->hasFile('profileImage')) {
             $profileImagePath = public_path('Profile/Employee/');
-            
+    
+            // Optionally delete old profile picture
             if ($employee->profile && file_exists($profileImagePath . $employee->profile)) {
                 unlink($profileImagePath . $employee->profile);
             }
-   
+    
             $profileImage1 = $request->file('profileImage');
             $fileName = date('Ymdhis') . '.' . $profileImage1->getClientOriginalExtension();
             $profileImage1->move($profileImagePath, $fileName);
@@ -241,11 +285,12 @@ class EmployeeController extends Controller
             $employee->profile = $fileName;
             $employee->save();
         }
+    
         return response()->json([
             'success' => 'Profile picture updated successfully.',
             'profile' => asset('Profile/Employee/' . $fileName),
         ]);
-    }
+    }    
 
     public function employeeUpdate(Request $request){
         $employee = Employee::findOrFail($request->id);
@@ -257,7 +302,15 @@ class EmployeeController extends Controller
                 $column => $request->value,
                 'age' => $age
             ]);
-        } else {
+        } 
+        if ($column == 'citizenship' && $request->value == 1) {
+            $employee->update([
+                $column => $request->value,
+                'c_category' => '',
+                'country' => '',
+            ]);
+        }
+        else {
             $employee->update([
                 $column => $request->value
             ]);
@@ -349,7 +402,7 @@ class EmployeeController extends Controller
         $employee = Employee::findOrFail($request->id);
         $employee->stat_1 = $request->stat_1;
         $employee->save();
-    
+        
         return response()->json(['success' => true, 'message' => 'User role updated successfully.']);
     }    
 

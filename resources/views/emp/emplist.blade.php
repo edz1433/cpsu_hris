@@ -29,7 +29,7 @@
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
-                                </thead>
+                                </thead> 
                                 <tbody>
                                     @php $cnt = 1; @endphp
                                     @foreach ($employee as $emp)
@@ -47,7 +47,7 @@
                                     @endphp
                                         <tr id="tr-{{ $emp->id }}">
                                             <td>{{ $cnt++ }}</td>
-                                            <td>{{ strtoupper($emp->lname) }}, {{ strtoupper($emp->fname) }} {{ strtoupper($emp->mname) }}</td>
+                                            <td>{{ strtoupper($emp->lname) }}, {{ strtoupper($emp->fname) }} {{ strtoupper($emp->suffix) }}. {{ strtoupper($emp->mname) }}</td>
                                             <td>{{ $emp->emp_ID}}</td>
                                             <td>{{ $emp->position}}</td>
                                             <td>{{ $emp->campus_abbr}}</td>

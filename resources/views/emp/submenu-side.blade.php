@@ -51,7 +51,7 @@
             <ul class="nav flex-column">
                 <li class="nav-item">
                     <a href="{{ ($guard == "web") ? route('PDS', $employee->id) : route('empPDS') }}" class="nav-link">
-                        <i class="{{ request()->is('pds/personal-info/*') ||  request()->is('pds') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-user" style="width: 20px;"></i> 
+                        <i class="{{ request()->is('pds/personal-info/*') ||  request()->is('pds') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-user" style="width: 20px; margin-left: 3px;"></i> 
                         <span class="{{ request()->is('pds/personal-info/*') || request()->is('pds') ? 'text-dark' : 'text-muted' }} text-bold">Personal Information</span> 
                         <i class="float-right fas fa-check-circle text-success pt-1"></i>
                     </a>
@@ -72,72 +72,71 @@
                 </li>
                 <li class="nav-item">
                     <a href="{{ ($guard == "web") ? route('eligibility', $employee->id) : route('eligibility') }}" class="nav-link">
-                        <i class="{{ request()->is('pds/eligibility') || request()->is('pds/eligibility/*') || isset($eligibilityedit) ? 'text-dark' : 'text-muted' }} pr-2 fas fa-graduation-cap" style="width: 20px;"></i>
+                        <i class="{{ request()->is('pds/eligibility') || request()->is('pds/eligibility/*') || isset($eligibilityedit) ? 'text-dark' : 'text-muted' }} pr-2 fas fas fa-certificate" style="width: 20px;"></i>
                         <span class="{{ request()->is('pds/eligibility') || request()->is('pds/eligibility/*') || isset($eligibilityedit) ? 'text-dark' : 'text-muted' }} text-bold">Eligibility</span>
                         <i class="float-right fas {{ (isset($columnstatus['eligibility']) && (count($columnstatus['eligibility']) > 0)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ ($guard == "web") ? route('work-experience', $employee->id) : route('work-experience') }}" class="nav-link">
-                        <i class="{{ request()->is('pds/work-experience') || request()->is('pds/work-experience/*') || isset($workexperienceedit) ? 'text-dark' : 'text-muted' }} pr-2 fas fa-graduation-cap" style="width: 20px;"></i>
+                        <i class="{{ request()->is('pds/work-experience') || request()->is('pds/work-experience/*') || isset($workexperienceedit) ? 'text-dark' : 'text-muted' }} pr-2 fas fa-briefcase" style="width: 20px;"></i>
                         <span class="{{ request()->is('pds/work-experience') || request()->is('pds/work-experience/*') || isset($workexperienceedit) ? 'text-dark' : 'text-muted' }} text-bold">Work Experience</span>
                         <i class="float-right fas {{ (isset($columnstatus['workexperience']) && (count($columnstatus['workexperience']) > 0)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ ($guard == "web") ? route('voluntary-work', $employee->id) : route('voluntary-work') }}" class="nav-link">
-                        <i class="{{ request()->is('pds/voluntary-work') || request()->is('pds/voluntary-work/*') || isset($voluntaryworksceedit) ? 'text-dark' : 'text-muted' }} pr-2 fas fa-graduation-cap" style="width: 20px;"></i>
-                        <span class="{{ request()->is('pds/voluntary-work') || request()->is('pds/voluntary-work/*') || isset($voluntaryworksceedit) ? 'text-dark' : 'text-muted' }} text-bold">Voluntary Work</span>
+                        <i class="{{ request()->is('pds/voluntary-work') || request()->is('pds/voluntary-work/*') || isset($voluntaryworksedit) ? 'text-dark' : 'text-muted' }} pr-2 fas fa-hand-holding-heart" style="width: 20px;"></i>
+                        <span class="{{ request()->is('pds/voluntary-work') || request()->is('pds/voluntary-work/*') || isset($voluntaryworksedit) ? 'text-dark' : 'text-muted' }} text-bold">Voluntary Work</span>
                         <i class="float-right fas {{ (isset($columnstatus['voluntaryworks']) && (count($columnstatus['voluntaryworks']) > 0)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
                     </a>
                 </li> 
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="text-muted pr-2 fas fa-chalkboard-teacher" style="width: 20px;"></i>
-                        <span class="text-muted text-bold">Learning and Development</span>
-                        <i class="float-right fas fa-times-circle text-muted pt-1"></i>
+                    <a href="{{ ($guard == "web") ? route('learning-dev', $employee->id) : route('learning-dev') }}" class="nav-link">
+                        <i class="{{ request()->is('pds/learning-dev') || request()->is('pds/learning-dev/*') || isset($learningdevedit) ? 'text-dark' : 'text-muted' }} pr-2 fas fas fa-book" style="width: 20px;"></i>
+                        <span class="{{ request()->is('pds/learning-dev') || request()->is('pds/learning-dev/*') || isset($learningdevedit) ? 'text-dark' : 'text-muted' }} text-bold">Learning and Development</span>
+                        <i class="float-right fas {{ (isset($columnstatus['learningdev']) && (count($columnstatus['learningdev']) > 0)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="text-muted pr-2 fas fa-info-circle" style="width: 20px;"></i>
-                        <span class="text-muted text-bold">Other Information</span>
-                        <i class="float-right fas fa-times-circle text-muted pt-1"></i>
+                    <a href="{{ ($guard == "web") ? route('otherInfo', $employee->id) : route('otherInfo') }}" class="nav-link">
+                        <i class="{{ request()->is('pds/other-info') || request()->is('pds/other-info/*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-info-circle" style="width: 20px;"></i>
+                        <span class="{{ request()->is('pds/other-info') || request()->is('pds/other-info/*') ? 'text-dark' : 'text-muted' }} text-bold">Other Information</span>
+                        <i class="float-right fas {{ (isset($columnstatus) && ($columnstatus['colotherinfo'] == 1)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
+                    </a>
+                </li>  
+                <li class="nav-item">
+                    <a href="{{ ($guard == "web") ? route('infoQuestion', $employee->id) : route('infoQuestion') }}" class="nav-link">
+                        <i class="{{ request()->is('pds/info-question') || request()->is('pds/info-question/*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-question-circle" style="width: 20px;"></i>
+                        <span class="{{ request()->is('pds/info-question') || request()->is('pds/info-question/*') ? 'text-dark' : 'text-muted' }} text-bold">Other Information Questions</span>
+                        <i class="float-right fas {{ (isset($columnstatus) && ($columnstatus['colinfoquestion'] == 1)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="text-muted pr-2 fas fa-question-circle" style="width: 20px;"></i>
-                        <span class="text-muted text-bold">Other Information Questions</span>
-                        <i class="float-right fas fa-times-circle text-muted pt-1"></i>
+                    <a href="{{ ($guard == "web") ? route('references', $employee->id) : route('references') }}" class="nav-link">
+                        <i class="{{ request()->is('pds/references') || request()->is('pds/references/*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-address-book" style="width: 20px;"></i>
+                        <span class="{{ request()->is('pds/references') || request()->is('pds/references/*') ? 'text-dark' : 'text-muted' }} text-bold">References</span>
+                        <i class="float-right fas {{ (isset($columnstatus) && ($columnstatus['colreferences'] == 1)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="text-muted pr-2 fas fa-address-book" style="width: 20px;"></i>
-                        <span class="text-muted text-bold">References</span>
-                        <i class="float-right fas fa-times-circle text-muted pt-1"></i>
+                    <a href="{{ ($guard == "web") ? route('govids', $employee->id) : route('govids') }}" class="nav-link">
+                        <i class="{{ request()->is('pds/government-id') || request()->is('pds/government-id/*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-id-card" style="width: 20px;"></i>
+                        <span class="{{ request()->is('pds/government-id') || request()->is('pds/government-id/*') ? 'text-dark' : 'text-muted' }} text-bold">Government Issued ID</span>
+                        <i class="float-right fas {{ (isset($columnstatus) && ($columnstatus['colgovids'] == 1)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="text-muted pr-2 fas fa-id-card" style="width: 20px;"></i>
-                        <span class="text-muted text-bold">Government Issued ID</span>
-                        <i class="float-right fas fa-times-circle text-muted pt-1"></i>
-                    </a>
-                </li>
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a href="#" class="nav-link">
                         <i class="text-muted pr-2 fas fa-coins" style="width: 20px;"></i>
                         <span class="text-muted text-bold">Income And Deductions</span>
                         <i class="float-right fas fa-times-circle text-muted pt-1"></i>
                     </a>
-                </li>
+                </li> --}}
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{{ ($guard == "web") ? route('generatepds', $employee->id) : route('generatepds') }}" target="_blank" class="nav-link">
                         <i class="text-muted pr-2 fas fa-eye" style="width: 20px;"></i>
                         <span class="text-muted text-bold">Preview Personal Data Sheet</span>
-                        <i class="float-right fas fa-times-circle text-muted pt-1"></i>
                     </a>
                 </li>
             </ul>

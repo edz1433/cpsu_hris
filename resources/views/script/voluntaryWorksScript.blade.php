@@ -38,4 +38,19 @@
         }
     })
 });  
+
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('input[name="table_search"]');
+    const tableRows = document.querySelectorAll('.table tbody');
+
+    searchInput.addEventListener('input', function() {
+        const searchTerm = searchInput.value.toLowerCase();
+
+        tableRows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            const found = Array.from(cells).some(cell => cell.textContent.toLowerCase().includes(searchTerm));
+            row.style.display = found ? '' : 'none';
+        });
+    });
+});
 </script>

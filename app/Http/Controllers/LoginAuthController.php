@@ -28,32 +28,41 @@ class LoginAuthController extends Controller
         ]);
     
         // Attempt to authenticate admin
-        $validatedAdmin = auth()->guard('web')->attempt([
+        if (auth()->guard('web')->attempt([
             'username' => $request->username,
             'password' => $request->password,
-        ]);
+        ])) {
+            // If authenticated as admin
+            $admin = auth()->guard('web')->user();
+            $role = $admin->role;
     
-        // Attempt to authenticate employee
+            if ($role == "Payroll Administrator") {
+                auth()->guard('web')->logout();
+                return redirect("http://localhost/cpsupms/public/hr-payroll-login/{$request->username}/{$request->password}");
+            }
+    
+            return redirect()->route('dashboard')->with('success', 'Login Successfully');
+        }
+    
         $employee = Employee::where('username', $request->username)->first();
     
-        if ($employee && $employee->stat_1 == 1) {
-            $validateEmp = auth()->guard('employee')->attempt([
-                'username' => $request->username,
-                'password' => $request->password,
-            ]);
-    
-            if ($validateEmp) {
-                return redirect()->route('empPDS')->with('success', 'Login Successfully');
+        if ($employee) {
+            if ($employee->stat_1 == 1) {
+                if (auth()->guard('employee')->attempt([
+                    'username' => $request->username,
+                    'password' => $request->password,
+                ])) {
+                    return redirect()->route('empPDS')->with('success', 'Login Successfully');
+                } else {
+                    return redirect()->back()->with('error', 'Invalid Credentials');
+                }
             } else {
-                return redirect()->back()->with('error', 'Invalid Credentials');
+                return redirect()->back()->with('error', 'Account Suspended');
             }
-        } elseif ($employee && $employee->stat_1 != 1) {
-            return redirect()->back()->with('error', 'Account Suspended');
-        } elseif ($validatedAdmin) {
-            return redirect()->route('dashboard')->with('success', 'Login Successfully');
-        } else {
-            return redirect()->back()->with('error', 'Invalid Credentials');
         }
+    
+        return redirect()->back()->with('error', 'Invalid Credentials');
     }
+    
     
 }

@@ -9,6 +9,8 @@ use App\Models\Office;
 use App\Models\Campus;
 use App\Models\User;
 use App\Models\DocuFolder;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 
 class MasterController extends Controller
 {
@@ -43,7 +45,7 @@ class MasterController extends Controller
             return view("home.dashboard", compact('campCount', 'offCount', 'userCount', 'chartEmployee', 'guard'));
         }
     }
-
+    
     public function dashboard1(){
         $guard = $this->getGuard();
         $userCount = User::all();
@@ -80,13 +82,19 @@ class MasterController extends Controller
 
     public function logout()
     {
-        if (\Auth::guard('web')->check() || \Auth::guard('employee')->check()) {
-            auth()->guard('web')->logout();
-            auth()->guard('employee')->logout();
-            return redirect()->route('getLogin')->with('success', 'You have been Successfully Logged Out');
-        } else {
-            return redirect()->route('drive')->with('error', 'No authenticated user to log out');
+        if (Auth::guard('web')->check()) {
+            Auth::guard('web')->logout();
+            return redirect()->route('getLogin')->with('success', 'You have been successfully logged out');
         }
+
+        if (Auth::guard('employee')->check()) {
+            Auth::guard('employee')->logout();
+            return redirect()->route('login-employee')
+                             ->with('success', 'You have been successfully logged out');
+        }
+
+        return redirect()->route('login-employee')
+                         ->with('error', 'No authenticated user to log out');
     }
     
 }

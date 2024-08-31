@@ -21,6 +21,12 @@ use App\Models\Qualification;
 use App\Models\Eligibility;
 use App\Models\WorkExperience;
 use App\Models\VoluntaryWork;
+use App\Models\LearningDev;
+use App\Models\OtherInfo;
+use App\Models\InfoQuestion;
+use App\Models\PdsReference;
+use App\Models\GovId;
+use PDF;
 use Illuminate\Support\Facades\Hash;
 
 class PdsController extends Controller
@@ -40,14 +46,25 @@ class PdsController extends Controller
         $eligibility = Eligibility::where('empid', $empid)->get();
         $workexperience = WorkExperience::where('empid', $empid)->get();
         $voluntaryworks = VoluntaryWork::where('empid', $empid)->get();
+        $learningdev = LearningDev::where('empid', $empid)->get();
+        $otherinfo = OtherInfo::where('empid', $empid)->first();
+        $infoquestion = InfoQuestion::where('empid', $empid)->first();
+        $references = PdsReference::where('empid', $empid)->first();
+        $govids= GovId::where('empid', $empid)->first();
+        
         $columnstatus = [
             'colfamstat' => $familyBg->famhasAnyValue(),
             'coleducstat' => $educBg->educhasAnyValue(),
             'eligibility' => $eligibility,
             'workexperience' => $workexperience,
             'voluntaryworks' => $voluntaryworks,
+            'learningdev' => $learningdev,
+            'colotherinfo' => $otherinfo->otherinfoAnyValue(),
+            'colinfoquestion' => $infoquestion->infoquestionValue(),
+            'colreferences' => $references->referencesValue(),
+            'colgovids' => $govids->govidsValue(),
         ];
-        
+
         return $columnstatus;
     }
 
@@ -76,5 +93,68 @@ class PdsController extends Controller
         $camp = Campus::where('id', auth()->guard($guard)->user()->camp_id)->get();
 
         return view("emp.pds", compact('employee', 'guard', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid', 'columnstatus'));
+    }
+
+    public function generatepds($id = null){
+        $guard = $this->getGuard();
+        $empid = ($id) ? $id : auth()->guard($guard)->user()->id;
+        $employee = Employee::find($empid);
+
+        $familyBg = FamilyBg::where('empid', $employee->emp_ID)->first();
+        $educBg = EducBg::where('empid', $employee->emp_ID)->first();
+        $eligibility = Eligibility::where('empid', $employee->emp_ID)->where('status', '!=', 0)->get();
+        $workexperience = WorkExperience::where('empid', $employee->emp_ID)->get();
+        $voluntaryworks = VoluntaryWork::where('empid', $employee->emp_ID)->get();
+        $learningdev = LearningDev::where('empid', $employee->emp_ID)->get();
+        $otherinfo = OtherInfo::where('empid', $employee->emp_ID)->first();
+        $infoquestion = InfoQuestion::where('empid', $employee->emp_ID)->first();
+        $references = PdsReference::where('empid', $employee->emp_ID)->first();
+        $govids= GovId::where('empid', $employee->emp_ID)->first();
+ 
+        $barangay = Barangay::find($employee->add_brgy);
+        $city = City::where('city_id', $employee->add_city)->first();
+        $province = Province::where('province_id', $employee->add_prov)->first();
+
+        $barangay1 = Barangay::find($employee->padd_brgy);
+        $city1 = City::where('city_id', $employee->padd_city)->first();
+        $province1 = Province::where('province_id', $employee->padd_prov)->first();
+
+        $datas = [
+            'employee' => $employee,
+            'familyBg' => $familyBg,
+            'educBg' => $educBg,
+            'eligibility' => $eligibility,
+            'workexperience' => $workexperience,
+            'voluntaryworks' => $voluntaryworks,
+            'learningdev' => $learningdev,
+            'otherinfo' => $otherinfo,
+            'infoquestion' => $infoquestion,
+            'references' => $references,
+            'govids' => $govids, 
+            'barangay' => $barangay,
+            'city' => $city,
+            'province' => $province,
+            'barangay1' => $barangay1,
+            'city1' => $city1,
+            'province1' => $province1,
+        ];
+
+       $customPaper = array(0, 0, 612, 970);
+        $pdf = \PDF::loadView('emp.generate-pds', compact('datas'))->setPaper($customPaper, 'portrait');
+
+        $pdf->setOption('margin-top', 0);
+        $pdf->setOption('margin-right', 0);
+        $pdf->setOption('margin-bottom', 0);
+        $pdf->setOption('margin-left', 0);
+
+        $pdf->setCallbacks([
+            'before_render' => function ($domPdf) {
+                $domPdf->getCanvas()->page_text(10, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, array(0, 0, 0));
+            },
+        ]);
+
+        $pdf->render();
+
+        return $pdf->stream();
     }
 }

@@ -178,6 +178,9 @@
 @if(request()->is('pds/family-bg/*') || request()->is('pds/family-bg'))
     @include('script.familybgScript')
 @endif
+@if(request()->is('employees') || request()->is('employees/*'))
+    @include('script.employeeScript')
+@endif
 @if(request()->is('pds') || request()->is('pds/personal-info') || request()->is('pds/personal-info/*'))
     @include('script.personInfoScript')
 @endif
@@ -192,6 +195,21 @@
 @endif
 @if(request()->is('pds/voluntary-work/*') || request()->is('pds/voluntary-work-edit/*') || request()->is('pds/voluntary-work') || isset($workexperienceedit))
     @include('script.voluntaryWorksScript')
+@endif
+@if(request()->is('pds/learning-dev/*') || request()->is('pds/learning-dev-edit/*') || request()->is('pds/learning-dev') || isset($learningdevedit))
+    @include('script.learningDevScript')
+@endif
+@if(request()->is('pds/other-info/*') || request()->is('pds/other-info-edit/*') || request()->is('pds/other-info'))
+    @include('script.otherInfoScript')
+@endif
+@if(request()->is('pds/info-question/*') || request()->is('pds/info-question-edit/*') || request()->is('pds/info-question'))
+    @include('script.infoquestionScript')
+@endif
+@if(request()->is('pds/references*'))
+    @include('script.referenceScript')
+@endif
+@if(request()->is('pds/government-id*'))
+    @include('script.govidScript')
 @endif
 </body>
 </html>

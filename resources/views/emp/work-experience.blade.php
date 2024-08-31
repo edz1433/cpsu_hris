@@ -50,11 +50,11 @@
                                     
                                     <div class="form-row lbel mtop">
                                         <div class="col-md-6">
-                                            <label class="badge badge-secondary text-wrap text-center lbel">Inclusive Dates (mm/dd/yyyy)</label>
+                                            <label class="badge badge-secondary text-wrap text-center lbel">Inclusive Dates</label>
                                             <input type="hidden" name="empid" value="{{ $employee->emp_ID }}">
                                             <div style="display: flex; justify-content: space-between;">
-                                                <input type="date" name="inc_date1" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($workexperienceedit) ? $workexperienceedit->inc_date1 : '' }}" autocomplete="off" style="flex: 1; margin-right: 5px;" required>
-                                                <input type="date" name="inc_date2" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($workexperienceedit) ? $workexperienceedit->inc_date2 : '' }}" autocomplete="off" style="flex: 1; margin-left: 5px;" required>
+                                                <input type="date" id="inc_date1" name="inc_date1" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($workexperienceedit) ? $workexperienceedit->inc_date1 : '' }}" autocomplete="off" style="flex: 1; margin-right: 5px;" required>
+                                                <input type="date" id="inc_date2" name="inc_date2" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($workexperienceedit) ? $workexperienceedit->inc_date2 : '' }}" autocomplete="off" style="flex: 1; margin-left: 5px;" required>
                                             </div>
                                         </div>
                                         
@@ -123,7 +123,10 @@
                             <tbody>
                                 <tr class="workexperience-row row-{{ $work->id }}">
                                     <th class="align-middle" width="50%">Inclusive Dates</th>
-                                    <td class="align-middle">{{ $work->inc_date1 }} - {{ $work->inc_date2 }}</td>
+                                    <td class="align-middle">
+                                        {{ \Carbon\Carbon::parse($work->inc_date1)->format('m/d/Y') }} - 
+                                        {{ \Carbon\Carbon::parse($work->inc_date2)->format('m/d/Y') }}
+                                    </td>
                                     <th class="text-center align-middle" rowspan="9" width="5%">
                                         <a href="{{ route('workexperienceEdit', ['id' => $empid, 'eid' => $work->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
                                             <i class="fas fa-pen"></i>
@@ -147,7 +150,7 @@
                                 </tr>
                                 <tr class="workexperience-row row-{{ $work->id }}">
                                     <th class="align-middle">Monthly Salary</th>
-                                    <td class="align-middle">{{ number_format($work->salary, 2) }}</td>
+                                    <td class="align-middle">{{ number_format($work->salary) }}</td>
                                 </tr>
                                 <tr class="workexperience-row row-{{ $work->id }}">
                                     <th class="align-middle">Status of Appointment</th>

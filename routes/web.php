@@ -21,6 +21,11 @@ use App\Http\Controllers\EducBgController;
 use App\Http\Controllers\EligibilityController;
 use App\Http\Controllers\WorkExperienceController;
 use App\Http\Controllers\VoluntaryWorkController;
+use App\Http\Controllers\LearningDevController;
+use App\Http\Controllers\OtherInfoController;
+use App\Http\Controllers\InfoQuestionController;
+use App\Http\Controllers\PdsReferencesController;
+use App\Http\Controllers\GovIdController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -45,6 +50,7 @@ Route::get('/', function () {
 Route::get('/login',[LoginAuthController::class,'getLogin'])->name('getLogin')->middleware([NoCacheMiddleware::class]);
 Route::post('/login',[LoginAuthController::class,'postLogin'])->name('postLogin');
 Route::get('/update-pass', [EmployeeController::class, 'updateEmployeePasswords']);
+
 Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], function() {
     // Dashboard
     Route::get('/dashboard', [MasterController::class, 'dashboard'])->name('dashboard');
@@ -109,7 +115,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/update-profile/{id}', [EmployeeController::class, 'updateProfilePicture'])->name('updateProfilePicture');
         Route::post('/update', [EmployeeController::class, 'empUpdate'])->name('empUpdate');
         Route::post('/employee-update', [EmployeeController::class, 'employeeUpdate'])->name('employeeUpdate');
-        Route::post('/toggle-accnt-stat', [EmployeeController::class, 'toggleAcctStat'])->name('toggleAcctStat');
+        Route::post('/toggle-acct-stat', [EmployeeController::class, 'toggleAcctStat'])->name('toggleAcctStat');
+
         Route::get('/delete/{id}', [EmployeeController::class, 'empDelete'])->name('empDelete');
         
     });
@@ -117,6 +124,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     //pds
     Route::prefix('pds')->group(function() {
         Route::get('/', [PdsController::class, 'empPDS'])->name('empPDS');  
+        Route::get('/generatepds/{id?}', [PdsController::class, 'generatepds'])->name('generatepds');  
         //personal Info
         Route::get('personal-info/{id}', [EmployeeController::class, 'PDS'])->name('PDS');   
 
@@ -151,8 +159,33 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/voluntary-work-edit/{id?}/{eid}', [VoluntaryWorkController::class, 'voluntaryworksEdit'])->name('voluntaryworksEdit');
         Route::post('/voluntary-work-update/{id}', [VoluntaryWorkController::class, 'voluntaryworksUpdate'])->name('voluntaryworksUpdate');
         Route::get('/voluntary-work-delete/{id}', [VoluntaryWorkController::class, 'workDelete'])->name('workDelete');
-    });
+        
+        //Learning-development
+        Route::get('/learning-dev/{id?}', [LearningDevController::class, 'learningdev'])->name('learning-dev');
+        Route::post('/learning-dev-create', [LearningDevController::class, 'learningdevCreate'])->name('learningdevCreate');
+        Route::get('/learning-dev-edit/{id?}/{eid}', [LearningDevController::class, 'learningdevEdit'])->name('learningdevEdit');
+        Route::post('/learning-dev-update/{id}', [LearningDevController::class, 'learningdevUpdate'])->name('learningdevUpdate');
+        Route::get('/learning-dev-delete/{id}', [LearningDevController::class, 'learningdevDelete'])->name('learningdevDelete');
 
+        //Other Information
+        Route::get('/other-info/{id?}', [OtherInfoController::class, 'otherInfo'])->name('otherInfo');
+        Route::post('/update-child-oi', [OtherInfoController::class, 'updateChild'])->name('update-child-oi');
+        Route::post('/otherinfo-update', [OtherInfoController::class, 'otherInfoUpdate'])->name('otherInfoUpdate');
+        Route::post('/otherInfo-update-array', [OtherInfoController::class, 'otherInfoUpdateArray'])->name('otherInfoUpdateArray');
+
+        //Other Information Question
+        Route::get('/info-question/{id?}', [InfoQuestionController::class, 'infoQuestion'])->name('infoQuestion');
+        Route::post('/update-info-question', [InfoQuestionController::class, 'update'])->name('update.info.question');
+        
+        //References
+        Route::get('/references/{id?}', [PdsReferencesController::class, 'references'])->name('references');
+        Route::post('/update-references', [PdsReferencesController::class, 'update'])->name('update.references');
+
+        //Government ID
+        Route::get('/government-id/{id?}', [GovIdController::class, 'govids'])->name('govids');
+        Route::post('/update-govids', [GovIdController::class, 'update'])->name('update.govids');
+    });
+    
     // Modify
     Route::prefix('modify')->group(function() {
         Route::post('/show', [ModifyController::class, 'modifyShow'])->name('modifyShow');
@@ -184,7 +217,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/update', [CalendarController::class, 'eventUpdate'])->name('eventUpdate');
         Route::get('/delete/{id}', [CalendarController::class, 'eventDelete'])->name('eventDelete');
     });
-    
+
     // Logout
     Route::get('/logout', [MasterController::class, 'logout'])->name('logout');
 });

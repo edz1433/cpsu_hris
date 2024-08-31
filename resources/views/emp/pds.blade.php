@@ -73,7 +73,7 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Birth Date</label>
-                                    <input type="date" value="{{ $employee->bdate }}" name="bdate" data-column-id="{{ $empid }}" data-column-name="bdate" name="bdate" class="form-control form-control-sm" id="bday" onchange="calculateAge()">
+                                    <input type="date" value="{{ $employee->bdate }}" name="bdate" data-column-id="{{ $empid }}" data-column-name="bdate" name="bdate" class="form-control form-control-sm update-field" id="bday" onchange="calculateAge()">
                                 </div>
 
                                 <div class="col-md-3">
@@ -102,16 +102,65 @@
                                         <option value="Single" data-column-id="{{ $empid }}" data-column-name="civil_status" @if($employee->civil_status == "Single") selected @endif>Single</option>
                                         <option value="Married" data-column-id="{{ $empid }}" data-column-name="civil_status" @if($employee->civil_status == "Married") selected @endif>Married</option>
                                         <option value="Separated" data-column-id="{{ $empid }}" data-column-name="civil_status" @if($employee->civil_status == "Separated") selected @endif>Separated</option>
-                                        <option value="Divorce" data-column-id="{{ $empid }}" data-column-name="civil_status" @if($employee->civil_status == "Divorce") selected @endif>Divorce</option>
                                         <option value="Widowed" data-column-id="{{ $empid }}" data-column-name="civil_status" @if($employee->civil_status == "Widowed") selected @endif>Widowed</option>
-                                        <option value="" data-column-id="{{ $empid }}" data-column-name="civil_status" @if($employee->civil_status == "") selected @endif>N/A</option>
+                                        <option value="Other" data-column-id="{{ $empid }}" data-column-name="civil_status" @if($employee->civil_status == "Other") selected @endif>Other/s</option>
                                     </select>
-                                </div>                                
-
-                                <div class="col-md-3">
-                                    <label class="badge badge-secondary lbel">Citizenship</label><br>
-                                    <input type="text" value="{{ $employee->citizenship }}" name="citizenship" data-column-id="{{ $empid }}" data-column-name="citizenship" id="citizenship" class="form-control form-control-sm update-field" placeholder="N/A">
                                 </div>
+
+                                <div class="col-md-6">
+                                    <label class="badge badge-secondary lbel">Citizenship</label><br>
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <select class="form-control form-control-sm update-field" name="citizenship">
+                                                <option disabled selected> Select </option>
+                                                <option value="1" data-column-id="{{ $empid }}" data-column-name="citizenship" @if($employee->citizenship == 1) selected @endif>Filipino</option>
+                                                <option value="2" data-column-id="{{ $empid }}" data-column-name="citizenship" @if($employee->citizenship == 2) selected @endif>Dual Citizenship</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-8">
+                                            <div style="float: left; display: flex; align-items: center;">
+                                                <input class="c-radio update-field" value="1" type="radio" name="c_category" data-column-id="{{ $empid }}" data-column-name="c_category" id="by-birth" @if($employee->c_category == 1) checked @endif>&nbsp;
+                                                <span class="c-label" style="width: 110px;">By Birth </span>
+                                            </div>
+                                            <div style="float: left; display: flex; align-items: center;">
+                                                &nbsp;<input class="c-radio update-field" value="2" type="radio" name="c_category" data-column-id="{{ $empid }}" data-column-name="c_category" id="by-naturalization"  @if($employee->c_category == 2) checked @endif>&nbsp;
+                                                <span class="c-label" style="width: 110px;">By Naturalization</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3">
+                                    <label class="badge badge-secondary lbel">Country</label><br>
+                                    <select class="form-control form-control-sm select2 update-field" name="country">
+                                        <option value="" disabled selected>Select</option>
+                                        @foreach([
+                                            'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
+                                            'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana',
+                                            'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cambodia', 'Cameroon', 'Canada', 'Central African Republic', 'Chad', 'Chile',
+                                            'China', 'Colombia', 'Comoros', 'Congo', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic', 'Democratic Republic of the Congo', 'Denmark',
+                                            'Djibouti', 'Dominica', 'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia',
+                                            'Fiji', 'Finland', 'France', 'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana',
+                                            'Haiti', 'Honduras', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Ivory Coast', 'Jamaica', 'Japan',
+                                            'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein',
+                                            'Lithuania', 'Luxembourg', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico',
+                                            'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar', 'Namibia', 'Nauru', 'Nepal', 'Netherlands',
+                                            'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'North Korea', 'North Macedonia', 'Norway', 'Oman', 'Pakistan', 'Palau', 'Panama', 'Papua New Guinea',
+                                            'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 'Rwanda', 'Saint Kitts and Nevis', 'Saint Lucia',
+                                            'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone',
+                                            'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'South Africa', 'South Korea', 'South Sudan', 'Spain', 'Sri Lanka', 'Sudan',
+                                            'Suriname', 'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan', 'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago',
+                                            'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay',
+                                            'Uzbekistan', 'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
+                                        ] as $country)
+                                            <option value="{{ $country }}" data-column-id="{{ $empid }}" data-column-name="country" 
+                                                @if($employee->country == $country) selected @endif>
+                                                {{ $country }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    
+                                </div>   
 
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Employee Status</label><br>
@@ -168,7 +217,7 @@
                                     <input type="text" name="weight_lb" id="weight_lb" value="{{ $employee->weight_lb }}" data-column-id="{{ $empid }}" data-column-name="weight_lb" class="form-control form-control-sm update-field" placeholder="N/A">
                                 </div>
                                 
-                                <div class="col-md-3">
+                                <div class="col-md-{{ ($guard == 'employee') ? 3 : 1 }}">
                                     <label class="badge badge-secondary lbel">Blood Type</label><br>
                                     <select class="form-control form-control-sm update-field" name="b_type">
                                         <option disabled selected> Select </option>
@@ -183,7 +232,7 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-3">
+                                <div class="col-md-{{ ($guard == 'employee') ? 3 : 2 }}">
                                     <label class="badge badge-secondary lbel">GSIS</label><br>
                                     <input type="text" name="gsis" id="gsis" value="{{ $employee->gsis }}" data-column-id="{{ $empid }}" data-column-name="gsis" class="form-control form-control-sm update-field"  placeholder="N/A">
                                 </div>
@@ -319,10 +368,10 @@
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label class="badge badge-secondary">Province:</label>
+                                    <label class="badge badge-secondary">Province: </label>
                                     <select id="province1" name="padd_prov" class="form-control select2 form-control-sm update-field" style="width: 100%;">
                                         <option disabled selected>Select</option>
-                                        @foreach($hprovinces as $province)
+                                        @foreach($gprovinces as $province)
                                             <option value="{{ $province->province_id }}" data-column-id="{{ $empid }}" data-column-name="padd_prov" @if($employee->padd_prov == $province->province_id) selected @endif>{{ $province->name }}</option>
                                         @endforeach
                                     </select>
@@ -332,7 +381,7 @@
                                     <label class="badge badge-secondary">City / Municipality:</label>
                                     <select id="city1" name="padd_city" class="form-control select2 form-control-sm update-field" style="width: 100%;">
                                         <option disabled selected>Select</option>
-                                        @foreach($hcities as $city)
+                                        @foreach($gcities as $city)
                                             <option value="{{ $city->city_id }}" data-column-id="{{ $empid }}" data-column-name="padd_city" @if($employee->padd_city == $city->city_id) selected @endif>{{ $city->name }}</option>
                                         @endforeach
                                     </select>
@@ -346,7 +395,7 @@
                                                 data-column-id="{{ $empid }}" 
                                                 data-column-name="padd_brgy" 
                                                 selected>
-                                            {{ (isset($employee->padd_brgy) && $hbarangays) ? $hbarangays->name : 'N/A' }}
+                                            {{ (isset($employee->padd_brgy) && $gbarangays) ? $gbarangays->name : 'N/A' }}
                                         </option>
                                     </select>
                                 </div>                                

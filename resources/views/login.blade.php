@@ -22,7 +22,8 @@
                 overflow: hidden;
                 background-color: #e9ecef !important;
             }
-/* 
+            
+            /* 
             .loginpage-left {
                 background-color: #358359!important;
                 height: 100vh !important;

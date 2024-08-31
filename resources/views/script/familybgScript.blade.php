@@ -50,17 +50,15 @@ $(document).ready(function() {
         var newRow = `
             <div class="form-row mt-3 lbel" data-index="${newRowIndex}">
                 <div class="col-md-6">
-                    <label class="badge badge-secondary lbel">Child's Name</label>
                     <input type="text" name="name_child[]" class="form-control form-control-sm update-child" placeholder="N/A">
                 </div>
                 
                 <div class="col-md-5">
-                    <label class="badge badge-secondary lbel">Date of Birth</label>
                     <input type="date" name="date_birth[]" class="form-control form-control-sm update-child" placeholder="N/A">
                 </div>
                 
                 <div class="col-md-1">
-                    <button type="button" class="btn btn-outline-danger btn-sm btn-delete" style="margin-top: 21px;"><i class="fas fa-trash fa-sm"></i> </button>    
+                    <button type="button" class="btn btn-outline-danger btn-sm btn-delete"><i class="fas fa-trash fa-sm"></i> </button>    
                 </div>
             </div>
         `;
