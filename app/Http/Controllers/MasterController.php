@@ -89,7 +89,7 @@ class MasterController extends Controller
 
         if (Auth::guard('employee')->check()) {
             Auth::guard('employee')->logout();
-            return redirect()->route('login-employee')
+            return redirect()->route('login')
                              ->with('success', 'You have been successfully logged out');
         }
 
