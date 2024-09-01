@@ -20,8 +20,8 @@ class OfficeController extends Controller
 
     public function officeList() {
         $guard = $this->getGuaard();
-        $office = Office::leftJoin('cpsupms.employees', 'offices.office_head_id', '=', 'cpsupms.employees.id')
-        ->get(['offices.*', 'cpsupms.employees.fname as efname', 'cpsupms.employees.lname as elname']);    
+        $office = Office::leftJoin('dbcpsuhris.employees', 'offices.office_head_id', '=', 'dbcpsuhris.employees.id')
+        ->get(['offices.*', 'dbcpsuhris.employees.fname as efname', 'dbcpsuhris.employees.lname as elname']);    
         
         $employee = Employee::all()->where('emp_status', 1);
         

@@ -198,8 +198,8 @@ class DtrController extends Controller
         }
     
         $employee = Employee::where('emp_ID', $employeeId)
-        ->join('cpsupms.offices', 'employees.emp_dept', '=', 'cpsupms.offices.id')
-        ->select('employees.*', 'cpsupms.offices.office_name')
+        ->join('dbcpsuhris.offices', 'employees.emp_dept', '=', 'dbcpsuhris.offices.id')
+        ->select('employees.*', 'dbcpsuhris.offices.office_name')
         ->first();
     
         $dtrRecords = Dtr::where('emp_ID', $employeeId)
