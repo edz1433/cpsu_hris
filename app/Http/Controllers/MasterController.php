@@ -93,7 +93,7 @@ class MasterController extends Controller
                              ->with('success', 'You have been successfully logged out');
         }
 
-        return redirect()->route('login-employee')
+        return redirect()->route('login')
                          ->with('error', 'No authenticated user to log out');
     }
     
