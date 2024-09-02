@@ -20,8 +20,8 @@
                             <div class="form-row">
                                 <div class="col-md-12">
                                     <label for="exampleInputName">Office Name:</label>
-                                    <input type="hidden" name="oid" value="{{ $current_route == 'officeEdit' ? $offEdit->id : '' }}">
-                                    <input type="text" name="OfficeName" value="{{ $current_route == 'officeEdit' ? $offEdit->office_name : '' }}" oninput="var words = this.value.split(' '); for(var i = 0; i < words.length; i++){ words[i] = words[i].substr(0,1).toUpperCase() + words[i].substr(1); } this.value = words.join(' ');" class="form-control"  autocomplete="off">  
+                                    <input type="hidden" class="form-control form-control-sm" name="oid" value="{{ $current_route == 'officeEdit' ? $offEdit->id : '' }}">
+                                    <input type="text" class="form-control form-control-sm" name="OfficeName" value="{{ $current_route == 'officeEdit' ? $offEdit->office_name : '' }}" oninput="var words = this.value.split(' '); for(var i = 0; i < words.length; i++){ words[i] = words[i].substr(0,1).toUpperCase() + words[i].substr(1); } this.value = words.join(' ');" class="form-control"  autocomplete="off">  
                                 </div>
                             </div>
                         </div>
@@ -30,7 +30,7 @@
                             <div class="form-row">
                                 <div class="col-md-12">
                                     <label for="exampleInputName">Office Abbreviation:</label>
-                                    <input type="text" name="OfficeAbbreviation" value="{{ $current_route == 'officeEdit' ? $offEdit->office_abbr : '' }}" oninput="var words = this.value.split(' '); for(var i = 0; i < words.length; i++){ words[i] = words[i].substr(0,1).toUpperCase() + words[i].substr(1); } this.value = words.join(' ');" class="form-control"  autocomplete="off" >  
+                                    <input type="text" class="form-control form-control-sm" name="OfficeAbbreviation" value="{{ $current_route == 'officeEdit' ? $offEdit->office_abbr : '' }}" oninput="var words = this.value.split(' '); for(var i = 0; i < words.length; i++){ words[i] = words[i].substr(0,1).toUpperCase() + words[i].substr(1); } this.value = words.join(' ');" class="form-control"  autocomplete="off" >  
                                 </div>
                             </div>
                         </div>
