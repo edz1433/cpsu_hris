@@ -81,7 +81,7 @@ class EligibilityController extends Controller
     public function eligibilityCreate(Request $request)
     {
         $request->validate([
-            'career_eligible' => 'required',
+            'career_eligible' => 'nullable',
             'rating' => 'required',
             'date_exam' => 'required',
             'place_exam' => 'required',

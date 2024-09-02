@@ -14,7 +14,16 @@ return new class extends Migration
     public function up()
     {
         Schema::create('eligibilities', function (Blueprint $table) {
-            $table->id();
+            $table->id(); 
+            $table->string('empid');
+            $table->string('career_eligible')->nullable();
+            $table->decimal('rating')->nullable();
+            $table->date('date_exam')->nullable();
+            $table->string('place_exam')->nullable();
+            $table->string('number')->nullable();
+            $table->date('date_valid')->nullable();
+            $table->string('attachment')->nullable();
+            $table->string('status')->default('pending');
             $table->timestamps();
         });
     }
