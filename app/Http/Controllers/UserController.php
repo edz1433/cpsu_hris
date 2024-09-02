@@ -24,7 +24,7 @@ class UserController extends Controller
         $guard = $this->getGuaard();
         $camp = Campus::on('payroll')->get();
 
-        $users = User::join('cpsupms.campuses', 'users.campus_id', '=', 'campuses.id')
+        $users = User::join('dbcpsupms.campuses', 'users.campus_id', '=', 'campuses.id')
             ->select('users.id as uid', 'users.*', 'campuses.*')
             ->get();
     
