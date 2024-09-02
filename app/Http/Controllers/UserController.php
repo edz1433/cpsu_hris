@@ -83,7 +83,8 @@ class UserController extends Controller
     
     public function uEdit($id)
     {
-        $users = User::all();
+        $guard = $this->getGuaard();
+        $users = User::select('id as uid', 'users.*')->get();
         $uEdit = User::find($id);
         $camp = Campus::on('payroll')->get();
     
@@ -91,11 +92,11 @@ class UserController extends Controller
             return redirect()->back()->with('error', 'User not found.');
         }
     
-        return view("users.user-list", compact('users', 'uEdit', 'camp'));
+        return view("users.user-list", compact('users', 'uEdit', 'camp', 'guard'));
     }
     
 
-    public function userUpdate(Request $request)
+    public function uUpdate(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'lname' => 'required',
@@ -103,7 +104,7 @@ class UserController extends Controller
             'mname' => 'required',
             'username' => 'required',
             'password' => 'nullable',
-            'Role' => 'required',
+            'role' => 'required',
             'gender' => 'required',
             'campus_id' => 'required',
             'access' => 'array',
@@ -129,21 +130,18 @@ class UserController extends Controller
             'role' => $request->input('role'),
             'gender' => $request->input('gender'),
         ];
-        
+
         if ($request->filled('password')) {
             $userData['password'] = Hash::make($request->input('password'));
         }
-    
+
         $accessPermissions = array_fill(0, 7, '0'); 
-        foreach ($request->input('access', []) as $index => $value) {
-            $accessPermissions[$index] = '1';
-        }
     
-        // if ($request->input('Role') === 'Administrator') {
-        //     $accessPermissions[7] = '1';
-        // }else{
-        //     $accessPermissions[7] = '0';
-        // }
+        foreach ($request->input('access', []) as $index => $value) {
+            if ($value == '1') {
+                $accessPermissions[$index] = '1';
+            }
+        }
     
         $userData['access'] = implode(',', $accessPermissions);
     
@@ -153,7 +151,7 @@ class UserController extends Controller
     }
     
 
-    public function userDelete($id) {
+    public function uDelete($id) {
         $user = User::find($id);
     
         if (!$user) {
@@ -167,7 +165,7 @@ class UserController extends Controller
     
         return response()->json([
             'status' => 200,
-            'uid' => $id,
+            'id' => $id,
         ]);
     }
 

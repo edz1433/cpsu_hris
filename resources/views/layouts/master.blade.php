@@ -181,6 +181,9 @@
 @if(request()->is('employees') || request()->is('employees/*'))
     @include('script.employeeScript')
 @endif
+@if(request()->is('user') || request()->is('user/*'))
+    @include('script.userScript')
+@endif
 @if(request()->is('pds') || request()->is('pds/personal-info') || request()->is('pds/personal-info/*'))
     @include('script.personInfoScript')
 @endif
