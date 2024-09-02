@@ -14,7 +14,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('officeList') }}" class="nav-link text-success1 {{ request()->is('officeList') || request()->is('officeEdit/*') ? 'active' : '' }}">
+                <a href="{{ route('officeList') }}" class="nav-link text-success1 {{ request()->is('office*') ? 'active' : '' }}">
                     <i class="pt-1 nav-icon fas fa-building"></i>
                     <p>Offices</p>
                 </a>

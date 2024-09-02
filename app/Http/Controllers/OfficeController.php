@@ -64,8 +64,8 @@ class OfficeController extends Controller
     {
         $guard = $this->getGuaard();
         $employee = Employee::all()->where('emp_status', 1);
-        $office = Office::leftJoin('cpsupms.employees', 'offices.office_head_id', '=', 'cpsupms.employees.id')
-        ->get(['offices.*', 'cpsupms.employees.fname as efname', 'cpsupms.employees.lname as elname']);    
+        $office = Office::leftJoin('dbcpsupms.employees', 'offices.office_head_id', '=', 'dbcpsupms.employees.id')
+        ->get(['offices.*', 'dbcpsupms.employees.fname as efname', 'dbcpsupms.employees.lname as elname']);    
 
         $offEdit = Office::find($id);
 
@@ -97,7 +97,7 @@ class OfficeController extends Controller
                     'office_head_id'=>$request->input('office_head_id'),
                     'group_by'=>'0',
                 ];
-                DB::table('cpsupms.offices')->where('id', $request->oid)->update($update);
+                DB::table('dbcpsupms.offices')->where('id', $request->oid)->update($update);
 
                 return redirect()->back()->with('success', 'Office Updated Successfully');
             }

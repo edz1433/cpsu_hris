@@ -5,9 +5,9 @@
     $current_route=request()->route()->getName();
 @endphp
 <div class="container-fluid">
-    <div class="row" style="padding-top: 100px;">
+    <div class="row">
         <div class="col-lg-3">
-            <div class="card card-success card-outline">
+            <div class="card card-info card-outline">
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-plus"></i> {{ $current_route == "officeList" ? "Add" : "Edit" }}
@@ -75,10 +75,7 @@
                         <div class="form-group">
                             <div class="form-row">
                                 <div class="col-md-12">
-                                    <button type="reset" class="btn btn-danger">
-                                        Clear
-                                    </button>
-                                    <button type="submit" name="btn-submit" class="btn btn-primary">
+                                    <button type="submit" name="btn-submit" class="btn btn-success btn-sm">
                                         <i class="fas fa-save"></i> Save
                                     </button>
                                 </div>
@@ -89,7 +86,7 @@
             </div>
         </div>
         <div class="col-lg-9">
-            <div class="card card-success card-outline">
+            <div class="card card-info card-outline">
                 @if($current_route == "officeEdit")
                 <div class="card-header">
                     <div class="col-md-12">
