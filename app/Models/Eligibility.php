@@ -11,7 +11,7 @@ class Eligibility extends Model
 
     protected $fillable = [
         'empid',
-        'career_eligible',
+        'careereligible',
         'rating',
         'date_exam',
         'place_exam',

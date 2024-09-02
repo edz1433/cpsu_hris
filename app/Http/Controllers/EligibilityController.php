@@ -81,7 +81,7 @@ class EligibilityController extends Controller
     public function eligibilityCreate(Request $request)
     {
         $request->validate([
-            'career_eligible' => 'nullable',
+            'careereligible' => 'nullable',
             'rating' => 'required',
             'date_exam' => 'required',
             'place_exam' => 'required',
@@ -102,7 +102,7 @@ class EligibilityController extends Controller
 
         Eligibility::create([
             'empid' => $request->input('empid'),
-            'career_eligible' => $request->input('career_eligible'),
+            'careereligible' => $request->input('careereligible'),
             'rating' => $request->input('rating'),
             'date_exam' => $request->input('date_exam'),
             'place_exam' => $request->input('place_exam'),
@@ -117,7 +117,7 @@ class EligibilityController extends Controller
     public function eligibilityUpdate(Request $request, $id)
     {
         $request->validate([
-            'career_eligible' => 'required',
+            'careereligible' => 'required',
             'rating' => 'required',
             'date_exam' => 'required',
             'place_exam' => 'required',
@@ -143,7 +143,7 @@ class EligibilityController extends Controller
         }
 
         $eligibility->update([
-            'career_eligible' => $request->input('career_eligible'),
+            'careereligible' => $request->input('careereligible'),
             'rating' => $request->input('rating'),
             'date_exam' => $request->input('date_exam'),
             'place_exam' => $request->input('place_exam'),

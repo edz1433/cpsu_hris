@@ -51,7 +51,7 @@
                                     <div class="form-row lbel mtop">
                                         <div class="col-md-6">
                                             <label class="badge badge-secondary text-wrap text-center lbel">CAREER SERVICE/ RA 1080 (BOARD/ BAR) UNDER SPECIAL LAWS/ CES/ CSEE BARANGAY ELI.</label>
-                                            <input type="text" name="career_eligible" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($eligibilityedit) ? $eligibilityedit->career_eligible : '' }}" autocomplete="off">
+                                            <input type="text" name="careereligible" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($eligibilityedit) ? $eligibilityedit->careereligible : '' }}" autocomplete="off">
                                         </div>
                                         
                                         <div class="col-md-3">
@@ -114,7 +114,7 @@
                             <tbody>
                                 <tr class="eligibility-row row-{{ $eli->id }}">
                                     <th class="align-middle" width="50%">CAREER SERVICE/ RA 1080 (BOARD/ BAR) UNDER SPECIAL LAWS/ CES/ CSEE BARANGAY ELIGIBILITY / DRIVER'S LICENSE</th>
-                                    <td class="align-middle">{{ $eli->career_eligible }}</td>
+                                    <td class="align-middle">{{ $eli->careereligible }}</td>
                                     <th class="text-center align-middle" rowspan="9" width="5%">
                                         @if($guard == "web")
                                             <a href="{{ route('eligibilityEdit', ['id' => $empid, 'eid' => $eli->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
@@ -159,7 +159,7 @@
                                 <tr class="eligibility-row row-{{ $eli->id }}">
                                     <th class="align-middle">Attachment</th>
                                     <td class="align-middle">
-                                        <a href="#" class="text-info" data-toggle="modal" data-target="#imageModal" data-label="{{ $eli->career_eligible }}" data-image="{{ asset('storage/' . $eli->attachment) }}">
+                                        <a href="#" class="text-info" data-toggle="modal" data-target="#imageModal" data-label="{{ $eli->careereligible }}" data-image="{{ asset('storage/' . $eli->attachment) }}">
                                             <i class="fas fa-eye fa-xs"></i> <b>Preview</b>
                                         </a>
                                     </td>
