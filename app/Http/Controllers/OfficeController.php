@@ -71,7 +71,7 @@ class OfficeController extends Controller
 
         return view("offdept.officelist", compact('offEdit', 'office', 'employee', 'guard'));
     }
-
+    
     public function officeUpdate(Request $request){
         $validator = Validator::make($request->all(), [
             'OfficeName'=>'required',
