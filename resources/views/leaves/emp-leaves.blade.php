@@ -20,19 +20,19 @@
             
                     <ul class="list-group list-group-unbordered custom-gap">
                         <li class="list-group-item">
-                            <b>Sick Leave</b> <span class="float-right  badge badge-success">{{ $employee->sl }}</span>
+                            <b>Sick Leave</b> <span class="float-right mt-1 badge badge-info">{{ $employee->sl }}</span>
                         </li>
                         <li class="list-group-item">
-                            <b>Vacation Leave</b> <span class="float-right  badge badge-success">{{ $employee->vl }}</span>
+                            <b>Vacation Leave</b> <span class="float-right mt-1 badge badge-info">{{ $employee->vl }}</span>
                         </li>
                         <li class="list-group-item">
-                            <b>Special Privilege Leave</b> <span class="float-right  badge badge-success">{{ $employee->special_pl }}</span>
+                            <b>Special Privilege Leave</b> <span class="float-right mt-1 badge badge-info">{{ $employee->special_pl }}</span>
                         </li>
                         <li class="list-group-item">
-                            <b>Solo Parent Leave</b> <span class="float-right  badge badge-success">{{ $employee->solo_pl }}</span>
+                            <b>Solo Parent Leave</b> <span class="float-right mt-1 badge badge-info">{{ $employee->solo_pl }}</span>
                         </li>
                         <li class="list-group-item">
-                            <b>AWOL</b> <span class="float-right  badge badge-success">{{ $employee->awol }}</span>
+                            <b>AWOL</b> <span class="float-right mt-1 badge badge-info">{{ $employee->awol }}</span>
                         </li>
                     </ul>
                 </div>
@@ -72,9 +72,11 @@
                     <h2 class="card-title text-success1">
                         <b>LEAVE CREDITS</b>
                     </h2>
+                    @if(count($leaves) != 0)
                     <button type="button" class="btn btn-info btn-sm float-right" data-toggle="modal" data-target="#leaveModal">
                         <i class="fas fa-plus"></i> 
                     </button>
+                    @endif
                 </div>
                 <div class="card-body">
                     @if(count($leaves) == 0)
