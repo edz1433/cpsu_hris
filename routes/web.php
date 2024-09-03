@@ -26,7 +26,7 @@ use App\Http\Controllers\OtherInfoController;
 use App\Http\Controllers\InfoQuestionController;
 use App\Http\Controllers\PdsReferencesController;
 use App\Http\Controllers\GovIdController;
-use App\Http\Controllers\LeaveCredits;
+use App\Http\Controllers\LeaveCreditController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -221,8 +221,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
 
     //Leave-Credits
     Route::prefix('leaves')->group(function() {
-        Route::get('/{id?}', [LeaveCredits::class, 'leavesRead'])->name('leavesRead');
-        Route::get('/leaves-create', [LeaveCredits::class, 'leavesCreate'])->name('leavesCreate');
+        Route::get('/{id?}', [LeaveCreditController::class, 'leavesRead'])->name('leavesRead');
+        Route::post('/leaves-create', [LeaveCreditController::class, 'leavesCreate'])->name('leavesCreate');
     });
 
     // Logout

@@ -8,4 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class LeaveCredit extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'empid',
+        'days',
+        'earn_sl',
+        'earn_vl',
+        'date',
+        'add_by',
+    ];
+
 }
