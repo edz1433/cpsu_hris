@@ -65,7 +65,7 @@ class LeaveCreditController extends Controller
                     'add_by' => $authid,
                 ]);
             }else{
-                return redirect()->back()->with('error', ' exist');
+                return redirect()->back()->with('error', ' Already exist');
             }
 
         } else {
