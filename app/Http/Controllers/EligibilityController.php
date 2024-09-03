@@ -66,7 +66,7 @@ class EligibilityController extends Controller
         
         return view("emp.eligibility", compact('guard', 'empid', 'employee', 'eligibility', 'columnstatus'));
     }
-
+    
     public function eligibilityEdit($id = null, $eid){
         $guard = $this->getGuard();
         $empid = ($id) ? $id : auth()->guard($guard)->user()->id;

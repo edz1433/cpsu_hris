@@ -70,6 +70,15 @@
                                             </td>
                                             <td>
                                                 <div class='d-flex align-items-center'>
+                                                    @if($emp->emp_status == 1)
+                                                    <a href="{{ route('leavesRead', $emp->id) }}" title="Leave Credits" class='btn btn-success btn-xs employee_edit mr-1' style='width: 30px;' value="{{ $emp->id }}">
+                                                        <i class="fas fa-calendar-check"></i>
+                                                    </a>
+                                                    @else
+                                                    <a href="#" title="Leave Credits" class='btn btn-secondary btn-xs employee_edit mr-1' style='width: 30px;' value="{{ $emp->id }}">
+                                                        <i class="fas fa-calendar-check"></i>
+                                                    </a>
+                                                    @endif
                                                     <a href="{{ route('PDS', $emp->id) }}" title="PDS" class='btn btn-info btn-xs employee_edit mr-1' style='width: 30px;' value="{{ $emp->id }}">
                                                         <i class='fas fa-file-alt'></i>
                                                     </a>

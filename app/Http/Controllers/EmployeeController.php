@@ -228,6 +228,8 @@ class EmployeeController extends Controller
             'padd_prov' => $request->padd_prov,
             'padd_region' => $request->padd_region,
             'padd_zcode' => $request->padd_zcode,
+            'special_pl' => ($request->emp_status == 1) ? 3 : 0,
+            'solo_pl' => ($request->emp_status == 1) ? 7 : 0,
             'username' => $newEmpID,
             'password' => $password,
         ]);

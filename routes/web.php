@@ -26,6 +26,7 @@ use App\Http\Controllers\OtherInfoController;
 use App\Http\Controllers\InfoQuestionController;
 use App\Http\Controllers\PdsReferencesController;
 use App\Http\Controllers\GovIdController;
+use App\Http\Controllers\LeaveCredits;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -216,6 +217,12 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/edit/{id}', [CalendarController::class, 'eventEdit'])->name('eventEdit');
         Route::post('/update', [CalendarController::class, 'eventUpdate'])->name('eventUpdate');
         Route::get('/delete/{id}', [CalendarController::class, 'eventDelete'])->name('eventDelete');
+    });
+
+    //Leave-Credits
+    Route::prefix('leaves')->group(function() {
+        Route::get('/{id?}', [LeaveCredits::class, 'leavesRead'])->name('leavesRead');
+        Route::get('/leaves-create', [LeaveCredits::class, 'leavesCreate'])->name('leavesCreate');
     });
 
     // Logout
