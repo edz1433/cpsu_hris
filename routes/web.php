@@ -223,8 +223,14 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     Route::prefix('leaves')->group(function() {
         Route::get('/{id?}', [LeaveCreditController::class, 'leavesRead'])->name('leavesRead');
         Route::post('/leaves-create', [LeaveCreditController::class, 'leavesCreate'])->name('leavesCreate');
+        Route::post('/leaves-edit/{id}', [LeaveCreditController::class, 'leavesEdit'])->name('leavesEdit');
+        Route::post('/leaves-update', [LeaveCreditController::class, 'leavesUpdate'])->name('leavesUpdate');
+        Route::post('/delete/{id}', [LeaveCreditController::class, 'leavesDelete'])->name('leavesDelete');
     });
-
+    
+    Route::prefix('emp-leaves')->group(function() {
+        Route::get('/credit', [LeaveCreditController::class, 'leavesReadEmp'])->name('leavesReadEmp');
+    }); 
     // Logout
     Route::get('/logout', [MasterController::class, 'logout'])->name('logout');
 });

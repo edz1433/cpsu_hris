@@ -15,6 +15,7 @@ class LeaveCredit extends Model
         'earn_sl',
         'earn_vl',
         'date',
+        'remarks',
         'add_by',
     ];
 

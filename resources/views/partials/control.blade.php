@@ -37,6 +37,24 @@
             </li>
         @endif
 
+        @if($guard == "web")
+            <li class="nav-item">
+                <a href="{{ route('leavesRead', 2) }}" class="nav-link text-success1 {{ request()->is('emp-leaves') || request()->is('emp-leaves/*') ? 'active' : '' }}">
+                    <i class="pt-1 nav-icon fas fa-calendar-check"></i>
+                    <p>LEAVE</p>
+                </a>
+            </li>
+        @else
+            @if(isset($employee) && $employee->emp_status == 1)
+                <li class="nav-item">
+                    <a href="{{ route('leavesReadEmp') }}" class="nav-link text-success1 {{ request()->is('emp-leaves') || request()->is('emp-leaves/*') ? 'active' : '' }}">
+                        <i class="pt-1 nav-icon fas fa-calendar-check"></i>
+                        <p>LEAVE</p>
+                    </a>
+                </li>
+            @endif
+        @endif
+
         <li class="nav-item">
             <a href="{{ route('dtr-read') }}" class="nav-link text-success1 {{ request()->is('dtr') || request()->is('dtr/*') ? 'active' : '' }}">
                 <i class="pt-1 nav-icon fas fa-clock"></i>

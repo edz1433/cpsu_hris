@@ -1,90 +1,54 @@
 @extends('layouts.master')
 
 @section('body')
-@include('emp.style')
+@include('leaves.style')
 <section class="content">
 <div class="container-fluid">
     <div class="row">
-        <div class="col-lg-3">
-            <div class="card card-info card-outline">
-                <div class="card-body box-profile">
-                    <div class="text-center position-relative">
-                        <div class="profile-image-container">
-                            <img src="{{ asset('Profile/Employee/'.$employee->profile) }}" alt="User Image" class="profile-user-img img-fluid" id="changeProfilePicture">
-                        </div>
-                        <input type="file" id="profilePictureInput" style="display: none;" accept="image/*">
-                    </div>
-                    
-                    <h3 class="profile-username text-center">{{ ucwords(strtolower($employee->fname)) }} {{ ucwords(strtolower($employee->lname)) }}</h3>
-                    <p class="text-muted text-center">{{ $employee->position }}</p>
-            
-                    <ul class="list-group list-group-unbordered custom-gap">
-                        <li class="list-group-item">
-                            <b>Sick Leave</b> <span class="float-right mt-1 badge badge-info">{{ $employee->sl }}</span>
-                        </li>
-                        <li class="list-group-item">
-                            <b>Vacation Leave</b> <span class="float-right mt-1 badge badge-info">{{ $employee->vl }}</span>
-                        </li>
-                        <li class="list-group-item">
-                            <b>Special Privilege Leave</b> <span class="float-right mt-1 badge badge-info">{{ $employee->special_pl }}</span>
-                        </li>
-                        <li class="list-group-item">
-                            <b>Solo Parent Leave</b> <span class="float-right mt-1 badge badge-info">{{ $employee->solo_pl }}</span>
-                        </li>
-                        <li class="list-group-item">
-                            <b>AWOL</b> <span class="float-right mt-1 badge badge-info">{{ $employee->awol }}</span>
-                        </li>
-                    </ul>
-                </div>
-                <!-- /.card-body -->
-            </div>
-            <div class="card card-info">
-                <div class="card-footer p-0">
-                    <ul class="nav flex-column">
-                        <li class="nav-item bg-secondary" style="margin-bottom: 5px; border-radius: 5px;">
-                            <a href="{{ ($guard == 'web') ? route('PDS', $employee->id) : route('empPDS') }}" class="nav-link">
-                                <i class="pr-2 fas fa-clock" style="width: 20px; margin-left: 3px;"></i> 
-                                <span class="{{ request()->is('pds/personal-info/*') ? 'text-light text-bold' : '' }}">PENDING</span> 
-                                <span class="float-right pt-1 badge badge-light">5</span>
-                            </a>
-                        </li>
-                        <li class="nav-item bg-success" style="margin-bottom: 5px; border-radius: 5px;">
-                            <a href="{{ ($guard == 'web') ? route('PDS', $employee->id) : route('empPDS') }}" class="nav-link">
-                                <i class="pr-2 fas fa-check-circle text-light" style="width: 20px; margin-left: 3px;"></i> 
-                                <span class="{{ request()->is('pds/personal-info/*') ? 'text-light text-bold' : '' }}">APPROVED</span> 
-                                <span class="float-right pt-1 badge badge-light">10</span>
-                            </a>
-                        </li>
-                        <li class="nav-item bg-danger" style="margin-bottom: 5px; border-radius: 5px;">
-                            <a href="{{ ($guard == 'web') ? route('PDS', $employee->id) : route('empPDS') }}" class="nav-link">
-                                <i class="pr-2 fas fa-times-circle" style="width: 20px; margin-left: 3px;"></i> 
-                                <span class="{{ request()->is('pds/personal-info/*') ? 'text-light text-bold' : '' }}">DECLINED</span> 
-                                <span class="float-right pt-1 badge badge-light">15</span>
-                            </a>
-                        </li>
-                    </ul>                    
-                </div>
-            </div>
-        </div>
+        @include("leaves.side-menu")
         <div class="col-lg-9">
             <div class="card card-info card-outline">
                 <div class="card-header">
-                    <h2 class="card-title text-success1">
-                        <b>LEAVE CREDITS</b>
-                    </h2>
-                    @if(count($leaves) != 0)
-                    <button type="button" class="btn btn-info btn-sm float-right" data-toggle="modal" data-target="#leaveModal">
-                        <i class="fas fa-plus"></i> 
-                    </button>
-                    @endif
+                    <div class="row">
+                        <div class="col-md-4">
+                            @if($guard == "web")
+                                <a href="{{ ($guard == 'web') ? route('PDS', $employee->id) : route('empPDS') }}" class="nav-link bg-secondary {{ request()->is('emp-leaves*') || request()->is('leaves*') ? 'glowing' : '' }}" style="border-radius: 5px;">
+                                    <i class="pr-2 fas fa-id-card" style="width: 20px; margin-left: 3px;"></i> 
+                                    <span class="text-light text-bold">LEAVE CREDITS </span> 
+                                    <span class="float-right pt-1 badge badge-light">0</span>
+                                </a>
+                            @else
+                                <a href="{{ ($guard == 'web') ? route('PDS', $employee->id) : route('empPDS') }}" class="nav-link  bg-secondary {{ request()->is('emp-leaves*') || request()->is('leaves*') ? 'glowing' : '' }}" style="border-radius: 5px;">
+                                    <i class="pr-2 fas fa-file-alt" style="width: 20px; margin-left: 3px;"></i> 
+                                    <span class="text-light">APPLICATION FORM</span> 
+                                    <span class="float-right pt-1 badge badge-light">0</span>
+                                </a>
+                            @endif
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ ($guard == 'web') ? route('PDS', $employee->id) : route('empPDS') }}" class="nav-link bg-secondary" style="border-radius: 5px;">
+                                <i class="pr-2 fas fa-stamp text-light" style="width: 20px; margin-left: 3px;"></i> 
+                                <span class="text-light text-bold">SUBJECT FOR APPROVAL</span> 
+                                <span class="float-right pt-1 badge badge-light">0</span>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ ($guard == 'web') ? route('PDS', $employee->id) : route('empPDS') }}" class="nav-link bg-secondary" style="border-radius: 5px;">
+                                <i class="pr-2 fas fa-spinner" style="width: 20px; margin-left: 3px;"></i> 
+                                <span class="text-light text-bold">STATUS</span> 
+                                <span class="float-right pt-1 badge badge-light">0</span>
+                            </a>
+                        </div>
+                    </div>                
                 </div>
                 <div class="card-body">
+                @if($guard == "web")
                     @if(count($leaves) == 0)
                     <div class="form-row lbel">
                         <div class="col-md-12">
                             <div class="row">
-                                <div class="col-12 text-center my-4">
-                                    <div class="card bg-light shadow-sm p-4">
+                                <div class="col-12 ">
+                                    <div class="card  p-4">
                                         <h2 class="text-warning font-weight-bold text-center">Input Leave Credit Balance to Start</h2>
                                         <p class="text-muted text-center">Please enter employee leave credit balance below to proceed.</p>
                                         <form class="form-horizontal" action="{{ route('leavesCreate') }}" method="POST">
@@ -93,24 +57,33 @@
                                                 <div class="col-md-3 col-sm-4 mb-3"></div>
                                         
                                                 <div class="col-md-3 col-sm-4 mb-3">
-                                                    <div class="form-check text-center">
-                                                        <label class="badge badge-secondary w-100">Sick Leave</label>
+                                                    <div class="form-check">
+                                                        <label class="badge badge-secondary">Sick Leave</label>
                                                         <input type="hidden" name="empid" value="{{ $employee->id }}">
-                                                        <input class="form-control form-control-sm" type="number" name="sl" step="0.01" min="0" max="{{ (count($leaves) == 0) ? '' : 30 }}" placeholder="0.00" required>
+                                                        <input class="form-control form-control-sm" type="number" name="sl" step="0.001" min="0" max="{{ (count($leaves) == 0) ? '' : 30 }}" placeholder="0.00" required>
                                                     </div>
                                                 </div>
                                                 
-                                                <div class="col-md-3 col-sm-4 mb-3">
-                                                    <div class="form-check text-center">
-                                                        <label class="badge badge-secondary w-100">Vacation Leave</label>
-                                                        <input class="form-control form-control-sm" type="number" name="vl" step="0.01" min="0" max="{{ (count($leaves) == 0) ? '' : 30 }}" placeholder="0.00" required>
+                                                <div class="col-md-3 col-sm-4">
+                                                    <div class="form-check">
+                                                        <label class="badge badge-secondary">Vacation Leave</label>
+                                                        <input class="form-control form-control-sm" type="number" name="vl" step="0.001" min="0" required>
                                                     </div>
                                                 </div>
                                         
-                                                <div class="col-md-3 col-sm-4 mb-3"></div>
+                                                <div class="col-md-3 col-sm-4"></div>
                                         
+                                                <div class="col-md-3"></div>
+
+                                                <div class="col-md-6 col-sm-4 mb-3">
+                                                    <div class="form-check">
+                                                        <label class="badge badge-secondary">Remarks</label>
+                                                        <textarea class="form-control form-control-sm" type="text" name="remarks" step="0.001" rows="3" required></textarea>
+                                                    </div>
+                                                </div>
+
                                                 <div class="col-md-6"></div>
-                                        
+                                                
                                                 <div class="col-md-3 text-right">
                                                     <button type="submit" name="btn-submit" class="btn btn-success btn-sm">
                                                         <i class="fas fa-save"></i> submit
@@ -129,14 +102,16 @@
                         </div>
                     </div>    
                     @else
+                    <button type="submit" class="btn btn-sm btn-info float-right mb-2" data-toggle="modal" data-target="#leaveModal"><i class="fas fa-plus"></i></button>
                     <div class="table-responsive ">
-                        <table class="table table-collapsed table-hover" id="example1">
+                        <table class="table table-collapsed table-hover" id="example3">
                             <thead>
                                 <tr>
                                     <th>Days</th>
                                     <th>SL Earned</th>
                                     <th>VL Earned</th>
                                     <th>Date</th>
+                                    <th>Remarks</th>
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead> 
@@ -145,7 +120,7 @@
                             @endphp
                             <tbody>
                                 @foreach($leaves as $index => $leave)
-                                    <tr>
+                                    <tr id="tr-{{ $leave->id }}">
                                         <td class="text-center">{{ $leave->days }}</td>
                                         <td class="text-center">{{ $leave->earn_sl }}</td>
                                         <td class="text-center">{{ $leave->earn_vl }}</td>
@@ -155,14 +130,19 @@
                                                 <br><span class="badge badge-warning">(starting Balance)</span>
                                             @endif
                                         </td>
+                                        <td>{{ $leave->remarks }}</td>
                                         <td  width="100" class="text-center">
-                                            <a href="#" class="btn btn-info btn-sm mb-2" title="Edit">
+                                            <a href="#" class="btn btn-info btn-sm mb-2 leaves_edit" data-id="{{ $leave->id }}" title="Edit" data-toggle="modal" data-target="#leaveEditModal">
                                                 <i class="fas fa-pen"></i>
                                             </a>
-                                            @if ($index !== 0)
-                                            <button class="btn btn-danger btn-sm mb-2 eligible_delete" value="{{ $leave->id }}" title="Delete">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            @if ($index === $totalLeaves - 1)
+                                                <button class="btn btn-secondary btn-sm mb-2" value="{{ $leave->id }}" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            @else
+                                                <button class="btn btn-danger btn-sm mb-2 leaves_delete" value="{{ $leave->id }}" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
                                             @endif
                                         </td>
                                     </tr>
@@ -171,98 +151,176 @@
                         </table>                    
                     </div>
                     @endif
+                @else
+                <form class="form-horizontal add-form" action="{{ route('empCreate') }}" method="POST">
+                    @csrf
+                    <div class="form-group mtop">
+                        <div class="form-row">
+                            <div class="col-md-6">
+                                <label class="badge badge-secondary lbel">TYPE OF LEAVE TO AVAILED OF</label><br>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox1">
+                                        <b>Vacation Leave</b> <span class="ft">(Sec. 51, Rule XVI, Omnibus Rules Implementing E.O No. 292)</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox2">
+                                        <b>Mandatory/Forced Leave</b> <span class="ft">(Sec. 51, Rule XVI, Omnibus Rules Implementing E.O No. 292)</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox3">
+                                        <b>Sick Leave</b> <span class="ft">(Sec. 51, Rule XVI, Omnibus Rules Implementing E.O No. 292)</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox3">
+                                        <b>Maternity Leave</b> <span class="ft">(R.A No. 11210/IRR issued by CSC, DOLE and SSS)</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox3">
+                                        <b>Paternity Leave</b> <span class="ft">(R.A No. 8187/CSC MC No. 71,s. 1998, as amended)</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox3">
+                                        <b>Special Privilege Leave</b> <span class="ft">(Sec. 21, Rule XVI, Omnibus Rules Implementing E.O No. 292)</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox3">
+                                        <b>Solo Parent Leave</b> <span class="ft">(R.A. No. 8972/CSC MC No. 8, s. 2004)</span>
+                                    </label>
+                                </div>
+                            </div>   
+                            <div class="col-md-6"><br>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox3">
+                                        <b>Study Leave</b> <span class="ft">(Sec. 68, Rule XVI, Omnibus Rules Implementing E.O No. 292)</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox3">
+                                        <b>10-Day VAWC Leave</b> <span class="ft">(R.A No. 9262/CSC MO No. 15,s. 2005)</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox3">
+                                        <b>Rehabilitation Privilege</b> <span class="ft">(Sec. 55, Rule XVI, omnibus Rules Implementing E.O No. 292)</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox3">
+                                        <b>Special Leave Benefits for Women</b> <span class="ft">(R.A No. 9710/CSC MC No. 25,s. 2010)</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox3">
+                                        <b>Special Emergency (Calamity) Leave</b> <span class="ft">(CSC MC No. 2,s. as amended)</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox3">
+                                        <b>Adoption Leave</b> <span class="ft">(R.A. No. 8552)</span>
+                                    </label>
+                                </div>
+                            </div> 
+                            <div class="col-md-6">
+                                <label class="badge badge-secondary lbel mt-2">DETAILS OF LEAVE</label><br>
+                                <i>In case of Vacation/Special Privilege Leave</i>
+                                <div class="form-check w-100">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox1">
+                                        <b>Within the Philippines</b> <input class="input-details" type="text">
+                                    </label>
+                                </div>
+                                <div class="form-check w-100">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox1">
+                                        <b>Abroad (Specify)</b> <input class="input-details" type="text">
+                                    </label>
+                                </div>
+                                <i>In case of Sick Leave</i>
+                                <div class="form-check w-100">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox1">
+                                        <b>In Hospital (Specify Illness)</b> <input class="input-details" type="text">
+                                    </label>
+                                </div>
+                                <div class="form-check w-100">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox1">
+                                        <b>Out Patient (Specify Illness)</b> <input class="input-details" type="text">
+                                    </label>
+                                </div>
+                            </div>  
+                            <div class="col-md-6">
+                                <br>
+                                <i>In case of Study Leave</i>
+                                <div class="form-check w-100">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox1">
+                                        <b>Completion of Master's Degree</b> <input class="input-details" type="text">
+                                    </label>
+                                </div>
+                                <div class="form-check w-100">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox1">
+                                        <b>BAR/Board Examination Review</b> <input class="input-details" type="text">
+                                    </label>
+                                </div>
+                                <i>Study Leave purpose</i>
+                                <div class="form-check w-100">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox1">
+                                        <b>Monetization of Leave Credits</b> <input class="input-details" type="text">
+                                    </label>
+                                </div>
+                                <div class="form-check w-100">
+                                    <input class="form-check-input" type="checkbox" name="leave_type" onclick="handleCheckboxClick(this)">
+                                    <label class="form-check-label" for="checkbox1">
+                                        <b>Terminal Leave</b> <input class="input-details" type="text">
+                                    </label>
+                                </div>
+                            </div>  
+                            <div class="col-md-6">
+                                <label class="badge badge-secondary text-wrap text-center lbel mb-1 mt-2">INCLUSIVE DATES</label>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <input type="date" id="inc_date1" name="inc_date1" class="form-control form-control-sm" autocomplete="off" style="flex: 1; margin-right: 5px;" required onchange="calculateDays()">
+                                    <input type="date" id="inc_date2" name="inc_date2" class="form-control form-control-sm" autocomplete="off" style="flex: 1; margin-left: 5px;" onchange="calculateDays()">
+                                </div>
+                            </div>  
+                            <div class="col-md-3">
+                                <label class="badge badge-secondary text-wrap text-center lbel mb-1 mt-2">DAYS APPLIED</label>
+                                <input type="text" id="day" name="day" class="form-control form-control-sm" autocomplete="off" style="flex: 1; margin-right: 5px;" readonly>
+                            </div>         
+                            <div class="col-md-3">
+                                <label class="badge badge-secondary text-wrap text-center lbel mb-1 mt-2">DATE OF FILING</label>
+                                <input type="date" class="form-control form-control-sm" value="{{ \Carbon\Carbon::now()->toDateString() }}" readonly>
+                            </div>                                     
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-success float-right">Submit</button>
+                </form>                
+                @endif
             </div>                        
         </div>
     </div>
 </div>
 </section>
-<div class="modal fade" id="leaveModal" tabindex="-1" role="dialog" aria-labelledby="leaveModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="leaveModalLabel">Leave Form</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form class="form-horizontal" action="{{ route('leavesCreate') }}" method="POST">
-                    @csrf
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-check text-center">
-                                <label class="badge badge-secondary w-100">Date</label>
-                                <input class="form-control form-control-sm" type="month" id="date" name="date" required>
-                            </div>
-                        </div>
-            
-                        <div class="col-md-3">
-                            <div class="form-check text-center">
-                                <label class="badge badge-secondary w-100">Days</label>
-                                <input type="hidden" name="empid" value="{{ $employee->id }}">
-                                <input class="form-control form-control-sm" type="number" id="days" name="days" min="1" max="30" oninput="updateEquivalent()" required>
-                            </div>
-                        </div>
-            
-                        <div class="col-md-3">
-                            <div class="form-check text-center">
-                                <label class="badge badge-secondary w-100">Sick Leave</label>
-                                <input type="hidden" name="empid" value="{{ $employee->id }}">
-                                <input class="form-control form-control-sm" type="text" id="sl" name="sl" step="0.01" min="0" max="30" placeholder="0.00" required readonly>
-                            </div>
-                        </div>
-            
-                        <div class="col-md-3">
-                            <div class="form-check text-center">
-                                <label class="badge badge-secondary w-100">Vacation Leave</label>
-                                <input class="form-control form-control-sm" type="number" id="vl" name="vl" step="0.01" min="0" max="30" placeholder="0.00" required readonly>
-                            </div>
-                        </div>
-            
-                        <div class="col-md-12 text-right mt-3">
-                            <button type="submit" name="btn-submit" class="btn btn-success btn-sm">
-                                <i class="fas fa-save"></i> Submit
-                            </button>
-                        </div>
-                    </div>
-                </form>            
-            </div>
-        </div>
-    </div>
-</div>
-<script>
-    const equivalences = [
-        0.042, 0.083, 0.125, 0.167, 0.208, 0.250, 0.292, 0.333, 0.375,
-        0.417, 0.458, 0.500, 0.542, 0.583, 0.625, 0.667, 0.708, 0.750,
-        0.792, 0.833, 0.875, 0.917, 0.958, 1.000, 1.042, 1.083, 1.125,
-        1.167, 1.208, 1.250
-    ];
-
-    function updateEquivalent() {
-        let daysInput = parseInt(document.getElementById('days').value, 10);
-        const sl = document.getElementById('sl');
-        const vl = document.getElementById('vl'); 
-
-        if (isNaN(daysInput) || daysInput < 1) {
-            sl.value = '';
-            vl.value = '';
-            return;
-        }
-
-        if (daysInput > 30) {
-            daysInput = 30;
-            document.getElementById('days').value = 30;
-        }
-
-        if (daysInput >= 1 && daysInput <= 30) {
-            const equivalentValue = equivalences[daysInput - 1];
-            sl.value = equivalentValue.toFixed(3);
-            vl.value = equivalentValue.toFixed(3);
-        } else {
-            sl.value = '';
-            vl.value = ''; 
-        }
-    }
-</script>
-
+@include("leaves.modal")
 @endsection

@@ -274,8 +274,7 @@ class EmployeeController extends Controller
     
         if ($request->hasFile('profileImage')) {
             $profileImagePath = public_path('Profile/Employee/');
-    
-            // Optionally delete old profile picture
+
             if ($employee->profile && file_exists($profileImagePath . $employee->profile)) {
                 unlink($profileImagePath . $employee->profile);
             }
@@ -410,19 +409,26 @@ class EmployeeController extends Controller
 
     public function updateEmployeePasswords()
     {
-        // Get all employees
-        $employees = Employee::all();
-
-        // Update passwords
-        foreach ($employees as $employee) {
-            $username = $employee->username;
-            $hashedPassword = Hash::make($username);
-
-            // Update the hashed password in the database
-            $employee->update(['password' => $hashedPassword]);
+        try {
+            $employees = Employee::all();
+    
+            foreach ($employees as $employee) {
+                if (!empty($employee->username)) {
+                    $username = $employee->username;
+    
+                    $hashedPassword = Hash::make($username);
+    
+                    $employee->password = $hashedPassword;
+                    $employee->save();
+                }
+            }
+    
+            return 'Passwords updated successfully.';
+    
+        } catch (\Exception $e) {
+            return 'An error occurred: ' . $e->getMessage();
         }
-
-        return 'Passwords updated successfully.';
     }
+    
 
 }

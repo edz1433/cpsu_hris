@@ -104,8 +104,6 @@
             </ul>
         </nav>
         
-        
-        
         <!-- /.navbar -->
 
         <!-- Main Sidebar Container -->
@@ -213,6 +211,9 @@
 @endif
 @if(request()->is('pds/government-id*'))
     @include('script.govidScript')
+@endif
+@if(request()->is('leaves/*') || request()->is('leaves'))
+    @include('script.leaveCreditScript')
 @endif
 </body>
 </html>
