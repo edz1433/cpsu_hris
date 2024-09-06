@@ -17,6 +17,7 @@ class LeaveCredit extends Model
         'date',
         'remarks',
         'add_by',
+        'stat',
     ];
 
 }

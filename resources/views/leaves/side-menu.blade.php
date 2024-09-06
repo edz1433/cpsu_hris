@@ -25,13 +25,13 @@
     
             <ul class="list-group list-group-unbordered custom-gap">
                 <li class="list-group-item">
-                    <b>Vacation Leave</b> <span class="float-right mt-1 badge badge-info">{{ $employee->vl }}</span>
+                    <b>Vacation Leave</b> <span class="float-right mt-1 badge badge-info" id="b-vl">{{ $employee->vl }}</span>
                 </li>
                 <li class="list-group-item">
-                    <b>Mandatory Leave</b> <span class="float-right mt-1 badge badge-info">{{ $employee->special_pl }}</span>
+                    <b>Mandatory Leave</b> <span class="float-right mt-1 badge badge-info" id="b-ml">{{ $employee->special_pl }}</span>
                 </li>
                 <li class="list-group-item">
-                    <b>Sick Leave</b> <span class="float-right mt-1 badge badge-info">{{ $employee->sl }}</span>
+                    <b>Sick Leave</b> <span class="float-right mt-1 badge badge-info" id="b-sl">{{ $employee->sl }}</span>
                 </li>
                 <li class="list-group-item">
                     <b>Special Privilege Leave</b> <span class="float-right mt-1 badge badge-info">{{ $employee->special_pl }}</span>

@@ -39,7 +39,7 @@
 
         @if($guard == "web")
             <li class="nav-item">
-                <a href="{{ route('leavesRead', 2) }}" class="nav-link text-success1 {{ request()->is('emp-leaves') || request()->is('emp-leaves/*') ? 'active' : '' }}">
+                <a href="{{ route('leavesRead', 2) }}" class="nav-link text-success1 {{ request()->is('emp-leaves') || request()->is('emp-leaves/*') || request()->is('leaves*') ? 'active' : '' }}">
                     <i class="pt-1 nav-icon fas fa-calendar-check"></i>
                     <p>LEAVE</p>
                 </a>

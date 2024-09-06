@@ -60,19 +60,6 @@
                         @csrf
                         <div class="form-group mtop">
                             <div class="form-row">
-                                <div class="col-md-1">
-                                    <label class="badge badge-secondary lbel">Profile</label><br>
-                                    <button type="button" id="capture-toggle" class="btn btn-secondary btn-block btn-sm" data-toggle="modal" data-target="#camera-modal"><i class="fas fa-camera"></i> </button>
-                                
-                                    <input type="hidden" name="ProfileImage" id="captured-image" required>
-                                </div>
-                                <div class="col-md-1">
-                                    <label style="margin-top: 14px;" class="lbel"></label><br>
-                                    <input type="file" id="profile-image-input" name="ProfileImage1" style="display: none;"  onchange="handleImageUpload()">
-                                    <button type="button" id="capture-toggle1" class="btn btn-secondary btn-block btn-sm" onclick="document.getElementById('profile-image-input').click();">
-                                        <i class="fas fa-upload"></i> 
-                                    </button>
-                                </div>
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">Date Hired</label>
                                     <input type="date" name="date_hired" class="form-control form-control-sm" id="date_hired">
@@ -415,6 +402,16 @@
                                         <option value=""> select </option>
                                         @foreach ($offices as $q)
                                             <option value="{{ $q->id }}">{{ $q->office_name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="badge badge-secondary lbel">Immediate Supervisor</label><br>
+                                    <select class="form-control form-control-sm select2" style="width: 100%;" name="supervisor" required>
+                                        <option value="0"> select </option>
+                                        @foreach ($supervisor as $sup)
+                                            <option value="{{ $sup->id }}">{{ strtoupper($sup->lname) }} {{ strtoupper($sup->fname) }} {{ strtoupper($sup->mname) }}</option>
                                         @endforeach
                                     </select>
                                 </div>

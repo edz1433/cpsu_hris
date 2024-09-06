@@ -44,7 +44,7 @@
                         <div class="col-md-12 col-sm-4 mb-3">
                             <div class="form-check">
                                 <label class="badge badge-secondary">Remarks</label>
-                                <textarea class="form-control form-control-sm" type="text" name="remarks" step="0.001" rows="2" required></textarea>
+                                <textarea class="form-control form-control-sm" type="text" name="remarks" step="0.001" rows="2"></textarea>
                             </div>
                         </div>
             
@@ -92,7 +92,7 @@
                             <div class="form-check">
                                 <label class="badge badge-secondary">Sick Leave</label>
                                 <input type="hidden" name="empid" value="{{ $employee->id }}">
-                                <input class="form-control form-control-sm" type="text" id="sl1" name="sl" step="0.001" min="0" max="30" placeholder="0.00" required readonly>
+                                <input class="form-control form-control-sm" type="number" id="sl1" name="sl" step="0.001" min="0" max="30" placeholder="0.00" required readonly>
                             </div>
                         </div>
             
@@ -106,7 +106,7 @@
                         <div class="col-md-12 col-sm-4 mb-3">
                             <div class="form-check">
                                 <label class="badge badge-secondary">Remarks</label>
-                                <textarea class="form-control form-control-sm" type="text" id="remarks1" name="remarks" step="0.001" rows="2" required></textarea>
+                                <textarea class="form-control form-control-sm" type="text" id="remarks1" name="remarks" step="0.001" rows="2"></textarea>
                             </div>
                         </div>
             

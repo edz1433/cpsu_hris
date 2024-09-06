@@ -196,6 +196,16 @@
                                         @endforeach
                                     </select>
                                 </div>
+
+                                <div class="col-md-3">
+                                    <label class="badge badge-secondary lbel">Immediate Supervisor</label><br>
+                                    <select class="form-control form-control-sm select2 update-field" style="width: 100%;" name="supervisor">
+                                        <option value="0" data-column-id="{{ $empid }}" data-column-name="supervisor"> select </option>
+                                        @foreach ($supervisor as $sup)
+                                            <option value="{{ $sup->id }}" data-column-id="{{ $empid }}" data-column-name="supervisor" @if($employee->supervisor == $sup->id) selected @endif>{{ strtoupper($sup->lname) }} {{ strtoupper($sup->fname) }} {{ strtoupper($sup->mname) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Height (cm)</label><br>

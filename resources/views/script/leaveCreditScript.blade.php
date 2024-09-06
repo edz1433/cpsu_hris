@@ -103,8 +103,8 @@
 <script>   
     $(document).on('click', '.leaves_delete', function(e){
         var id = $(this).val();
-        var url = "{{ route('leavesDelete', ['id' => ':id', 'empid' => ':empid']) }}";
-        url = url.replace(':id', id).replace(':empid', '{{ $employee->id }}');
+        var url = "{{ route('leavesDelete', ['id' => ':id', 'empid' => $employee->id]) }}";
+        url = url.replace(':id', id);
 
         $.ajaxSetup({
             headers: {
@@ -126,6 +126,10 @@
                     type: "POST",
                     url: url,
                     success: function (response) {  
+                        
+                        $('#b-vl').html(response.vl);
+                        $('#b-sl').html(response.sl);
+
                         $("#tr-"+id).fadeOut(2000);
                         Swal.fire({
                         title:'Deleted!',
@@ -159,11 +163,23 @@
             url: url,
             success: function (response) {  
                 if(response.data){
+                    
                     $('#days1').val(response.data.days);
                     $('#sl1').val(response.data.earn_sl);
                     $('#vl1').val(response.data.earn_vl);
                     $('#remarks1').val(response.data.remarks);
                     $('#date1').val(response.data.date);
+
+                    if(response.data.stat == 0) {
+                        $('#days1').prop('readonly', true);
+                        $('#sl1').val(response.data.earn_sl).removeAttr('min').removeAttr('max').prop('readonly', false);
+                        $('#vl1').val(response.data.earn_vl).removeAttr('min').removeAttr('max').prop('readonly', false);
+                    } else {
+                        $('#days1').prop('readonly', false); 
+                        $('#sl1').attr('min', 0).attr('max', 30).prop('readonly', true);
+                        $('#vl1').attr('min', 0).attr('max', 30).prop('readonly', true);
+                    }
+
                 } else {
                     console.log("No leave credit found for this employee.");
                 }

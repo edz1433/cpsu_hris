@@ -49,6 +49,7 @@ class LeaveCreditController extends Controller
     {
         $authid = auth()->user()->id;
         $currentDate = Carbon::now()->format('Y-m');
+        
         $request->validate([
             'empid' => 'required|exists:employees,id',
             'sl' => 'required|numeric|min:0',
@@ -60,36 +61,30 @@ class LeaveCreditController extends Controller
         if ($employee) {
             $employee->sl += $request->sl;
             $employee->vl += $request->vl;
-
+            $employee->save();
+    
             $records = LeaveCredit::where('empid', $employee->emp_ID)
-            ->where('date', $request->date)
-            ->orderBy('created_at', 'asc') 
-            ->get();
-
-            $skipFirstRow = $records->skip(1)->first();
-            if (!$skipFirstRow) {
-                $employee->save();
-                
-                LeaveCredit::create([
-                    'empid' => $employee->emp_ID,
-                    'days' => $request->days,
-                    'earn_sl' => $request->sl,
-                    'earn_vl' => $request->sl,
-                    'remarks' => $request->remarks,
-                    'date' =>  isset($request->date) ? $request->date : $currentDate,
-                    'add_by' => $authid,
-                ]);
-            }else{
-                return redirect()->back()->with('error', ' Already exist');
-            }
-
+                ->where('stat', 1)
+                ->where('date', $request->date)
+                ->get();
+    
+            LeaveCredit::create([
+                'empid' => $employee->emp_ID,
+                'days' => $request->days,
+                'earn_sl' => $request->sl,
+                'earn_vl' => $request->vl,
+                'remarks' => $request->remarks,
+                'date' => $request->date ?? $currentDate,
+                'add_by' => $authid,
+                'stat' => $request->days ? 1 : 0,
+            ]);
         } else {
             return redirect()->back()->with('error', 'Employee not found.');
         }
     
         return redirect()->back()->with('success', 'Save successfully.');
     }
-
+    
     public function leavesEdit(Request $request){
         $leavecredit = LeaveCredit::find($request->id);
 
@@ -101,6 +96,8 @@ class LeaveCreditController extends Controller
     public function leavesUpdate(Request $request)
     {
         $authid = auth()->user()->id;
+        $leavecread = LeaveCredit::find($request->lcid);
+
         $currentDate = Carbon::now()->format('Y-m');
         $request->validate([
             'empid' => 'required|exists:employees,id',
@@ -111,31 +108,24 @@ class LeaveCreditController extends Controller
         $employee = Employee::find($request->empid);
     
         if ($employee) {
-            $employee->sl += $request->sl;
-            $employee->vl += $request->vl;
 
-            $records = LeaveCredit::where('empid', $employee->emp_ID)
-            ->where('date', $request->date)
-            ->orderBy('created_at', 'asc') 
-            ->get();
-
-            $skipFirstRow = $records->skip(1)->first();
-            if (!$skipFirstRow) {
-                $employee->save();
-                
-                LeaveCredit::where('id', $request->lcid)
-                ->update([
-                    'days' => $request->days,
-                    'earn_sl' => $request->sl,
-                    'earn_vl' => $request->vl,
-                    'remarks' => $request->remarks,
-                    'date' => isset($request->date) ? $request->date : $currentDate,
-                    'add_by' => $authid,
-                ]);
-
-            }else{
-                return redirect()->back()->with('error', ' Already exist');
-            }
+            $employee->update([
+                'sl' => ($employee->sl - $leavecread->earn_sl) + ($request->sl),
+                'vl' => ($employee->vl - $leavecread->earn_vl) + ($request->vl),
+            ]);            
+            
+            $employee->save();            
+            
+            LeaveCredit::where('id', $request->lcid)
+            ->update([
+                'days' => $request->days,
+                'earn_sl' => $request->sl,
+                'earn_vl' => $request->vl,
+                'remarks' => $request->remarks,
+                'date' => isset($request->date) ? $request->date : $currentDate,
+                'add_by' => $authid,
+                'stat' => ($request->days == null) ? 0 : 1,
+            ]);
 
         } else {
             return redirect()->back()->with('error', 'Employee not found.');
@@ -146,10 +136,19 @@ class LeaveCreditController extends Controller
 
     public function leavesDelete($id, $empid){
         $emp = LeaveCredit::find($id);
+        $employee = Employee::find($empid);
+
+        $employee->update([
+            'sl' => $employee->sl - $emp->earn_sl,
+            'vl' => $employee->vl - $emp->earn_vl,
+        ]);
+
         $emp->delete();
 
         return response()->json([
             'status'=>200,
+            'sl' =>  $employee->sl,
+            'vl' => $employee->vl,
             'message'=>"Deleted Successfully",
         ]);
     }

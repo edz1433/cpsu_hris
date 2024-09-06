@@ -225,7 +225,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/leaves-create', [LeaveCreditController::class, 'leavesCreate'])->name('leavesCreate');
         Route::post('/leaves-edit/{id}', [LeaveCreditController::class, 'leavesEdit'])->name('leavesEdit');
         Route::post('/leaves-update', [LeaveCreditController::class, 'leavesUpdate'])->name('leavesUpdate');
-        Route::post('/delete/{id}', [LeaveCreditController::class, 'leavesDelete'])->name('leavesDelete');
+        Route::post('/delete/{id}/{empid}', [LeaveCreditController::class, 'leavesDelete'])->name('leavesDelete');
     });
     
     Route::prefix('emp-leaves')->group(function() {

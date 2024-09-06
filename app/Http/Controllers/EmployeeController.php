@@ -94,7 +94,7 @@ class EmployeeController extends Controller
             'statuses.status_name',
             'campuses.campus_abbr',
         );
-    
+        
         if (auth()->user()->role != "Administrator" && auth()->user()->role != "Payroll Administrator") {
             $employee->where('employees.camp_id', '=', auth()->user()->campus_id);
         }
@@ -112,12 +112,14 @@ class EmployeeController extends Controller
         $offices = Office::where('office_name', 'not like', '%UNKNOWN%')
                  ->where('office_name', 'not like', '%CAMPUS%')
                  ->get();
+         
+        $supervisor = Employee::where("emp_status", 1)->get();
 
         $stat = Status::where('status_name', '!=', 'Part-time/JO')->get();
         $quali = Qualification::all();
         $camp = (auth()->user()->campus_id == 1) ? Campus::all() : Campus::where('id', auth()->user()->campus_id)->get();
         
-        return view("emp.empadd", compact('guard', 'camp', 'offices', 'stat', 'quali', 'regions'));
+        return view("emp.empadd", compact('guard', 'camp', 'offices', 'stat', 'quali', 'regions', 'supervisor'));
     }
 
     public function empCreate(Request $request)
@@ -188,6 +190,7 @@ class EmployeeController extends Controller
             'emp_ID' => $newEmpID,
             'emp_status' => $request->emp_status,
             'emp_dept' => $request->emp_dept,
+            'em_supervise' => $request->em_supervise,
             'item_no' => $request->item_no,
             'prefix' => $request->prefix,
             'bdate' => $request->bdate,
@@ -249,13 +252,19 @@ class EmployeeController extends Controller
         ]);
 
         $models = ['FamilyBg', 'EducBg', 'OtherInfo', 'InfoQuestion', 'PdsReference', 'GovId'];
-        
+
         foreach ($models as $model) {
             $modelClass = "App\\Models\\{$model}";
-            $modelClass::create([
-                'empid' => $newEmpID,
-            ]);
-        }        
+        
+            if (class_exists($modelClass)) {
+                $modelClass::create([
+                    'empid' => $newEmpID,
+                ]);
+            } else {
+                throw new Exception("Model {$modelClass} not found.");
+            }
+        }
+             
         
         return redirect()->back()->with('success', 'Employee added successfully.');
     }
@@ -333,6 +342,8 @@ class EmployeeController extends Controller
         $gprovinces = Province::where('region_id', $employee->padd_region)->get();
         $gcities = City::where('city_id', $employee->padd_city)->get();
         $gbarangays = Barangay::find($employee->padd_brgy);
+
+        $supervisor = Employee::where('id', '!=', $empid)->where('emp_status', 1)->get();
         
         $regions = Region::all();
         $offices = Office::where('office_name', 'not like', '%UNKNOWN%')
@@ -343,7 +354,7 @@ class EmployeeController extends Controller
         $quali = Qualification::all();
         $camp = (auth()->user()->campus_id == 1) ? Campus::all() : Campus::where('id', auth()->user()->campus_id)->get();
 
-        return view("emp.pds", compact('employee', 'guard', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid', 'columnstatus'));
+        return view("emp.pds", compact('employee', 'supervisor', 'guard', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid', 'columnstatus'));
     }
 
     public function empEdit($id)

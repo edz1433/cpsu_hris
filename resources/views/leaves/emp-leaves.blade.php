@@ -12,13 +12,13 @@
                     <div class="row">
                         <div class="col-md-4">
                             @if($guard == "web")
-                                <a href="{{ ($guard == 'web') ? route('PDS', $employee->id) : route('empPDS') }}" class="nav-link bg-secondary {{ request()->is('emp-leaves*') || request()->is('leaves*') ? 'glowing' : '' }}" style="border-radius: 5px;">
+                                <a href="{{ ($guard == 'web') ? route('PDS', $employee->id) : route('empPDS') }}" class="nav-link  {{ request()->is('emp-leaves*') || request()->is('leaves*') ? 'bg-default' : 'bg-secondary' }}" style="border-radius: 5px;">
                                     <i class="pr-2 fas fa-id-card" style="width: 20px; margin-left: 3px;"></i> 
                                     <span class="text-light text-bold">LEAVE CREDITS </span> 
                                     <span class="float-right pt-1 badge badge-light">0</span>
                                 </a>
                             @else
-                                <a href="{{ ($guard == 'web') ? route('PDS', $employee->id) : route('empPDS') }}" class="nav-link  bg-secondary {{ request()->is('emp-leaves*') || request()->is('leaves*') ? 'glowing' : '' }}" style="border-radius: 5px;">
+                                <a href="{{ ($guard == 'web') ? route('PDS', $employee->id) : route('empPDS') }}" class="nav-link  {{ request()->is('emp-leaves*') || request()->is('leaves*') ? 'bg-default' : 'bg-secondary' }}" style="border-radius: 5px;">
                                     <i class="pr-2 fas fa-file-alt" style="width: 20px; margin-left: 3px;"></i> 
                                     <span class="text-light">APPLICATION FORM</span> 
                                     <span class="float-right pt-1 badge badge-light">0</span>
@@ -78,7 +78,7 @@
                                                 <div class="col-md-6 col-sm-4 mb-3">
                                                     <div class="form-check">
                                                         <label class="badge badge-secondary">Remarks</label>
-                                                        <textarea class="form-control form-control-sm" type="text" name="remarks" step="0.001" rows="3" required></textarea>
+                                                        <textarea class="form-control form-control-sm" type="text" name="remarks" step="0.001" rows="3"></textarea>
                                                     </div>
                                                 </div>
 
@@ -115,35 +115,23 @@
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead> 
-                            @php
-                                $totalLeaves = $leaves->count();
-                            @endphp
                             <tbody>
-                                @foreach($leaves as $index => $leave)
+                                @foreach($leaves as $leave)
                                     <tr id="tr-{{ $leave->id }}">
-                                        <td class="text-center">{{ $leave->days }}</td>
+                                        <td class="text-center">@if($leave->stat == 0) <span class="badge badge-warning">(starting Balance)</span> @else {{ $leave->days }} @endif</td>
                                         <td class="text-center">{{ $leave->earn_sl }}</td>
                                         <td class="text-center">{{ $leave->earn_vl }}</td>
                                         <td class="text-center">
                                             {{ \Carbon\Carbon::parse($leave->date)->format('F Y') }}
-                                            @if ($index === $totalLeaves - 1)
-                                                <br><span class="badge badge-warning">(starting Balance)</span>
-                                            @endif
                                         </td>
                                         <td>{{ $leave->remarks }}</td>
                                         <td  width="100" class="text-center">
                                             <a href="#" class="btn btn-info btn-sm mb-2 leaves_edit" data-id="{{ $leave->id }}" title="Edit" data-toggle="modal" data-target="#leaveEditModal">
                                                 <i class="fas fa-pen"></i>
                                             </a>
-                                            @if ($index === $totalLeaves - 1)
-                                                <button class="btn btn-secondary btn-sm mb-2" value="{{ $leave->id }}" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            @else
-                                                <button class="btn btn-danger btn-sm mb-2 leaves_delete" value="{{ $leave->id }}" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            @endif
+                                            <button class="btn {{ ($leave->stat == 0) ? 'btn-secondary leaves_delete' : 'btn-danger leaves_delete' }} btn-sm mb-2" value="{{ $leave->id }}" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 @endforeach

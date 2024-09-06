@@ -87,12 +87,14 @@ class PdsController extends Controller
         $offices = Office::where('office_name', 'not like', '%UNKNOWN%')
                  ->where('office_name', 'not like', '%CAMPUS%')
                  ->get();
+        
+        $supervisor = Employee::where('id', '!=', $empid)->where('emp_status', 1)->get();
 
         $stat = Status::where('status_name', '!=', 'Part-time/JO')->get();
         $quali = Qualification::all();
         $camp = Campus::where('id', auth()->guard($guard)->user()->camp_id)->get();
 
-        return view("emp.pds", compact('employee', 'guard', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid', 'columnstatus'));
+        return view("emp.pds", compact('employee', 'supervisor', 'guard', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid', 'columnstatus'));
     }
 
     public function generatepds($id = null){
