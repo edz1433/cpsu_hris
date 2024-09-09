@@ -315,15 +315,76 @@
     });  
 </script>
 <script>
-        $(document).on('click', '.leaves_edit', function(e){
-            var id = $(this).data('id');
+    $('.approve-leave').on('click', function() {
+        var id = $(this).data('id');
 
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-            });
-
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You want to approve this request!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, approve it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    type: "POST",
+                    url: approveUrl,
+                    data: { id: id },
+                    success: function(response) {
+                        Swal.fire({
+                            title: 'Approved!',
+                            text: 'The request has been approved.',
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 1000
+                        });
+                    }
+                });
+            }
         });
-    });  
+    });
+
+
+    $('.disapprove-leave').on('click', function() {
+        var id = $(this).data('id');
+
+        Swal.fire({
+            title: 'Disapprove Request',
+            text: "Please provide your reason for disapproval:",
+            input: 'textarea',
+            inputPlaceholder: 'Enter your remarks...',
+            showCancelButton: true,
+            confirmButtonText: 'Submit',
+            cancelButtonText: 'Cancel',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Remarks are required!'
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed && result.value) {
+                let remarks = result.value; 
+
+                $.ajax({
+                    type: "POST",
+                    url: disapproveUrl,
+                    data: {
+                        id: id,
+                        remarks: remarks
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            title: 'Disapproved!',
+                            text: 'Your disapproval has been submitted.',
+                            icon: 'warning',
+                            showConfirmButton: false,
+                            timer: 1000
+                        });
+                    }
+                });
+            }
+        });
+    });
 </script>

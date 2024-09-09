@@ -88,8 +88,8 @@
                                             @if($guard == "employee")
                                                 @if($leaves->supervisor == auth()->guard($guard)->user()->id && $leaves->status == 1 && $leaves->comment_stat !== 1)
                                                     <div class="timeline-footer">
-                                                        <button class="btn btn-success btn-sm"><i class="fas fa-check"></i> Approve</button>
-                                                        <button class="btn btn-danger btn-sm">Disapprove</button>
+                                                        <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="1"><i class="fas fa-check"></i> Approve</button>
+                                                        <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="1">Disapprove</button>
                                                     </div>
                                                 @endif
                                             @endif
@@ -115,10 +115,10 @@
                                             </h3>
                                             @if($guard == "web")
                                                 @if($leaves->status == 2 && $leaves->comment_stat != 2 && $accesarray[7] == 1 && $leaves->comment_stat !== 2)
-                                                <div class="timeline-footer">
-                                                    <button class="btn btn-success btn-sm"><i class="fas fa-check"></i> Approve</button>
-                                                    <button class="btn btn-danger btn-sm">Disapprove</button>
-                                                </div>
+                                                    <div class="timeline-footer">
+                                                        <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2"><i class="fas fa-check"></i> Approve</button>
+                                                        <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="2">Disapprove</button>
+                                                    </div>
                                                 @endif
                                             @endif
                                         </div>
@@ -144,8 +144,8 @@
                                             @if($guard == "employee")
                                                 @if($setting->suc_pres == auth()->guard($guard)->user()->id && $leaves->status == 3 && $leaves->comment_stat !== 3)
                                                     <div class="timeline-footer">
-                                                        <button class="btn btn-success btn-sm"><i class="fas fa-check"></i> Approve</button>
-                                                        <button class="btn btn-danger btn-sm">Disapprove</button>
+                                                        <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="3"><i class="fas fa-check"></i> Approve</button>
+                                                        <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="3">Disapprove</button>
                                                     </div>
                                                 @endif
                                             @endif
@@ -205,8 +205,8 @@
                                             @if($guard == "employee")
                                                 @if($leaves->supervisor == auth()->guard($guard)->user()->id && $leaves->status == 1 && $leaves->comment_stat !== 1)
                                                     <div class="timeline-footer">
-                                                        <button class="btn btn-success btn-sm"><i class="fas fa-check"></i> Approve</button>
-                                                        <button class="btn btn-danger btn-sm">Disapprove</button>
+                                                        <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="1"><i class="fas fa-check"></i> Approve</button>
+                                                        <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="1">Disapprove</button>
                                                     </div>
                                                 @endif
                                             @endif
@@ -232,10 +232,10 @@
                                             </h3>
                                             @if($guard == "web")
                                                 @if($leaves->status == 2 && $leaves->comment_stat != 2 && $accesarray[7] == 1 && $leaves->comment_stat !== 2)
-                                                <div class="timeline-footer">
-                                                    <button class="btn btn-success btn-sm"><i class="fas fa-check"></i> Approve</button>
-                                                    <button class="btn btn-danger btn-sm">Disapprove</button>
-                                                </div>
+                                                    <div class="timeline-footer">
+                                                        <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2"><i class="fas fa-check"></i> Approve</button>
+                                                        <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="2">Disapprove</button>
+                                                    </div>
                                                 @endif
                                             @endif
                                         </div>
@@ -256,8 +256,8 @@
                                             @if($guard == "employee")
                                                 @if($setting->suc_pres == auth()->guard($guard)->user()->id && $leaves->status == 3 && $leaves->comment_stat !== 3)
                                                     <div class="timeline-footer">
-                                                        <button class="btn btn-success btn-sm"><i class="fas fa-check"></i> Approve</button>
-                                                        <button class="btn btn-danger btn-sm">Disapprove</button>
+                                                        <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="3"><i class="fas fa-check"></i> Approve</button>
+                                                        <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="3">Disapprove</button>
                                                     </div>
                                                 @endif
                                             @endif
