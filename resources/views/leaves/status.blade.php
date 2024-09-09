@@ -81,7 +81,7 @@
                                                 <span><i>Immediate Supervisor</i></span>
                                                 @if($leaves->comment_stat == 1)<br>
                                                 <div class="callout callout-danger" style="margin: 8px 0px 0px 0px !important; padding: 10px !important;">
-                                                    <p>Disapproved Due to your katangaan.</p>
+                                                    <p>{{ $leaves->comment_details }}</p>
                                                     </div>
                                                 @endif
                                             </h3>
@@ -109,7 +109,7 @@
                                                 <span><i>Head, HRMO</i></span>
                                                 @if($leaves->comment_stat == 2)<br>
                                                 <div class="callout callout-danger" style="margin: 8px 0px 0px 0px !important; padding: 10px !important;">
-                                                    <p>Disapproved Due to your katangaan.</p>
+                                                    <p>{{ $leaves->comment_details }}</p>
                                                     </div>
                                                 @endif
                                             </h3>
@@ -198,7 +198,7 @@
                                                 <span><i>Immediate Supervisor</i></span>
                                                 @if($leaves->comment_stat == 1)<br>
                                                 <div class="callout callout-danger" style="margin: 8px 0px 0px 0px !important; padding: 10px !important;">
-                                                    <p>Disapproved Due to your katangaan.</p>
+                                                    <p>{{ $leaves->comment_details }}</p>
                                                     </div>
                                                 @endif
                                             </h3>
@@ -226,7 +226,7 @@
                                                 <span><i>Head, HRMO</i></span>
                                                 @if($leaves->comment_stat == 2)<br>
                                                 <div class="callout callout-danger" style="margin: 8px 0px 0px 0px !important; padding: 10px !important;">
-                                                    <p>Disapproved Due to your katangaan.</p>
+                                                    <p>{{ $leaves->comment_details }}</p>
                                                     </div>
                                                 @endif
                                             </h3>
