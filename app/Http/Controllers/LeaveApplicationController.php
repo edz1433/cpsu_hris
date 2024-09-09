@@ -121,4 +121,31 @@ class LeaveApplicationController extends Controller
 
         return view("leaves.status", compact('guard', 'setting', 'employee', 'leavesapp', 'leavesapphead', 'emplalls'));
     }
+
+    public function approveLeave(Request $request)
+    {
+        $leaveApplication = LeaveApplication::find($request->id);
+
+        if ($leaveApplication) {
+            $status = 0;
+            switch ($request->by) {
+                case 1:
+                    $status = 2;
+                    break;
+                case 2:
+                    $status = 3;
+                    break;
+                case 3:
+                    $status = 4;
+                    break;
+            }
+            
+            $leaveApplication->status = $status;
+            $leaveApplication->save();
+
+            return response()->json(['success' => true, 'message' => 'Leave approved successfully.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Leave not found.'], 404);
+    }
 }

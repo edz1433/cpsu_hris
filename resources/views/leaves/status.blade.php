@@ -87,7 +87,7 @@
                                             </h3>
                                             @if($guard == "employee")
                                                 @if($leaves->supervisor == auth()->guard($guard)->user()->id && $leaves->status == 1 && $leaves->comment_stat !== 1)
-                                                    <div class="timeline-footer">
+                                                    <div class="timeline-footer action-button{{  }}">
                                                         <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="1"><i class="fas fa-check"></i> Approve</button>
                                                         <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="1">Disapprove</button>
                                                     </div>
@@ -204,7 +204,7 @@
                                             </h3>
                                             @if($guard == "employee")
                                                 @if($leaves->supervisor == auth()->guard($guard)->user()->id && $leaves->status == 1 && $leaves->comment_stat !== 1)
-                                                    <div class="timeline-footer">
+                                                    <div class="timeline-footer" id="action-button{{ $leaves->id }}">
                                                         <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="1"><i class="fas fa-check"></i> Approve</button>
                                                         <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="1">Disapprove</button>
                                                     </div>

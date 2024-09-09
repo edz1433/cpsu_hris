@@ -229,14 +229,16 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/delete/{id}/{empid}', [LeaveCreditController::class, 'leavesDelete'])->name('leavesDelete');
     });
     
+    // Logout
     Route::prefix('emp-leaves')->group(function() {
         Route::get('/', [LeaveCreditController::class, 'leavesReadEmp'])->name('leavesReadEmp');
         Route::post('/create', [LeaveApplicationController::class, 'LeaveAppCreate'])->name('LeaveAppCreate');
 
         Route::get('/emp-status', [LeaveApplicationController::class, 'leaveStatus'])->name('leaveStatus');
         Route::get('/status/{id}', [LeaveApplicationController::class, 'leaveStatus'])->name('leaveStatusEmp');
+        Route::post('/approve', [LeaveApplicationController::class, 'approveLeave'])->name('leaveApprove');
     }); 
-    // Logout
+
     Route::get('/logout', [MasterController::class, 'logout'])->name('logout');
 });
 

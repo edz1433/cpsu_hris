@@ -317,6 +317,8 @@
 <script>
     $('.approve-leave').on('click', function() {
         var id = $(this).data('id');
+        var by = $(this).data('by');
+        var approveUrl = "{{ route('leaveApprove') }}";
 
         Swal.fire({
             title: 'Are you sure?',
@@ -330,8 +332,12 @@
             if (result.isConfirmed) {
                 $.ajax({
                     type: "POST",
-                    url: approveUrl,
-                    data: { id: id },
+                    url: approveUrl ,
+                    data: {
+                        id: id,
+                        by: by,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
                     success: function(response) {
                         Swal.fire({
                             title: 'Approved!',
@@ -339,6 +345,18 @@
                             icon: 'success',
                             showConfirmButton: false,
                             timer: 1000
+                        });
+
+                        $('#action-button' + id).fadeOut(1000, function() {
+                            $(this).remove();
+                        });
+                    },
+                    error: function(response) {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred while approving the leave.',
+                            icon: 'error',
+                            showConfirmButton: true,
                         });
                     }
                 });
