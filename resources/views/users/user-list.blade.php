@@ -174,6 +174,10 @@
                                         <input type="checkbox" name="access[3]" value="1" id="access3" class="form-check-input" @if(isset($accessArray[3]) && $accessArray[3] == '1') checked @endif>
                                         <label for="access3" class="form-check-label">EVENTS</label>
                                     </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="access[7]" value="1" id="access7" class="form-check-input" @if(isset($accessArray[7]) && $accessArray[7] == '1') checked @endif>
+                                        <label for="access7" class="form-check-label">LEAVE</label>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-check">
@@ -189,7 +193,7 @@
                                         <label for="access6" class="form-check-label">SETTINGS</label>
                                     </div>
                                     <div class="form-check">
-                                        <input type="checkbox" name="access[7]" value="1" id="access7" class="form-check-input" @if(isset($accessArray[7]) && $accessArray[7] == '1') checked @endif>
+                                        <input type="checkbox" name="access[8]" value="1" id="access7" class="form-check-input" @if(isset($accessArray[8]) && $accessArray[8] == '1') checked @endif>
                                         <label for="access7" class="form-check-label">KIOSK</label>
                                     </div>
                                 </div>
@@ -211,17 +215,6 @@
         </div>
         <div class="col-lg-9">
             <div class="card card-info card-outline">
-                @if($current_route == "uEdit")
-                <div class="card-header">
-                    <div class="col-md-12">
-                        <ol class="breadcrumb float-md-right">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('ulist') }}">User</a></li>
-                            <li class="breadcrumb-item">Edit</li>
-                        </ol>                            
-                    </div>
-                </div>
-                @endif
                 <div class="card-body">
                     <div class="table-responsive">
                         <table id="example1" class="table table-bordered table-hover">
@@ -271,7 +264,10 @@
                                             @if($access[6] == 1) <span class="badge badge-secondary">SETTINGS</span> @endif
                                         @endif
                                         @if (isset($access[7]) && $access[7] == 1)
-                                            @if($access[7] == 1) <span class="badge badge-secondary">KIOSK</span> @endif
+                                            @if($access[7] == 1) <span class="badge badge-secondary">LEAVE</span> @endif
+                                        @endif
+                                        @if (isset($access[8]) && $access[8] == 1)
+                                            @if($access[8] == 1) <span class="badge badge-secondary">KIOSK</span> @endif
                                         @endif
                                     </td>                                                                        
                                     <td class="text-center">

@@ -68,38 +68,165 @@
     }
 </script>
 <script>
-    function handleCheckboxClick(clickedCheckbox) {
-        const checkboxes = document.querySelectorAll('input[type="checkbox"][name="leave_type"]');
+    $(document).ready(function() {
+        function enableVacationLeaveFields() {
+            $('.vacation-check').prop('disabled', false);
+            $('.vacation-leave').prop('readonly', false);
+        }
         
-        checkboxes.forEach(checkbox => {
-            if (checkbox !== clickedCheckbox) {
-                checkbox.checked = false;
+        function disableVacationLeaveFields() {
+            $('.vacation-check').prop('disabled', true);
+            $('.vacation-leave').prop('readonly', true);
+            $('.vacation-check').prop('checked', false);
+            $('.vacation-leave').val('');
+        }
+    
+        $('#vacation-leave').on('change', function() {
+            if ($(this).is(':checked')) {
+                enableVacationLeaveFields();
             }
         });
-    }
-</script>
-<script>
-    function calculateDays() {
-        const inc_date1 = document.getElementById('inc_date1').value;
-        const inc_date2 = document.getElementById('inc_date2').value;
-        const dayField = document.getElementById('day');
-        
-        if (inc_date1) {
-            if (inc_date2) {
-                const date1 = new Date(inc_date1);
-                const date2 = new Date(inc_date2);
-                const timeDifference = date2.getTime() - date1.getTime();
-                const dayDifference = Math.ceil(timeDifference / (1000 * 3600 * 24)) + 1;
-                
-                dayField.value = dayDifference > 0 ? dayDifference : 1;
-            } else {
-                dayField.value = 1;
+    
+        $('input[name="leave_type"]').on('change', function() {
+            if ($(this).val() != '1') {
+                disableVacationLeaveFields();
             }
+        });
+
+        function enableStudyLeaveFields() {
+            $('.leave-check').prop('disabled', false);
+            $('.study-leave').prop('readonly', false);
+        }
+        
+        function disableStudyLeaveFields() {
+            $('.leave-check').prop('disabled', true);
+            $('.study-leave').prop('readonly', true);
+            $('.leave-check').prop('checked', false);
+            $('.study-leave').val('');
+        }
+    
+        $('#study-leave').on('change', function() {
+            if ($(this).is(':checked')) {
+                enableStudyLeaveFields();
+            }
+        });
+    
+        $('input[name="leave_type"]').on('change', function() {
+            if ($(this).val() != '8') {
+                disableStudyLeaveFields();
+            }
+        });
+
+        function enableSickLeaveFields() {
+            $('.sick-leave-detail').prop('disabled', false);
+            $('.sick-leave').prop('readonly', false);
+        }
+
+        function disableSickLeaveFields() {
+            $('.sick-leave-detail').prop('disabled', true);
+            $('.sick-leave').prop('readonly', true);
+            $('.sick-leave-detail').prop('checked', false);
+            $('.sick-leave').val('');
+        }
+
+        $('#sick-leave').on('change', function() {
+            if ($(this).is(':checked')) {
+                enableSickLeaveFields();
+            } else {
+                disableSickLeaveFields();
+            }
+        });
+
+        $('input[name="leave_type"]').on('change', function() {
+            if ($(this).val() != '3') { 
+                disableSickLeaveFields();
+            } else {
+                enableSickLeaveFields();
+            }
+        });
+        
+        function enablePurposeFields() {
+            $('.purpose-detail').find('input').prop('disabled', false);
+            $('.purpose-detail').find('input[type="text"]').prop('readonly', false);
+        }
+
+        function disablePurposeFields() {
+            $('.purpose-detail').find('input').prop('disabled', true);
+            $('.purpose-detail').find('input[type="text"]').prop('readonly', true);
+            $('.purpose-detail').find('input[type="radio"]').prop('checked', false);
+            $('.purpose-detail').find('input[type="text"]').val('');
+        }
+
+        function enableLeaveSpecificFields() {
+        }
+
+        $('input[name="leave_type"]').on('change', function() {
+            const selectedLeaveType = $(this).val();
+            if (selectedLeaveType == '1' || selectedLeaveType == '3' || selectedLeaveType == '8') {
+                disablePurposeFields();
+            } else {
+                enablePurposeFields();
+            }
+        });
+
+        $('input[name="leave_detail[]"]').on('input', function() {
+            var currentInput = $(this);
+
+            $('input[name="leave_detail[]"]').not(currentInput).val('');
+        });
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+
+        flatpickr("#date_range", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            minDate: today,
+            onChange: function(selectedDates) {
+                calculateWeekdays(selectedDates);
+            }
+        });
+    });
+
+    function calculateWeekdays(selectedDates) {
+        const daysField = document.getElementById('day');
+
+        if (selectedDates.length === 2) {
+            const startDate = selectedDates[0];
+            const endDate = selectedDates[1];
+
+            if (endDate < startDate) {
+                daysField.value = 'End date must be after start date.';
+                return;
+            }
+
+            const weekdayCount = countWeekdays(startDate, endDate);
+            daysField.value = weekdayCount;
         } else {
-            dayField.value = '';
+            daysField.value = '';
         }
     }
+
+    function countWeekdays(startDate, endDate) {
+        let count = 0;
+        let currentDate = new Date(startDate);
+
+        while (currentDate <= endDate) {
+            const dayOfWeek = currentDate.getDay();
+            // 1 is Monday, 2 is Tuesday, ..., 6 is Saturday, 0 is Sunday
+            if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                count++;
+            }
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        return count;
+    }
 </script>
+
 <script>   
     $(document).on('click', '.leaves_delete', function(e){
         var id = $(this).val();
@@ -184,6 +311,19 @@
                     console.log("No leave credit found for this employee.");
                 }
             },
+        });
+    });  
+</script>
+<script>
+        $(document).on('click', '.leaves_edit', function(e){
+            var id = $(this).data('id');
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+            });
+
         });
     });  
 </script>

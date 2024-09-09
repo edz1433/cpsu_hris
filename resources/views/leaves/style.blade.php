@@ -25,10 +25,7 @@
     .bg-form{
         background-color:  #e9ecef;
     }
-    .form-control:disabled, .form-control[readonly] {
-        background-color: #ffffff;
-        opacity: 1;
-    }
+
     .form-control-sm {
         height: calc(1.5125rem + 2px);
         padding: .15rem .5rem;
@@ -97,5 +94,10 @@
             border-color: #fff;
             box-shadow: 0 0 5px #fff;
         }
+    }
+
+    .download{
+        margin-left: 59px !important;
+        margin-top:  19px !important;
     }
 </style>

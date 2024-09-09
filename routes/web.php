@@ -27,6 +27,7 @@ use App\Http\Controllers\InfoQuestionController;
 use App\Http\Controllers\PdsReferencesController;
 use App\Http\Controllers\GovIdController;
 use App\Http\Controllers\LeaveCreditController;
+use App\Http\Controllers\LeaveApplicationController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -229,7 +230,11 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
     
     Route::prefix('emp-leaves')->group(function() {
-        Route::get('/credit', [LeaveCreditController::class, 'leavesReadEmp'])->name('leavesReadEmp');
+        Route::get('/', [LeaveCreditController::class, 'leavesReadEmp'])->name('leavesReadEmp');
+        Route::post('/create', [LeaveApplicationController::class, 'LeaveAppCreate'])->name('LeaveAppCreate');
+
+        Route::get('/emp-status', [LeaveApplicationController::class, 'leaveStatus'])->name('leaveStatus');
+        Route::get('/status/{id}', [LeaveApplicationController::class, 'leaveStatus'])->name('leaveStatusEmp');
     }); 
     // Logout
     Route::get('/logout', [MasterController::class, 'logout'])->name('logout');

@@ -30,6 +30,7 @@
     <link rel="stylesheet" href="{{ asset('template/dist/css/style.css') }}">
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('template/img/CPSU_L.png') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
     .profile-image {
         width: 32px;
@@ -212,7 +213,7 @@
 @if(request()->is('pds/government-id*'))
     @include('script.govidScript')
 @endif
-@if(request()->is('leaves/*') || request()->is('leaves'))
+@if(request()->is('leaves/*') || request()->is('leaves') || request()->is('emp-leaves*'))
     @include('script.leaveCreditScript')
 @endif
 </body>

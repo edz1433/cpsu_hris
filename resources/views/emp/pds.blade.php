@@ -132,7 +132,7 @@
                                 
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Country</label><br>
-                                    <select class="form-control form-control-sm select2 update-field" name="country">
+                                    <select class="form-control form-control-sm update-field" name="country">
                                         <option value="" disabled selected>Select</option>
                                         @foreach([
                                             'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
@@ -161,7 +161,7 @@
                                     </select>
                                     
                                 </div>   
-
+                                @if($guard == "web")
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Employee Status</label><br>
                                     <select class="form-control form-control-sm select2 update-field" style="width: 100%;" name="emp_status" required>
@@ -171,7 +171,7 @@
                                         @endforeach
                                     </select>                                    
                                 </div> 
-                                
+                                @endif
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Position</label><br>
                                     <input type="text" value="{{ $employee->position }}" name="position" data-column-id="{{ $empid }}" data-column-name="position" id="position" name="position" id="position" class="form-control form-control-sm" placeholder="N/A">

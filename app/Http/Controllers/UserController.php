@@ -63,7 +63,7 @@ class UserController extends Controller
             'gender' => $request->input('gender'),
         ];
     
-        $accessPermissions = array_fill(0, 7, '0');
+        $accessPermissions = array_fill(0, 8, '0');
         foreach ($request->input('access', []) as $index => $value) {
             $accessPermissions[$index] = '1';
         }
@@ -93,8 +93,7 @@ class UserController extends Controller
         }
     
         return view("users.user-list", compact('users', 'uEdit', 'camp', 'guard'));
-    }
-    
+    }  
 
     public function uUpdate(Request $request)
     {
@@ -130,17 +129,15 @@ class UserController extends Controller
             'role' => $request->input('role'),
             'gender' => $request->input('gender'),
         ];
-
+    
         if ($request->filled('password')) {
             $userData['password'] = Hash::make($request->input('password'));
         }
-
-        $accessPermissions = array_fill(0, 7, '0'); 
+    
+        $accessPermissions = array_fill(0, 9, '0');
     
         foreach ($request->input('access', []) as $index => $value) {
-            if ($value == '1') {
-                $accessPermissions[$index] = '1';
-            }
+            $accessPermissions[$index] = '1';
         }
     
         $userData['access'] = implode(',', $accessPermissions);
@@ -148,8 +145,7 @@ class UserController extends Controller
         $user->update($userData);
     
         return redirect()->back()->with('success', 'User updated successfully.');
-    }
-    
+    }    
 
     public function uDelete($id) {
         $user = User::find($id);
