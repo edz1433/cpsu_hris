@@ -72,7 +72,7 @@
                                         @if($leaves->comment_stat == 1)
                                             <i class="fas fa-ban bg-danger"></i>
                                         @else
-                                            <i class="fas {{ ($leaves->status == 1) ? 'fa-times bg-secondary' : (($leaves->status == 2 || $leaves->status == 3 || $leaves->status == 4) ? 'fa-check bg-success' : '') }}"></i>
+                                            <i id="status-icon{{ $leaves->id }}" class="fas {{ ($leaves->status == 1) ? 'fa-times bg-secondary' : (($leaves->status == 2 || $leaves->status == 3 || $leaves->status == 4) ? 'fa-check bg-success' : '') }}"></i>
                                         @endif
                                         <div class="timeline-item">
                                             <span class="time">{{ (!empty($leaves->sup_sdate)) ? \Carbon\Carbon::parse($leaves->sup_sdate)->format('F j, Y') : '' }}</span>
@@ -87,7 +87,7 @@
                                             </h3>
                                             @if($guard == "employee")
                                                 @if($leaves->supervisor == auth()->guard($guard)->user()->id && $leaves->status == 1 && $leaves->comment_stat !== 1)
-                                                    <div class="timeline-footer action-button{{  }}">
+                                                    <div class="timeline-footer" id="action-button{{ $leaves->id }}">
                                                         <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="1"><i class="fas fa-check"></i> Approve</button>
                                                         <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="1">Disapprove</button>
                                                     </div>
@@ -100,7 +100,7 @@
                                         @if($leaves->comment_stat == 2)
                                             <i class="fas fa-ban bg-danger"></i>
                                         @else
-                                        <i class="fas {{ ($leaves->status == 1 || $leaves->status == 2) ? 'fa-times bg-secondary' : (($leaves->status == 3 || $leaves->status == 4 || $leaves->status == 5) ? 'fa-check bg-success' : '') }}"></i>
+                                        <i id="status-icon1{{ $leaves->id }}" class="fas {{ ($leaves->status == 1 || $leaves->status == 2) ? 'fa-times bg-secondary' : (($leaves->status == 3 || $leaves->status == 4 || $leaves->status == 5) ? 'fa-check bg-success' : '') }}"></i>
                                         @endif
                                         <div class="timeline-item">
                                             <span class="time">{{ (!empty($leaves->hr_sdate)) ? \Carbon\Carbon::parse($leaves->hr_sdate)->format('F j, Y') : '' }}</span>
@@ -115,7 +115,7 @@
                                             </h3>
                                             @if($guard == "web")
                                                 @if($leaves->status == 2 && $leaves->comment_stat != 2 && $accesarray[7] == 1 && $leaves->comment_stat !== 2)
-                                                    <div class="timeline-footer">
+                                                    <div class="timeline-footer" id="action-button1{{ $leaves->id }}">
                                                         <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2"><i class="fas fa-check"></i> Approve</button>
                                                         <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="2">Disapprove</button>
                                                     </div>
@@ -128,7 +128,7 @@
                                         @if($leaves->comment_stat == 3)
                                             <i class="fas fa-ban bg-danger"></i>
                                         @else
-                                            <i class="fas {{ ($leaves->status == 1 || $leaves->status == 2 || $leaves->status == 3) ? 'fa-times bg-secondary' : (($leaves->status == 3 || $leaves->status == 4) ? 'fa-check bg-success' : '') }}"></i>
+                                            <i id="status-icon2{{ $leaves->id }}" class="fas {{ ($leaves->status == 1 || $leaves->status == 2 || $leaves->status == 3) ? 'fa-times bg-secondary' : (($leaves->status == 3 || $leaves->status == 4) ? 'fa-check bg-success' : '') }}"></i>
                                         @endif
                                         <div class="timeline-item">
                                             <span class="time">{{ (!empty($leaves->pres_sdate)) ? \Carbon\Carbon::parse($leaves->pres_sdate)->format('F j, Y') : '' }}</span>
@@ -143,7 +143,7 @@
                                             </h3>
                                             @if($guard == "employee")
                                                 @if($setting->suc_pres == auth()->guard($guard)->user()->id && $leaves->status == 3 && $leaves->comment_stat !== 3)
-                                                    <div class="timeline-footer">
+                                                    <div class="timeline-footer" id="action-button2{{ $leaves->id }}">
                                                         <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="3"><i class="fas fa-check"></i> Approve</button>
                                                         <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="3">Disapprove</button>
                                                     </div>
@@ -158,7 +158,7 @@
                                         @else
                                         <i class="fas {{ ($leaves->status == 4 || $leaves->status == 5) ? 'fa-check bg-success' : 'fa-times bg-secondary' }} mt-3"></i>
                                         @endif
-                                        <a href="#" class="btn @if($leaves->comment_stat == 3) btn-secondary @else {{ ($leaves->status == 4 || $leaves->status == 5) ? 'btn-danger' : 'btn-secondary' }} @ENDIF btn-sm mt-3 ml-5 download"><i class="fas fa-file-pdf"></i> Preview</a>
+                                        <a href="#" class="btn @if($leaves->comment_stat == 3) btn-secondary @else {{ ($leaves->status == 4 || $leaves->status == 5) ? 'btn-danger' : 'btn-secondary' }} @endif btn-sm mt-3 ml-5 download"><i class="fas fa-file-pdf"></i> Preview</a>
                                     </div>
 
                                 </div>
@@ -189,7 +189,7 @@
                                         @if($leaves->comment_stat == 1)
                                             <i class="fas fa-ban bg-danger"></i>
                                         @else
-                                            <i class="fas {{ ($leaves->status == 1) ? 'fa-times bg-secondary' : (($leaves->status == 2 || $leaves->status == 3 || $leaves->status == 4) ? 'fa-check bg-success' : '') }}"></i>
+                                            <i id="status-icon{{ $leaves->id }}" class="fas {{ ($leaves->status == 1) ? 'fa-times bg-secondary' : (($leaves->status == 2 || $leaves->status == 3 || $leaves->status == 4) ? 'fa-check bg-success' : '') }}"></i>
                                         @endif
                                         <div class="timeline-item">
                                             <span class="time">{{ (!empty($leaves->sup_sdate)) ? \Carbon\Carbon::parse($leaves->sup_sdate)->format('F j, Y') : '' }}</span>
@@ -217,7 +217,7 @@
                                         @if($leaves->comment_stat == 2)
                                             <i class="fas fa-ban bg-danger"></i>
                                         @else
-                                        <i class="fas {{ ($leaves->status == 1 || $leaves->status == 2) ? 'fa-times bg-secondary' : (($leaves->status == 3 || $leaves->status == 4 || $leaves->status == 5) ? 'fa-check bg-success' : '') }}"></i>
+                                        <i id="status-icon1{{ $leaves->id }}" class="fas {{ ($leaves->status == 1 || $leaves->status == 2) ? 'fa-times bg-secondary' : (($leaves->status == 3 || $leaves->status == 4 || $leaves->status == 5) ? 'fa-check bg-success' : '') }}"></i>
                                         @endif
                                         <div class="timeline-item">
                                             <span class="time">{{ (!empty($leaves->sup_sdate)) ? \Carbon\Carbon::parse($leaves->sup_sdate)->format('F j, Y') : '' }}</span>
@@ -232,7 +232,7 @@
                                             </h3>
                                             @if($guard == "web")
                                                 @if($leaves->status == 2 && $leaves->comment_stat != 2 && $accesarray[7] == 1 && $leaves->comment_stat !== 2)
-                                                    <div class="timeline-footer">
+                                                    <div class="timeline-footer" id="action-button1{{ $leaves->id }}">
                                                         <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2"><i class="fas fa-check"></i> Approve</button>
                                                         <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="2">Disapprove</button>
                                                     </div>

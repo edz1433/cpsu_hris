@@ -347,9 +347,29 @@
                             timer: 1000
                         });
 
-                        $('#action-button' + id).fadeOut(1000, function() {
-                            $(this).remove();
-                        });
+                        if(by == 1){
+                            $('#action-button' + id).fadeOut(1000, function() {
+                                $(this).remove();
+                            });
+
+                            $('#status-icon' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
+                        }
+
+                        if(by == 2){
+                            $('#action-button1' + id).fadeOut(1000, function() {
+                                $(this).remove();
+                            });
+
+                            $('#status-icon1' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
+                        }
+
+                        if(by == 3){
+                            $('#action-button2' + id).fadeOut(1000, function() {
+                                $(this).remove();
+                            });
+                            
+                            $('#status-icon2' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
+                        }
                     },
                     error: function(response) {
                         Swal.fire({

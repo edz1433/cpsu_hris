@@ -24,6 +24,7 @@ class User extends Authenticatable
         'gender',
         'campus_id',
         'username',
+        'verification_code',
         'password',
         'role',
         'access',

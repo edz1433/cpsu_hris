@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\NoCacheMiddleware;
 use App\Http\Controllers\LoginAuthController;
+use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\MasterController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OfficeController;
@@ -52,6 +53,12 @@ Route::get('/', function () {
 Route::get('/login',[LoginAuthController::class,'getLogin'])->name('getLogin')->middleware([NoCacheMiddleware::class]);
 Route::post('/login',[LoginAuthController::class,'postLogin'])->name('postLogin');
 Route::get('/update-pass', [EmployeeController::class, 'updateEmployeePasswords']);
+
+
+Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
+Route::get('/verify', [GoogleAuthController::class, 'verifyForm'])->name('verify');
+Route::post('/verify', [GoogleAuthController::class, 'verify'])->name('verify.code');
 
 Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], function() {
     // Dashboard
