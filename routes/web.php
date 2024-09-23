@@ -52,7 +52,7 @@ Route::get('/', function () {
 //login
 Route::get('/login',[LoginAuthController::class,'getLogin'])->name('getLogin')->middleware([NoCacheMiddleware::class]);
 Route::post('/login',[LoginAuthController::class,'postLogin'])->name('postLogin');
-Route::get('/update-pass', [EmployeeController::class, 'updateEmployeePasswords']);
+// Route::get('/update-pass', [EmployeeController::class, 'updateEmployeePasswords']);
 
 
 Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('google.login');
@@ -111,8 +111,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
 
     // My Account
     Route::prefix('/myaccount')->group(function(){
-        Route::get('/', [MyAccountController::class, 'myAccount']) ->name('myAccount');
-        Route::post('/update-account', [MyAccountController::class, 'updateAccount']) ->name('updateAccount');
+        // Route::get('/', [MyAccountController::class, 'myAccount']) ->name('myAccount');
+        // Route::post('/update-account', [MyAccountController::class, 'updateAccount']) ->name('updateAccount');
     });
 
     // Employee
@@ -133,7 +133,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     //pds
     Route::prefix('pds')->group(function() {
         Route::get('/', [PdsController::class, 'empPDS'])->name('empPDS');  
-        Route::get('/generatepds/{id?}', [PdsController::class, 'generatepds'])->name('generatepds');  
+        Route::get('/generatepds/{id?}', [PdsController::class, 'generatepds'])->name('generatepds');
+        
         //personal Info
         Route::get('personal-info/{id}', [EmployeeController::class, 'PDS'])->name('PDS');   
 
@@ -193,6 +194,10 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         //Government ID
         Route::get('/government-id/{id?}', [GovIdController::class, 'govids'])->name('govids');
         Route::post('/update-govids', [GovIdController::class, 'update'])->name('update.govids');
+
+        //Signature
+        Route::get('/signature/{id?}', [PdsController::class, 'signature'])->name('signature');
+        Route::post('/upload-signature/{id?}', [PdsController::class, 'uploadSignature'])->name('uploadSignature');
     });
     
     // Modify
@@ -226,16 +231,16 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/update', [CalendarController::class, 'eventUpdate'])->name('eventUpdate');
         Route::get('/delete/{id}', [CalendarController::class, 'eventDelete'])->name('eventDelete');
     });
-
+    
     //Leave-Credits
     Route::prefix('leaves')->group(function() {
         Route::get('/{id?}', [LeaveCreditController::class, 'leavesRead'])->name('leavesRead');
         Route::post('/leaves-create', [LeaveCreditController::class, 'leavesCreate'])->name('leavesCreate');
         Route::post('/leaves-edit/{id}', [LeaveCreditController::class, 'leavesEdit'])->name('leavesEdit');
         Route::post('/leaves-update', [LeaveCreditController::class, 'leavesUpdate'])->name('leavesUpdate');
-        Route::post('/delete/{id}/{empid}', [LeaveCreditController::class, 'leavesDelete'])->name('leavesDelete');
+        Route::post('/delete/{id}/{empid}', [LeaveCreditController::class, 'leavesDelete'])->name('leavesDelete');  
     });
-    
+    Route::get('/esign', [LeaveApplicationController::class, 'eSign'])->name('eSign');  
     // Logout
     Route::prefix('emp-leaves')->group(function() {
         Route::get('/', [LeaveCreditController::class, 'leavesReadEmp'])->name('leavesReadEmp');
@@ -243,9 +248,12 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
 
         Route::get('/emp-status', [LeaveApplicationController::class, 'leaveStatus'])->name('leaveStatus');
         Route::get('/status/{id}', [LeaveApplicationController::class, 'leaveStatus'])->name('leaveStatusEmp');
-        Route::post('/approve', [LeaveApplicationController::class, 'approveLeave'])->name('leaveApprove');
-    }); 
-
+        Route::post('/approve', [LeaveApplicationController::class, 'leaveApprove'])->name('leaveApprove');
+        Route::post('/dis-approve', [LeaveApplicationController::class, 'leaveDisapprove'])->name('leaveDisapprove');
+        Route::get('/preview-leave/{id}', [LeaveApplicationController::class, 'previewLeave'])->name('previewLeave');   
+        Route::get('/leave-live/{id?}', [LeaveApplicationController::class, 'leaveLive'])->name('leaveLive');
+    });
+    
     Route::get('/logout', [MasterController::class, 'logout'])->name('logout');
 });
 

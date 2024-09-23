@@ -31,7 +31,7 @@ class LeaveCreditController extends Controller
 
         return view('leaves.emp-leaves', compact('leaves', 'guard', 'employee', 'emplalls'));
     }
-
+    
     public function leavesReadEmp(){
         $guard = $this->getGuard();
         $empid = auth()->guard($guard)->user()->id;

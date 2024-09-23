@@ -36,4 +36,8 @@ return [
         'redirect' => env('GOOGLE_CLIENT_CALLBACK'),
     ],
 
+    'foxit' => [
+        'api_key' => env('FOXIT_API_KEY'),
+    ],
+
 ];

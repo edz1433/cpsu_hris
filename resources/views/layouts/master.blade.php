@@ -98,7 +98,7 @@
                         @endif
                     </a>                    
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{{ route('myAccount') }}"><i class="fas fa-key fa-xs"></i> My Account</a>
+                        {{-- <a class="dropdown-item" href="{{ route('myAccount') }}"><i class="fas fa-key fa-xs"></i> My Account</a> --}}
                         <a class="dropdown-item" href="{{ route('logout') }}"><i class="fas fa-power-off fa-xs"></i> Sign Out</a>
                     </div>
                 </li>
@@ -215,6 +215,9 @@
 @endif
 @if(request()->is('leaves/*') || request()->is('leaves') || request()->is('emp-leaves*'))
     @include('script.leaveCreditScript')
+@endif
+@if(request()->is('pds/signature/*') || request()->is('pds/signature'))
+    @include('script.signatureScript')
 @endif
 </body>
 </html>

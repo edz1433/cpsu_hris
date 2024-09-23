@@ -181,13 +181,32 @@
     document.addEventListener('DOMContentLoaded', function() {
         const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
 
-        flatpickr("#date_range", {
+        // Initialize the flatpickr instance
+        const flatpickrInstance = flatpickr("#date_range", {
             mode: "range",
             dateFormat: "Y-m-d",
-            minDate: today,
+            minDate: today, // Default to today's date
             onChange: function(selectedDates) {
                 calculateWeekdays(selectedDates);
             }
+        });
+
+        // Event listener for leave type selection
+        document.querySelectorAll('input[name="leave_type"]').forEach(function(input) {
+            input.addEventListener('change', function() {
+                const selectedLeaveType = this.value;
+
+                if (selectedLeaveType == '1' || selectedLeaveType == '8') {
+                    flatpickrInstance.set('minDate', today); // Disable previous dates
+                    flatpickrInstance.clear(); // Clear previous selection
+                } else if (selectedLeaveType == '3') {
+                    flatpickrInstance.set('minDate', null); // Allow previous dates
+                    flatpickrInstance.clear(); // Clear previous selection
+                } else {
+                    flatpickrInstance.set('minDate', today); // Disable previous dates
+                    flatpickrInstance.clear(); // Clear previous selection
+                }
+            });
         });
     });
 
@@ -197,11 +216,6 @@
         if (selectedDates.length === 2) {
             const startDate = selectedDates[0];
             const endDate = selectedDates[1];
-
-            if (endDate < startDate) {
-                daysField.value = 'End date must be after start date.';
-                return;
-            }
 
             const weekdayCount = countWeekdays(startDate, endDate);
             daysField.value = weekdayCount;
@@ -216,7 +230,7 @@
 
         while (currentDate <= endDate) {
             const dayOfWeek = currentDate.getDay();
-            // 1 is Monday, 2 is Tuesday, ..., 6 is Saturday, 0 is Sunday
+            // Skip weekends (Saturday and Sunday)
             if (dayOfWeek !== 0 && dayOfWeek !== 6) {
                 count++;
             }
@@ -225,6 +239,7 @@
 
         return count;
     }
+
 </script>
 
 <script>   
@@ -316,27 +331,43 @@
 </script>
 <script>
     $('.approve-leave').on('click', function() {
-        var id = $(this).data('id');
-        var by = $(this).data('by');
-        var approveUrl = "{{ route('leaveApprove') }}";
+        var id = $(this).data('id'); // Leave Application ID
+        var by = $(this).data('by'); // Approval level (supervisor, HR, etc.)
+        var max = $(this).data('max'); // Maximum days allowed
+        var approveUrl = "{{ route('leaveApprove') }}"; // AJAX URL for approving leave
 
         Swal.fire({
             title: 'Are you sure?',
             text: "You want to approve this request!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
+            confirmButtonColor: '#28a745',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, approve it!'
+            confirmButtonText: 'Yes, approve it!',
+            input: by == 2 ? 'number' : null, // Only show input if 'by == 2'
+            inputPlaceholder: by == 2 ? 'Enter days without pay...' : '',
+            inputAttributes: {
+                min: 0,
+                max: by == 2 ? max : 0
+            },
+            inputValidator: (value) => {
+                if (by == 2 && (value < 0 || value > max)) {
+                    return `Please enter a valid number of days (0-${max})`;
+                }
+            }
         }).then((result) => {
+            // Set day_wpay to the input value (if by == 2), or default to 0 otherwise
+            var day_wpay = (by == 2) ? result.value : 0;
+            
             if (result.isConfirmed) {
                 $.ajax({
                     type: "POST",
-                    url: approveUrl ,
+                    url: approveUrl,
                     data: {
                         id: id,
                         by: by,
-                        _token: $('meta[name="csrf-token"]').attr('content')
+                        day_wpay: day_wpay,
+                        _token: $('meta[name="csrf-token"]').attr('content') // Include CSRF token
                     },
                     success: function(response) {
                         Swal.fire({
@@ -347,29 +378,33 @@
                             timer: 1000
                         });
 
-                        if(by == 1){
+                        // Update the UI based on approval stage (by)
+                        if (by == 1) {
+                            // Supervisor Approval
                             $('#action-button' + id).fadeOut(1000, function() {
                                 $(this).remove();
                             });
-
                             $('#status-icon' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
-                        }
-
-                        if(by == 2){
+                            $('.time-sup' + id).html(response.datetime);
+                        } else if (by == 2) {
+                            // HR Approval
                             $('#action-button1' + id).fadeOut(1000, function() {
                                 $(this).remove();
                             });
-
                             $('#status-icon1' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
-                        }
-
-                        if(by == 3){
+                            $('.time-hr' + id).html(response.datetime);
+                        } else if (by == 3) {
+                            // Final Approval
                             $('#action-button2' + id).fadeOut(1000, function() {
                                 $(this).remove();
                             });
-                            
                             $('#status-icon2' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
+                            $('#status-icon3' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
+                            $('.time-pres' + id).html(response.datetime);
+                            $('#preview' + id).removeClass('bg-secondary').addClass('bg-danger');
+                            $('#preview' + id).attr('href', "{{ route('previewLeave', ':id') }}".replace(':id', id));
                         }
+                        
                     },
                     error: function(response) {
                         Swal.fire({
@@ -384,9 +419,10 @@
         });
     });
 
-
     $('.disapprove-leave').on('click', function() {
         var id = $(this).data('id');
+        var by = $(this).data('by');
+        var disapproveUrl = "{{ route('leaveDisapprove') }}";
 
         Swal.fire({
             title: 'Disapprove Request',
@@ -396,33 +432,116 @@
             showCancelButton: true,
             confirmButtonText: 'Submit',
             cancelButtonText: 'Cancel',
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#dc3545',
             inputValidator: (value) => {
                 if (!value) {
-                    return 'Remarks are required!'
+                    return 'Remarks are required!';
                 }
             }
         }).then((result) => {
             if (result.isConfirmed && result.value) {
-                let remarks = result.value; 
+                let remarks = result.value;
 
                 $.ajax({
                     type: "POST",
                     url: disapproveUrl,
                     data: {
                         id: id,
-                        remarks: remarks
+                        by: by,
+                        remarks: remarks,
+                        _token: $('meta[name="csrf-token"]').attr('content') // CSRF token for security
                     },
                     success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: 'Disapproved!',
+                                text: 'Your disapproval has been submitted.',
+                                icon: 'warning',
+                                showConfirmButton: false,
+                                timer: 1000
+                            });
+
+                            var remarksSupervisor = $('#status-remarks-supervisor' + id);
+                            var remarksHrmo = $('#status-remarks-hrmo' + id);
+                            var remarksPresedent = $('#status-remarks-presedent' + id);
+                            switch (by) {
+                                case 1:
+                                    $('#action-button' + id).fadeOut(1000, function() { $(this).remove(); });
+                                    $('#status-icon' + id).removeClass('fa-times bg-danger bg-secondary').addClass('fa-ban bg-danger');
+                                    if (remarksSupervisor.length) {
+                                        remarksSupervisor.html(`
+                                            <div class="callout callout-danger" style="margin: 8px 0px 0px 0px !important; padding: 10px !important;">
+                                                <p>${remarks}</p>
+                                            </div>
+                                        `);
+                                    }
+                                    break;
+                                case 2:
+                                    $('#action-button1' + id).fadeOut(1000, function() { $(this).remove(); });
+                                    $('#status-icon1' + id).removeClass('fa-times bg-danger bg-secondary').addClass('fa-ban bg-danger');
+                                    if (remarksHrmo.length) {
+                                        remarksHrmo.html(`
+                                            <div class="callout callout-danger" style="margin: 8px 0px 0px 0px !important; padding: 10px !important;">
+                                                <p>${remarks}</p>
+                                            </div>
+                                        `);
+                                    }
+                                    break;
+                                case 3:
+                                    $('#action-button2' + id).fadeOut(1000, function() { $(this).remove(); });
+                                    $('#status-icon2' + id).removeClass('fa-times bg-danger bg-secondary').addClass('fa-ban bg-danger');
+                                    if (remarksPresedent.length) {
+                                        remarksPresedent.html(`
+                                            <div class="callout callout-danger" style="margin: 8px 0px 0px 0px !important; padding: 10px !important;">
+                                                <p>${remarks}</p>
+                                            </div>
+                                        `);
+                                    }
+                                    break;
+                            }
+
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: response.message || 'Something went wrong. Please try again.',
+                                icon: 'error',
+                                confirmButtonText: 'Ok'
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
                         Swal.fire({
-                            title: 'Disapproved!',
-                            text: 'Your disapproval has been submitted.',
-                            icon: 'warning',
-                            showConfirmButton: false,
-                            timer: 1000
+                            title: 'Error!',
+                            text: 'An error occurred while processing your request.',
+                            icon: 'error',
+                            confirmButtonText: 'Ok'
                         });
                     }
                 });
             }
         });
+    });
+
+</script>
+<script>
+    $(document).ready(function() {
+        function updateLeaveInfo() {
+            var url = "{{ route('leaveLive') }}";
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response) {
+                        $('#b-vl').text(response.vl);
+                        $('#b-sl').text(response.sl);
+                    }
+                }
+            });
+        }
+
+        setInterval(updateLeaveInfo, 500);
     });
 </script>

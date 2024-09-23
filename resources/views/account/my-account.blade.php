@@ -28,8 +28,8 @@
                         <div class="form-group mtop">
                             <div class="form-row">
                                 <div class="col-md-6">
-                                    <label class="badge badge-secondary lbel">Username</label><br>
-                                    <input type="text" name="username" class="form-control form-control-sm" value="{{ auth()->guard($guard)->user()->username }}" autocomplete="off" required>
+                                    <label class="badge badge-secondary lbel">Gmail</label><br>
+                                    <input type="email" name="username" class="form-control form-control-sm" value="{{ auth()->guard($guard)->user()->username }}" autocomplete="off" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="badge badge-secondary lbel">Current Password</label><br>

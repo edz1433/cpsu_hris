@@ -126,6 +126,13 @@
                         <i class="float-right fas {{ (isset($columnstatus) && ($columnstatus['colgovids'] == 1)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ ($guard == "web") ? route('signature', $employee->id) : route('signature') }}" class="nav-link">
+                        <i class="{{ request()->is('pds/esign') || request()->is('pds/esign/*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-id-card" style="width: 20px;"></i>
+                        <span class="{{ request()->is('pds/esign') || request()->is('pds/esign/*') ? 'text-dark' : 'text-muted' }} text-bold">Signature</span>
+                        <i class="float-right fas {{ (isset($employee) && ($employee->signature !== null)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
+                    </a>
+                </li>
                 {{-- <li class="nav-item">
                     <a href="#" class="nav-link">
                         <i class="text-muted pr-2 fas fa-coins" style="width: 20px;"></i>

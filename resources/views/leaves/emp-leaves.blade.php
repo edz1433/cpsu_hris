@@ -136,25 +136,25 @@
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" value="4" name="leave_type" required>
+                                    <input class="form-check-input" type="radio" value="4" name="leave_type" disabled required>
                                     <label class="form-check-label" for="radio3">
                                         <b>Maternity Leave</b> <span class="ft">(R.A No. 11210/IRR issued by CSC, DOLE and SSS)</span>
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" value="5" name="leave_type" required>
+                                    <input class="form-check-input" type="radio" value="5" name="leave_type" disabled required>
                                     <label class="form-check-label" for="radio3">
                                         <b>Paternity Leave</b> <span class="ft">(R.A No. 8187/CSC MC No. 71,s. 1998, as amended)</span>
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" value="6" name="leave_type" required>
+                                    <input class="form-check-input" type="radio" value="6" name="leave_type" disabled required>
                                     <label class="form-check-label" for="radio3">
                                         <b>Special Privilege Leave</b> <span class="ft">(Sec. 21, Rule XVI, Omnibus Rules Implementing E.O No. 292)</span>
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" value="7" name="leave_type" required>
+                                    <input class="form-check-input" type="radio" value="7" name="leave_type" disabled required>
                                     <label class="form-check-label" for="radio3">
                                         <b>Solo Parent Leave</b> <span class="ft">(R.A. No. 8972/CSC MC No. 8, s. 2004)</span>
                                     </label>
@@ -162,43 +162,43 @@
                             </div>   
                             <div class="col-md-6"><br>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" value="8" name="leave_type" id="study-leave" required>
+                                    <input class="form-check-input" type="radio" value="8" name="leave_type" id="study-leave" disabled required>
                                     <label class="form-check-label" for="study-leave">
                                         <b>Study Leave</b><span class="ft">(Sec. 68, Rule XVI, Omnibus Rules Implementing E.O No. 292)</span>
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" value="9" name="leave_type" required>
+                                    <input class="form-check-input" type="radio" value="9" name="leave_type" disabled required>
                                     <label class="form-check-label" for="radio3">
                                         <b>10-Day VAWC Leave</b> <span class="ft">(R.A No. 9262/CSC MO No. 15,s. 2005)</span>
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" value="10" name="leave_type" required>
+                                    <input class="form-check-input" type="radio" value="10" name="leave_type" disabled required>
                                     <label class="form-check-label" for="radio3">
                                         <b>Rehabilitation Privilege</b> <span class="ft">(Sec. 55, Rule XVI, omnibus Rules Implementing E.O No. 292)</span>
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" value="11" name="leave_type" required>
+                                    <input class="form-check-input" type="radio" value="11" name="leave_type" disabled required>
                                     <label class="form-check-label" for="radio3">
                                         <b>Special Leave Benefits for Women</b> <span class="ft">(R.A No. 9710/CSC MC No. 25,s. 2010)</span>
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" value="12" name="leave_type" required>
+                                    <input class="form-check-input" type="radio" value="12" name="leave_type" disabled required>
                                     <label class="form-check-label" for="radio3">
-                                        <b>Special Emergency (Calamity) Leave</b> <span class="ft">(CSC MC No. 2,s. as amended)</span>
+                                        <b>Special Emergency (Calamity) Leave</b> <span class="ft">(CSC MC No. 2,s. 2012, as amended)</span>
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" value="13" name="leave_type" required>
+                                    <input class="form-check-input" type="radio" value="13" name="leave_type" disabled required>
                                     <label class="form-check-label" for="radio3">
                                         <b>Adoption Leave</b> <span class="ft">(R.A. No. 8552)</span>
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" value="14" name="leave_type" required>
+                                    <input class="form-check-input" type="radio" value="14" name="leave_type" disabled required>
                                     <label class="form-check-label" for="radio3">
                                         <b>Others</b>
                                     </label>

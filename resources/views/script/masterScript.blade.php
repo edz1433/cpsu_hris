@@ -80,7 +80,6 @@
     @endif
 
 
-
     $(function () {
         $("#example1").DataTable({
             "responsive": false,

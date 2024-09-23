@@ -320,6 +320,12 @@ class EmployeeController extends Controller
                 'country' => '',
             ]);
         }
+        if($column == 'org_email'){
+            $employee->update([
+                $column => $request->value,
+                'username' => $request->value,
+            ]);
+        }
         else {
             $employee->update([
                 $column => $request->value
@@ -418,28 +424,28 @@ class EmployeeController extends Controller
         return response()->json(['success' => true, 'message' => 'User role updated successfully.']);
     }    
 
-    public function updateEmployeePasswords()
-    {
-        try {
-            $employees = Employee::all();
+    // public function updateEmployeePasswords()
+    // {
+    //     try {
+    //         $employees = Employee::all();
     
-            foreach ($employees as $employee) {
-                if (!empty($employee->username)) {
-                    $username = $employee->username;
+    //         foreach ($employees as $employee) {
+    //             if (!empty($employee->username)) {
+    //                 $username = $employee->username;
     
-                    $hashedPassword = Hash::make($username);
+    //                 $hashedPassword = Hash::make($username);
     
-                    $employee->password = $hashedPassword;
-                    $employee->save();
-                }
-            }
+    //                 $employee->password = $hashedPassword;
+    //                 $employee->save();
+    //             }
+    //         }
     
-            return 'Passwords updated successfully.';
+    //         return 'Passwords updated successfully.';
     
-        } catch (\Exception $e) {
-            return 'An error occurred: ' . $e->getMessage();
-        }
-    }
+    //     } catch (\Exception $e) {
+    //         return 'An error occurred: ' . $e->getMessage();
+    //     }
+    // }
     
 
 }

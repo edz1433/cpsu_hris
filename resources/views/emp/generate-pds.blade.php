@@ -191,7 +191,7 @@
             <thead>
                 <tr>
                     <th colspan="9" class="bg1">
-                        <img src="{{ asset('Uploads/Pds/pds-header.png') }}" width="100.1%" alt="" srcset="">
+                        <img src="{{ asset('Uploads/pds-header.png') }}" width="100.1%" alt="" srcset="">
                     </th>
                 </tr>
             </thead>
@@ -1079,7 +1079,7 @@
                             </div>
                         </div>                        
                     </td>   
-                </tr>
+                </tr> 
             </thead>
         </table>
         <em style="float: right; font-size: 8px;">CS FORM 212 (Revised 2017),  Page 4 of 4</em>

@@ -19,47 +19,13 @@
     <link rel="stylesheet" href="{{ asset('template/plugins/icheck-bootstrap/icheck-bootstrap.min.css') }}">
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ asset('template/dist/css/adminlte.css') }}">
+    <!-- Verify style -->
+    <link rel="stylesheet" href="{{ asset('css/verify.css') }}">
     <!-- Logo  -->
     <link rel="shortcut icon" href="{{ asset('template/img/CPSU_L.png') }}">
     <style>
-        body {
+        body{
             background-image: url('{{ asset('template/img/login-bg.jpg') }}');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .login-box {
-            width: 100% !important;
-            max-width: 350px;
-            margin: 0 auto;
-        }
-        .card {
-            background-color: rgba(76, 69, 69, 0.5);
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
-        .login-logo img {
-            width: 40%;
-        }
-        .login-box-msg {
-            color: #358359;
-            font-size: 1.1rem;
-            font-weight: 600;
-            text-align: center;
-        }
-        .input-group-text {
-            background-color: #6c757d;
-            border: none;
-        }
-        .form-control {
-            border-left: none;
         }
     </style>
 </head>
@@ -81,13 +47,13 @@
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
                             <span class="input-group-text">
-                                <i class="fas fa-key"></i>
+                                <i class="fas fa-key text-warning"></i>
                             </span>
                         </div>
                         <input type="text" id="code" class="form-control" name="verification_code" autocomplete="off" placeholder="Verification Code" required>
                     </div>
                     <div class="form-group">
-                        <button type="submit" class="btn btn-secondary btn-block">Verify</button>
+                        <button type="submit" class="btn btn-warn btn-block">Verify</button>
                     </div>
                 </form>
             </div>

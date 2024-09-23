@@ -68,6 +68,43 @@ class PdsController extends Controller
         return $columnstatus;
     }
 
+    public function signature($id = null){
+        $guard = $this->getGuard();
+        $empid = ($id) ? $id : auth()->guard($guard)->user()->id;
+        $employee = Employee::find($empid);
+
+        return view("emp.signature", compact('employee', 'guard', 'empid'));
+    }
+
+    public function uploadSignature(Request $request, $id = null)
+    {
+        $request->validate([
+            'signature' => 'required|image|mimes:png|max:2048',
+        ]);
+        
+        $employee = Employee::findOrFail($id);
+    
+        if ($request->hasFile('signature')) {
+            $file = $request->file('signature');
+            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $path = public_path('Uploads');
+            $file->move($path, $filename);
+    
+            $employee->esign = 'Uploads/Signature/' . $filename;    
+            $employee->save();
+    
+            return response()->json([
+                'success' => true,
+                'image_url' => asset('Uploads/' . $filename)
+            ]);
+        }
+    
+        return response()->json([
+            'success' => false,
+            'message' => 'No file selected or upload failed'
+        ]);
+    }
+
     public function empPDS(){
         $guard = $this->getGuard();
         $empid = auth()->guard($guard)->user()->id; 
