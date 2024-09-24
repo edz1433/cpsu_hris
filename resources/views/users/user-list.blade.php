@@ -26,7 +26,7 @@
                                             </span>
                                         </div>
                                         <input type="hidden" name="uid" value="{{ $current_route == 'uEdit' ? $uEdit->id : '' }}">
-                                        <input type="text" name="lname" value="{{ $current_route == 'uEdit' ? $uEdit->lname : '' }}" oninput="this.value = this.value.toUpperCase()" placeholder="Enter Last Name" class="form-control form-control-sm" required="">
+                                        <input type="text" name="lname" value="{{ $current_route == 'uEdit' ? $uEdit->lname : '' }}" oninput="this.value = this.value.toUpperCase()" placeholder="Enter Last Name" class="form-control form-control-sm" autocomplete="off" required="">
                                     </div>
                                 </div>
                             </div>
@@ -41,7 +41,7 @@
                                                 <i class="fas fa-user"></i>
                                             </span>
                                         </div>
-                                        <input type="text" name="fname" value="{{ $current_route == 'uEdit' ? $uEdit->fname : '' }}" placeholder="Enter First Name" class="form-control form-control-sm" required="">
+                                        <input type="text" name="fname" value="{{ $current_route == 'uEdit' ? $uEdit->fname : '' }}" placeholder="Enter First Name" class="form-control form-control-sm" autocomplete="off" required="">
                                     </div>    
                                 </div>
                             </div>
@@ -55,7 +55,7 @@
                                                 <i class="fas fa-user"></i>
                                             </span>
                                         </div>
-                                        <input type="text" name="mname" value="{{ $current_route == 'uEdit' ? $uEdit->mname : '' }}" oninput="this.value = this.value.toUpperCase()" placeholder="Enter Middle Name" class="form-control form-control-sm" required="">
+                                        <input type="text" name="mname" value="{{ $current_route == 'uEdit' ? $uEdit->mname : '' }}" oninput="this.value = this.value.toUpperCase()" placeholder="Enter Middle Name" class="form-control form-control-sm" autocomplete="off" required="">
                                     </div>
                                 </div>
                             </div>
@@ -69,7 +69,7 @@
                                                 <i class="fas fa-venus-mars"></i>
                                             </span>
                                         </div>
-                                        <select name="gender" class="form-control form-control-sm" required="">
+                                        <select name="gender" class="form-control form-control-sm" autocomplete="off" required="">
                                             <option value="">--- Select Gender ---</option>
                                             <option value="Male" @if($current_route == 'uEdit' && $uEdit->gender == 'Male') selected @endif>Male</option>
                                             <option value="Female" @if($current_route == 'uEdit' && $uEdit->gender == 'Female') selected @endif>Female</option>
@@ -88,7 +88,7 @@
                                                 <i class="fas fa-building"></i>
                                             </span>
                                         </div>
-                                        <select class="form-control form-control-sm select2bs4" name="campus_id">
+                                        <select class="form-control form-control-sm select2bs4" autocomplete="off" name="campus_id">
                                             <option value=""> --- Select Campus --- </option>
                                             @foreach ($camp as $cp)
                                                 <option value="{{ $cp->id }}" @if($current_route == 'uEdit' && $cp->id == $uEdit->campus_id) selected @endif>{{ $cp->campus_name }}</option>
@@ -108,7 +108,7 @@
                                                 <i class="fas fa-info-circle"></i>
                                             </span>
                                         </div>
-                                        <select class="form-control form-control-sm select_camp" name="role" id="roleSelect" onchange="updateCheckboxes()">
+                                        <select class="form-control form-control-sm select_camp" name="role" id="roleSelect" onchange="updateCheckboxes()" autocomplete="off">
                                             <option value=""> --- Select Role --- </option>
                                             <option value="Administrator" @if($current_route == 'uEdit' && $uEdit->role == 'Administrator') selected @endif>Administrator</option>
                                             <option value="HR Administrator" @if($current_route == 'uEdit' && $uEdit->role == 'HR Administrator') selected @endif>HR Administrator</option>
@@ -128,7 +128,7 @@
                                                 <i class="fas fa-user"></i>
                                             </span>
                                         </div>
-                                        <input type="email" name="username"  value="{{ $current_route == 'uEdit' ? $uEdit->username : '' }}" placeholder="Enter Username" class="form-control form-control-sm">
+                                        <input type="email" name="username"  value="{{ $current_route == 'uEdit' ? $uEdit->username : '' }}" placeholder="Enter Username" class="form-control form-control-sm" autocomplete="off">
                                     </div>    
                                 </div>
                             </div>
