@@ -92,9 +92,13 @@
                                             </h3>
                                             @if($guard == "employee")
                                                 @if($leaves->supervisor == auth()->guard($guard)->user()->id && $leaves->status == 1 && $leaves->remarks_stat !== 1)
-                                                    <div class="timeline-footer" id="action-button{{ $leaves->id }}">
-                                                        <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="1" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
-                                                        <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="1">Disapprove</button>
+                                                    <div class="timeline-footer mb-4" id="action-button{{ $leaves->id }}" style="margin-top: -15px;">
+                                                        <div class="float-right">
+                                                            <a class="btn btn-info btn-sm view-application" href="{{ asset($leaves->gen_app) }}" target="_blank"><i class="fas fa-eye"></i> View Application</a>
+                                                            <a class="btn btn-warning btn-sm return-application text-black" target="_blank"><i class="fas fa-undo"></i> Return</a>
+                                                            <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="1" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
+                                                            <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="1"><i class="fas fa-ban"></i> Disapprove</button>
+                                                        </div>
                                                     </div>
                                                 @endif
                                             @endif
@@ -121,9 +125,13 @@
                                             </h3>
                                             @if($guard == "web")
                                                 @if($leaves->status == 2 && $leaves->remarks_stat != 2 && $accesarray[7] == 1 && $leaves->remarks_stat !== 2)
-                                                    <div class="timeline-footer" id="action-button1{{ $leaves->id }}">
-                                                        <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
-                                                        <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="2">Disapprove</button>
+                                                    <div class="timeline-footer mb-4" id="action-button1{{ $leaves->id }}" style="margin-top: -15px;">
+                                                        <div class="float-right">
+                                                            <a class="btn btn-info btn-sm view-application" href="{{ asset($leaves->gen_app) }}" target="_blank"><i class="fas fa-eye"></i> View Application</a>
+                                                            <a class="btn btn-warning btn-sm return-application text-black" target="_blank"><i class="fas fa-undo"></i> Return</a>
+                                                            <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
+                                                            <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="2"><i class="fas fa-ban"></i> Disapprove</button>
+                                                        </div>
                                                     </div>
                                                 @endif
                                             @endif
@@ -150,9 +158,13 @@
                                             </h3>
                                             @if($guard == "employee")
                                                 @if($setting->suc_pres == auth()->guard($guard)->user()->id && $leaves->status == 3 && $leaves->remarks_stat !== 3)
-                                                    <div class="timeline-footer" id="action-button2{{ $leaves->id }}">
-                                                        <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="3" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
-                                                        <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="3">Disapprove</button>
+                                                    <div class="timeline-footer mb-4" id="action-button2{{ $leaves->id }}" style="margin-top: -15px;">
+                                                        <div class="float-right">
+                                                            <a class="btn btn-info btn-sm view-application" href="{{ asset($leaves->gen_app) }}" target="_blank"><i class="fas fa-eye"></i> View Application</a>
+                                                            <a class="btn btn-warning btn-sm return-application text-black" target="_blank"><i class="fas fa-undo"></i> Return</a>
+                                                            <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="3" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
+                                                            <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="3"><i class="fas fa-ban"></i> Disapprove</button>
+                                                        </div>
                                                     </div>
                                                 @endif
                                             @endif
@@ -215,9 +227,13 @@
                                             </h3>
                                             @if($guard == "employee")
                                                 @if($leaves->supervisor == auth()->guard($guard)->user()->id && $leaves->status == 1 && $leaves->remarks_stat !== 1)
-                                                    <div class="timeline-footer" id="action-button{{ $leaves->id }}">
-                                                        <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="1" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
-                                                        <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="1">Disapprove</button>
+                                                    <div class="timeline-footer mb-4" id="action-button{{ $leaves->id }}" style="margin-top: -15px;">
+                                                        <div class="float-right">
+                                                            <a class="btn btn-info btn-sm view-application" href="{{ asset($leaves->gen_app) }}" target="_blank"><i class="fas fa-eye"></i> View Application</a>
+                                                            <a class="btn btn-warning btn-sm return-application text-black" target="_blank"><i class="fas fa-undo"></i> Return</a>
+                                                            <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="1" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
+                                                            <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="1"><i class="fas fa-ban"></i> Disapprove</button>
+                                                        </div>
                                                     </div>
                                                 @endif
                                             @endif
@@ -244,9 +260,12 @@
                                             </h3>
                                             @if($guard == "web")
                                                 @if($leaves->status == 2 && $leaves->remarks_stat != 2 && $accesarray[7] == 1 && $leaves->remarks_stat !== 2)
-                                                    <div class="timeline-footer" id="action-button1{{ $leaves->id }}">
+                                                    <div class="timeline-footer mb-4" id="action-button1{{ $leaves->id }}" style="margin-top: -15px;">                                                    
+                                                    <div class="float-right">
+                                                        <a class="btn btn-info btn-sm view-application" href="{{ asset($leaves->gen_app) }}" target="_blank"><i class="fas fa-eye"></i> View Application</a>
+                                                        <a class="btn btn-warning btn-sm return-application text-black" target="_blank"><i class="fas fa-undo"></i> Return</a>
                                                         <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
-                                                        <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="2">Disapprove</button>
+                                                        <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="2"><i class="fas fa-ban"></i> Disapprove</button>
                                                     </div>
                                                 @endif
                                             @endif
@@ -273,9 +292,13 @@
                                             </h3>
                                             @if($guard == "employee")
                                                 @if($setting->suc_pres == auth()->guard($guard)->user()->id && $leaves->status == 3 && $leaves->remarks_stat !== 3)
-                                                    <div class="timeline-footer" id="action-button2{{ $leaves->id }}">
-                                                        <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="3" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
-                                                        <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="3">Disapprove</button>
+                                                    <div class="timeline-footer mb-4" id="action-button2{{ $leaves->id }}" style="margin-top: -15px;">
+                                                        <div class="float-right">
+                                                            <a class="btn btn-info btn-sm view-application" href="{{ asset($leaves->gen_app) }}" target="_blank"><i class="fas fa-eye"></i> View Application</a>
+                                                            <a class="btn btn-warning btn-sm return-application text-black" target="_blank"><i class="fas fa-undo"></i> Return</a>
+                                                            <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="3" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
+                                                            <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="3"><i class="fas fa-ban"></i> Disapprove</button>
+                                                        </div>
                                                     </div>
                                                 @endif
                                             @endif

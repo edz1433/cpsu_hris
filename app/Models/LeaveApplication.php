@@ -42,6 +42,7 @@ class LeaveApplication extends Model
         'less',
         'balance',
         'status',
+        'gen_app',
     ];
 
     public function office()

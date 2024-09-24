@@ -233,6 +233,11 @@
                         <input type="checkbox" class="checkbox1" @if($leaveApplication->leave_purpose == 7 || $leaveApplication->leave_purpose == 8) checked @endif> Requested<br>                        
                         <center>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="width: 94%; display: inline-block;  margin-bottom: -14px;  border-bottom: 1px solid black;"></span></center>
                         <center>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>(Signature of Applicant)</center>
+                        @if($leaveApplication->esign)
+                        <img src="{{ asset($leaveApplication->esign) }}" 
+                             width="110" 
+                             style="position: absolute; top: 56.5%; left: 76.9%; transform: translate(-50%, -50%); z-index: 999; display: block; margin: 0 auto;">
+                        @endif
                     </div>
                 </td>
             </tr>
@@ -255,7 +260,7 @@
                             <span style="font-size: 8px !important;"><i>note: Total Earned and Balance Leave credit for reconciliation</i></span>
                     </div>
                     <div style="margin-top: 2.45%">
-                        <center><span class="font1" style="width: 90%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->hr_fname) }} {{ strtoupper($leaveApplication->hr_mname) }} {{ strtoupper($leaveApplication->hr_lname) }} {{ strtoupper($leaveApplication->hr_suffix) }}{{ ($leaveApplication->hr_prefix) ? strtoupper(', '.$leaveApplication->hr_prefix) : '' }}</b></span></center>
+                        <center><span class="font1" style="width: 90%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->hr_lname) }}, {{ strtoupper($leaveApplication->hr_fname) }} {{ strtoupper($leaveApplication->hr_suffix) }} {{ strtoupper($leaveApplication->hr_mname) }}</b></span></center>
                         <center>(Signature over Printed Name)</center>
                     </div>
                 </td>
@@ -282,6 +287,11 @@
                         <div style="margin-top: 12px; margin-left: 33px;"><span class="font1" style="width: 95.7%; display: inline-block;  border-bottom: 1px solid black;"><center><span style="color: white;">.</span><b><span style="padding-right: 26px;">{{ strtoupper($leaveApplication->supervisor_fname) }} {{ strtoupper($leaveApplication->supervisor_mname) }} {{ strtoupper($leaveApplication->supervisor_lname) }} {{ strtoupper($leaveApplication->supervisor_suffix) }}{{ ($leaveApplication->supervisor_prefix) ? strtoupper(', '.$leaveApplication->supervisor_prefix) : '' }}</span></b></span></center></div>
                         <center>Immediate Supervisor</center>
                         <center>(Signature over Printed Name)</center>
+                        @if($leaveApplication->esign)
+                        <img src="{{ asset($leaveApplication->esign) }}" 
+                             width="110" 
+                             style="position: absolute; top: 73.3%; left: 76.9%; transform: translate(-50%, -50%); z-index: 999; display: block; margin: 0 auto;">
+                        @endif
                     </div>
                 </td>
             </tr>
@@ -307,6 +317,11 @@
                 <td colspan="6">
                     <center><span class="font1" style="width: 28%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->president_fname) }} {{ strtoupper($leaveApplication->president_mname) }} {{ strtoupper($leaveApplication->president_lname) }} {{ strtoupper($leaveApplication->president_suffix) }}{{ isset($leaveApplication->pres_prefix) ? strtoupper(', '.$leaveApplication->pres_prefix) : '' }}</b></span></center>
                     <center>(Signature over Printed Name)</center>
+                    @if($leaveApplication->esign)
+                    <img src="{{ asset($leaveApplication->esign) }}" 
+                         width="110" 
+                         style="position: absolute; top: 89.5%; left: 50%; transform: translate(-50%, -50%); z-index: 999; display: block; margin: 0 auto;">
+                    @endif
                 </td>
             </tr>
         </thead>

@@ -27,27 +27,24 @@ class LeaveApplicationController extends Controller
             'empid' => 'required|exists:employees,emp_ID',
             'date_range' => 'required|string',
         ]);
-
+    
         $leaveDetails = array_filter($request->input('leave_detail'));
-
         $firstDetail = reset($leaveDetails);
         
         $setting = Setting::first();
-
         $employee = Employee::where('emp_ID', $request->empid)->first();
-
+    
         $supemp = Employee::find($employee->supervisor);
         $presemp = Employee::find($setting->suc_pres);
         $hremp = Employee::find($setting->hr);
-
         $payrollEmployee = PayrollEmployee::where('emp_ID', $request->empid)->first();
         $purpose = $request->leave_purpose;
-
+    
         if (is_null($employee->supervisor) || $employee->supervisor == 0) {
             return redirect()->back()->withErrors(['error' => 'No Supervisor Assigned']);
-        }        
-
-        LeaveApplication::create([
+        }
+    
+        $leaveApplication = LeaveApplication::create([
             'empid' => $request->empid,
             'position' => $employee->position,
             'leave_type' => $request->leave_type,
@@ -68,10 +65,60 @@ class LeaveApplicationController extends Controller
             'hr_prefix' => $hremp->prefix,
             'department' => $payrollEmployee->emp_dept,
         ]);
-
-        return redirect()->back()->with('success', 'Leave application submitted successfully');
+    
+        $this->genApplication($leaveApplication->id);
+        
+        return redirect()->back()->with('success', 'Submitted successfully');
     }
 
+    public function genApplication($id) {
+        $leaveApplication = LeaveApplication::with(['office:id,office_name,office_abbr'])
+            ->join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
+            ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
+            ->join('employees as pres', 'pres.id', '=', 'leave_applications.president')
+            ->join('employees as hr', 'hr.id', '=', 'leave_applications.hr')
+            ->select('leave_applications.*', 
+                'leave_applications.id as lid', 
+                'employees.lname', 'employees.fname', 'employees.mname', 'employees.suffix', 'employees.esign',             
+                'sup.lname as supervisor_lname', 'sup.fname as supervisor_fname', 'sup.mname as supervisor_mname', 
+                'sup.suffix as supervisor_suffix', 'sup.prefix as supervisor_prefix', 'sup.esign as supervisor_esign',
+                'hr.lname as hr_lname', 'hr.fname as hr_fname', 'hr.mname as hr_mname', 
+                'hr.suffix as hr_suffix',
+                'pres.lname as president_lname', 'pres.fname as president_fname', 'pres.mname as president_mname', 
+                'pres.suffix as president_suffix', 'pres.prefix as president_prefix', 'pres.esign as president_esign'
+            )
+            ->where('leave_applications.id', $id)->first();
+        
+        $customPaper = [0, 0, 595.28, 841.89];
+        $pdf = \PDF::loadView('leaves.generate-leave', compact('leaveApplication'))->setPaper($customPaper, 'portrait')
+            ->setOption('margin-top', 0)
+            ->setOption('margin-right', 0)
+            ->setOption('margin-bottom', 0)
+            ->setOption('margin-left', 0)
+            ->setCallbacks([
+                'before_render' => function ($domPdf) {
+                    $domPdf->getCanvas()->page_text(10, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, [0, 0, 0]);
+                }
+            ]);
+    
+        $directoryPath = public_path('Uploads/Leaveapplication');
+        $randomNumber = mt_rand(100000, 999999);
+        
+        $fileName = $randomNumber . '_leave_application_' . $id . '.pdf';
+        $filePath = $directoryPath . '/' . $fileName;
+
+        if (!file_exists($directoryPath)) {
+            mkdir($directoryPath, 0777, true);
+        }
+
+        $leaveApplication->gen_app = 'Uploads/Leaveapplication/' . $fileName;
+        $leaveApplication->save();
+
+        $pdf->save($filePath);
+
+        return $filePath;
+    }    
+    
     public function leaveStatus($id = null){
         $guard = $this->getGuard();
         $empid = ($id) ? $id : auth()->guard($guard)->user()->id;
@@ -135,18 +182,21 @@ class LeaveApplicationController extends Controller
 
     public function leaveApprove(Request $request)
     {
+        // Validate request data
         $request->validate([
             'id' => 'required|integer|exists:leave_applications,id',
             'by' => 'required|integer|min:1|max:3',
-            'day_wpay' => 'nullable|numeric'
+            'day_wpay' => 'nullable|numeric',
+            'file' => 'required|file|mimes:pdf'
         ]);
     
+        // Find leave application
         $leaveApplication = LeaveApplication::find($request->id);
         $currdate = Carbon::now('Asia/Manila')->toDateTimeString();
         $currdate1 = Carbon::now('Asia/Manila')->format('F j, Y h:i A');
-
+    
+        // Determine status
         $status = 0;
-
         switch ($request->by) {
             case 1:
                 $status = 2;
@@ -158,57 +208,30 @@ class LeaveApplicationController extends Controller
                 $status = 4;
                 break;
         }
-        
-        if ($request->by == 1) {
-            $leaveApplication->sup_sdate = $currdate;
-        }
-
-        if ($request->by == 2) {
-            $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
-            if($leaveApplication->leave_type == 3){
-                if($leaveApplication->days <= $employee->sl){
-                    
-                }            
+    
+        // Handle file upload
+        if ($request->hasFile('file')) {
+            // Get the existing file path from the leave application
+            $originalPath = $leaveApplication->gen_app; // Full path of the existing file
+            $filenameArray = explode('/', $originalPath); // Split path by /
+            $filename = end($filenameArray); // Get the last part, e.g., 721516_leave_application_1.pdf
+    
+            // Check if the old file exists and is a file before attempting to delete
+            if (file_exists(public_path($originalPath)) && !is_dir(public_path($originalPath))) {
+                unlink(public_path($originalPath)); // Delete the existing file
             }
-
-            $leaveApplication->hr_sdate = $currdate;
-            $leaveApplication->day_wpay = $request->day_wpay;
+    
+            // Define the path to save the new file
+            $path = public_path('Uploads/Leaveapplication'); // Define the directory
+    
+            // Move the new file to the desired location with the same filename
+            $file = $request->file('file');
+            $file->move($path, $filename); // Move the new file using the same filename
         }
-
-        if ($request->by == 3) {
-            $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
-            $leaveApplication->pres_sdate = $currdate;
-
-            $leavededuct = $leaveApplication->days - $leaveApplication->day_wpay;
-            if ($employee && in_array($leaveApplication->leave_type, [1, 2])) {
-                $empvl = $employee->vl - $leavededuct;
-                
-                $earn = $empvl;
-                $less = $leaveApplication->days;
-                $balance = $empvl - $leaveApplication->days;
-
-                $employee->vl = $empvl;
-            }else if($employee && $leaveApplication->leave_type == 3){
-                $empsl = $employee->sl - $leavededuct;
-                
-                $earn = $empsl;
-                $less = $leaveApplication->days;
-                $balance = $empsl - $leaveApplication->days;
-
-                $employee->sl = $empsl;   
-            }
-
-            $leaveApplication->earn = $earn;
-            $leaveApplication->less = $less;
-            $leaveApplication->balance = $balance;
-        }
-
+    
+        // Other logic related to leave approval...
         $leaveApplication->status = $status;
         $leaveApplication->save();
-         
-        if ($request->by == 3) {
-            $employee->save();
-        }
     
         return response()->json([
             'success' => true,
@@ -259,7 +282,7 @@ class LeaveApplicationController extends Controller
             'datetime' => $currdate1,
         ], 404);
     }
-
+    
     public function previewLeave($id){
         $guard = $this->getGuard();
         $leaveApplication = LeaveApplication::with(['office:id,office_name,office_abbr'])
@@ -271,17 +294,20 @@ class LeaveApplicationController extends Controller
             'employees.lname', 
             'employees.fname', 
             'employees.mname', 
-            'employees.suffix',             
+            'employees.suffix',
+            'employees.esign',             
             'sup.lname as supervisor_lname', 
             'sup.fname as supervisor_fname', 
             'sup.mname as supervisor_mname', 
             'sup.suffix as supervisor_suffix', 
             'sup.prefix as supervisor_prefix',
+            'sup.esign as supervisor_esign',
             'pres.lname as president_lname', 
             'pres.fname as president_fname', 
             'pres.mname as president_mname', 
             'pres.suffix as president_suffix', 
             'pres.prefix as president_prefix',
+            'pres.esign as president_esign',
         )
         ->where('leave_applications.id', $id)
         ->first();

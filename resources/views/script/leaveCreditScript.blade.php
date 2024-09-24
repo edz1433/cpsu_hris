@@ -331,10 +331,10 @@
 </script>
 <script>
     $('.approve-leave').on('click', function() {
-        var id = $(this).data('id'); // Leave Application ID
-        var by = $(this).data('by'); // Approval level (supervisor, HR, etc.)
-        var max = $(this).data('max'); // Maximum days allowed
-        var approveUrl = "{{ route('leaveApprove') }}"; // AJAX URL for approving leave
+        var id = $(this).data('id');
+        var by = $(this).data('by');
+        var max = $(this).data('max');
+        var approveUrl = "{{ route('leaveApprove') }}";
 
         Swal.fire({
             title: 'Are you sure?',
@@ -344,31 +344,41 @@
             confirmButtonColor: '#28a745',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, approve it!',
-            input: by == 2 ? 'number' : null, // Only show input if 'by == 2'
-            inputPlaceholder: by == 2 ? 'Enter days without pay...' : '',
-            inputAttributes: {
-                min: 0,
-                max: by == 2 ? max : 0
-            },
-            inputValidator: (value) => {
-                if (by == 2 && (value < 0 || value > max)) {
-                    return `Please enter a valid number of days (0-${max})`;
+            html: `
+                <input type="number" id="days-without-pay" class="swal2-input" placeholder="Enter days without pay..." 
+                    min="0" max="${max}" ${by == 2 ? '' : 'style="display:none;"'} style="width: calc(85% - 16px);">
+                <input type="file" id="pdf-file" class="swal2-input" accept=".pdf" style="width: calc(85% - 16px);">
+            `,
+            preConfirm: () => {
+                var daysWithoutPay = document.getElementById('days-without-pay').value;
+                var file = document.getElementById('pdf-file').files[0];
+                
+                if (by == 2 && (daysWithoutPay < 0 || daysWithoutPay > max)) {
+                    Swal.showValidationMessage(`Please enter a valid number of days (0-${max})`);
+                    return false;
                 }
+                if (!file) {
+                    Swal.showValidationMessage('Please attach the signed application form.');
+                    return false;
+                }
+
+                return { daysWithoutPay, file };
             }
         }).then((result) => {
-            // Set day_wpay to the input value (if by == 2), or default to 0 otherwise
-            var day_wpay = (by == 2) ? result.value : 0;
-            
             if (result.isConfirmed) {
+                var formData = new FormData();
+                formData.append('id', id);
+                formData.append('by', by);
+                formData.append('day_wpay', by == 2 ? result.value.daysWithoutPay : 0);
+                formData.append('file', result.value.file);
+                formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+
                 $.ajax({
                     type: "POST",
                     url: approveUrl,
-                    data: {
-                        id: id,
-                        by: by,
-                        day_wpay: day_wpay,
-                        _token: $('meta[name="csrf-token"]').attr('content') // Include CSRF token
-                    },
+                    data: formData,
+                    contentType: false,
+                    processData: false,
                     success: function(response) {
                         Swal.fire({
                             title: 'Approved!',
@@ -377,7 +387,6 @@
                             showConfirmButton: false,
                             timer: 1000
                         });
-
                         // Update the UI based on approval stage (by)
                         if (by == 1) {
                             // Supervisor Approval
@@ -404,7 +413,6 @@
                             $('#preview' + id).removeClass('bg-secondary').addClass('bg-danger');
                             $('#preview' + id).attr('href', "{{ route('previewLeave', ':id') }}".replace(':id', id));
                         }
-                        
                     },
                     error: function(response) {
                         Swal.fire({

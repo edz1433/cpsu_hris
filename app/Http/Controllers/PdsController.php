@@ -87,7 +87,7 @@ class PdsController extends Controller
         if ($request->hasFile('signature')) {
             $file = $request->file('signature');
             $filename = time() . '.' . $file->getClientOriginalExtension();
-            $path = public_path('Uploads');
+            $path = public_path('Uploads/Signature');
             $file->move($path, $filename);
     
             $employee->esign = 'Uploads/Signature/' . $filename;    
@@ -95,7 +95,7 @@ class PdsController extends Controller
     
             return response()->json([
                 'success' => true,
-                'image_url' => asset('Uploads/' . $filename)
+                'image_url' => asset('Uploads/Signature/' . $filename)
             ]);
         }
     

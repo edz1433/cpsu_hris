@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class EmployeeCopy extends Model
 {
     use HasFactory;
-
+    
     protected $table = 'employees';
 
     protected $fillable = [

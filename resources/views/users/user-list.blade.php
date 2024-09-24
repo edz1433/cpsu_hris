@@ -128,7 +128,7 @@
                                                 <i class="fas fa-user"></i>
                                             </span>
                                         </div>
-                                        <input type="text" name="username"  value="{{ $current_route == 'uEdit' ? $uEdit->username : '' }}" placeholder="Enter Username" class="form-control form-control-sm">
+                                        <input type="email" name="username"  value="{{ $current_route == 'uEdit' ? $uEdit->username : '' }}" placeholder="Enter Username" class="form-control form-control-sm">
                                     </div>    
                                 </div>
                             </div>
