@@ -38,7 +38,6 @@ class UserController extends Controller
             'fname' => 'required',
             'mname' => 'required',
             'username' => 'required|unique:users',
-            'password' => 'required',
             'role' => 'required',
             'gender' => 'required',
             'campus_id' => 'required',
@@ -57,7 +56,6 @@ class UserController extends Controller
             'mname' => $request->input('mname'),
             'lname' => $request->input('lname'),
             'username' => $request->input('username'),
-            'password' => $password,
             'campus_id' => $request->input('campus_id'),
             'role' => $request->input('role'),
             'gender' => $request->input('gender'),
@@ -129,10 +127,6 @@ class UserController extends Controller
             'role' => $request->input('role'),
             'gender' => $request->input('gender'),
         ];
-    
-        if ($request->filled('password')) {
-            $userData['password'] = Hash::make($request->input('password'));
-        }
     
         $accessPermissions = array_fill(0, 9, '0');
     
