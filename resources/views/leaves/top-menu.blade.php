@@ -1,10 +1,11 @@
 @php
     $leaveCreditsRoute = $guard == "web" ? route('leavesRead', $employee->id) : route('leavesReadEmp');
-    $statusRoute = $guard == "web" ? route('leaveStatusEmp', $employee->id) : route('leaveStatus');
-    $historyRoute = $guard == 'web' ? route('PDS', $employee->id) : route('empPDS');
+    $statusRoute = $guard == "web" ? route('leaveStatus', $employee->id) : route('leaveStatus');
+    $historyRoute = $guard == 'web' ? route('historyRead', $employee->id) : route('historyRead');
 
-    $isLeaveCreditsActive = request()->is('emp-leaves') || request()->is('leaves*');
-    $isStatusActive = request()->is('emp-leaves/status*') || request()->is('emp-leaves/emp-status*');
+    $isLeaveCreditsActive = request()->is('leave') || request()->is('leaves*');
+    $isStatusActive = request()->is('leave/status') || request()->is('leave/status/*') || request()->is('leaves/status*');
+    $isHistoryActive = request()->is('leave/history*') || request()->is('leaves/history');
 @endphp
 
 <div class="row">
@@ -23,7 +24,7 @@
         </a>
     </div>
     <div class="col-md-4">
-        <a href="{{ $historyRoute }}" class="nav-link mb-1 bg-secondary" style="border-radius: 5px;">
+        <a href="{{ $historyRoute }}" class="nav-link mb-1 {{ $isHistoryActive ? 'bg-default' : 'bg-secondary' }}" style="border-radius: 5px;">
             <i class="pr-2 fas fa-history" style="width: 20px; margin-left: 3px;"></i> 
             <span class="text-light text-bold">HISTORY</span> 
             <span class="float-right pt-1 badge badge-light">0</span>

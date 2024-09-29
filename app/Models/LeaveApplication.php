@@ -21,6 +21,7 @@ class LeaveApplication extends Model
         'total_vl',
         'total_sl',
         'recommend',
+        'emp_esign',
         'supervisor',
         'sup_prefix',
         'sup_sign',

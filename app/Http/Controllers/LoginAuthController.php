@@ -43,7 +43,7 @@ class LoginAuthController extends Controller
     
             return redirect()->route('dashboard')->with('success', 'Login Successfully');
         }
-    
+        
         $employee = Employee::where('username', $request->username)->first();
     
         if ($employee) {
@@ -63,6 +63,5 @@ class LoginAuthController extends Controller
     
         return redirect()->back()->with('error', 'Invalid Credentials');
     }
-    
     
 }

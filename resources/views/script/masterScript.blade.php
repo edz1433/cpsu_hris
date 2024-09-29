@@ -275,11 +275,11 @@
         $('.' + rowClass).remove();
     }
 </script>
+@if(request()->is('pds/work-experience*') || request()->is('pds/voluntary-work*') || request()->is('pds/learning-dev*'))
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const incDate1 = document.getElementById('inc_date1');
         const incDate2 = document.getElementById('inc_date2');
-        const errorDiv = document.getElementById('date-error');
 
         function updateDate2MinDate() {
             const date1Value = incDate1.value;
@@ -289,13 +289,11 @@
                 incDate2.value = '';
                 if (incDate2.value && new Date(incDate2.value) < new Date(minDate)) {
                     incDate2.value = '';
-                    showError('End date cannot be earlier than the start date.');
                 } else {
-                    hideError();
+
                 }
             } else {
                 incDate2.removeAttribute('min');
-                hideError();
             }
         }
 
@@ -305,24 +303,12 @@
 
             if (date1Value && date2Value) {
                 if (new Date(date1Value) > new Date(date2Value)) {
-                    showError('End date must be later than the start date.');
                     return false;
                 } else {
-                    hideError();
                     return true;
                 }
             }
-            hideError();
             return true;
-        }
-
-        function showError(message) {
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-        }
-
-        function hideError() {
-            errorDiv.style.display = 'none';
         }
 
         incDate1.addEventListener('change', function() {
@@ -333,3 +319,4 @@
         incDate2.addEventListener('change', validateDateRange);
     });
 </script>
+@endif

@@ -105,7 +105,7 @@
                         </div>
                     </div>
                     <div class="scrollable">                    
-                        <table class="table table-bordered table-hover mt-2" id="example1">
+                        <table class="table table-bordered table-hover mt-2">
                             <div class="card-header">
                                 <h3 class="card-title"></h3>
                                 <div class="card-tools">

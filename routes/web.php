@@ -194,7 +194,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         //Government ID
         Route::get('/government-id/{id?}', [GovIdController::class, 'govids'])->name('govids');
         Route::post('/update-govids', [GovIdController::class, 'update'])->name('update.govids');
-
+        
         //Signature
         Route::get('/signature/{id?}', [PdsController::class, 'signature'])->name('signature');
         Route::post('/upload-signature/{id?}', [PdsController::class, 'uploadSignature'])->name('uploadSignature');
@@ -242,16 +242,19 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
     Route::get('/esign', [LeaveApplicationController::class, 'eSign'])->name('eSign');  
     // Logout
-    Route::prefix('emp-leaves')->group(function() {
+    Route::prefix('leave')->group(function() {
         Route::get('/', [LeaveCreditController::class, 'leavesReadEmp'])->name('leavesReadEmp');
         Route::post('/create', [LeaveApplicationController::class, 'LeaveAppCreate'])->name('LeaveAppCreate');
-
-        Route::get('/emp-status', [LeaveApplicationController::class, 'leaveStatus'])->name('leaveStatus');
-        Route::get('/status/{id}', [LeaveApplicationController::class, 'leaveStatus'])->name('leaveStatusEmp');
+        
+        Route::get('/status/{id?}', [LeaveApplicationController::class, 'leaveStatus'])->name('leaveStatus');
         Route::post('/approve', [LeaveApplicationController::class, 'leaveApprove'])->name('leaveApprove');
         Route::post('/dis-approve', [LeaveApplicationController::class, 'leaveDisapprove'])->name('leaveDisapprove');
         Route::get('/preview-leave/{id}', [LeaveApplicationController::class, 'previewLeave'])->name('previewLeave');   
-        Route::get('/leave-live/{id?}', [LeaveApplicationController::class, 'leaveLive'])->name('leaveLive');
+        Route::post('/leave-live/{id?}', [LeaveApplicationController::class, 'leaveLive'])->name('leaveLive');
+        Route::get('/history/{id?}', [LeaveApplicationController::class, 'historyRead'])->name('historyRead');
+        Route::post('/return/{id?}', [LeaveApplicationController::class, 'leaveReturn'])->name('leaveReturn');
+        
+        Route::post('/get-pdf-path', [LeaveApplicationController::class, 'getPdfPath'])->name('getPdfPath');
     });
     
     Route::get('/logout', [MasterController::class, 'logout'])->name('logout');

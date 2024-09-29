@@ -213,7 +213,7 @@
 @if(request()->is('pds/government-id*'))
     @include('script.govidScript')
 @endif
-@if(request()->is('leaves/*') || request()->is('leaves') || request()->is('emp-leaves*'))
+@if(request()->is('leaves/*') || request()->is('leaves') || request()->is('leave*') || request()->is('leave/history') || request()->is('leave/history*'))
     @include('script.leaveCreditScript')
 @endif
 @if(request()->is('pds/signature/*') || request()->is('pds/signature'))

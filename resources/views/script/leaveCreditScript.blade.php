@@ -330,12 +330,66 @@
     });  
 </script>
 <script>
+    $('.return-leave').on('click', function(){
+        var id = $(this).data('id');
+        var to = $(this).data('to');
+
+        var returnUrl = "{{ route('leaveReturn') }}";
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to return leave application?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, return it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: returnUrl,
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        to: to,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if(to == 1){
+                            $('#action-button' + id).fadeOut(1000, function() {
+                                $(this).remove();
+                            });
+                        }
+                        if(to == 2){
+                            $('#action-button1' + id).fadeOut(1000, function() {
+                                $(this).remove();
+                            });
+                        }
+                        Swal.fire(
+                            'Returned!',
+                            'Leave has been successfully returned.',
+                            'success'
+                        );
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire(
+                            'Error!',
+                            'An error occurred while returning the leave.',
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
+    });
+</script>
+<script>
     $('.approve-leave').on('click', function() {
         var id = $(this).data('id');
         var by = $(this).data('by');
         var max = $(this).data('max');
         var approveUrl = "{{ route('leaveApprove') }}";
-
+        var btnapp = (by == 0) ? 'Yes, Submit it!' : 'Yes, approve it!';
         Swal.fire({
             title: 'Are you sure?',
             text: "You want to approve this request!",
@@ -343,7 +397,7 @@
             showCancelButton: true,
             confirmButtonColor: '#28a745',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, approve it!',
+            confirmButtonText: btnapp,
             html: `
                 <input type="number" id="days-without-pay" class="swal2-input" placeholder="Enter days without pay..." 
                     min="0" max="${max}" ${by == 2 ? '' : 'style="display:none;"'} style="width: calc(85% - 16px);">
@@ -387,7 +441,11 @@
                             showConfirmButton: false,
                             timer: 1000
                         });
-                        // Update the UI based on approval stage (by)
+                        if(by == 0){
+                            $('#action-button0' + id).fadeOut(1000, function() {
+                                $(this).remove();
+                            });
+                        }
                         if (by == 1) {
                             // Supervisor Approval
                             $('#action-button' + id).fadeOut(1000, function() {
@@ -414,13 +472,23 @@
                             $('#preview' + id).attr('href', "{{ route('previewLeave', ':id') }}".replace(':id', id));
                         }
                     },
-                    error: function(response) {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'An error occurred while approving the leave.',
-                            icon: 'error',
-                            showConfirmButton: true,
-                        });
+                    error: function(xhr, status, error) {
+                        var response = xhr.responseJSON;
+                        if (xhr.status === 400 && response && response.error === 'Insufficient leave credits') {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Insufficient leave credits. Please check available credits.',
+                                icon: 'error',
+                                showConfirmButton: true,
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'An error occurred while approving the leave.',
+                                icon: 'error',
+                                showConfirmButton: true,
+                            });
+                        }
                     }
                 });
             }
@@ -458,7 +526,7 @@
                         id: id,
                         by: by,
                         remarks: remarks,
-                        _token: $('meta[name="csrf-token"]').attr('content') // CSRF token for security
+                        _token: $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
                         if (response.success) {
@@ -532,14 +600,20 @@
     });
 
 </script>
+@if(request()->is('leave/status') || request()->is('leaves/status/*') || request()->is('leave/history*') || request()->is('leave/status/*'))
 <script>
     $(document).ready(function() {
         function updateLeaveInfo() {
-            var url = "{{ route('leaveLive') }}";
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+            });
 
+            var url = "{{ request()->is('leave/status') || request()->is('leave/history') ? route('leaveLive') : (request()->is('leave/status/*') || request()->is('leave/history/*') ? route('leaveLive', $empid) : '') }}";
             $.ajax({
                 url: url,
-                type: 'GET',
+                type: 'POST',
                 dataType: 'json',
                 success: function(response) {
                     if (response) {
@@ -549,7 +623,39 @@
                 }
             });
         }
-
         setInterval(updateLeaveInfo, 500);
     });
 </script>
+<script>
+    $(document).ready(function() {
+        $('#pdfModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget);
+            var leaveId = button.data('id');
+            $.ajax({
+                url: "{{ route('getPdfPath') }}",
+                type: 'POST',
+                data: {
+                    id: leaveId,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.path) {
+                        $('#pdfIframe').attr('src', response.path);
+                    } else {
+                        console.error('PDF path not found');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading PDF:', error);
+                    $('#pdfIframe').attr('src', '');
+                }
+            });
+        });
+
+        $('#pdfModal').on('hidden.bs.modal', function() {
+            $('#pdfIframe').attr('src', '');
+        });
+    });
+</script>
+
+@endif

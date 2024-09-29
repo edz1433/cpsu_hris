@@ -2,6 +2,18 @@
 
 @section('body')
 @include('leaves.style')
+<style>
+    .modal-content {
+        background: rgba(255, 255, 255, 0.515);
+        border: none;
+        box-shadow: none;
+    }
+    
+    .modal-backdrop {
+        background-color: transparent;
+    }
+</style>
+
 <section class="content">
 <div class="container-fluid">
     <div class="row">
@@ -66,7 +78,19 @@
                                                 <span><b>DAYS WITH PAY :</b> {{ $leaves->days - $leaves->day_wpay }}</span><br>
                                                 <span><b>DAYS WITHOUT PAY:</b> {{ $leaves->day_wpay }}</span><br>
                                                 @endif
-                                                {{-- <button class="btn btn-primary btn-sm mt-2"><i class="fas fa-eye fa-sm"></i> Preview</button> --}}
+                                                
+                                                @if($leaves->emp_esign == 1 && $leaves->employid == auth()->guard($guard)->user()->id)
+                                                    <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
+                                                        <div class="float-right">
+                                                            
+                                                            <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
+                                                                <i class="fas fa-file-pdf"></i> View
+                                                            </button>
+
+                                                            <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="0" data-max="{{ $leaves->days }}"><i class="fas fa-upload"></i> Upload</button>
+                                                        </div>
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -81,21 +105,21 @@
                                         <div class="timeline-item">
                                             <span class="time time-sup{{ $leaves->id }}">{{ (!empty($leaves->sup_sdate)) ? \Carbon\Carbon::parse($leaves->sup_sdate)->format('F j, Y h:i A') : '' }}</span>
                                             <h3 class="timeline-header border-0">
-                                                <a href="#">{{ strtoupper($leaves->supervisor_lname) }}, {{ strtoupper($leaves->supervisor_fname) }} {{ isset($leaves->supervisor_suffix) ? strtoupper($leaves->supervisor_suffix).'.' : '' }} {{ strtoupper($leaves->supervisor_mname) }}</a><br>
+                                                <a href="#">{{ strtoupper($leaves->supervisor_lname) }}, {{ strtoupper($leaves->supervisor_fname) }} {{ isset($leaves->supervisor_suffix) ? strtoupper($leaves->supervisor_suffix).'.' : '' }}. {{ strtoupper($leaves->supervisor_mname) }}</a><br>
                                                 <span><i>Immediate Supervisor</i></span>
                                                 @if($leaves->remarks_stat == 1)<br>
-                                                    <div class="callout callout-danger" style="margin: 8px 0px 0px 0px !important; padding: 10px !important;">
-                                                        <p>{{ $leaves->remarks_details }}</p>
+                                                <div class="callout callout-danger" style="margin: 8px 0px 0px 0px !important; padding: 10px !important;">
+                                                    <p>{{ $leaves->remarks_details }}</p>
                                                     </div>
                                                 @endif
                                                 <div id="status-remarks-supervisor{{ $leaves->id }}"></div>
                                             </h3>
                                             @if($guard == "employee")
-                                                @if($leaves->supervisor == auth()->guard($guard)->user()->id && $leaves->status == 1 && $leaves->remarks_stat !== 1)
+                                                @if($leaves->supervisor == auth()->guard($guard)->user()->id && $leaves->status == 1 && $leaves->remarks_stat !== 1 && $leaves->emp_esign == 2)
                                                     <div class="timeline-footer mb-4" id="action-button{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
-                                                            <a class="btn btn-info btn-sm view-application" href="{{ asset($leaves->gen_app) }}" target="_blank"><i class="fas fa-eye"></i> View Application</a>
-                                                            <a class="btn btn-warning btn-sm return-application text-black" target="_blank"><i class="fas fa-undo"></i> Return</a>
+                                                            <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal"><i class="fas fa-file-pdf"></i> View</button>
+                                                            <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="1"><i class="fas fa-undo"></i> Return</button>
                                                             <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="1" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
                                                             <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="1"><i class="fas fa-ban"></i> Disapprove</button>
                                                         </div>
@@ -103,7 +127,7 @@
                                                 @endif
                                             @endif
                                         </div>
-                                    </div>     
+                                    </div>        
                                     
                                     <div>
                                         @if($leaves->remarks_stat == 2)
@@ -127,8 +151,8 @@
                                                 @if($leaves->status == 2 && $leaves->remarks_stat != 2 && $accesarray[7] == 1 && $leaves->remarks_stat !== 2)
                                                     <div class="timeline-footer mb-4" id="action-button1{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
-                                                            <a class="btn btn-info btn-sm view-application" href="{{ asset($leaves->gen_app) }}" target="_blank"><i class="fas fa-eye"></i> View Application</a>
-                                                            <a class="btn btn-warning btn-sm return-application text-black" target="_blank"><i class="fas fa-undo"></i> Return</a>
+                                                            <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal"><i class="fas fa-file-pdf"></i> View</button>
+                                                            <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="2"><i class="fas fa-undo"></i> Return</button>
                                                             <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
                                                             <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="2"><i class="fas fa-ban"></i> Disapprove</button>
                                                         </div>
@@ -160,8 +184,8 @@
                                                 @if($setting->suc_pres == auth()->guard($guard)->user()->id && $leaves->status == 3 && $leaves->remarks_stat !== 3)
                                                     <div class="timeline-footer mb-4" id="action-button2{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
-                                                            <a class="btn btn-info btn-sm view-application" href="{{ asset($leaves->gen_app) }}" target="_blank"><i class="fas fa-eye"></i> View Application</a>
-                                                            <a class="btn btn-warning btn-sm return-application text-black" target="_blank"><i class="fas fa-undo"></i> Return</a>
+                                                            <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal"><i class="fas fa-file-pdf"></i> View</button>
+                                                            <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="3"><i class="fas fa-undo"></i> Return</button>
                                                             <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="3" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
                                                             <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="3"><i class="fas fa-ban"></i> Disapprove</button>
                                                         </div>
@@ -172,12 +196,11 @@
                                     </div>
                                     <div>
                                         <i id="status-icon3{{ $leaves->id }}" class="fas {{ ($leaves->status == 4 || $leaves->status == 5) ? 'fa-check bg-success' : 'fa-times bg-secondary' }} mt-3"></i>
-
-                                        <a href="{{ ($leaves->status == 4) ? route('previewLeave', $leaves->id) : '#' }}" target="{{ ($leaves->status == 4) ? '_blank' : '' }}" 
+                                        <button data-id="{{ $leaves->id }}" data-toggle="modal" data-target="{{ ($leaves->history == 2) ? '#pdfModal' : '' }}" 
                                             id="preview{{ $leaves->id }}" 
                                             class="btn {{ ($leaves->status == 4 || $leaves->status == 5) ? 'btn-danger' : 'btn-secondary' }} btn-sm mt-3 ml-5 download">
                                             <i class="fas fa-file-pdf"></i> Preview
-                                        </a>
+                                        </button>
                                     </div>
                                 </div>
                             @endforeach
@@ -201,7 +224,19 @@
                                                 <span><b>DAYS WITH PAY :</b> {{ $leaves->days - $leaves->day_wpay }}</span><br>
                                                 <span><b>DAYS WITHOUT PAY:</b> {{ $leaves->day_wpay }}</span><br>
                                                 @endif
-                                                {{-- <button class="btn btn-primary btn-sm mt-2"><i class="fas fa-eye fa-sm"></i> Preview</button> --}}
+                                                
+                                                @if($leaves->emp_esign == 1 && $leaves->employid == auth()->guard($guard)->user()->id)
+                                                    <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
+                                                        <div class="float-right">
+                                                            
+                                                            <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
+                                                                <i class="fas fa-file-pdf"></i> View
+                                                            </button>
+
+                                                            <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="0" data-max="{{ $leaves->days }}"><i class="fas fa-upload"></i> Upload</button>
+                                                        </div>
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -226,11 +261,11 @@
                                                 <div id="status-remarks-supervisor{{ $leaves->id }}"></div>
                                             </h3>
                                             @if($guard == "employee")
-                                                @if($leaves->supervisor == auth()->guard($guard)->user()->id && $leaves->status == 1 && $leaves->remarks_stat !== 1)
+                                                @if($leaves->supervisor == auth()->guard($guard)->user()->id && $leaves->status == 1 && $leaves->remarks_stat !== 1 && $leaves->emp_esign == 2)
                                                     <div class="timeline-footer mb-4" id="action-button{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
-                                                            <a class="btn btn-info btn-sm view-application" href="{{ asset($leaves->gen_app) }}" target="_blank"><i class="fas fa-eye"></i> View Application</a>
-                                                            <a class="btn btn-warning btn-sm return-application text-black" target="_blank"><i class="fas fa-undo"></i> Return</a>
+                                                            <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal"><i class="fas fa-file-pdf"></i> View</button>
+                                                            <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="1"><i class="fas fa-undo"></i> Return</button>
                                                             <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="1" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
                                                             <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="1"><i class="fas fa-ban"></i> Disapprove</button>
                                                         </div>
@@ -262,8 +297,8 @@
                                                 @if($leaves->status == 2 && $leaves->remarks_stat != 2 && $accesarray[7] == 1 && $leaves->remarks_stat !== 2)
                                                     <div class="timeline-footer mb-4" id="action-button1{{ $leaves->id }}" style="margin-top: -15px;">                                                    
                                                     <div class="float-right">
-                                                        <a class="btn btn-info btn-sm view-application" href="{{ asset($leaves->gen_app) }}" target="_blank"><i class="fas fa-eye"></i> View Application</a>
-                                                        <a class="btn btn-warning btn-sm return-application text-black" target="_blank"><i class="fas fa-undo"></i> Return</a>
+                                                        <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal"><i class="fas fa-file-pdf"></i> View</button>
+                                                        <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="2"><i class="fas fa-undo"></i> Return</button>
                                                         <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
                                                         <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="2"><i class="fas fa-ban"></i> Disapprove</button>
                                                     </div>
@@ -294,8 +329,8 @@
                                                 @if($setting->suc_pres == auth()->guard($guard)->user()->id && $leaves->status == 3 && $leaves->remarks_stat !== 3)
                                                     <div class="timeline-footer mb-4" id="action-button2{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
-                                                            <a class="btn btn-info btn-sm view-application" href="{{ asset($leaves->gen_app) }}" target="_blank"><i class="fas fa-eye"></i> View Application</a>
-                                                            <a class="btn btn-warning btn-sm return-application text-black" target="_blank"><i class="fas fa-undo"></i> Return</a>
+                                                            <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal"><i class="fas fa-file-pdf"></i> View</button>
+                                                            <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="3"><i class="fas fa-undo"></i> Return</button>
                                                             <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="3" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
                                                             <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="3"><i class="fas fa-ban"></i> Disapprove</button>
                                                         </div>
@@ -306,12 +341,11 @@
                                     </div>
                                     <div>
                                         <i id="status-icon3{{ $leaves->id }}" class="fas {{ ($leaves->status == 4 || $leaves->status == 5) ? 'fa-check bg-success' : 'fa-times bg-secondary' }} mt-3"></i>
-
-                                        <a href="{{ ($leaves->status == 4) ? route('previewLeave', $leaves->id) : '#' }}" target="{{ ($leaves->status == 4) ? '_blank' : '' }}" 
+                                        <button data-id="{{ $leaves->id }}" data-toggle="modal" data-target="{{ ($leaves->history == 2) ? '#pdfModal' : '' }}" 
                                             id="preview{{ $leaves->id }}" 
                                             class="btn {{ ($leaves->status == 4 || $leaves->status == 5) ? 'btn-danger' : 'btn-secondary' }} btn-sm mt-3 ml-5 download">
                                             <i class="fas fa-file-pdf"></i> Preview
-                                        </a>
+                                        </button>
                                     </div>
                                 </div>
                             @endforeach
@@ -320,6 +354,15 @@
                     </div>                    
                 </div>
             </div>                        
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <iframe id="pdfIframe" src="" width="100%" height="600px" style="border:none;"></iframe>
+            </div>
         </div>
     </div>
 </div>
