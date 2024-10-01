@@ -74,21 +74,34 @@
                                                 <span><b>DETAILS OF LEAVE :</b> {{ $leavedetails[$leaves->leave_purpose] }} @if($leaves->leave_detail) ({{ $leaves->leave_detail }}) @endif</span><br>
                                                 <span><b>INCLUSIVE DATES :</b> {{ $leaves->date_range }}</span><br>
                                                 <span><b>DAYS :</b> {{ $leaves->days }}</span><br>
-                                                @if(($leaves->status >= 3))
+                                                
                                                 <span><b>DAYS WITH PAY :</b> {{ $leaves->days - $leaves->day_wpay }}</span><br>
                                                 <span><b>DAYS WITHOUT PAY:</b> {{ $leaves->day_wpay }}</span><br>
-                                                @endif
-                                                
-                                                @if($leaves->emp_esign == 1 && $leaves->employid == auth()->guard($guard)->user()->id)
+                                        
+                                                @if($guard == "web")
                                                     <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
-                                                            
-                                                            <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
-                                                                <i class="fas fa-file-pdf"></i> View
-                                                            </button>
-
-                                                            <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="0" data-max="{{ $leaves->days }}"><i class="fas fa-upload"></i> Upload</button>
+                                                            @if($leaves->emp_esign == 0)
+                                                                <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
+                                                                    <i class="fas fa-file-pdf"></i> View
+                                                                </button>
+                                                                <button class="btn btn-info btn-sm day-wpay" data-id="{{ $leaves->id }}" data-max="{{ $leaves->days }}"><i class="fas fa-circle-info"></i></button>
+                                                            @endif
                                                         </div>
+                                                    </div>
+                                                @endif
+                                                @if($guard == "employee" && $leaves->employid == auth()->guard($guard)->user()->id)
+                                                    <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
+                                                        @if($leaves->emp_esign == 1)
+                                                            <div class="float-right">
+                                                                
+                                                                <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
+                                                                    <i class="fas fa-file-pdf"></i> View
+                                                                </button>
+
+                                                                <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="0" data-max="{{ $leaves->days }}"><i class="fas fa-upload"></i> Upload</button>
+                                                            </div>
+                                                        @endif
                                                     </div>
                                                 @endif
                                             </div>
@@ -220,21 +233,36 @@
                                                 <span><b>DETAILS OF LEAVE :</b> {{ $leavedetails[$leaves->leave_purpose] }} @if($leaves->leave_detail) ({{ $leaves->leave_detail }}) @endif</span><br>
                                                 <span><b>INCLUSIVE DATES :</b> {{ $leaves->date_range }}</span><br>
                                                 <span><b>DAYS :</b> {{ $leaves->days }}</span><br>
-                                                @if(($leaves->status >= 3))
+                                                
                                                 <span><b>DAYS WITH PAY :</b> {{ $leaves->days - $leaves->day_wpay }}</span><br>
                                                 <span><b>DAYS WITHOUT PAY:</b> {{ $leaves->day_wpay }}</span><br>
-                                                @endif
-                                                
-                                                @if($leaves->emp_esign == 1 && $leaves->employid == auth()->guard($guard)->user()->id)
+                                        
+                                                @if($guard == "web")
                                                     <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
-                                                            
-                                                            <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
-                                                                <i class="fas fa-file-pdf"></i> View
-                                                            </button>
-
-                                                            <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="0" data-max="{{ $leaves->days }}"><i class="fas fa-upload"></i> Upload</button>
+                                                            @if($leaves->emp_esign == 0)
+                                                                <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
+                                                                    <i class="fas fa-file-pdf"></i> View
+                                                                </button>
+                                                                <button class="btn btn-info btn-sm day-wpay" data-id="{{ $leaves->id }}" data-max="{{ $leaves->days }}"><i class="fas fa-circle-info"></i></button>
+                                                            @endif
                                                         </div>
+                                                    </div>
+                                                @endif
+                                                @if($guard == "employee" && $leaves->employid == auth()->guard($guard)->user()->id)
+                                                    <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
+                                                        @if($leaves->emp_esign == 1)
+                                                            <div class="float-right">
+                                                                
+                                                                <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
+                                                                    <i class="fas fa-file-pdf"></i> View
+                                                                </button>
+
+                                                                <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="0" data-max="{{ $leaves->days }}"><i class="fas fa-upload"></i> Upload</button>
+                                                            </div>
+                                                        @else
+                                                            <span class="badge badge-warning">Checking...</span>
+                                                        @endif
                                                     </div>
                                                 @endif
                                             </div>

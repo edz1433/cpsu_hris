@@ -365,6 +365,11 @@
                                 $(this).remove();
                             });
                         }
+                        if(to == 3){
+                            $('#action-button2' + id).fadeOut(1000, function() {
+                                $(this).remove();
+                            });
+                        }
                         Swal.fire(
                             'Returned!',
                             'Leave has been successfully returned.',
@@ -384,12 +389,100 @@
     });
 </script>
 <script>
+    $('.day-wpay').on('click', function() {
+        var id = $(this).data('id');
+        var max = $(this).data('max');
+        var approveUrl = "{{ route('leaveWpay') }}";
+    
+        Swal.fire({
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Submit',
+            html: `
+                <input type="number" id="days-without-pay" class="swal2-input" placeholder="Enter days without pay..." 
+                    min="0" max="${max}" style="width: calc(85% - 16px);">
+            `,
+            preConfirm: () => {
+                var daysWithoutPay = document.getElementById('days-without-pay').value;
+    
+                if (!daysWithoutPay || daysWithoutPay < 0 || daysWithoutPay > max) {
+                    Swal.showValidationMessage(`Please enter a valid number of days (0-${max})`);
+                    return false;
+                }
+    
+                return { daysWithoutPay };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                var formData = new FormData();
+                formData.append('id', id);
+                formData.append('day_wpay', result.value.daysWithoutPay);
+                formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+                
+                $.ajax({
+                    type: "POST",
+                    url: approveUrl,
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        Swal.fire({
+                            title: 'Approved!',
+                            text: 'The request has been approved.',
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 1000
+                        });
+                        $('#action-button0' + id).fadeOut(1000, function() {
+                            $(this).remove();
+                        });
+                    },
+                    error: function(xhr) {
+                        var response = xhr.responseJSON;
+                        if (xhr.status === 400 && response && response.error === 'Insufficient leave credits') {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Insufficient leave credits. Please check available credits.',
+                                icon: 'error',
+                                showConfirmButton: true,
+                            });
+                        } else if (xhr.status === 422) {
+                            Swal.fire({
+                                title: 'Validation Error!',
+                                text: 'Please check the entered data for any validation errors.',
+                                icon: 'error',
+                                showConfirmButton: true,
+                            });
+                        } else if (xhr.status === 500) {
+                            Swal.fire({
+                                title: 'Server Error!',
+                                text: 'An internal server error occurred. Please try again later.',
+                                icon: 'error',
+                                showConfirmButton: true,
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'An error occurred while approving the leave.',
+                                icon: 'error',
+                                showConfirmButton: true,
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    });
+</script>
+    
+<script>
     $('.approve-leave').on('click', function() {
         var id = $(this).data('id');
         var by = $(this).data('by');
-        var max = $(this).data('max');
         var approveUrl = "{{ route('leaveApprove') }}";
         var btnapp = (by == 0) ? 'Yes, Submit it!' : 'Yes, approve it!';
+
         Swal.fire({
             title: 'Are you sure?',
             text: "You want to approve this request!",
@@ -399,31 +492,23 @@
             cancelButtonColor: '#d33',
             confirmButtonText: btnapp,
             html: `
-                <input type="number" id="days-without-pay" class="swal2-input" placeholder="Enter days without pay..." 
-                    min="0" max="${max}" ${by == 2 ? '' : 'style="display:none;"'} style="width: calc(85% - 16px);">
                 <input type="file" id="pdf-file" class="swal2-input" accept=".pdf" style="width: calc(85% - 16px);">
             `,
             preConfirm: () => {
-                var daysWithoutPay = document.getElementById('days-without-pay').value;
                 var file = document.getElementById('pdf-file').files[0];
-                
-                if (by == 2 && (daysWithoutPay < 0 || daysWithoutPay > max)) {
-                    Swal.showValidationMessage(`Please enter a valid number of days (0-${max})`);
-                    return false;
-                }
+
                 if (!file) {
                     Swal.showValidationMessage('Please attach the signed application form.');
                     return false;
                 }
 
-                return { daysWithoutPay, file };
+                return { file };
             }
         }).then((result) => {
             if (result.isConfirmed) {
                 var formData = new FormData();
                 formData.append('id', id);
                 formData.append('by', by);
-                formData.append('day_wpay', by == 2 ? result.value.daysWithoutPay : 0);
                 formData.append('file', result.value.file);
                 formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
 
@@ -441,7 +526,7 @@
                             showConfirmButton: false,
                             timer: 1000
                         });
-                        if(by == 0){
+                        if (by == 0) {
                             $('#action-button0' + id).fadeOut(1000, function() {
                                 $(this).remove();
                             });

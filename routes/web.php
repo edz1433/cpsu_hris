@@ -247,6 +247,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/create', [LeaveApplicationController::class, 'LeaveAppCreate'])->name('LeaveAppCreate');
         
         Route::get('/status/{id?}', [LeaveApplicationController::class, 'leaveStatus'])->name('leaveStatus');
+        Route::post('/leave-wpay', [LeaveApplicationController::class, 'leaveWpay'])->name('leaveWpay');
         Route::post('/approve', [LeaveApplicationController::class, 'leaveApprove'])->name('leaveApprove');
         Route::post('/dis-approve', [LeaveApplicationController::class, 'leaveDisapprove'])->name('leaveDisapprove');
         Route::get('/preview-leave/{id}', [LeaveApplicationController::class, 'previewLeave'])->name('previewLeave');   

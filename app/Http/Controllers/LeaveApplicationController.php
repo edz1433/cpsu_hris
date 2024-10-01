@@ -130,12 +130,55 @@ class LeaveApplicationController extends Controller
         ->orderBy('leave_applications.id', 'desc')
         ->where('leave_applications.history', 1)
         ->get();
+
+        // dd($leavesapphead);
         
         $emplalls = Employee::where('emp_status', 1)->get();
 
         return view("leaves.status", compact('guard', 'setting', 'employee', 'leavesapp', 'leavesapphead', 'emplalls', 'empid'));
     }
 
+    public function leaveWpay(Request $request)
+    {
+        $request->validate([
+            'id' => 'required',
+            'day_wpay' => 'required',
+        ]);
+    
+        $leaveApplication = LeaveApplication::find($request->id);
+        $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
+    
+        if (!$employee) {
+            return response()->json(['error' => 'Employee not found'], 404);
+        }
+    
+        $leaveApplication->hr_sdate = Carbon::now();
+        $leaveApplication->day_wpay = $request->day_wpay;
+        $daysdeduct = $leaveApplication->days - $request->day_wpay;
+    
+        if ($leaveApplication->leave_type == 1) {
+            $employee->vl = $employee->vl ?? 0;
+            $employee->sl = $employee->sl ?? 0;
+    
+            if ($daysdeduct > $employee->vl) {
+                $remainingDays = $daysdeduct - $employee->vl;
+    
+                if ($remainingDays > $employee->sl) {
+                    return response()->json(['error' => 'Insufficient leave credits'], 400);
+                }
+            }
+        }
+        
+        $leaveApplication->emp_esign = 1;
+        $leaveApplication->save();
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Leave approved successfully.',
+            'datetime' => now(),
+        ]);
+    }
+    
     public function leaveApprove(Request $request)
     {
         $request->validate([
