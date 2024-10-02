@@ -290,23 +290,6 @@ class LeaveApplicationController extends Controller
                 }
             }
         
-            // if (in_array($leaveApplication->leave_type, [1, 2])) {
-            //     if ($days > $employee->vl) {
-            //         $remainingDays = $days - $employee->vl;
-        
-            //         if ($remainingDays <= $employee->sl) {
-            //             $employee->vl = 0;
-            //             $employee->sl -= $remainingDays;
-            //         } else {
-            //             return response()->json(['error' => 'Insufficient leave credits'], 400);
-            //         }
-            //     } else {
-            //         $employee->vl -= $days;
-            //     }
-            // } else if ($leaveApplication->leave_type == 3) {
-            //     $employee->vl -= $days;
-            // }
-        
             $employee->save();
         
             $leaveApplication->history = 2;
