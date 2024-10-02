@@ -282,8 +282,8 @@ class LeaveApplicationController extends Controller
                 if ($days > $employee->sl) {
                     $remainingDays = $days - $employee->sl;
                     
-                    if ($remainingDays <= $employee->sl) {
-                        $employee->vl = 0;
+                    if ($remainingDays <= $employee->vl) {
+                        $employee->vl -= $employee->vl;
                         $employee->sl -= $remainingDays;
                     }
                     if ($remainingDays > $employee->vl) {
