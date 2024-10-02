@@ -102,7 +102,7 @@
                                                                 <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="0" data-max="{{ $leaves->days }}"><i class="fas fa-upload"></i> Upload</button>
                                                             </div>
                                                         @else
-                                                            <span class="badge badge-warning">Checking...</span>
+                                                            <br><span class="badge badge-warning">Checking...</span>
                                                         @endif
                                                     </div>
                                                 @endif 
@@ -264,7 +264,7 @@
                                                                 <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="0" data-max="{{ $leaves->days }}"><i class="fas fa-upload"></i> Upload</button>
                                                             </div>
                                                         @else
-                                                            <span class="badge badge-warning">Checking...</span>
+                                                            <br><span class="badge badge-warning">Checking...</span>
                                                         @endif
                                                     </div>
                                                 @endif
