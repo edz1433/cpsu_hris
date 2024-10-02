@@ -289,10 +289,21 @@
                 <td colspan="3"></td>
                 <td colspan="3"></td>
             </tr>
+            @php
+                $leave_days = $leaveApplication->days - $leaveApplication->day_wpay;
+                $is_vl_sl = in_array($leaveApplication->leave_type, [1, 2]);
+                $leavetype = $leaveApplication->leave_type;
+                $emp_esign = $leaveApplication->emp_esign;
+
+                $totalvl = $leaveApplication->total_vl;
+                $totalsl = $leaveApplication->total_sl;
+
+                $totalremain = $leave_days - $leaveApplication->total_sl;
+            @endphp
             <tr>
                 <td colspan="3" class="bordered details vlt" style="height: 120px !important; border-right: none !important; border-bottom: none !important;">
                     <span>7.C APPROVED FOR:</span><br>
-                    <span style="width: 11.5%; margin-left: 20px; display: inline-block; text-align: center; border-bottom: 1px solid black;"><center><b>{{ $leaveApplication->days - $leaveApplication->day_wpay }}</b></center></span> days with pay <br>
+                    <span style="width: 11.5%; margin-left: 20px; display: inline-block; text-align: center; border-bottom: 1px solid black;"><center><b>{{ $leave_days }}</b></center></span> days with pay <br>
                     <span style="width: 11.5%; margin-left: 20px; display: inline-block; text-align: center; border-bottom: 1px solid black;"><center><b>{{ $leaveApplication->day_wpay }}</b></center></span> days without pay<br>
                     <span style="width: 11.5%; margin-left: 20px; display: inline-block; text-align: center; border-bottom: 1px solid black;"></span> others (Specify)<br>
                 </td>
@@ -320,18 +331,38 @@
             </tr>
             <tr>
                 <th class="bordered">Total Earned</th>
-                <td class="bordered text-center"></td>
-                <td class="bordered text-center"></td>
+                <td class="bordered text-center">{{ $leaveApplication->total_vl }}</td>
+                <td class="bordered text-center">{{ $leaveApplication->total_sl }}</td>
             </tr>
             <tr>
                 <th class="bordered">Less this application</th>
-                <td class="bordered text-center"></td>
-                <td class="bordered text-center"></td>
+                <td class="bordered text-center">
+                    @if($is_vl_sl && $emp_esign != 0)
+                        {{ $bvl = $leave_days }} 
+                    @elseif($leaveApplication->leave_type == 3 && $leave_days > $leaveApplication->total_sl && $emp_esign != 0)
+                       {{ $bvl = $totalremain }} 
+                    @else
+                        {{ $bvl = 0 }}
+                    @endif
+                </td>
+                <td class="bordered text-center">
+                    @if($is_vl_sl && $emp_esign != 0)
+                        {{ $bsl = 0 }}
+                    @elseif($leaveApplication->leave_type == 3 && $emp_esign != 0)
+                        @if($leave_days > $totalsl)
+                            {{ $bsl = $totalsl }} 
+                        @else
+                            {{ $bsl = $leave_days }}
+                        @endif
+                    @else
+                        {{ $bsl = 0 }}
+                    @endif
+                </td>
             </tr>
             <tr>
                 <th class="bordered">Balance</th>
-                <td class="bordered text-center"></td>
-                <td class="bordered text-center"></td>
+                <td class="bordered text-center">{{ ($emp_esign != 0) ? $totalvl - $bvl : 0 }}</td>
+                <td class="bordered text-center">{{ ($emp_esign != 0) ? $totalsl - $bsl : 0 }}</td>
             </tr>
         </table>
     </div>

@@ -156,21 +156,25 @@ class LeaveApplicationController extends Controller
         $leaveApplication->day_wpay = $request->day_wpay;
         $daysdeduct = $leaveApplication->days - $request->day_wpay;
     
-        if ($leaveApplication->leave_type == 1) {
-            $employee->vl = $employee->vl ?? 0;
+        if ($leaveApplication->leave_type == 3) {
             $employee->sl = $employee->sl ?? 0;
-    
-            if ($daysdeduct > $employee->vl) {
-                $remainingDays = $daysdeduct - $employee->vl;
-    
-                if ($remainingDays > $employee->sl) {
+            $employee->vl = $employee->vl ?? 0;
+            
+            if ($daysdeduct > $employee->sl) {
+                $remainingDays = $daysdeduct - $employee->sl;
+                
+                if ($remainingDays > $employee->vl) {
                     return response()->json(['error' => 'Insufficient leave credits'], 400);
                 }
+            }else{
+                
             }
         }
         
         $leaveApplication->emp_esign = 1;
         $leaveApplication->save();
+
+        $this->genApplication($leaveApplication->id);
     
         return response()->json([
             'success' => true,
@@ -233,24 +237,24 @@ class LeaveApplicationController extends Controller
 
         if($request->by == 2){
             $leaveApplication->hr_sdate = Carbon::now();
-            $leaveApplication->day_wpay = $request->day_wpay;
+            // $leaveApplication->day_wpay = $request->day_wpay;
 
-            $daysdeduct = $leaveApplication->days - $request->day_wpay;
+            // $daysdeduct = $leaveApplication->days - $request->day_wpay;
 
-            $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
+            // $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
         
-            if ($leaveApplication->leave_type == 1) {
-                $employee->vl = $employee->vl ?? 0;
-                $employee->sl = $employee->sl ?? 0;
+            // if ($leaveApplication->leave_type == 1) {
+            //     $employee->vl = $employee->vl ?? 0;
+            //     $employee->sl = $employee->sl ?? 0;
         
-                if ($daysdeduct > $employee->vl) {
-                    $remainingDays = $daysdeduct - $employee->vl;
+            //     if ($daysdeduct > $employee->vl) {
+            //         $remainingDays = $daysdeduct - $employee->vl;
         
-                    if ($remainingDays > $employee->sl) {
-                        return response()->json(['error' => 'Insufficient leave credits'], 400);
-                    } 
-                } 
-            }
+            //         if ($remainingDays > $employee->sl) {
+            //             return response()->json(['error' => 'Insufficient leave credits'], 400);
+            //         } 
+            //     } 
+            // }
         }
 
         if ($request->by == 3) {
