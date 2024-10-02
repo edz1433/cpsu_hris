@@ -75,9 +75,9 @@
                                                 <span><b>INCLUSIVE DATES :</b> {{ $leaves->date_range }}</span><br>
                                                 <span><b>DAYS :</b> {{ $leaves->days }}</span><br>
                                                 
-                                                <span><b>DAYS WITH PAY :</b> {{ $leaves->days - $leaves->day_wpay }}</span><br>
-                                                <span><b>DAYS WITHOUT PAY:</b> {{ $leaves->day_wpay }}</span><br>
-                                        
+                                                <span><b>DAYS WITH PAY :</b> <span id="days-wpay{{ $leaves->id }}">{{ ($leaves->emp_esign == 1) ? $leaves->days - $leaves->day_wpay : '' }}</span></span><br>
+                                                <span><b>DAYS WITHOUT PAY:</b> <span id="days-withoutpay{{ $leaves->id }}">{{ ($leaves->emp_esign == 1) ? $leaves->day_wpay : '' }}<span> </span>
+                            
                                                 @if($guard == "web")
                                                     <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
@@ -93,7 +93,7 @@
                                                 @if($guard == "employee" && $leaves->employid == auth()->guard($guard)->user()->id)
                                                     <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
                                                         @if($leaves->emp_esign == 1)
-                                                            <div class="float-right">
+                                                            <div class="float-right mb-4">
                                                                 
                                                                 <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
                                                                     <i class="fas fa-file-pdf"></i> View
@@ -101,9 +101,12 @@
 
                                                                 <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="0" data-max="{{ $leaves->days }}"><i class="fas fa-upload"></i> Upload</button>
                                                             </div>
+                                                        @else
+                                                            <span class="badge badge-warning">Checking...</span>
                                                         @endif
                                                     </div>
-                                                @endif
+                                                @endif 
+                                                <br>
                                             </div>
                                         </div>
                                     </div>
@@ -129,7 +132,7 @@
                                             </h3>
                                             @if($guard == "employee")
                                                 @if($leaves->supervisor == auth()->guard($guard)->user()->id && $leaves->status == 1 && $leaves->remarks_stat !== 1 && $leaves->emp_esign == 2)
-                                                    <div class="timeline-footer mb-4" id="action-button{{ $leaves->id }}" style="margin-top: -15px;">
+                                                    <div class="timeline-footer mb-4" id="action-button{{ $leaves->id }}">
                                                         <div class="float-right">
                                                             <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal"><i class="fas fa-file-pdf"></i> View</button>
                                                             <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="1"><i class="fas fa-undo"></i> Return</button>
@@ -234,9 +237,9 @@
                                                 <span><b>INCLUSIVE DATES :</b> {{ $leaves->date_range }}</span><br>
                                                 <span><b>DAYS :</b> {{ $leaves->days }}</span><br>
                                                 
-                                                <span><b>DAYS WITH PAY :</b> {{ $leaves->days - $leaves->day_wpay }}</span><br>
-                                                <span><b>DAYS WITHOUT PAY:</b> {{ $leaves->day_wpay }}</span><br>
-                                        
+                                                <span><b>DAYS WITH PAY :</b> <span id="days-wpay{{ $leaves->id }}">{{ ($leaves->emp_esign == 1) ? $leaves->days - $leaves->day_wpay : '' }}</span></span><br>
+                                                <span><b>DAYS WITHOUT PAY:</b> <span id="days-withoutpay{{ $leaves->id }}">{{ ($leaves->emp_esign == 1) ? $leaves->day_wpay : '' }}<span> </span>
+                            
                                                 @if($guard == "web")
                                                     <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
@@ -265,6 +268,7 @@
                                                         @endif
                                                     </div>
                                                 @endif
+                                                <br>
                                             </div>
                                         </div>
                                     </div>

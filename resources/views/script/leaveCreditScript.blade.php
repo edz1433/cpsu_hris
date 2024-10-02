@@ -427,6 +427,8 @@
                     contentType: false,
                     processData: false,
                     success: function(response) {
+                        $('#days-wpay' + id).html(response.withpay);
+                        $('#days-withoutpay' + id).html(response.withoutpay);
                         Swal.fire({
                             title: 'Approved!',
                             text: 'The request has been approved.',

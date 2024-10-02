@@ -167,8 +167,14 @@ class LeaveApplicationController extends Controller
                     return response()->json(['error' => 'Insufficient leave credits'], 400);
                 }
             }else{
-                
+
             }
+        }
+
+        $originalPath = $leaveApplication->gen_app;
+        
+        if (file_exists(public_path($originalPath)) && !is_dir(public_path($originalPath))) {
+            unlink(public_path($originalPath));
         }
         
         $leaveApplication->emp_esign = 1;
@@ -180,6 +186,8 @@ class LeaveApplicationController extends Controller
             'success' => true,
             'message' => 'Leave approved successfully.',
             'datetime' => now(),
+            'withpay' =>  $daysdeduct,
+            'withoutpay' => $request->day_wpay,
         ]);
     }
     
