@@ -273,23 +273,45 @@ class LeaveApplicationController extends Controller
 
             $employee->vl = $employee->vl ?? 0;
             $employee->sl = $employee->sl ?? 0;
-        
-            if (in_array($leaveApplication->leave_type, [1, 2])) {
-                if ($days > $employee->vl) {
-                    $remainingDays = $days - $employee->vl;
-        
+
+
+            if ($leaveApplication->leave_type == 3) {
+                $employee->sl = $employee->sl ?? 0;
+                $employee->vl = $employee->vl ?? 0;
+                
+                if ($days > $employee->sl) {
+                    $remainingDays = $days - $employee->sl;
+                    
                     if ($remainingDays <= $employee->sl) {
                         $employee->vl = 0;
                         $employee->sl -= $remainingDays;
-                    } else {
+                    }
+                    if ($remainingDays > $employee->vl) {
                         return response()->json(['error' => 'Insufficient leave credits'], 400);
                     }
-                } else {
-                    $employee->vl -= $days;
+                }else{
+    
                 }
-            } else if ($leaveApplication->leave_type == 3) {
+            }else if(in_array($leaveApplication->leave_type, [1, 2])){
                 $employee->vl -= $days;
             }
+        
+            // if (in_array($leaveApplication->leave_type, [1, 2])) {
+            //     if ($days > $employee->vl) {
+            //         $remainingDays = $days - $employee->vl;
+        
+            //         if ($remainingDays <= $employee->sl) {
+            //             $employee->vl = 0;
+            //             $employee->sl -= $remainingDays;
+            //         } else {
+            //             return response()->json(['error' => 'Insufficient leave credits'], 400);
+            //         }
+            //     } else {
+            //         $employee->vl -= $days;
+            //     }
+            // } else if ($leaveApplication->leave_type == 3) {
+            //     $employee->vl -= $days;
+            // }
         
             $employee->save();
         
