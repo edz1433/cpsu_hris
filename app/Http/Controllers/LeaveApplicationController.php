@@ -269,31 +269,25 @@ class LeaveApplicationController extends Controller
             $leaveApplication->pres_sdate = Carbon::now();
             $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
 
-            $days = ($leaveApplication->days ?? 0) - ($leaveApplication->day_wpay ?? 0);
+            $daysdeduct = ($leaveApplication->days ?? 0) - ($leaveApplication->day_wpay ?? 0);
 
             $employee->vl = $employee->vl ?? 0;
             $employee->sl = $employee->sl ?? 0;
-
-
+    
             if ($leaveApplication->leave_type == 3) {
                 $employee->sl = $employee->sl ?? 0;
                 $employee->vl = $employee->vl ?? 0;
                 
-                if ($days > $employee->sl) {
-                    $remainingDays = $days - $employee->sl;
+                if ($daysdeduct > $employee->sl) {
+                    $remainingDays = $daysdeduct - $employee->sl;
                     
-                    if ($remainingDays <= $employee->vl) {
-                        $employee->vl -= $employee->vl;
-                        $employee->sl -= $remainingDays;
+                    if ($remainingDays > $employee->sl) {
+                        $employee->sl -= $employee->sl;
+                        $employee->vl -= $remainingDays;
+                    }else{
+                        $employee->sl -= $daysdeduct;
                     }
-                    if ($remainingDays > $employee->vl) {
-                        return response()->json(['error' => 'Insufficient leave credits'], 400);
-                    }
-                }else{
-    
                 }
-            }else if(in_array($leaveApplication->leave_type, [1, 2])){
-                $employee->vl -= $days;
             }
         
             // if (in_array($leaveApplication->leave_type, [1, 2])) {
