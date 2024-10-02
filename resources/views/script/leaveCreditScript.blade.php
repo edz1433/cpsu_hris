@@ -689,19 +689,25 @@
 </script>
 @if(request()->is('leave'))
 <script>
-    $(document).ready(function() {
-        setInterval(function() {
-            let leaveType = $("input[name='leave_type']:checked").val();
-            if (leaveType && (leaveType == 1 || leaveType == 2)) {
-                let day = $('#day').val(), vl = $('#b-vl').text();
-                if (day > vl) {
-                    $('#date_range, #day').val('');
-                    toastr.options = { "closeButton": true, "progressBar": true, 'positionClass': 'toast-bottom-center' };
-                    toastr.error("Insufficient Vacation Leave Credits");
-                }
+$(document).ready(function() {
+    setInterval(function() {
+        let leaveType = $("input[name='leave_type']:checked").val();
+        if (leaveType && (leaveType == 1 || leaveType == 2)) {
+            let day = parseFloat($('#day').val()),
+                vl = parseFloat($('#b-vl').text());
+            if (day > vl) {
+                $('#date_range, #day').val('');
+                toastr.options = {
+                    "closeButton": true,
+                    "progressBar": true,
+                    'positionClass': 'toast-bottom-center'
+                };
+                toastr.error("Insufficient Vacation Leave Credits");
             }
-        }, 500);
-    });
+        }
+    }, 500);
+});
+
 </script>
 
 @endif
