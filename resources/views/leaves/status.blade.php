@@ -91,7 +91,7 @@
                                                     </div>
                                                 @endif
                                                 @if($guard == "employee" && $leaves->employid == auth()->guard($guard)->user()->id)
-                                                    <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
+                                                    <div class="timeline-footer" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
                                                         @if($leaves->emp_esign == 1)
                                                             <div class="float-right mb-4">
                                                                 
@@ -253,7 +253,7 @@
                                                     </div>
                                                 @endif
                                                 @if($guard == "employee" && $leaves->employid == auth()->guard($guard)->user()->id)
-                                                    <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
+                                                    <div class="timeline-footer" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
                                                         @if($leaves->emp_esign == 1)
                                                             <div class="float-right">
                                                                 
