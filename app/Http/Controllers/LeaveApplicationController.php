@@ -288,6 +288,8 @@ class LeaveApplicationController extends Controller
                         $employee->sl -= $daysdeduct;
                     }
                 }
+            }else{
+                $employee->vl -= $daysdeduct;
             }
         
             $employee->save();
