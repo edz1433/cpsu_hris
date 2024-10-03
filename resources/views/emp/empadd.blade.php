@@ -69,19 +69,19 @@
                                 </div>
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">Item / Plantilla No.</label>
-                                    <input type="text" name="item_no" class="form-control form-control-sm" id="item_no" placeholder="N/A">
+                                    <input type="text" name="item_no" class="form-control form-control-sm" id="item_no" placeholder="N/A" autocomplete="off">
                                 </div>
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">Last Name</label><span class="text-danger"> <i class="fas fa-asterisk "></i></span><br>
-                                    <input type="text" name="lname" class="form-control form-control-sm" placeholder="N/A" required>
+                                    <input type="text" name="lname" class="form-control form-control-sm" placeholder="N/A" autocomplete="off" required>
                                 </div>
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">First Name</label><span class="text-danger"> <i class="fas fa-asterisk "></i></span><br>
-                                    <input type="text" name="fname" class="form-control form-control-sm" placeholder="N/A" required>
+                                    <input type="text" name="fname" class="form-control form-control-sm" placeholder="N/A" autocomplete="off" required>
                                 </div>
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">Middle Name</label><br>
-                                    <input type="text" name="mname" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="mname" class="form-control form-control-sm" placeholder="N/A" autocomplete="off" oninput="this.value = this.value.replace(/\./g, '')">
                                 </div>
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">Suffix</label><br>
@@ -125,12 +125,12 @@
 
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Birth Place</label><br>
-                                    <input type="text" name="b_place" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="b_place" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
 
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">Sex</label><span class="text-danger"> <i class="fas fa-asterisk "></i></span><br>
-                                    <select class="form-control form-control-sm" name="sex" required>
+                                    <select class="form-control form-control-sm" name="sex" autocomplete="off" required>
                                         <option disabled selected> Select </option>
                                         <option value="Male">Male</option>
                                         <option value="Female">Female</option>
@@ -376,7 +376,7 @@
 
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">Employe Status</label><span class="text-danger"> <i class="fas fa-asterisk "></i></span><br>
-                                    <select class="form-control form-control-sm select2" style="width: 100%;" name="emp_status" required>
+                                    <select class="form-control form-control-sm select2" style="width: 100%;" name="emp_status" autocomplete="off" required>
                                         <option value=""> select </option>
                                         @foreach ($stat as $st)
                                             <option value="{{ $st->id }}">{{ $st->status_name }}</option>
@@ -386,12 +386,12 @@
                                 
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">Position</label><span class="text-danger"> <i class="fas fa-asterisk "></i></span><br>
-                                    <input type="text" name="position" id="position" class="form-control form-control-sm" placeholder="N/A" required>
+                                    <input type="text" name="position" id="position" class="form-control form-control-sm" placeholder="N/A" autocomplete="off" required>
                                 </div>
 
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">Campus</label><span class="text-danger"> <i class="fas fa-asterisk "></i></span><br>
-                                    <select class="form-control form-control-sm select2" style="width: 100%;" name="camp_id" required>
+                                    <select class="form-control form-control-sm select2" style="width: 100%;" name="camp_id" autocomplete="off" required>
                                         <option value=""> select </option>
                                         @foreach ($camp as $cp)
                                             <option value="{{ $cp->id }}">{{ $cp->campus_name }}</option>
@@ -401,7 +401,7 @@
                                 
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">Department/Office</label><span class="text-danger"> <i class="fas fa-asterisk "></i></span><br>
-                                    <select class="form-control form-control-sm select2" style="width: 100%;" name="emp_dept" required>
+                                    <select class="form-control form-control-sm select2" style="width: 100%;" name="emp_dept" autocomplete="off" required>
                                         <option value=""> select </option>
                                         @foreach ($offices as $q)
                                             <option value="{{ $q->id }}">{{ $q->office_name }}</option>
@@ -421,22 +421,22 @@
                                 
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">Height (cm)</label><br>
-                                    <input type="text" name="height_cm" id="height_cm" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="height_cm" id="height_cm" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
 
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">Height (ft)</label><br>
-                                    <input type="text" name="height_ft" id="height_ft" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="height_ft" id="height_ft" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
 
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">Weight (kg)</label><br>
-                                    <input type="text" name="weight_kg" id="weight_kg" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="weight_kg" id="weight_kg" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
 
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">Weight (lb)</label><br>
-                                    <input type="text" name="weight_lb" id="weight_lb" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="weight_lb" id="weight_lb" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
                                 
                                 <div class="col-md-2">
@@ -455,42 +455,42 @@
 
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">GSIS</label><br>
-                                    <input type="text" name="gsis" class="form-control form-control-sm"  placeholder="N/A">
+                                    <input type="text" name="gsis" class="form-control form-control-sm"  placeholder="N/A" autocomplete="off">
                                 </div>
                                 
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">PAGIBIG</label><br>
-                                    <input type="text" name="pagibig" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="pagibig" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
 
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">PHILHEALTH</label><br>
-                                    <input type="text" name="philhealth" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="philhealth" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
 
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">SSS</label><br>
-                                    <input type="text" name="sss" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="sss" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
 
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">TIN</label><br>
-                                    <input type="text" name="tin" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="tin" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
 
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Telephone Number</label><br>
-                                    <input type="text" name="telephone" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="telephone" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
 
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Email Address</label><br>
-                                    <input type="text" name="org_email" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="org_email" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
 
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Mobile Number</label><br>
-                                    <input type="text" name="mobile" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="mobile" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
 
                             </div>
@@ -539,19 +539,19 @@
 
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">House/Block/Lot No.</label><br>
-                                    <input type="text" name="add_block" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="add_block" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Street</label><br>
-                                    <input type="text" name="add_street" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="add_street" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Subdivision/Village</label><br>
-                                    <input type="text" name="add_village" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="add_village" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">ZIP Code</label><br>
-                                    <input type="number" name="add_zcode" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="number" name="add_zcode" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
                             </div>
                         </div>
@@ -599,19 +599,19 @@
 
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">House/Block/Lot No.</label><br>
-                                    <input type="text" name="padd_block" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="padd_block" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Street</label><br>
-                                    <input type="text" name="padd_street" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="padd_street" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Subdivision/Village</label><br>
-                                    <input type="text" name="padd_village" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" name="padd_village" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">ZIP Code</label><br>
-                                    <input type="number" name="padd_zcode" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="number" name="padd_zcode" class="form-control form-control-sm" placeholder="N/A" autocomplete="off">
                                 </div>
                             </div>
                         </div>
