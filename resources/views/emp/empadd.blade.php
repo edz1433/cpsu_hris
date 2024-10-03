@@ -45,6 +45,9 @@
         display: inline-block; 
         background-color: #FFFF;
     }
+    .fa-asterisk{
+        font-size: 10px !important;
+    }
 </style>
 <div class="container-fluid">
     <div class="row">
@@ -69,11 +72,11 @@
                                     <input type="text" name="item_no" class="form-control form-control-sm" id="item_no" placeholder="N/A">
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="badge badge-secondary lbel">Last Name</label><span class="text-danger">*</span><br>
+                                    <label class="badge badge-secondary lbel">Last Name</label><span class="text-danger"> <i class="fas fa-asterisk "></i></span><br>
                                     <input type="text" name="lname" class="form-control form-control-sm" placeholder="N/A" required>
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="badge badge-secondary lbel">First Name</label><span class="text-danger">*</span><br>
+                                    <label class="badge badge-secondary lbel">First Name</label><span class="text-danger"> <i class="fas fa-asterisk "></i></span><br>
                                     <input type="text" name="fname" class="form-control form-control-sm" placeholder="N/A" required>
                                 </div>
                                 <div class="col-md-2">
@@ -126,7 +129,7 @@
                                 </div>
 
                                 <div class="col-md-2">
-                                    <label class="badge badge-secondary lbel">Sex</label><span class="text-danger">*</span><br>
+                                    <label class="badge badge-secondary lbel">Sex</label><span class="text-danger"> <i class="fas fa-asterisk "></i></span><br>
                                     <select class="form-control form-control-sm" name="sex" required>
                                         <option disabled selected> Select </option>
                                         <option value="Male">Male</option>
@@ -372,7 +375,7 @@
                                 </div>                                
 
                                 <div class="col-md-2">
-                                    <label class="badge badge-secondary lbel">Employe Status</label><span class="text-danger">*</span><br>
+                                    <label class="badge badge-secondary lbel">Employe Status</label><span class="text-danger"> <i class="fas fa-asterisk "></i></span><br>
                                     <select class="form-control form-control-sm select2" style="width: 100%;" name="emp_status" required>
                                         <option value=""> select </option>
                                         @foreach ($stat as $st)
@@ -382,12 +385,12 @@
                                 </div> 
                                 
                                 <div class="col-md-2">
-                                    <label class="badge badge-secondary lbel">Position</label><span class="text-danger">*</span><br>
+                                    <label class="badge badge-secondary lbel">Position</label><span class="text-danger"> <i class="fas fa-asterisk "></i></span><br>
                                     <input type="text" name="position" id="position" class="form-control form-control-sm" placeholder="N/A" required>
                                 </div>
 
                                 <div class="col-md-2">
-                                    <label class="badge badge-secondary lbel">Campus</label><span class="text-danger">*</span><br>
+                                    <label class="badge badge-secondary lbel">Campus</label><span class="text-danger"> <i class="fas fa-asterisk "></i></span><br>
                                     <select class="form-control form-control-sm select2" style="width: 100%;" name="camp_id" required>
                                         <option value=""> select </option>
                                         @foreach ($camp as $cp)
@@ -397,7 +400,7 @@
                                 </div> 
                                 
                                 <div class="col-md-2">
-                                    <label class="badge badge-secondary lbel">Department/Office</label><span class="text-danger">*</span><br>
+                                    <label class="badge badge-secondary lbel">Department/Office</label><span class="text-danger"> <i class="fas fa-asterisk "></i></span><br>
                                     <select class="form-control form-control-sm select2" style="width: 100%;" name="emp_dept" required>
                                         <option value=""> select </option>
                                         @foreach ($offices as $q)
