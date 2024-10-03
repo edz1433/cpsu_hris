@@ -256,7 +256,7 @@
                     </div>
                     <div style="margin-top: 2.45%">
                         <center><span class="font1" style="width: 90%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->hr_fname) }} {{ strtoupper($leaveApplication->hr_mname) }} {{ strtoupper($leaveApplication->hr_lname) }} {{ strtoupper($leaveApplication->hr_suffix) }}{{ ($leaveApplication->hr_prefix) ? strtoupper(', '.$leaveApplication->hr_prefix) : '' }}</b></span></center>
-                        <center>(Signature over Printed Name)</center>
+                        <center>Human Resource Management Officer</center>
                     </div>
                 </td>
                 <td colspan="3" class="bordered details vlt" width="100">
@@ -317,7 +317,7 @@
             <tr>
                 <td colspan="6">
                     <center><span class="font1" style="width: 28%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->president_fname) }} {{ strtoupper($leaveApplication->president_mname) }} {{ strtoupper($leaveApplication->president_lname) }} {{ strtoupper($leaveApplication->president_suffix) }}{{ isset($leaveApplication->pres_prefix) ? strtoupper(', '.$leaveApplication->pres_prefix) : '' }}</b></span></center>
-                    <center>(Signature over Printed Name)</center>
+                    <center>(SUC President II)</center>
                 </td>
             </tr>
         </thead>
@@ -365,13 +365,15 @@
                 <td class="bordered text-center">{{ ($emp_esign != 0) ? $totalsl - $bsl : 0 }}</td>
             </tr>
         </table>
+        <span style="font-size: 9px; text-align: center; margin-left: 26%; margin-top: -5px;">Doc Control Code: CPSU-F-HRMO-15 REV-01 Effective Date: 08/31/2022 Page No. <b>1</b> of <b>2</b></span>
     </div>
     
-    <div class="back-page" style="">
-        <img src="{{ asset('Uploads/leave-back-page.jpg') }}" style="width: 120%; margin-left: -10%; ">
-        <span style="color:rgb(59, 59, 59); font-size: 9.3px; margin-top: -8px; position: absolute; z-index: 999; top: 88%; left: 5%; width: 90%; font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
+    <div class="back-page">
+        <img src="{{ asset('Uploads/leave-back-page.jpg') }}" style="width: 120%; margin-left: -10%; margin-top: -10%;">
+        <span style="color:rgb(59, 59, 59); font-size: 9.3px; margin-top: -75px; position: absolute; z-index: 999; top: 88%; left: 5%; width: 90%; font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
             *For leave of absence for thirty(30) calendar days or more and terminal leave, application shall be accompanied by a <u>clearance from money, property and work-related accountabilities</u> (pursuant to CSC Memorandom Circular No. 2, s. 1985)
         </span>
+        <span style="font-size: 9px; text-align: center; margin-left: 26%; margin-top: -5px;">Doc Control Code: CPSU-F-HRMO-15 REV-01 Effective Date: 08/31/2022 Page No. <b>2</b> of <b>2</b></span>
     </div>
 
 </body>
