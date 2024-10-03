@@ -688,7 +688,7 @@
 
 </script>
 @if(request()->is('leave'))
-<script>
+{{-- <script>
 $(document).ready(function() {
     setInterval(function() {
         let leaveType = $("input[name='leave_type']:checked").val();
@@ -707,7 +707,7 @@ $(document).ready(function() {
         }
     }, 500);
 });
-</script>
+</script> --}}
 @endif
 @if(request()->is('leave/status') || request()->is('leaves/status/*') || request()->is('leave/history*') || request()->is('leave/status/*'))
 <script>
