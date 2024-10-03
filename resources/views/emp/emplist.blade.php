@@ -47,7 +47,7 @@
                                     @endphp
                                         <tr id="tr-{{ $emp->id }}">
                                             <td>{{ $cnt++ }}</td>
-                                            <td>{{ strtoupper($emp->lname) }}, {{ strtoupper($emp->fname) }} {{ strtoupper($emp->suffix) }}. {{ strtoupper($emp->mname) }}</td>
+                                            <td>{{ $emp->lname }}, {{ $emp->fname }} {{ $emp->suffix }} {{ isset($emp->mname) ? strtoupper(substr($emp->mname, 0, 1)).'.' : '' }}</td>
                                             <td>{{ $emp->emp_ID}}</td>
                                             <td>{{ $emp->position}}</td>
                                             <td>{{ $emp->campus_abbr}}</td>
