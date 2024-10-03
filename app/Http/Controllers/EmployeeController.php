@@ -127,12 +127,10 @@ class EmployeeController extends Controller
         $validated = $request->validate([
             'lname' => 'required|string',
             'fname' => 'required|string',
-            'mname' => 'required|string',
         ]);
 
         $existingEmployee = Employee::where('lname', $request->lname)
                 ->where('fname', $request->fname)
-                ->where('mname', $request->mname)
                 ->first();
 
         if ($existingEmployee) {
