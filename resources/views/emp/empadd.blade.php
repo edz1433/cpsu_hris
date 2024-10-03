@@ -69,16 +69,16 @@
                                     <input type="text" name="item_no" class="form-control form-control-sm" id="item_no" placeholder="N/A">
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="badge badge-secondary lbel">Last Name</label><br>
+                                    <label class="badge badge-secondary lbel">Last Name</label><span class="text-danger">*</span><br>
                                     <input type="text" name="lname" class="form-control form-control-sm" placeholder="N/A" required>
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="badge badge-secondary lbel">First Name</label><br>
+                                    <label class="badge badge-secondary lbel">First Name</label><span class="text-danger">*</span><br>
                                     <input type="text" name="fname" class="form-control form-control-sm" placeholder="N/A" required>
                                 </div>
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">Middle Name</label><br>
-                                    <input type="text" name="mname" class="form-control form-control-sm" placeholder="N/A" required>
+                                    <input type="text" name="mname" class="form-control form-control-sm" placeholder="N/A">
                                 </div>
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">Suffix</label><br>
@@ -126,7 +126,7 @@
                                 </div>
 
                                 <div class="col-md-2">
-                                    <label class="badge badge-secondary lbel">Sex</label><br>
+                                    <label class="badge badge-secondary lbel">Sex</label><span class="text-danger">*</span><br>
                                     <select class="form-control form-control-sm" name="sex" required>
                                         <option disabled selected> Select </option>
                                         <option value="Male">Male</option>
@@ -372,7 +372,7 @@
                                 </div>                                
 
                                 <div class="col-md-2">
-                                    <label class="badge badge-secondary lbel">Employe Status</label><br>
+                                    <label class="badge badge-secondary lbel">Employe Status</label><span class="text-danger">*</span><br>
                                     <select class="form-control form-control-sm select2" style="width: 100%;" name="emp_status" required>
                                         <option value=""> select </option>
                                         @foreach ($stat as $st)
@@ -382,12 +382,12 @@
                                 </div> 
                                 
                                 <div class="col-md-2">
-                                    <label class="badge badge-secondary lbel">Position</label><br>
+                                    <label class="badge badge-secondary lbel">Position</label><span class="text-danger">*</span><br>
                                     <input type="text" name="position" id="position" class="form-control form-control-sm" placeholder="N/A" required>
                                 </div>
 
                                 <div class="col-md-2">
-                                    <label class="badge badge-secondary lbel">Campus</label><br>
+                                    <label class="badge badge-secondary lbel">Campus</label><span class="text-danger">*</span><br>
                                     <select class="form-control form-control-sm select2" style="width: 100%;" name="camp_id" required>
                                         <option value=""> select </option>
                                         @foreach ($camp as $cp)
@@ -397,7 +397,7 @@
                                 </div> 
                                 
                                 <div class="col-md-2">
-                                    <label class="badge badge-secondary lbel">Department/Office</label><br>
+                                    <label class="badge badge-secondary lbel">Department/Office</label><span class="text-danger">*</span><br>
                                     <select class="form-control form-control-sm select2" style="width: 100%;" name="emp_dept" required>
                                         <option value=""> select </option>
                                         @foreach ($offices as $q)
@@ -408,7 +408,7 @@
 
                                 <div class="col-md-2">
                                     <label class="badge badge-secondary lbel">Immediate Supervisor</label><br>
-                                    <select class="form-control form-control-sm select2" style="width: 100%;" name="supervisor" required>
+                                    <select class="form-control form-control-sm select2" style="width: 100%;" name="supervisor">
                                         <option value="0"> select </option>
                                         @foreach ($supervisor as $sup)
                                             <option value="{{ $sup->id }}">{{ strtoupper($sup->lname) }} {{ strtoupper($sup->fname) }} {{ strtoupper($sup->mname) }}</option>

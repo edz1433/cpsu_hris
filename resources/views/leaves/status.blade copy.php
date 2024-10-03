@@ -75,8 +75,8 @@
                                                 <span><b>INCLUSIVE DATES :</b> {{ $leaves->date_range }}</span><br>
                                                 <span><b>DAYS :</b> {{ $leaves->days }}</span><br>
                                                 
-                                                <span><b>DAYS WITH PAY :</b> <span id="days-wpay{{ $leaves->id }}">{{ ($leaves->emp_esign !== 0) ? $leaves->days - $leaves->day_wpay : '' }}</span></span><br>
-                                                <span><b>DAYS WITHOUT PAY:</b> <span id="days-withoutpay{{ $leaves->id }}">{{ ($leaves->emp_esign !== 0) ? $leaves->day_wpay : '' }}<span> </span>
+                                                <span><b>DAYS WITH PAY :</b> <span id="days-wpay{{ $leaves->id }}">{{ ($leaves->emp_esign == 1) ? $leaves->days - $leaves->day_wpay : '' }}</span></span><br>
+                                                <span><b>DAYS WITHOUT PAY:</b> <span id="days-withoutpay{{ $leaves->id }}">{{ ($leaves->emp_esign == 1) ? $leaves->day_wpay : '' }}<span> </span>
                             
                                                 @if($guard == "web")
                                                     <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
@@ -237,8 +237,8 @@
                                                 <span><b>INCLUSIVE DATES :</b> {{ $leaves->date_range }}</span><br>
                                                 <span><b>DAYS :</b> {{ $leaves->days }}</span><br>
                                                 
-                                                <span><b>DAYS WITH PAY :</b> <span id="days-wpay{{ $leaves->id }}">{{ ($leaves->emp_esign !== 0) ? $leaves->days - $leaves->day_wpay : '' }}</span></span><br>
-                                                <span><b>DAYS WITHOUT PAY:</b> <span id="days-withoutpay{{ $leaves->id }}">{{ ($leaves->emp_esign !== 0) ? $leaves->day_wpay : '' }}<span> </span>
+                                                <span><b>DAYS WITH PAY :</b> <span id="days-wpay{{ $leaves->id }}">{{ ($leaves->emp_esign == 1) ? $leaves->days - $leaves->day_wpay : '' }}</span></span><br>
+                                                <span><b>DAYS WITHOUT PAY:</b> <span id="days-withoutpay{{ $leaves->id }}">{{ ($leaves->emp_esign == 1) ? $leaves->day_wpay : '' }}<span> </span>
                             
                                                 @if($guard == "web")
                                                     <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
@@ -306,7 +306,7 @@
                                     </div>  
 
                                     <!-- Step 2 -->
-                                    <div>   
+                                    <div>
                                         @if($leaves->remarks_stat == 1)
                                             <i class="fas fa-ban bg-danger"></i>
                                         @else

@@ -707,7 +707,9 @@ $(document).ready(function() {
         }
     }, 500);
 });
+
 </script>
+
 @endif
 @if(request()->is('leave/status') || request()->is('leaves/status/*') || request()->is('leave/history*') || request()->is('leave/status/*'))
 <script>
