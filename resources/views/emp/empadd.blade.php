@@ -414,7 +414,7 @@
                                     <select class="form-control form-control-sm select2" style="width: 100%;" name="supervisor">
                                         <option value="0"> select </option>
                                         @foreach ($supervisor as $sup)
-                                            <option value="{{ $sup->id }}">{{ strtoupper($sup->lname) }} {{ strtoupper($sup->fname) }} {{ strtoupper($sup->mname) }}</option>
+                                            <option value="{{ $sup->id }}">{{ strtoupper($sup->lname) }} {{ strtoupper($sup->fname) }} {{ isset($sup->mname) ? strtoupper(substr($sup->mname, 0, 1)).'.' : '' }}</option>
                                         @endforeach
                                     </select>
                                 </div>
