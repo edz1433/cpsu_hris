@@ -214,14 +214,15 @@
                     <span>6.C NUMBER OF WORKING DAYS APPLIED FOR</span><br>
                     <div style="font-size: 8px !important; margin-bottom: 10px; margin-top: 5px; margin-left: 20px;">
                         <span style="width: 66.6%; display: inline-block; font-size: 10px !important; border-bottom: 1px solid black;"><span style="color: white;">{{ ($formattedEndDate) ? '' : '.' }}</span>
-                        @if($formattedEndDate)
-                            <b>{{ strtoupper($formattedStartDate) }}</b>
-                        @endif
+                        <b>{{ $leaveApplication->days }}</b>
                         </span><br>
                         <span style="margin-top: 4px;">INCLUSIVE DATES</span><br><br>
                         <span style="width: 66.6%; margin-top: -5.4px; font-size: 10px !important; display: inline-block; border-bottom: 1px solid black;"><span style="color: white;">{{ ($formattedEndDate) ? '' : '.' }}</span>
                         @if($formattedEndDate)
-                            <b>{{ strtoupper($formattedEndDate) }}</b>
+                            <b>{{ strtoupper($formattedStartDate) }}</b>
+                        @endif
+                        @if($formattedEndDate)
+                            <b>- {{ strtoupper($formattedEndDate) }}</b>
                         @endif
                         </span>
                     </div>
@@ -317,7 +318,7 @@
             <tr>
                 <td colspan="6">
                     <center><span class="font1" style="width: 28%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->president_fname) }} {{ strtoupper($leaveApplication->president_mname) }} {{ strtoupper($leaveApplication->president_lname) }} {{ strtoupper($leaveApplication->president_suffix) }}{{ isset($leaveApplication->pres_prefix) ? strtoupper(', '.$leaveApplication->pres_prefix) : '' }}</b></span></center>
-                    <center>(SUC President II)</center>
+                    <center>SUC President II</center>
                 </td>
             </tr>
         </thead>
@@ -373,7 +374,7 @@
         <span style="color:rgb(59, 59, 59); font-size: 9.3px; margin-top: -75px; position: absolute; z-index: 999; top: 88%; left: 5%; width: 90%; font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
             *For leave of absence for thirty(30) calendar days or more and terminal leave, application shall be accompanied by a <u>clearance from money, property and work-related accountabilities</u> (pursuant to CSC Memorandom Circular No. 2, s. 1985)
         </span>
-        <span style="font-size: 9px; text-align: center; margin-left: 26%; margin-top: -5px;">Doc Control Code: CPSU-F-HRMO-15 REV-01 Effective Date: 08/31/2022 Page No. <b>2</b> of <b>2</b></span>
+        <span style="font-size: 9px; text-align: center; margin-left: 26%; margin-top: -110px;">Doc Control Code: CPSU-F-HRMO-15 REV-01 Effective Date: 08/31/2022 Page No. <b>2</b> of <b>2</b></span>
     </div>
 
 </body>

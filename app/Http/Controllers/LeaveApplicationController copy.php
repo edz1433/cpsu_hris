@@ -245,24 +245,6 @@ class LeaveApplicationController extends Controller
 
         if($request->by == 2){
             $leaveApplication->hr_sdate = Carbon::now();
-            // $leaveApplication->day_wpay = $request->day_wpay;
-
-            // $daysdeduct = $leaveApplication->days - $request->day_wpay;
-
-            // $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
-        
-            // if ($leaveApplication->leave_type == 1) {
-            //     $employee->vl = $employee->vl ?? 0;
-            //     $employee->sl = $employee->sl ?? 0;
-        
-            //     if ($daysdeduct > $employee->vl) {
-            //         $remainingDays = $daysdeduct - $employee->vl;
-        
-            //         if ($remainingDays > $employee->sl) {
-            //             return response()->json(['error' => 'Insufficient leave credits'], 400);
-            //         } 
-            //     } 
-            // }
         }
 
         if ($request->by == 3) {
@@ -296,7 +278,61 @@ class LeaveApplicationController extends Controller
         
             $leaveApplication->history = 2;
             $leaveApplication->save();
-        }        
+        } 
+        
+        Mail::send([], [], function ($message) use ($employee, $leaveApplication, $currdate1) {
+        $message->to($employee->org_email)
+            ->subject('Leave Approval Notice')
+            ->setBody('
+            <html>
+                <head>
+                    <style>
+                        .email-body {
+                            font-family: Arial, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                        }
+                        .header {
+                            background-color: #4CAF50;
+                            color: white;
+                            padding: 10px;
+                            text-align: center;
+                            font-size: 18px;
+                        }
+                        .content {
+                            padding: 20px;
+                        }
+                        .footer {
+                            margin-top: 20px;
+                            font-size: 12px;
+                            color: #888;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="email-body">
+                        <div class="header">
+                            Leave Approved by the President
+                        </div>
+                        <div class="content">
+                            <p>Dear <strong>' . $employee->fname . ' ' . $employee->lname . '</strong>,</p>
+                            <p>We are pleased to inform you that your leave request has been approved.</p>
+                            <p><strong>Leave Details:</strong></p>
+                            <ul>
+                                <li><strong>Leave Tracking Number:</strong>566565465123</li>
+                                <li><strong>Approval Date:</strong> ' . $currdate1 . '</li>
+                                <li><strong>Approved By:</strong> The President</li>
+                            </ul>
+                            <p>If you have any questions, feel free to contact HR.</p>
+                        </div>
+                        <div class="footer">
+                            <p>Best Regards,</p>
+                            <p><em>HR Department</em></p>
+                        </div>
+                    </div>
+                </body>
+            </html>', 'text/html');
+        });
         
         $leaveApplication->status = $status ?? 1;
         $leaveApplication->save();

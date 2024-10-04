@@ -146,6 +146,7 @@ class LeaveApplicationController extends Controller
         ]);
     
         $leaveApplication = LeaveApplication::find($request->id);
+        $leavetype = $leaveApplication->leave_type;
         $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
     
         if (!$employee) {
@@ -156,7 +157,7 @@ class LeaveApplicationController extends Controller
         $leaveApplication->day_wpay = $request->day_wpay;
         $daysdeduct = $leaveApplication->days - $request->day_wpay;
     
-        if ($leaveApplication->leave_type == 3) {
+        if ($leavetype == 3) {
             $employee->sl = $employee->sl ?? 0;
             $employee->vl = $employee->vl ?? 0;
             
@@ -166,8 +167,11 @@ class LeaveApplicationController extends Controller
                 if ($remainingDays > $employee->vl) {
                     return response()->json(['error' => 'Insufficient leave credits'], 400);
                 }
-            }else{
-
+            }
+        }
+        if ($leavetype == 1 || $leavetype == 2) {
+            if ($daysdeduct > $employee->vl) {
+                return response()->json(['error' => 'Insufficient leave credits'], 400);
             }
         }
 
@@ -245,24 +249,6 @@ class LeaveApplicationController extends Controller
 
         if($request->by == 2){
             $leaveApplication->hr_sdate = Carbon::now();
-            // $leaveApplication->day_wpay = $request->day_wpay;
-
-            // $daysdeduct = $leaveApplication->days - $request->day_wpay;
-
-            // $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
-        
-            // if ($leaveApplication->leave_type == 1) {
-            //     $employee->vl = $employee->vl ?? 0;
-            //     $employee->sl = $employee->sl ?? 0;
-        
-            //     if ($daysdeduct > $employee->vl) {
-            //         $remainingDays = $daysdeduct - $employee->vl;
-        
-            //         if ($remainingDays > $employee->sl) {
-            //             return response()->json(['error' => 'Insufficient leave credits'], 400);
-            //         } 
-            //     } 
-            // }
         }
 
         if ($request->by == 3) {

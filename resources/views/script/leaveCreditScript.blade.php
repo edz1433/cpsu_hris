@@ -534,14 +534,14 @@
                             });
                         }
                         if (by == 1) {
-                            // Supervisor Approval
+                            // HR Approval
                             $('#action-button' + id).fadeOut(1000, function() {
                                 $(this).remove();
                             });
                             $('#status-icon' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
                             $('.time-sup' + id).html(response.datetime);
                         } else if (by == 2) {
-                            // HR Approval
+                            // Supervisor Approval
                             $('#action-button1' + id).fadeOut(1000, function() {
                                 $(this).remove();
                             });
@@ -632,8 +632,8 @@
                                 case 1:
                                     $('#action-button' + id).fadeOut(1000, function() { $(this).remove(); });
                                     $('#status-icon' + id).removeClass('fa-times bg-danger bg-secondary').addClass('fa-ban bg-danger');
-                                    if (remarksSupervisor.length) {
-                                        remarksSupervisor.html(`
+                                    if (remarksHrmo.length) {
+                                        remarksHrmo.html(`
                                             <div class="callout callout-danger" style="margin: 8px 0px 0px 0px !important; padding: 10px !important;">
                                                 <p>${remarks}</p>
                                             </div>
@@ -643,8 +643,8 @@
                                 case 2:
                                     $('#action-button1' + id).fadeOut(1000, function() { $(this).remove(); });
                                     $('#status-icon1' + id).removeClass('fa-times bg-danger bg-secondary').addClass('fa-ban bg-danger');
-                                    if (remarksHrmo.length) {
-                                        remarksHrmo.html(`
+                                    if (remarksSupervisor.length) {
+                                        remarksSupervisor.html(`
                                             <div class="callout callout-danger" style="margin: 8px 0px 0px 0px !important; padding: 10px !important;">
                                                 <p>${remarks}</p>
                                             </div>
