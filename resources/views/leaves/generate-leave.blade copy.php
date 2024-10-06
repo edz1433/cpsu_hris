@@ -214,14 +214,15 @@
                     <span>6.C NUMBER OF WORKING DAYS APPLIED FOR</span><br>
                     <div style="font-size: 8px !important; margin-bottom: 10px; margin-top: 5px; margin-left: 20px;">
                         <span style="width: 66.6%; display: inline-block; font-size: 10px !important; border-bottom: 1px solid black;"><span style="color: white;">{{ ($formattedEndDate) ? '' : '.' }}</span>
-                        @if($formattedEndDate)
-                            <b>{{ strtoupper($formattedStartDate) }}</b>
-                        @endif
+                        <b>{{ $leaveApplication->days }}</b>
                         </span><br>
                         <span style="margin-top: 4px;">INCLUSIVE DATES</span><br><br>
                         <span style="width: 66.6%; margin-top: -5.4px; font-size: 10px !important; display: inline-block; border-bottom: 1px solid black;"><span style="color: white;">{{ ($formattedEndDate) ? '' : '.' }}</span>
                         @if($formattedEndDate)
-                            <b>{{ strtoupper($formattedEndDate) }}</b>
+                            <b>{{ strtoupper($formattedStartDate) }}</b>
+                        @endif
+                        @if($formattedEndDate)
+                            <b>- {{ strtoupper($formattedEndDate) }}</b>
                         @endif
                         </span>
                     </div>
@@ -233,11 +234,6 @@
                         <input type="checkbox" class="checkbox1" @if($leaveApplication->leave_purpose == 7 || $leaveApplication->leave_purpose == 8) checked @endif> Requested<br>                        
                         <center>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="width: 94%; display: inline-block;  margin-bottom: -14px;  border-bottom: 1px solid black;"></span></center>
                         <center>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>(Signature of Applicant)</center>
-                        @if($leaveApplication->esign)
-                        <img src="{{ asset($leaveApplication->esign) }}" 
-                             width="110" 
-                             style="position: absolute; top: 56.5%; left: 76.9%; transform: translate(-50%, -50%); z-index: 999; display: block; margin: 0 auto;">
-                        @endif
                     </div>
                 </td>
             </tr>
@@ -260,8 +256,8 @@
                             <span style="font-size: 8px !important;"><i>note: Total Earned and Balance Leave credit for reconciliation</i></span>
                     </div>
                     <div style="margin-top: 2.45%">
-                        <center><span class="font1" style="width: 90%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->hr_lname) }}, {{ strtoupper($leaveApplication->hr_fname) }} {{ strtoupper($leaveApplication->hr_suffix) }} {{ strtoupper($leaveApplication->hr_mname) }}</b></span></center>
-                        <center>(Signature over Printed Name)</center>
+                        <center><span class="font1" style="width: 90%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->hr_fname) }} {{ strtoupper($leaveApplication->hr_mname) }} {{ strtoupper($leaveApplication->hr_lname) }} {{ strtoupper($leaveApplication->hr_suffix) }}{{ ($leaveApplication->hr_prefix) ? strtoupper(', '.$leaveApplication->hr_prefix) : '' }}</b></span></center>
+                        <center>Human Resource Management Officer</center>
                     </div>
                 </td>
                 <td colspan="3" class="bordered details vlt" width="100">
@@ -287,11 +283,6 @@
                         <div style="margin-top: 12px; margin-left: 33px;"><span class="font1" style="width: 95.7%; display: inline-block;  border-bottom: 1px solid black;"><center><span style="color: white;">.</span><b><span style="padding-right: 26px;">{{ strtoupper($leaveApplication->supervisor_fname) }} {{ strtoupper($leaveApplication->supervisor_mname) }} {{ strtoupper($leaveApplication->supervisor_lname) }} {{ strtoupper($leaveApplication->supervisor_suffix) }}{{ ($leaveApplication->supervisor_prefix) ? strtoupper(', '.$leaveApplication->supervisor_prefix) : '' }}</span></b></span></center></div>
                         <center>Immediate Supervisor</center>
                         <center>(Signature over Printed Name)</center>
-                        @if($leaveApplication->esign)
-                        <img src="{{ asset($leaveApplication->esign) }}" 
-                             width="110" 
-                             style="position: absolute; top: 73.3%; left: 76.9%; transform: translate(-50%, -50%); z-index: 999; display: block; margin: 0 auto;">
-                        @endif
                     </div>
                 </td>
             </tr>
@@ -299,10 +290,21 @@
                 <td colspan="3"></td>
                 <td colspan="3"></td>
             </tr>
+            @php
+                $leave_days = $leaveApplication->days - $leaveApplication->day_wpay;
+                $is_vl_sl = in_array($leaveApplication->leave_type, [1, 2]);
+                $leavetype = $leaveApplication->leave_type;
+                $emp_esign = $leaveApplication->emp_esign;
+
+                $totalvl = $leaveApplication->total_vl;
+                $totalsl = $leaveApplication->total_sl;
+
+                $totalremain = $leave_days - $leaveApplication->total_sl;
+            @endphp
             <tr>
                 <td colspan="3" class="bordered details vlt" style="height: 120px !important; border-right: none !important; border-bottom: none !important;">
                     <span>7.C APPROVED FOR:</span><br>
-                    <span style="width: 11.5%; margin-left: 20px; display: inline-block; text-align: center; border-bottom: 1px solid black;"><center><b>{{ $leaveApplication->days - $leaveApplication->day_wpay }}</b></center></span> days with pay <br>
+                    <span style="width: 11.5%; margin-left: 20px; display: inline-block; text-align: center; border-bottom: 1px solid black;"><center><b>{{ $leave_days }}</b></center></span> days with pay <br>
                     <span style="width: 11.5%; margin-left: 20px; display: inline-block; text-align: center; border-bottom: 1px solid black;"><center><b>{{ $leaveApplication->day_wpay }}</b></center></span> days without pay<br>
                     <span style="width: 11.5%; margin-left: 20px; display: inline-block; text-align: center; border-bottom: 1px solid black;"></span> others (Specify)<br>
                 </td>
@@ -316,12 +318,7 @@
             <tr>
                 <td colspan="6">
                     <center><span class="font1" style="width: 28%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->president_fname) }} {{ strtoupper($leaveApplication->president_mname) }} {{ strtoupper($leaveApplication->president_lname) }} {{ strtoupper($leaveApplication->president_suffix) }}{{ isset($leaveApplication->pres_prefix) ? strtoupper(', '.$leaveApplication->pres_prefix) : '' }}</b></span></center>
-                    <center>(Signature over Printed Name)</center>
-                    @if($leaveApplication->esign)
-                    <img src="{{ asset($leaveApplication->esign) }}" 
-                         width="110" 
-                         style="position: absolute; top: 89.5%; left: 50%; transform: translate(-50%, -50%); z-index: 999; display: block; margin: 0 auto;">
-                    @endif
+                    <center>SUC President II</center>
                 </td>
             </tr>
         </thead>
@@ -335,27 +332,51 @@
             </tr>
             <tr>
                 <th class="bordered">Total Earned</th>
-                <td class="bordered text-center"></td>
-                <td class="bordered text-center"></td>
+                <td class="bordered text-center">{{ $leaveApplication->total_vl }}</td>
+                <td class="bordered text-center">{{ $leaveApplication->total_sl }}</td>
             </tr>
             <tr>
                 <th class="bordered">Less this application</th>
-                <td class="bordered text-center"></td>
-                <td class="bordered text-center"></td>
+                <td class="bordered text-center">
+                    {{-- @if($is_vl_sl && $emp_esign != 0)
+                        {{ $bvl = $leave_days }} 
+                    @elseif($leaveApplication->leave_type == 3 && $leave_days > $leaveApplication->total_sl && $emp_esign != 0)
+                       {{ $bvl = $totalremain }} 
+                    @else
+                        {{ $bvl = 0 }}
+                    @endif --}}
+                    {{ ($emp_esign != 0) ? $leaveApplication->less_vl : 0 }}
+                </td>
+                <td class="bordered text-center">
+                    {{-- @if($is_vl_sl && $emp_esign != 0)
+                        {{ $bsl = 0 }}
+                    @elseif($leaveApplication->leave_type == 3 && $emp_esign != 0)
+                        @if($leave_days > $totalsl)
+                            {{ $bsl = $totalsl }} 
+                        @else
+                            {{ $bsl = $leave_days }}
+                        @endif
+                    @else
+                        {{ $bsl = 0 }}
+                    @endif --}}
+                    {{ ($emp_esign != 0) ? $leaveApplication->less_sl : 0 }}
+                </td>
             </tr>
             <tr>
                 <th class="bordered">Balance</th>
-                <td class="bordered text-center"></td>
-                <td class="bordered text-center"></td>
+                <td class="bordered text-center">{{ ($emp_esign != 0) ? $leaveApplication->total_vl - $leaveApplication->less_vl : 0}}</td>
+                <td class="bordered text-center">{{ ($emp_esign != 0) ? $leaveApplication->total_sl - $leaveApplication->less_sl : 0}}</td>
             </tr>
         </table>
+        <span style="font-size: 9px; text-align: center; margin-left: 26%; margin-top: -5px;">Doc Control Code: CPSU-F-HRMO-15 REV-01 Effective Date: 08/31/2022 Page No. <b>1</b> of <b>2</b></span>
     </div>
     
-    <div class="back-page" style="">
-        <img src="{{ asset('Uploads/leave-back-page.jpg') }}" style="width: 120%; margin-left: -10%; ">
-        <span style="color:rgb(59, 59, 59); font-size: 9.3px; margin-top: -8px; position: absolute; z-index: 999; top: 88%; left: 5%; width: 90%; font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
+    <div class="back-page">
+        <img src="{{ asset('Uploads/leave-back-page.jpg') }}" style="width: 120%; margin-left: -10%; margin-top: -10%;">
+        <span style="color:rgb(59, 59, 59); font-size: 9.3px; margin-top: -75px; position: absolute; z-index: 999; top: 88%; left: 5%; width: 90%; font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
             *For leave of absence for thirty(30) calendar days or more and terminal leave, application shall be accompanied by a <u>clearance from money, property and work-related accountabilities</u> (pursuant to CSC Memorandom Circular No. 2, s. 1985)
         </span>
+        <span style="font-size: 9px; text-align: center; margin-left: 26%; margin-top: -110px;">Doc Control Code: CPSU-F-HRMO-15 REV-01 Effective Date: 08/31/2022 Page No. <b>2</b> of <b>2</b></span>
     </div>
 
 </body>

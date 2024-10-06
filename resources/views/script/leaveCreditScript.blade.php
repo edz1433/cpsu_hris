@@ -585,13 +585,15 @@
     $('.disapprove-leave').on('click', function() {
         var id = $(this).data('id');
         var by = $(this).data('by');
+        var title = (by == 4) ? "Cancel" : "Disapprove";
+        var text = (by == 4) ? "cancellation:" : "disapproval:";
         var disapproveUrl = "{{ route('leaveDisapprove') }}";
 
         Swal.fire({
-            title: 'Disapprove Request',
-            text: "Please provide your reason for disapproval:",
+            title: title +' Request',
+            text: "Please provide your reason for " + text,
             input: 'textarea',
-            inputPlaceholder: 'Enter your remarks...',
+            inputPlaceholder: 'Enter your reason...',
             showCancelButton: true,
             confirmButtonText: 'Submit',
             cancelButtonText: 'Cancel',
@@ -599,7 +601,7 @@
             cancelButtonColor: '#dc3545',
             inputValidator: (value) => {
                 if (!value) {
-                    return 'Remarks are required!';
+                    return 'Reason are required!';
                 }
             }
         }).then((result) => {
@@ -661,6 +663,11 @@
                                             </div>
                                         `);
                                     }
+                                    break;
+                                case 4:
+                                    setTimeout(function() {
+                                        window.location.reload();
+                                    }, 1500);
                                     break;
                             }
 

@@ -202,28 +202,31 @@
                 <td colspan="3" class="bordered details vlt" width="116">
                     @php
                         if (strpos($leaveApplication->date_range, 'to') !== false) {
+                            // Split date range into start and end date
                             [$startDate, $endDate] = explode(' to ', $leaveApplication->date_range);
                             
                             $formattedStartDate = \Carbon\Carbon::parse($startDate)->format('M d, Y');
                             $formattedEndDate = \Carbon\Carbon::parse($endDate)->format('M d, Y');
                         } else {
+                            // Only a single date is provided
                             $formattedStartDate = \Carbon\Carbon::parse($leaveApplication->date_range)->format('M d, Y');
                             $formattedEndDate = null;
                         }
                     @endphp
+                    
                     <span>6.C NUMBER OF WORKING DAYS APPLIED FOR</span><br>
                     <div style="font-size: 8px !important; margin-bottom: 10px; margin-top: 5px; margin-left: 20px;">
-                        <span style="width: 66.6%; display: inline-block; font-size: 10px !important; border-bottom: 1px solid black;"><span style="color: white;">{{ ($formattedEndDate) ? '' : '.' }}</span>
-                        <b>{{ $leaveApplication->days }}</b>
+                        <span style="width: 66.6%; display: inline-block; font-size: 10px !important; border-bottom: 1px solid black;">
+                            <span style="color: white;">{{ ($formattedEndDate) ? '' : '.' }}</span>
+                            <b>{{ $leaveApplication->days }}</b>
                         </span><br>
                         <span style="margin-top: 4px;">INCLUSIVE DATES</span><br><br>
-                        <span style="width: 66.6%; margin-top: -5.4px; font-size: 10px !important; display: inline-block; border-bottom: 1px solid black;"><span style="color: white;">{{ ($formattedEndDate) ? '' : '.' }}</span>
-                        @if($formattedEndDate)
+                        <span style="width: 66.6%; margin-top: -5.4px; font-size: 10px !important; display: inline-block; border-bottom: 1px solid black;">
+                            <span style="color: white;">{{ ($formattedEndDate) ? '' : '.' }}</span>
                             <b>{{ strtoupper($formattedStartDate) }}</b>
-                        @endif
-                        @if($formattedEndDate)
-                            <b>- {{ strtoupper($formattedEndDate) }}</b>
-                        @endif
+                            @if($formattedEndDate)
+                                <b>- {{ strtoupper($formattedEndDate) }}</b>
+                            @endif
                         </span>
                     </div>
                 </td>
@@ -309,10 +312,21 @@
                     <span style="width: 11.5%; margin-left: 20px; display: inline-block; text-align: center; border-bottom: 1px solid black;"></span> others (Specify)<br>
                 </td>
                 <td colspan="3" class="bordered details vlt" style="height: 120px !important; border-left: none !important; border-bottom: none !important;">
+                    @php
+                        $leaveDetail1 = explode(' ', strtoupper($leaveApplication->remarks_details1));
+                    
+                        $firstFiveWords1 = implode(' ', array_slice($leaveDetail1, 0, 5));
+                    
+                        $nextSixWords1 = implode(' ', array_slice($leaveDetail1, 5, 6));
+                    
+                        $thirdSixWords1 = implode(' ', array_slice($leaveDetail1, 11, 6));
+                    
+                        $remainingWords1 = implode(' ', array_slice($leaveDetail1, 17));
+                    @endphp
                     <span>7.D DISAPPROVED DUE TO:</span><br>
-                    <span style="width: 90%; margin-left: 20px; display: inline-block; text-align: left; border-bottom: 1px solid black;"><span style="color: white;">.</span> </span>
-                    <span style="width: 90%; margin-left: 20px; display: inline-block; text-align: left; border-bottom: 1px solid black;"><span style="color: white;">.</span> </span>
-                    <span style="width: 90%; margin-left: 20px; display: inline-block; text-align: left; border-bottom: 1px solid black;"><span style="color: white;">.</span> </span>
+                    <span style="width: 90%; margin-left: 20px; display: inline-block; text-align: left; border-bottom: 1px solid black;"><span style="color: white;">.</span> {{ ($firstFiveWords1 && $leaveApplication->remarks_stat1 !== 0) ? $firstFiveWords1 : '' }} {{ ($nextSixWords1 && $leaveApplication->remarks_stat1 !== 0) ? $nextSixWords1 : '' }}</span>
+                    <span style="width: 90%; margin-left: 20px; display: inline-block; text-align: left; border-bottom: 1px solid black;"><span style="color: white;">.</span> {{ ($thirdSixWords1 && $leaveApplication->remarks_stat1 !== 0) ? $thirdSixWords1 : '' }}</span>
+                    <span style="width: 90%; margin-left: 20px; display: inline-block; text-align: left; border-bottom: 1px solid black;"><span style="color: white;">.</span> {{ ($remainingWords1 && $leaveApplication->remarks_stat1 !== 0) ? $remainingWords1 : '' }}</span>
                 </td>
             </tr>
             <tr>
@@ -338,32 +352,16 @@
             <tr>
                 <th class="bordered">Less this application</th>
                 <td class="bordered text-center">
-                    @if($is_vl_sl && $emp_esign != 0)
-                        {{ $bvl = $leave_days }} 
-                    @elseif($leaveApplication->leave_type == 3 && $leave_days > $leaveApplication->total_sl && $emp_esign != 0)
-                       {{ $bvl = $totalremain }} 
-                    @else
-                        {{ $bvl = 0 }}
-                    @endif
+                    {{ ($emp_esign != 0) ? $leaveApplication->less_vl : 0 }}
                 </td>
                 <td class="bordered text-center">
-                    @if($is_vl_sl && $emp_esign != 0)
-                        {{ $bsl = 0 }}
-                    @elseif($leaveApplication->leave_type == 3 && $emp_esign != 0)
-                        @if($leave_days > $totalsl)
-                            {{ $bsl = $totalsl }} 
-                        @else
-                            {{ $bsl = $leave_days }}
-                        @endif
-                    @else
-                        {{ $bsl = 0 }}
-                    @endif
+                    {{ ($emp_esign != 0) ? $leaveApplication->less_sl : 0 }}
                 </td>
             </tr>
             <tr>
                 <th class="bordered">Balance</th>
-                <td class="bordered text-center">{{ ($emp_esign != 0) ? $totalvl - $bvl : 0 }}</td>
-                <td class="bordered text-center">{{ ($emp_esign != 0) ? $totalsl - $bsl : 0 }}</td>
+                <td class="bordered text-center">{{ ($emp_esign != 0) ? $leaveApplication->total_vl - $leaveApplication->less_vl : 0}}</td>
+                <td class="bordered text-center">{{ ($emp_esign != 0) ? $leaveApplication->total_sl - $leaveApplication->less_sl : 0}}</td>
             </tr>
         </table>
         <span style="font-size: 9px; text-align: center; margin-left: 26%; margin-top: -5px;">Doc Control Code: CPSU-F-HRMO-15 REV-01 Effective Date: 08/31/2022 Page No. <b>1</b> of <b>2</b></span>

@@ -29,9 +29,10 @@
                                 <tr>
                                     <th>LEAVE TYPE</th>
                                     <th>INCLUSIVE DATES</th>
-                                    <th>DAYS APPLIED</th>
-                                    <th>DAYS W/OUT PAY</th>
+                                    <th class="text-center">DAYS APPLIED</th>
+                                    <th class="text-center">DAYS W/OUT PAY</th>
                                     <th>DATE OF FILING</th>
+                                    <th>STATUS</th>
                                     <th>ACTION</th>
                                 </tr>
                             </thead>
@@ -68,12 +69,36 @@
                                     @endphp
                                     <tr>
                                         <td>{{ strtoupper($leavetype[$leaves->leave_type]) }}</td>
-                                        <td>{{ ($formattedEndDate) ? strtoupper($formattedStartDate) : '' }} {{ ($formattedEndDate) ? strtoupper($formattedEndDate) : '' }}</td>
-                                        <td>{{ $leaves->days }}</td>
-                                        <td>{{ ($leaves->day_wpay) ? $leaves->day_wpay : '' }}</td>
-                                        <td>{{ isset($leaves->date_filing) ? strtoupper(\Carbon\Carbon::parse($leaves->date_filing)->format('M d, Y')) : '' }}</td>
                                         <td>
-                                            <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal"><i class="fas fa-file-pdf"></i> View</button>
+                                            @if($formattedEndDate)
+                                                {{ strtoupper($formattedStartDate) }} - {{ strtoupper($formattedEndDate) }}
+                                            @else
+                                                {{ strtoupper($formattedStartDate) }}
+                                            @endif
+                                        </td>
+                                        <td class="text-center">{{ $leaves->days }}</td>
+                                        <td class="text-center">{{ ($leaves->day_wpay) ? $leaves->day_wpay : '' }}</td>
+                                        <td>{{ isset($leaves->date_filing) ? strtoupper(\Carbon\Carbon::parse($leaves->date_filing)->format('M d, Y')) : '' }}</td>
+                                        <td width="100">
+                                            @if($leaves->remarks_stat == 0)
+                                                <span class="badge badge-success">approved</span>
+                                            @elseif($leaves->remarks_stat == 4)
+                                                <span class="badge badge-danger">canceled</span>
+                                                <div class="callout callout-danger remarks-details" style="padding: 4px !important; display:none;">
+                                                    <p>{{ $leaves->remarks_details }}</p>
+                                                </div>
+                                            @else
+                                                <span class="badge badge-danger">disapproved</span>
+                                                <div class="callout callout-danger remarks-details" style="padding: 4px !important; display:none;">
+                                                    <p>{{ $leaves->remarks_details }}</p>
+                                                </div>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($guard == "web")
+                                                <button type="button" class="btn btn-warning btn-sm @if($leaves->remarks_stat !== 0) cancel @endif disapprove-leave" data-id="{{ $leaves->id }}" data-by="4" @if($leaves->remarks_stat !== 0) disabled @endif><i class="fas fa-times"></i></button>
+                                            @endif
+                                            <button type="button" class="btn btn-danger btn-sm" title="view" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal"><i class="fas fa-file-pdf"></i></button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -91,12 +116,36 @@
                                     @endphp
                                     <tr>
                                         <td>{{ strtoupper($leavetype[$leaves->leave_type]) }}</td>
-                                        <td>{{ ($formattedEndDate) ? strtoupper($formattedStartDate) : '' }} {{ ($formattedEndDate) ? strtoupper($formattedEndDate) : '' }}</td>
-                                        <td>{{ $leaves->days }}</td>
-                                        <td>{{ ($leaves->day_wpay) ? $leaves->day_wpay : '' }}</td>
-                                        <td>{{ isset($leaves->date_filing) ? strtoupper(\Carbon\Carbon::parse($leaves->date_filing)->format('M d, Y')) : '' }}</td>
                                         <td>
-                                            <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal"><i class="fas fa-file-pdf"></i> View</button>
+                                            @if($formattedEndDate)
+                                                {{ strtoupper($formattedStartDate) }} - {{ strtoupper($formattedEndDate) }}
+                                            @else
+                                                {{ strtoupper($formattedStartDate) }}
+                                            @endif
+                                        </td>
+                                        <td class="text-center">{{ $leaves->days }}</td>
+                                        <td class="text-center">{{ ($leaves->day_wpay) ? $leaves->day_wpay : '' }}</td>
+                                        <td>{{ isset($leaves->date_filing) ? strtoupper(\Carbon\Carbon::parse($leaves->date_filing)->format('M d, Y')) : '' }}</td>
+                                        <td width="100">
+                                            @if($leaves->remarks_stat == 0)
+                                                <span class="badge badge-success">approved</span>
+                                            @elseif($leaves->remarks_stat == 4)
+                                                <span class="badge badge-danger">canceled</span>
+                                                <div class="callout callout-danger remarks-details" style="padding: 4px !important; display:none;">
+                                                    <p>{{ $leaves->remarks_details }}</p>
+                                                </div>
+                                            @else
+                                                <span class="badge badge-danger">disapproved</span>
+                                                <div class="callout callout-danger remarks-details" style="padding: 4px !important; display:none;">
+                                                    <p>{{ $leaves->remarks_details }}</p>
+                                                </div>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($guard == "web")
+                                                <button type="button" class="btn btn-warning btn-sm @if($leaves->remarks_stat !== 0) cancel @endif disapprove-leave" data-id="{{ $leaves->id }}" data-by="4" @if($leaves->remarks_stat !== 0) disabled @endif><i class="fas fa-times"></i></button>
+                                            @endif
+                                            <button type="button" class="btn btn-danger btn-sm" title="view" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal"><i class="fas fa-file-pdf"></i></button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -118,4 +167,9 @@
     </div>
 </div>
 </section>
+<style>
+    td:hover .remarks-details {
+        display: block !important;
+    }
+</style>
 @endsection

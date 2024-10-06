@@ -153,10 +153,10 @@ class LeaveApplicationController extends Controller
             return response()->json(['error' => 'Employee not found'], 404);
         }
     
-        $leaveApplication->hr_sdate = Carbon::now();
+        // $leaveApplication->hr_sdate = Carbon::now();
         $leaveApplication->day_wpay = $request->day_wpay;
         $daysdeduct = $leaveApplication->days - $request->day_wpay;
-    
+        
         if ($leavetype == 3) {
             $employee->sl = $employee->sl ?? 0;
             $employee->vl = $employee->vl ?? 0;
@@ -167,14 +167,22 @@ class LeaveApplicationController extends Controller
                 if ($remainingDays > $employee->vl) {
                     return response()->json(['error' => 'Insufficient leave credits'], 400);
                 }
+
+                $leaveApplication->less_sl = $employee->sl;
+                $leaveApplication->less_vl = $remainingDays;
+            }else{
+                $leaveApplication->less_sl = $daysdeduct;
+                $leaveApplication->less_vl = 0;
             }
         }
         if ($leavetype == 1 || $leavetype == 2) {
             if ($daysdeduct > $employee->vl) {
                 return response()->json(['error' => 'Insufficient leave credits'], 400);
             }
+            $leaveApplication->less_sl = 0;
+            $leaveApplication->less_vl = $daysdeduct;
         }
-
+        
         $originalPath = $leaveApplication->gen_app;
         
         if (file_exists(public_path($originalPath)) && !is_dir(public_path($originalPath))) {
@@ -239,6 +247,12 @@ class LeaveApplicationController extends Controller
             $file->move($path, $filename);
         }
 
+        $leave = [
+            1 => 'vl',
+            2 => 'vl',
+            3 => 'sl'
+        ];
+
         if($request->by == 0){
             $leaveApplication->emp_esign = $emp_esign;
         }
@@ -260,22 +274,11 @@ class LeaveApplicationController extends Controller
             $employee->vl = $employee->vl ?? 0;
             $employee->sl = $employee->sl ?? 0;
     
-            if ($leaveApplication->leave_type == 3) {
-                $employee->sl = $employee->sl ?? 0;
-                $employee->vl = $employee->vl ?? 0;
-                
-                if ($daysdeduct > $employee->sl) {
-                    $remainingDays = $daysdeduct - $employee->sl;
-                    
-                    if ($remainingDays > $employee->sl) {
-                        $employee->sl -= $employee->sl;
-                        $employee->vl -= $remainingDays;
-                    }
-                }else if($daysdeduct <= $employee->sl){
-                    $employee->sl -= $daysdeduct;
-                }
-            }else{
-                $employee->vl -= $daysdeduct;
+            if (in_array($leaveApplication->leave_type, [1, 2])){
+                $employee->vl -= $leaveApplication->less_vl;
+            }if($leaveApplication->leave_type == 3){
+                $employee->vl -= $leaveApplication->less_vl;
+                $employee->sl -= $leaveApplication->less_sl;
             }
         
             $employee->save();
@@ -308,22 +311,38 @@ class LeaveApplicationController extends Controller
         $currdate1 = Carbon::now('Asia/Manila')->format('F j, Y h:i A');
         if ($leaveApplication) {
             $leaveApplication->remarks_stat = $request->by;
-            $leaveApplication->remarks_details = $request->remarks;
-
+            
             if ($request->by == 1) {
                 $leaveApplication->sup_sdate = $currdate;
             }
     
             if ($request->by == 2) {
                 $leaveApplication->hr_sdate = $currdate;
+                $leaveApplication->remarks_details = $request->remarks;
+                $leaveApplication->status = 3;
             }
-    
+            
             if ($request->by == 3) {
                 $leaveApplication->pres_sdate = $currdate;
+                $leaveApplication->remarks_details1 = $request->remarks;
+                $leaveApplication->history = 2;
+            }
+
+            if ($request->by == 4) {
+                $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
+                $employee->vl += $leaveApplication->less_vl ?? 0;
+                $employee->sl += $leaveApplication->less_sl ?? 0;
+                $employee->save();
+                
+                $leaveApplication->remarks_stat = 4;
+                $leaveApplication->remarks_details2 = $request->remarks;
+                $leaveApplication->history = 2;
             }
 
             $leaveApplication->save();
-    
+
+            $this->genApplication($leaveApplication->id);
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Leave disapproved successfully.'

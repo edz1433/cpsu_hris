@@ -134,7 +134,7 @@
                                                             <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal"><i class="fas fa-file-pdf"></i> View</button>
                                                             <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="1"><i class="fas fa-undo"></i> Return</button>
                                                             <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="1" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
-                                                            <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="1"><i class="fas fa-ban"></i> Disapprove</button>
+                                                            {{-- <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="1"><i class="fas fa-ban"></i> Disapprove</button> --}}
                                                         </div>
                                                     </div>
                                                 @endif
@@ -294,7 +294,7 @@
                                                             <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal"><i class="fas fa-file-pdf"></i> View</button>
                                                             <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="1"><i class="fas fa-undo"></i> Return</button>
                                                             <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="1" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
-                                                            <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="1"><i class="fas fa-ban"></i> Disapprove</button>
+                                                            {{-- <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="1"><i class="fas fa-ban"></i> Disapprove</button> --}}
                                                         </div>
                                                     </div>
                                                 @endif
