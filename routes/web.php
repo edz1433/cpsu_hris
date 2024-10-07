@@ -257,7 +257,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         
         Route::post('/get-pdf-path', [LeaveApplicationController::class, 'getPdfPath'])->name('getPdfPath');
     });
-    
+    Route::get('/leave/disapprove', [LeaveApplicationController::class, 'leaveDisapprove']);
     Route::get('/logout', [MasterController::class, 'logout'])->name('logout');
 });
 

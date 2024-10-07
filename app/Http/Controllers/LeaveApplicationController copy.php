@@ -9,6 +9,8 @@ use App\Models\LeaveCredit;
 use App\Models\LeaveApplication;
 use App\Models\Setting;
 use Carbon\Carbon;
+use PDF;
+use setasign\Fpdi\Fpdi;
 
 class LeaveApplicationController extends Controller
 {
@@ -153,10 +155,10 @@ class LeaveApplicationController extends Controller
             return response()->json(['error' => 'Employee not found'], 404);
         }
     
-        $leaveApplication->hr_sdate = Carbon::now();
+        // $leaveApplication->hr_sdate = Carbon::now();
         $leaveApplication->day_wpay = $request->day_wpay;
         $daysdeduct = $leaveApplication->days - $request->day_wpay;
-    
+        
         if ($leavetype == 3) {
             $employee->sl = $employee->sl ?? 0;
             $employee->vl = $employee->vl ?? 0;
@@ -274,22 +276,11 @@ class LeaveApplicationController extends Controller
             $employee->vl = $employee->vl ?? 0;
             $employee->sl = $employee->sl ?? 0;
     
-            if ($leaveApplication->leave_type == 3) {
-                $employee->sl = $employee->sl ?? 0;
-                $employee->vl = $employee->vl ?? 0;
-                
-                if ($daysdeduct > $employee->sl) {
-                    $remainingDays = $daysdeduct - $employee->sl;
-                    
-                    if ($remainingDays > $employee->sl) {
-                        $employee->sl -= $employee->sl;
-                        $employee->vl -= $remainingDays;
-                    }
-                }else if($daysdeduct <= $employee->sl){
-                    $employee->sl -= $daysdeduct;
-                }
-            }else{
-                $employee->vl -= $daysdeduct;
+            if (in_array($leaveApplication->leave_type, [1, 2])){
+                $employee->vl -= $leaveApplication->less_vl;
+            }if($leaveApplication->leave_type == 3){
+                $employee->vl -= $leaveApplication->less_vl;
+                $employee->sl -= $leaveApplication->less_sl;
             }
         
             $employee->save();
@@ -310,6 +301,7 @@ class LeaveApplicationController extends Controller
 
     public function leaveDisapprove(Request $request)
     {
+        // Validate incoming request data
         $request->validate([
             'id' => 'required|integer',
             'by' => 'required|integer',
@@ -317,40 +309,104 @@ class LeaveApplicationController extends Controller
             'day_wpay' => 'nullable|integer',
         ]);
     
+        // Find the leave application by ID
         $leaveApplication = LeaveApplication::find($request->id);
         $currdate = Carbon::now('Asia/Manila')->toDateTimeString();
         $currdate1 = Carbon::now('Asia/Manila')->format('F j, Y h:i A');
-        if ($leaveApplication) {
-            $leaveApplication->remarks_stat = $request->by;
-            $leaveApplication->remarks_details = $request->remarks;
-
-            if ($request->by == 1) {
-                $leaveApplication->sup_sdate = $currdate;
-            }
     
-            if ($request->by == 2) {
-                $leaveApplication->hr_sdate = $currdate;
-            }
-    
-            if ($request->by == 3) {
-                $leaveApplication->pres_sdate = $currdate;
-            }
-
-            $leaveApplication->save();
-    
+        // Check if the leave application exists
+        if (!$leaveApplication) {
             return response()->json([
-                'success' => true,
-                'message' => 'Leave disapproved successfully.'
-            ]);
+                'success' => false,
+                'message' => 'Leave application not found.',
+                'datetime' => $currdate1,
+            ], 404);
         }
     
+        // Update the leave application based on the approval status
+        $leaveApplication->remarks_stat = $request->by;
+    
+        switch ($request->by) {
+            case 1:
+                $leaveApplication->sup_sdate = $currdate;
+                break;
+    
+            case 2:
+                $leaveApplication->hr_sdate = $currdate;
+                $leaveApplication->remarks_details = $request->remarks;
+                $leaveApplication->status = 3;
+                break;
+    
+            case 3:
+                $leaveApplication->pres_sdate = $currdate;
+                $leaveApplication->remarks_details1 = $request->remarks;
+                $leaveApplication->history = 2;
+                break;
+    
+            case 4:
+                $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
+                if ($employee) {
+                    $employee->vl += $leaveApplication->less_vl ?? 0;
+                    $employee->sl += $leaveApplication->less_sl ?? 0;
+                    $employee->save();
+                }
+                $leaveApplication->remarks_stat = 4;
+                $leaveApplication->remarks_details2 = $request->remarks;
+                $leaveApplication->history = 2;
+                break;
+    
+            default:
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid approval status.',
+                ], 400);
+        }
+    
+        // Save the leave application
+        $leaveApplication->save();
+    
+        // Overlay text on the PDF
+        $this->overlayTextOnPdf($leaveApplication);
+    
         return response()->json([
-            'success' => false,
-            'message' => 'Leave application not found.',
-            'datetime' => $currdate1,
-        ], 404);
+            'success' => true,
+            'message' => 'Leave disapproved successfully.',
+        ]);
     }
-
+    
+    private function overlayTextOnPdf($leaveApplication)
+    {
+        $pdfPath = public_path($leaveApplication->gen_app);
+    
+        // Initialize FPDI
+        $pdf = new Fpdi();
+        $pageCount = $pdf->setSourceFile($pdfPath);
+    
+        // Import the first page
+        $tplId = $pdf->importPage(1);
+        $size = $pdf->getTemplateSize($tplId);
+    
+        // Create a new page in the PDF
+        $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+        $pdf->useTemplate($tplId);
+    
+        // Get the remarks
+        $remarks = $leaveApplication->remarks_details;
+    
+        // Set font and color
+        $pdf->SetFont('Arial', 'B', 14);
+        $pdf->SetTextColor(255, 0, 0);
+    
+        // Set position and write text
+        $pdf->SetXY(10, 50);
+        $pdf->Write(0, htmlspecialchars($remarks));
+    
+        // Define output path and save the modified PDF
+        $outputPath = public_path(basename($leaveApplication->gen_app));
+        $pdf->Output($outputPath, 'F');
+    }    
+    
+    
     public function leaveReturn(Request $request, $id = null)
     {
         $validatedData = $request->validate([

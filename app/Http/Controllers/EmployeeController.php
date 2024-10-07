@@ -110,9 +110,9 @@ class EmployeeController extends Controller
         $regions = Region::all();
         $guard = $this->getGuard();
         $offices = Office::where('office_name', 'not like', '%UNKNOWN%')
-                 ->where('office_name', 'not like', '%CAMPUS%')
+                //  ->where('office_name', 'not like', '%CAMPUS%')
                  ->get();
-         
+        
         $supervisor = Employee::where("emp_status", 1)->get();
 
         $stat = Status::where('status_name', '!=', 'Part-time/JO')->get();

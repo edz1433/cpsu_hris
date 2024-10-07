@@ -132,7 +132,7 @@
                                             @elseif($leaves->remarks_stat == 4)
                                                 <span class="badge badge-danger">canceled</span>
                                                 <div class="callout callout-danger remarks-details" style="padding: 4px !important; display:none;">
-                                                    <p>{{ $leaves->remarks_details }}</p>
+                                                    <p>{{ $leaves->remarks_details1 }}</p>
                                                 </div>
                                             @else
                                                 <span class="badge badge-danger">disapproved</span>
