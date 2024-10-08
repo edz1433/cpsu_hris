@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Employee;
 use App\Models\Dtr;
 use App\Models\Fdevice;
-use Carbon\Carbon;
+use Carbon\Carbon; 
 use PDF;
 
 class DtrController extends Controller

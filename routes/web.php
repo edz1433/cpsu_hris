@@ -6,6 +6,7 @@ use App\Http\Controllers\LoginAuthController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\MasterController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\TirednessController;
 use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MyAccountController;
@@ -114,7 +115,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         // Route::get('/', [MyAccountController::class, 'myAccount']) ->name('myAccount');
         // Route::post('/update-account', [MyAccountController::class, 'updateAccount']) ->name('updateAccount');
     });
-
+    
     // Employee
     Route::prefix('employees')->group(function() {
         Route::get('/', [EmployeeController::class, 'emp_list'])->name('emp_list');
@@ -127,7 +128,11 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/toggle-acct-stat', [EmployeeController::class, 'toggleAcctStat'])->name('toggleAcctStat');
 
         Route::get('/delete/{id}', [EmployeeController::class, 'empDelete'])->name('empDelete');
-        
+    });
+
+    Route::prefix('tirdeness')->group(function(){
+        Route::get('/', [TirednessController::class, 'readTiredness'])->name('readTiredness');
+        Route::get('/pdf', [TirednessController::class, 'pdfTirednes'])->name('pdfTirednes');
     });
     
     //pds

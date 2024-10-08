@@ -63,15 +63,17 @@
                           </div>
                           <div class="col-lg-3 col-6">
                               <!-- small box -->
-                              <div class="small-box pl-1 pt-2 bg-white">
-                                  <div class="inner">
-                                      <h5 class="text-muted">Annual Leave</h5>
-                                      <h3>0</h3>
-                                  </div>
-                                  <div class="icon">
-                                      <i class="fa-regular fa-calendar-days"  style="color: #DC7DF8;  font-size: 30px !important;"></i>
-                                  </div>
-                              </div>
+                              <a href="{{ route('readTiredness'); }}">
+                                <div class="small-box pl-1 pt-2 bg-white">
+                                    <div class="inner">
+                                        <h5 class="text-muted">Tiredness</h5>
+                                        <h3>0</h3>
+                                    </div>
+                                    <div class="icon">
+                                        <i class="fas fa-bed"  style="color: #DC7DF8;  font-size: 30px !important;"></i>
+                                    </div>
+                                </div>
+                              </a>
                           </div>
                       </div>
                     </div>

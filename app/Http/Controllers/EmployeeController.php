@@ -304,7 +304,7 @@ class EmployeeController extends Controller
 
     public function employeeUpdate(Request $request){
         $employee = Employee::findOrFail($request->id);
-        $column = $request->column;
+        $column =  $request->column;
         if ($column == 'bdate') {
             $bdate = Carbon::parse($request->value);
             $age = $bdate->age;
@@ -327,8 +327,10 @@ class EmployeeController extends Controller
             ]);
         }
         else {
+            $columnsToCapitalize = ['lname', 'fname', 'mname'];
+        
             $employee->update([
-                $column => $request->value
+                $column => in_array($column, $columnsToCapitalize) ? strtoupper($request->value) : $request->value
             ]);
         }
 

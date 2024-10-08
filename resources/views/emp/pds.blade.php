@@ -30,15 +30,15 @@
                                 @endif
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Last Name</label><br>
-                                    <input type="text" value="{{ ucfirst(strtolower($employee->lname)) }}" name="lname" data-column-id="{{ $empid }}" data-column-name="lname" class="form-control form-control-sm update-field" placeholder="N/A" required>
+                                    <input type="text" value="{{ $employee->lname }}" name="lname" data-column-id="{{ $empid }}" data-column-name="lname" class="form-control form-control-sm update-field" placeholder="N/A" required>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">First Name</label><br>
-                                    <input type="text" value="{{ ucfirst(strtolower($employee->fname)) }}" name="fname" data-column-id="{{ $empid }}" data-column-name="fname" name="fname" class="form-control form-control-sm update-field" placeholder="N/A" required>
+                                    <input type="text" value="{{ $employee->fname }}" name="fname" data-column-id="{{ $empid }}" data-column-name="fname" name="fname" class="form-control form-control-sm update-field" placeholder="N/A" required>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Middle Name</label><br>
-                                    <input type="text" value="{{ ucfirst(strtolower($employee->mname)) }}" name="mname" data-column-id="{{ $empid }}" data-column-name="mname" name="mname" class="form-control form-control-sm update-field" placeholder="N/A" required>
+                                    <input type="text" value="{{ $employee->mname }}" name="mname" data-column-id="{{ $empid }}" data-column-name="mname" name="mname" class="form-control form-control-sm update-field"  placeholder="N/A" required>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Suffix</label><br>

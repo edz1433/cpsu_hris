@@ -8,7 +8,7 @@
         </li>
         @if(auth()->guard($guard)->user()->role !== "employee")
             <li class="nav-item">
-                <a href="{{ route('emp_list') }}" class="nav-link text-success1 {{ request()->is('employees') || request()->is('employees/*') || request()->is('pds/*') ? 'active' : '' }}">
+                <a href="{{ route('emp_list') }}" class="nav-link text-success1 {{ request()->is('employees') || request()->is('employees/*') || request()->is('tirdeness*') || request()->is('pds/*') ? 'active' : '' }}">
                     <i class="pt-1 nav-icon fas fa-users"></i>
                     <p>Employees</p>
                 </a>
