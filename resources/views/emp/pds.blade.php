@@ -32,7 +32,7 @@
                                     <label class="badge badge-secondary lbel">Last Name</label><br>
                                     <input type="text" value="{{ $employee->lname }}" name="lname" data-column-id="{{ $empid }}" data-column-name="lname" class="form-control form-control-sm update-field" placeholder="N/A" required>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-3">  
                                     <label class="badge badge-secondary lbel">First Name</label><br>
                                     <input type="text" value="{{ $employee->fname }}" name="fname" data-column-id="{{ $empid }}" data-column-name="fname" name="fname" class="form-control form-control-sm update-field" placeholder="N/A" required>
                                 </div>

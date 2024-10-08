@@ -99,42 +99,67 @@
                           <table class="table table-sm">
                             <tbody>
                               <tr>
-                                <td>Regular</td>
-                                <td width="100">
-                                  <div class="progress progress-xs mt-2">
-                                    <div class="progress-bar progress-bar-danger" style="width: 55%"></div>
-                                  </div>
-                                </td>
-                                <td><span class="badge bg-danger">55%</span></td>
+                                  <td>Regular</td>
+                                  <td width="100">
+                                      <div class="progress progress-xs mt-2">
+                                          <div class="progress-bar bg-danger" style="width: {{ number_format($empStatusPercentages->get(1)['percentage'], 2) }}%"></div>
+                                      </div>
+                                  </td>
+                                  <td>
+                                      <span class="badge bg-danger">
+                                          {{ number_format($empStatusPercentages->get(1)['percentage'], 2) . '%' }} 
+                                          || 
+                                          {{ $empStatusPercentages->get(1)['count'] }}
+                                      </span>  
+                                  </td>
                               </tr>
                               <tr>
-                                <td>Job Order</td>
-                                <td width="100">
-                                  <div class="progress progress-xs mt-2">
-                                    <div class="progress-bar bg-warning" style="width: 70%"></div>
-                                  </div>
-                                </td>
-                                <td><span class="badge bg-warning">70%</span></td>
+                                  <td>Full-time / Part-time</td>
+                                  <td width="100">
+                                      <div class="progress progress-xs mt-2">
+                                          <div class="progress-bar bg-warning" style="width: {{ number_format($empStatusPercentages->get(2)['percentage'], 2) }}%"></div>
+                                      </div>
+                                  </td>
+                                  <td>
+                                      <span class="badge bg-warning">
+                                          {{ number_format($empStatusPercentages->get(2)['percentage'], 2) . '%' }} 
+                                          || 
+                                          {{ $empStatusPercentages->get(2)['count'] }}
+                                      </span>  
+                                  </td>
                               </tr>
                               <tr>
-                                <td>Full-time / Part-time</td>
-                                <td width="100">
-                                  <div class="progress progress-xs mt-2 progress-striped active">
-                                    <div class="progress-bar bg-primary" style="width: 30%"></div>
-                                  </div>
-                                </td>
-                                <td><span class="badge bg-primary">30%</span></td>
+                                  <td>Part-time / Part-time</td>
+                                  <td width="100">
+                                      <div class="progress progress-xs mt-2 progress-striped active">
+                                          <div class="progress-bar bg-primary" style="width: {{ number_format($empStatusPercentages->get(3)['percentage'], 2) }}%"></div>
+                                      </div>
+                                  </td>
+                                  <td>
+                                      <span class="badge bg-primary">
+                                          {{ number_format($empStatusPercentages->get(3)['percentage'], 2) . '%' }} 
+                                          || 
+                                          {{ $empStatusPercentages->get(3)['count'] }}
+                                      </span>  
+                                  </td>
                               </tr>
                               <tr>
-                                <td>Part-time / Part-time</td>
-                                <td width="100"> 
-                                  <div class="progress progress-xs mt-2 progress-striped active">
-                                    <div class="progress-bar bg-success" style="width: 90%"></div>
-                                  </div>
-                                </td>
-                                <td><span class="badge bg-success">90%</span></td>
+                                  <td>Job Order</td>
+                                  <td width="100"> 
+                                      <div class="progress progress-xs mt-2 progress-striped active">
+                                          <div class="progress-bar bg-success" style="width: {{ number_format($empStatusPercentages->get(4)['percentage'], 2) }}%"></div>
+                                      </div>
+                                  </td>
+                                  <td>
+                                      <span class="badge bg-success">
+                                          {{ number_format($empStatusPercentages->get(4)['percentage'], 2) . '%' }} 
+                                          || 
+                                          {{ $empStatusPercentages->get(4)['count'] }}
+                                      </span>  
+                                  </td>
                               </tr>
-                            </tbody>
+                          </tbody>
+                          
                           </table>
                         </div>
                         <!-- /.card-body -->

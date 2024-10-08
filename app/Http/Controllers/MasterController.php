@@ -30,6 +30,16 @@ class MasterController extends Controller
         $userCount = User::all();
         $campCount = Campus::all();
         $chartEmployee = Employee::all();
+
+        $totalEmployees = $chartEmployee->count();
+        $empStatuses = [1, 2, 3, 4];
+
+        // Calculate percentage for each emp_status and ensure the correct order
+        $empStatusPercentages = collect($empStatuses)->mapWithKeys(function ($status) use ($chartEmployee, $totalEmployees) {
+            $count = $chartEmployee->where('emp_status', $status)->count();
+            $percentage = $totalEmployees > 0 ? ($count / $totalEmployees) * 100 : 0;
+            return [$status => ['count' => $count, 'percentage' => $percentage]];
+        });
             
         $offCount = Office::all();
     
@@ -38,7 +48,7 @@ class MasterController extends Controller
                 ? Employee::count()
                 : Employee::where('emp_ID', \Auth::guard('web')->user()->campus_id)->count();
 
-                return view("home.dashboard", compact('campCount', 'empCount', 'offCount', 'userCount', 'chartEmployee', 'guard'));
+                return view("home.dashboard", compact('campCount', 'empCount', 'offCount', 'userCount', 'chartEmployee', 'empStatusPercentages', 'guard'));
         }
     
         if (\Auth::guard('employee')->check()) {
