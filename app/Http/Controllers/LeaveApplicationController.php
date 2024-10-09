@@ -313,11 +313,11 @@ class LeaveApplicationController extends Controller
             $leaveApplication->remarks_stat = $request->by;
             
             if ($request->by == 1) {
-                $leaveApplication->sup_sdate = $currdate;
+                $leaveApplication->hr_sdate = $currdate;
             }
     
             if ($request->by == 2) {
-                $leaveApplication->hr_sdate = $currdate;
+                $leaveApplication->sup_sdate = $currdate;
                 $leaveApplication->remarks_details = $request->remarks;
                 $leaveApplication->status = 3;
             }
