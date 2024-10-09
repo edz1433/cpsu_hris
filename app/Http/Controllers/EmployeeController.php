@@ -95,9 +95,9 @@ class EmployeeController extends Controller
             'campuses.campus_abbr',
         );
         
-        if (auth()->user()->role != "Administrator" && auth()->user()->role != "Payroll Administrator") {
-            $employee->where('employees.camp_id', '=', auth()->user()->campus_id);
-        }
+        // if (auth()->user()->role != "Administrator" && auth()->user()->role != "Payroll Administrator") {
+        //     $employee->where('employees.camp_id', '=', auth()->user()->campus_id);
+        // }
     
         $employee = $employee->get();
         $quali = Qualification::all();
