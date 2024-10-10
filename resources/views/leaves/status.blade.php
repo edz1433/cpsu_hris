@@ -15,6 +15,14 @@
 </style>
 
 <section class="content">
+<div id="loading-spinner" style="display: none; position: fixed; z-index: 9999; background: rgba(0,0,0,0.5); top: 0; left: 0; width: 100%; height: 100%; text-align: center;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <div class="spinner-border text-light" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+</div>
+    
 <div class="container-fluid">
     <div class="row">
         @include("leaves.side-menu")

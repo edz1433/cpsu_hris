@@ -29,7 +29,7 @@
                               <!-- small box -->
                               <div class="small-box pl-1 pt-2 bg-white">
                                   <div class="inner">
-                                      <h5 class="text-gray">Employee</h5>
+                                      <h6 class="text-gray">Employee</h6>
                                       <h3 class="">{{ number_format($empCount) }}</h3>
                                   </div>
                                   <div class="icon">
@@ -41,7 +41,7 @@
                               <!-- small box -->
                               <div class="small-box pl-1 pt-2 bg-white">
                                   <div class="inner">
-                                      <h5 class="text-muted">Present</h5>
+                                      <h6 class="text-muted">Present</h6>
                                       <h3>0</h3>
                                   </div>
                                   <div class="icon">
@@ -53,7 +53,7 @@
                               <!-- small box -->
                               <div class="small-box pl-1 pt-2 bg-white">
                                   <div class="inner">
-                                      <h5 class="text-muted">Late</h5>
+                                      <h6 class="text-muted">Late</h6>
                                       <h3>0</h3>
                                   </div>
                                   <div class="icon">
@@ -66,7 +66,7 @@
                               <a href="{{ route('readTiredness'); }}">
                                 <div class="small-box pl-1 pt-2 bg-white">
                                     <div class="inner">
-                                        <h5 class="text-muted">Tiredness</h5>
+                                        <h6 class="text-muted">Tiredness & Undertime</h6>
                                         <h3>0</h3>
                                     </div>
                                     <div class="icon">
@@ -108,9 +108,8 @@
                                   <td>
                                       <span class="badge bg-danger">
                                           {{ number_format($empStatusPercentages->get(1)['percentage'], 2) . '%' }} 
-                                          || 
-                                          {{ $empStatusPercentages->get(1)['count'] }}
                                       </span>  
+                                      <span class="badge badge-secondary float-right">{{ $empStatusPercentages->get(1)['count'] }}</span>
                                   </td>
                               </tr>
                               <tr>
@@ -122,10 +121,9 @@
                                   </td>
                                   <td>
                                       <span class="badge bg-warning">
-                                          {{ number_format($empStatusPercentages->get(2)['percentage'], 2) . '%' }} 
-                                          || 
-                                          {{ $empStatusPercentages->get(2)['count'] }}
+                                          {{ number_format($empStatusPercentages->get(2)['percentage'], 2) . '%' }}
                                       </span>  
+                                      <span class="badge badge-secondary float-right">{{ $empStatusPercentages->get(2)['count'] }}</span>
                                   </td>
                               </tr>
                               <tr>
@@ -137,10 +135,9 @@
                                   </td>
                                   <td>
                                       <span class="badge bg-primary">
-                                          {{ number_format($empStatusPercentages->get(3)['percentage'], 2) . '%' }} 
-                                          || 
-                                          {{ $empStatusPercentages->get(3)['count'] }}
-                                      </span>  
+                                          {{ number_format($empStatusPercentages->get(3)['percentage'], 2) . '%' }}
+                                      </span>
+                                      <span class="badge badge-secondary float-right">{{ $empStatusPercentages->get(3)['count'] }}</span> 
                                   </td>
                               </tr>
                               <tr>
@@ -152,10 +149,9 @@
                                   </td>
                                   <td>
                                       <span class="badge bg-success">
-                                          {{ number_format($empStatusPercentages->get(4)['percentage'], 2) . '%' }} 
-                                          || 
-                                          {{ $empStatusPercentages->get(4)['count'] }}
+                                          {{ number_format($empStatusPercentages->get(4)['percentage'], 2) . '%' }}  
                                       </span>  
+                                      <span class="badge badge-secondary float-right">{{ $empStatusPercentages->get(4)['count'] }}</span>
                                   </td>
                               </tr>
                           </tbody>

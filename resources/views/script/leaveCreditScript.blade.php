@@ -508,6 +508,9 @@
             }
         }).then((result) => {
             if (result.isConfirmed) {
+                // Show the loading spinner
+                $('#loading-spinner').show();
+
                 var formData = new FormData();
                 formData.append('id', id);
                 formData.append('by', by);
@@ -528,27 +531,26 @@
                             showConfirmButton: false,
                             timer: 1000
                         });
+
+                        // Handle actions based on 'by' value
                         if (by == 0) {
                             $('#action-button0' + id).fadeOut(1000, function() {
                                 $(this).remove();
                             });
                         }
                         if (by == 1) {
-                            // HR Approval
                             $('#action-button' + id).fadeOut(1000, function() {
                                 $(this).remove();
                             });
                             $('#status-icon' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
                             $('.time-sup' + id).html(response.datetime);
                         } else if (by == 2) {
-                            // Supervisor Approval
                             $('#action-button1' + id).fadeOut(1000, function() {
                                 $(this).remove();
                             });
                             $('#status-icon1' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
                             $('.time-hr' + id).html(response.datetime);
                         } else if (by == 3) {
-                            // Final Approval
                             $('#action-button2' + id).fadeOut(1000, function() {
                                 $(this).remove();
                             });
@@ -576,6 +578,10 @@
                                 showConfirmButton: true,
                             });
                         }
+                    },
+                    complete: function() {
+                        // Hide the loading spinner once the AJAX call is complete
+                        $('#loading-spinner').hide();
                     }
                 });
             }

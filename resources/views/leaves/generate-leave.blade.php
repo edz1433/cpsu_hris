@@ -256,7 +256,7 @@
                     <span>7.A CERTIFICATION OF LEAVE CREDITS</span><br>
                     <center>As of <span style="width: 45.9%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ isset($leaveApplication->pres_sdate) ? strtoupper(\Carbon\Carbon::parse($leaveApplication->pres_sdate)->format('M d, Y')) : '' }}</b></span></center>
                     <div style="margin-top: 17%; margin-left: 29%;">
-                            <span style="font-size: 8px !important;"><i>note: Total Earned and Balance Leave credit for reconciliation</i></span>
+                            {{-- <span style="font-size: 8px !important;"><i>note: Total Earned and Balance Leave credit for reconciliation</i></span> --}}
                     </div>
                     <div style="margin-top: 2.45%">
                         <center><span class="font1" style="width: 90%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->hr_fname) }} {{ strtoupper($leaveApplication->hr_mname) }} {{ strtoupper($leaveApplication->hr_lname) }} {{ strtoupper($leaveApplication->hr_suffix) }}{{ ($leaveApplication->hr_prefix) ? strtoupper(', '.$leaveApplication->hr_prefix) : '' }}</b></span></center>
