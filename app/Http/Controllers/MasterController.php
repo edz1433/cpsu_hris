@@ -110,7 +110,7 @@ class MasterController extends Controller
     public function view()
     {
         // Create the URL to the file
-        $fileUrl = urlencode(asset('Uploads/DTR_AttachmentA.docx'));
+        $fileUrl = urlencode(asset('Uploads/ABRIL EDWIN PDS.xlsx'));
         
         // Redirect to Google Docs Viewer
         return redirect("https://docs.google.com/gview?url={$fileUrl}&embedded=true");

@@ -54,7 +54,6 @@ Route::get('/', function () {
 Route::get('/login',[LoginAuthController::class,'getLogin'])->name('getLogin')->middleware([NoCacheMiddleware::class]);
 Route::post('/login',[LoginAuthController::class,'postLogin'])->name('postLogin');
 // Route::get('/update-pass', [EmployeeController::class, 'updateEmployeePasswords']);
-Route::get('/view-doc', [MasterController::class, 'view']);
 
 Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
@@ -262,6 +261,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         
         Route::post('/get-pdf-path', [LeaveApplicationController::class, 'getPdfPath'])->name('getPdfPath');
     });
+    Route::get('/view-doc', [MasterController::class, 'view']);
     Route::get('/leave/disapprove', [LeaveApplicationController::class, 'leaveDisapprove']);
     Route::get('/logout', [MasterController::class, 'logout'])->name('logout');
 });
