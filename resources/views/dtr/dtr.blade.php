@@ -3,12 +3,10 @@
 @section('body')
 <div class="container-fluid">
     <div class="row" style="padding-top: 10px;">
-        @if($guard == "web")
         <div class="col-2">
             @include('dtr.submenu')
         </div>
-        @endif
-        <div class="col-lg-{{ ($guard == "web") ? '10' : '12' }}">
+        <div class="col-lg-10">
             <div class="card card-info card-outline">
                 <div class="card-header">
                     <h2 class="card-title text-success1">

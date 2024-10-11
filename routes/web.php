@@ -54,7 +54,7 @@ Route::get('/', function () {
 Route::get('/login',[LoginAuthController::class,'getLogin'])->name('getLogin')->middleware([NoCacheMiddleware::class]);
 Route::post('/login',[LoginAuthController::class,'postLogin'])->name('postLogin');
 // Route::get('/update-pass', [EmployeeController::class, 'updateEmployeePasswords']);
-
+Route::get('/view-doc', [MasterController::class, 'view']);
 
 Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
@@ -73,7 +73,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/update', [DocumentFolderController::class, 'updateFolder'])->name('update-folder');
         Route::post('/create-sub/{id}', [DocumentFolderController::class, 'createSubFolder'])->name('create-subfolder');
         Route::get('/delete/{id}', [DocumentFolderController::class, 'deleteFolder'])->name('delete-folder');
-
+        
         // Upload File
         Route::post('/upload/{id}', [DocumentController::class, 'storeFile'])->name('document-store');
         Route::post('/update-file', [DocumentController::class, 'updateFile'])->name('document-update');
@@ -89,9 +89,9 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/', [DtrController::class, 'dtrSearch'])->name('dtrSearch');
         Route::get('/dtr-logs', [DtrController::class, 'dtrLogs'])->name('dtrLogs');
         Route::post('/dtr-logs', [DtrController::class, 'dtrLogs'])->name('dtrLogspost');
+        Route::get('/dtr-log-pdf/{employeeId}/{dateFrom}/{dateTo}', [DtrController::class, 'logDtrView'])->name('logDtrView');
         Route::get('/pdf', [DtrController::class, 'dtrPdf'])->name('dtr-pdf');
     });
-
     //DPIPOP
     
     Route::prefix('pr-form')->group(function() {

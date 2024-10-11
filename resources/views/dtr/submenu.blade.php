@@ -10,7 +10,7 @@
         <li class="nav-item mb-1">
             <a href="{{ route('dtrLogs') }}" class="nav-link2 {{ request()->is('dtr/dtr-logs') ? 'active1' : '' }}" id="ppeButton">
                 <i class="fas fa-file-alt {{ request()->is('dtr/dtr-logs') ? 'text-success1' : 'text-muted' }}"></i>
-                <span class="ml-2 {{ request()->is('dtr/dtr-logs') ? 'text-success1' : 'text-muted' }}">Logs</span>
+                <span class="ml-2 {{ request()->is('dtr/dtr-logs') ? 'text-success1' : 'text-muted' }}">LOGS</span>
             </a>
         </li>
     </ul>                     

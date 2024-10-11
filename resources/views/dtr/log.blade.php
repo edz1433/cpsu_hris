@@ -10,7 +10,7 @@
             <div class="card card-info card-outline">
                 <div class="card-header">
                     <h2 class="card-title text-success1">
-                        <b>Logs</b>
+                        <b>LOGS</b>
                     </h2>
                 </div>
                 <div class="card-body">
@@ -24,7 +24,7 @@
                                         <option disabled selected>Select</option>
                                         @if(auth()->guard($guard)->user()->role !== "employee")
                                             @foreach($employeeall as $emp)
-                                                <option value="{{ $emp->emp_ID }}" @if(isset($employee) && $employee && $emp->emp_ID == $employee->emp_ID) selected @endif>
+                                                <option value="{{ $emp->emp_ID }}" @if(($data != null) && $emp->emp_ID == $data['employeeId']) selected @endif>
                                                     {{ strtoupper(ucwords($emp->lname)) }}
                                                     {{ strtoupper(ucwords($emp->prefix)) }}
                                                     {{ strtoupper(ucwords($emp->fname)) }}
@@ -43,71 +43,19 @@
                                 </div>
                                 <div class="col-md-3 col-sm-6">
                                     <label class="badge badge-secondary lbel">From</label>
-                                    <input type="date" name="date_from" class="form-control form-control-sm" id="date_from" value="{{ isset($employee) ? $date_from : '' }}" required>
+                                    <input type="date" name="date_from" class="form-control form-control-sm" id="date_from" value="{{ ($data != null) ? $data['dateFrom'] : '' }}" required>
                                 </div>
                                 <div class="col-md-3 col-sm-6">
                                     <label class="badge badge-secondary lbel">To</label>
-                                    <input type="date" name="date_to" class="form-control form-control-sm" id="date_to" value="{{ isset($employee) ? $date_to : '' }}" required>
+                                    <input type="date" name="date_to" class="form-control form-control-sm" id="date_to" value="{{ ($data != null) ? $data['dateTo'] : '' }}" required>
                                 </div>
                                 <div class="col-md-2 col-sm-6 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-success btn-sm btn-block">Filter <i class="fas fa-filter"></i> </button>
+                                    <button type="submit" class="btn btn-success btn-sm btn-block"><i class="fas fa-file-pdf"></i> Generate</button>
                                 </div>
                             </div>
                         </div>                        
                     </form>                    
-                    <div class="container">
-                    <table class="table table-sm" id="example1">
-                        <thead>
-                          <tr>
-                            <th></th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            @php
-                                function convertTo12HourFormat($time) {
-                                    return date("g:i:s A", strtotime($time));
-                                }
-
-                                $campuses = [
-                                    '1' => 'CPSU Main',
-                                    '2' => 'CPSU Candoni',
-                                    '3' => 'CPSU Cauayan',
-                                    '4' => 'CPSU Hinigaran',
-                                    '5' => 'CPSU Hinoba-an',
-                                    '6' => 'CPSU Ilog',
-                                    '7' => 'CPSU San Carlo',
-                                    '8' => 'CPSU Sipalay',
-                                    '9' => 'CPSU Victorias',
-                                    '10' => 'CPSU Murcia',
-                                    '11' => 'CPSU Valladolid',
-                                    '12' => 'CPSU Moises Padilla',
-                                ];
-                                
-                            @endphp
-                            @foreach ($processedLogs as $employeeId => $logs)
-                                @foreach ($logs as $log)
-                                    @if ($log['type'] == 'time_in')
-                                        <tr>
-                                            <td>
-                                                <b>{{ strtoupper(ucwords($log['fname'])) }} {{ strtoupper(ucwords($log['lname'])) }} {{ strtoupper(ucwords($log['suffix'])) }}</b>
-                                                <span class="text-success">logged in</span> at {{ $campuses[$log['device_in_campus']] }}, {{ $log['device_in_label'] }} at {{ convertTo12HourFormat($log['time']) }} on {{ $log['date'] }}.
-                                            </td>
-                                        </tr>
-                                    @elseif ($log['type'] == 'time_out' && !empty($log['time']))
-                                        <tr>
-                                            <td>
-                                                <b>{{ strtoupper(ucwords($log['fname'])) }} {{ strtoupper(ucwords($log['lname'])) }} {{ strtoupper(ucwords($log['suffix'])) }}</b>
-                                                <span class="text-danger">logged out</span> at {{ $campuses[$log['device_out_campus']] }}, {{ $log['device_out_label'] }} at {{ convertTo12HourFormat($log['time']) }} on {{ $log['date'] }}.
-                                            </td>
-                                        </tr>
-                                    @endif
-                                @endforeach
-                            @endforeach                                             
-                        </tbody>
-                                               
-                    </table>  
-                      
-                    </div>
+                    <iframe src="{{ ($data == null) ? '' : route('logDtrView', ['employeeId' => $data['employeeId'] ?? 0, 'dateFrom' => $data['dateFrom'] ?? null, 'dateTo' => $data['dateTo'] ?? null]) }}" width="100%" height="600px"></iframe>
                 </div>
             </div>
         </div>
