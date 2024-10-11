@@ -107,13 +107,4 @@ class MasterController extends Controller
                          ->with('error', 'No authenticated user to log out');
     }
 
-    public function view()
-    {
-        // Create the URL to the file
-        $fileUrl = urlencode(asset('Uploads/ABRIL EDWIN PDS.xlsx'));
-        
-        // Redirect to Google Docs Viewer
-        return redirect("https://docs.google.com/gview?url={$fileUrl}&embedded=true");
-    }
-    
 }
