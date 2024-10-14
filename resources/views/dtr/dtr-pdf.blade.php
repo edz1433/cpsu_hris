@@ -140,7 +140,7 @@
                 </tr>
             </thead>
             <tbody>	
-            @php $morningcutoff = new DateTime('11:59'); @endphp
+            @php $morningcutoff = new DateTime('10:00'); @endphp
             @if ($period == 1)
                 {{-- Display days 1-15 --}}
                 @for ($day = 1; $day <= 15; $day++)
@@ -310,7 +310,7 @@
                 </tr>
             </thead>
             <tbody>	
-            @php $morningcutoff = new DateTime('11:59'); @endphp
+            @php $morningcutoff = new DateTime('10:00'); @endphp
             @if ($period == 1)
                 {{-- Display days 1-15 --}}
                 @for ($day = 1; $day <= 15; $day++)
