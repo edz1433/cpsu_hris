@@ -18,36 +18,38 @@
                         @csrf
                         <div class="form-group mtop">
                             <div class="form-row">
-                                <div class="col-md-4 col-sm-12">
-                                    <label class="badge badge-secondary lbel">Employee Name</label><br>
-                                    <select class="form-control form-control-sm {{ (auth()->guard($guard)->user()->role == "employee") ? '' : 'select2' }}" name="employee" id="employee"  @if(auth()->guard($guard)->user()->role == "employee") style="pointer-events: none;" @endif required>
-                                        <option disabled selected>Select</option>
-                                        @if(auth()->guard($guard)->user()->role !== "employee")
-                                            @foreach($employeeall as $emp)
-                                                <option value="{{ $emp->emp_ID }}" @if(($data != null) && $emp->emp_ID == $data['employeeId']) selected @endif>
-                                                    {{ strtoupper(ucwords($emp->lname)) }}
-                                                    {{ strtoupper(ucwords($emp->prefix)) }}
-                                                    {{ strtoupper(ucwords($emp->fname)) }}
-                                                    {{ strtoupper(ucwords($emp->mname)) }}
+                                @if($guard == "web")
+                                    <div class="col-md-4 col-sm-12">
+                                        <label class="badge badge-secondary lbel">Employee Name</label><br>
+                                        <select class="form-control form-control-sm {{ (auth()->guard($guard)->user()->role == "employee") ? '' : 'select2' }}" name="employee" id="employee"  @if(auth()->guard($guard)->user()->role == "employee") style="pointer-events: none;" @endif required>
+                                            <option disabled selected>Select</option>
+                                            @if(auth()->guard($guard)->user()->role !== "employee")
+                                                @foreach($employeeall as $emp)
+                                                    <option value="{{ $emp->emp_ID }}" @if(($data != null) && $emp->emp_ID == $data['employeeId']) selected @endif>
+                                                        {{ strtoupper(ucwords($emp->lname)) }}
+                                                        {{ strtoupper(ucwords($emp->prefix)) }}
+                                                        {{ strtoupper(ucwords($emp->fname)) }}
+                                                        {{ strtoupper(ucwords($emp->mname)) }}
+                                                    </option>
+                                                @endforeach
+                                            @else
+                                                <option value="{{ $employeeall->emp_ID }}" selected>
+                                                    {{ strtoupper(ucwords($employeeall->lname)) }}
+                                                    {{ strtoupper(ucwords($employeeall->prefix)) }}
+                                                    {{ strtoupper(ucwords($employeeall->fname)) }}
+                                                    {{ strtoupper(ucwords($employeeall->mname)) }}
                                                 </option>
-                                            @endforeach
-                                        @else
-                                            <option value="{{ $employeeall->emp_ID }}" selected>
-                                                {{ strtoupper(ucwords($employeeall->lname)) }}
-                                                {{ strtoupper(ucwords($employeeall->prefix)) }}
-                                                {{ strtoupper(ucwords($employeeall->fname)) }}
-                                                {{ strtoupper(ucwords($employeeall->mname)) }}
-                                            </option>
-                                        @endif
-                                    </select>                                    
-                                </div>
+                                            @endif
+                                        </select>                                    
+                                    </div>
+                                @endif
                                 <div class="col-md-3 col-sm-6">
                                     <label class="badge badge-secondary lbel">From</label>
-                                    <input type="date" name="date_from" class="form-control form-control-sm" id="date_from" value="{{ ($data != null) ? $data['dateFrom'] : '' }}" required>
+                                    <input type="date" name="date_from" class="form-control form-control-sm" id="inc_date1" value="{{ ($data != null) ? $data['dateFrom'] : '' }}" required>
                                 </div>
                                 <div class="col-md-3 col-sm-6">
                                     <label class="badge badge-secondary lbel">To</label>
-                                    <input type="date" name="date_to" class="form-control form-control-sm" id="date_to" value="{{ ($data != null) ? $data['dateTo'] : '' }}" required>
+                                    <input type="date" name="date_to" class="form-control form-control-sm" id="inc_date2" value="{{ ($data != null) ? $data['dateTo'] : '' }}" required>
                                 </div>
                                 <div class="col-md-2 col-sm-6 d-flex align-items-end">
                                     <button type="submit" class="btn btn-success btn-sm btn-block"><i class="fas fa-file-pdf"></i> Generate</button>

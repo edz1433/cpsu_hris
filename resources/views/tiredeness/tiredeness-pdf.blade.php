@@ -32,7 +32,13 @@
         <table>
             <thead>
                 <tr>
-                    <th></th>
+                    <th rowspan="2"></th>
+                    <th colspan="4" class="text-center">TIREDNESS</th>
+                    <th colspan="4" class="text-center">UNDERTIME</th>
+                </tr>
+                <tr>
+                    <th colspan="2" class="text-center">MORNING</th>
+                    <th colspan="2" class="text-center">NOON</th>
                     <th colspan="2" class="text-center">MORNING</th>
                     <th colspan="2" class="text-center">NOON</th>
                 </tr>
@@ -42,10 +48,18 @@
                     <th class="text-center" width="50">MINUTES</th>
                     <th class="text-center" width="50">TIME</th>
                     <th class="text-center" width="50">MINUTES</th>
+                    <th class="text-center" width="50">TIME</th>
+                    <th class="text-center" width="50">MINUTES</th>
+                    <th class="text-center" width="50">TIME</th>
+                    <th class="text-center" width="50">MINUTES</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>

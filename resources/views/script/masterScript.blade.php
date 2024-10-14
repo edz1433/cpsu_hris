@@ -275,7 +275,7 @@
         $('.' + rowClass).remove();
     }
 </script>
-@if(request()->is('pds/work-experience*') || request()->is('pds/voluntary-work*') || request()->is('pds/learning-dev*'))
+@if(request()->is('pds/work-experience*') || request()->is('pds/voluntary-work*') || request()->is('pds/learning-dev*') || request()->is('dtr/dtr-logs*'))
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const incDate1 = document.getElementById('inc_date1');

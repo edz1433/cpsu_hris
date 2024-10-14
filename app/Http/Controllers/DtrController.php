@@ -35,18 +35,18 @@ class DtrController extends Controller
     public function dtrSearch(Request $request)
     {
         $guard = $this->getGuard();
-        if(auth()->guard($guard)->user()->role == "employee"){
-            $employeeall = Employee::where('emp_ID', $request->employee)->first();
-        }else{
-            $employeeall = Employee::all();
-        }
-        $employee = Employee::where('emp_ID', $request->employee)->first();
-        // dd($employeeall);
         $request->validate([
-            'employee' => 'required',
+            'employee' => 'nullable',
             'period' => 'required',
             'date' => 'required|date_format:Y-m',
         ]);
+
+        $empid = $request->employee ?? auth()->guard($guard)->user()->emp_ID;
+
+        $employeeall = null;
+        $employeeall = Employee::all();
+
+        $employee = Employee::where('emp_ID', $empid)->first();
 
         $employ = $request->input('employee');
         $period = $request->input('period');
@@ -124,20 +124,14 @@ class DtrController extends Controller
     public function dtrLogs(Request $request)
     {
         $guard = $this->getGuard();
-    
-        // Fetch employee data based on the user role
-        if (auth()->guard($guard)->user()->role == "employee") {
-            $empid = auth()->guard($guard)->user()->emp_ID;
-            $employeeall = Employee::where('emp_ID', $empid)->first(); // Only for the logged-in employee
-        } else {
-            $employeeall = Employee::all(); // For admin, fetch all employees
-        }
-    
+        
+        $employeeall = null;
+        $employeeall = Employee::all();
+  
         $data = null;
     
-        // Handle POST request for filtering DTR logs by employee and date range
         if ($request->isMethod('post')) {
-            $employeeId = ($guard == 'web') ? $request->input('employee') : auth()->guard($guard)->user()->emp_ID;
+            $employeeId = $request->input('employee') ?? auth()->guard($guard)->user()->emp_ID;
             $dateFrom = $request->input('date_from', null);
             $dateTo = $request->input('date_to', null);
     
@@ -163,7 +157,6 @@ class DtrController extends Controller
             "dateTo" => $dateTo,
         ];
     
-        // Fetch DTR records, either by the current date or by the provided date range
         $dtrRecords = Dtr::join('employees', 'dtrs.emp_ID', '=', 'employees.emp_ID')
             ->when(is_null($dateFrom) && is_null($dateTo), function ($query) use ($currentDate, $employeeId) {
                 return $query->whereDate('dtrs.date', $currentDate)
@@ -179,10 +172,8 @@ class DtrController extends Controller
             ->orderBy('dtrs.time_out', 'asc')
             ->get();
         
-        // Group DTR records by employee ID
         $groupedRecords = $dtrRecords->groupBy('emp_ID');
     
-        // Fetch device data for log sessions
         $devices = Fdevice::all();
         $deviceLabels = $devices->pluck('label', 'id')->toArray();
         $deviceCampus = $devices->pluck('camp_id', 'id')->toArray();
@@ -193,7 +184,6 @@ class DtrController extends Controller
             $logSessions = [];
     
             foreach ($records as $record) {
-                // Process time_in logs
                 $timeInArray = explode(',', $record->time_in);
                 $deviceInCampArray = explode(',', $record->device_id_in);
     
@@ -212,7 +202,6 @@ class DtrController extends Controller
                     ];
                 }
     
-                // Process time_out logs
                 $timeOutArray = explode(',', $record->time_out);
                 $deviceOutCampArray = explode(',', $record->device_id_out);
     
@@ -232,7 +221,6 @@ class DtrController extends Controller
                 }
             }
     
-            // Sort log sessions by time
             usort($logSessions, function ($a, $b) {
                 return strtotime($a['time']) - strtotime($b['time']);
             });
@@ -240,7 +228,6 @@ class DtrController extends Controller
             $processedLogs[$employeeId] = $logSessions;
         }
     
-        // PDF generation setup
         $customPaper = [0, 0, 612, 970];
         $pdf = \PDF::loadView('dtr.logs-pdf', compact('guard', 'dtrRecords', 'processedLogs', 'data'))
             ->setPaper($customPaper, 'portrait')
@@ -251,14 +238,12 @@ class DtrController extends Controller
                 'margin-left' => 0,
             ]);
     
-        // Add page numbers in the footer
         $pdf->setCallbacks([
             'before_render' => function ($domPdf) {
                 $domPdf->getCanvas()->page_text(10, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, [0, 0, 0]);
             },
         ]);
     
-        // Stream the PDF
         return $pdf->stream();
     }    
     

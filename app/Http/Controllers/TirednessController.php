@@ -21,13 +21,21 @@ class TirednessController extends Controller
         }
     }
 
-    public function readTiredness($id = null)
+    public function readTiredness(Request $request, $id = null)
     {
         $guard = $this->getGuard();
         $employeeall = Employee::all();
         $dtr = Dtr::all();
+
+        $datas = null;
+        if ($request->isMethod('post')) {
+            $dtrRecords = Dtr::all();
+            $datas = [
+                "dtrRecords" => $dtrRecords,
+            ];
+        }
         
-        return view('tiredeness.tiredeness', compact('guard', 'employeeall'));
+        return view('tiredeness.tiredeness', compact('guard', 'employeeall', 'datas'));
     }
 
     public function pdfTirednes(Request $request)
@@ -38,11 +46,8 @@ class TirednessController extends Controller
         $employeeall = Employee::all();
         $form = 'tiredeness.tiredeness-pdf';
         
-        $pdf = PDF::loadView($form, [
-        'employeeall' => $employeeall,
-        'dtrRecords' => $dtrRecords,
-        ])->setPaper('Legal', 'portrait');
-
+        $pdf = PDF::loadView($form, compact('employeeall', 'dtrRecords'))->setPaper('Legal', 'portrait');
+    
         return $pdf->stream();
     }
 

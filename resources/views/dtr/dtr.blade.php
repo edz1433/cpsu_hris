@@ -18,6 +18,7 @@
                         @csrf
                         <div class="form-group mtop">
                             <div class="form-row">
+                                @if($guard == "web")
                                 <div class="col-md-3 col-sm-12">
                                     <label class="badge badge-secondary lbel">Employee Name</label><br>
                                     <select class="form-control form-control-sm {{ (auth()->guard($guard)->user()->role == "employee") ? '' : 'select2' }}" name="employee" id="employee"  @if(auth()->guard($guard)->user()->role == "employee") style="pointer-events: none;" @endif required>
@@ -41,6 +42,7 @@
                                         @endif
                                     </select>                                    
                                 </div>
+                                @endif
                                 <div class="col-md-3 col-sm-6">
                                     <label class="badge badge-secondary lbel">Period</label><br>
                                     <select class="form-control form-control-sm" name="period" required>

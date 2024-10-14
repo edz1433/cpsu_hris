@@ -11,7 +11,7 @@
                     </h2>
                 </div>
                 <div class="card-body">
-                    <form class="form-horizontal add-form" action="{{ route('dtrSearch') }}" method="POST">
+                    <form class="form-horizontal add-form" action="{{ route('tirednessSearch') }}" method="POST">
                         @csrf
                         <div class="form-group mtop">
                             <div class="form-row">
@@ -53,7 +53,7 @@
                         </div>                        
                     </form>
                     <iframe 
-                    src="{{ route('pdfTirednes') }}" width="100%" height="600px"></iframe>
+                    src="{{ isset($dtrRecords) ? route('pdfTirednes') : '' }}" width="100%" height="600px"></iframe>
                  </div>
             </div>
         </div>
