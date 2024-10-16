@@ -132,7 +132,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     Route::prefix('tirdeness')->group(function(){
         Route::get('/', [TirednessController::class, 'readTiredness'])->name('readTiredness');
         Route::post('/', [TirednessController::class, 'readTiredness'])->name('tirednessSearch');
-        Route::get('/pdf', [TirednessController::class, 'pdfTirednes'])->name('pdfTirednes');
+        Route::get('/pdf/{employeeId}/{month}', [TirednessController::class, 'pdfTirednes'])->name('pdfTirednes');
     });
     
     //pds

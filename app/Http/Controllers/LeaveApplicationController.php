@@ -595,7 +595,7 @@ class LeaveApplicationController extends Controller
                 ],
                 [
                     'name' => 'user_id',
-                    'contents' => $guard->id,
+                    // 'contents' => $guard->id,
                 ],
             ],
         ]);

@@ -28,23 +28,12 @@
                                                     {{ isset($emp->mname) ? substr($emp->mname, 0, 1).'.' : '' }}
                                                 </option>
                                             @endforeach
-                                        @else
-                                            <option value="{{ $employeeall->emp_ID }}" selected>
-                                                {{ $employeeall->lname }}
-                                                {{ $employeeall->prefix }}
-                                                {{ $employeeall->fname }}
-                                                {{ isset($employeeall->mname) ? substr($employeeall->mname, 0, 1).'.' : '' }}
-                                            </option>
                                         @endif
                                     </select>                                    
                                 </div>
                                 <div class="col-md-3 col-sm-6">
-                                    <label class="badge badge-secondary lbel">FROM</label>
-                                    <input type="date" name="date1" id="date1" class="form-control form-control-sm" id="date" value="{{ isset($employee) ? $date : '' }}" required>
-                                </div>
-                                <div class="col-md-3 col-sm-6">
                                     <label class="badge badge-secondary lbel">TO</label>
-                                    <input type="date" name="date2" id="date2" class="form-control form-control-sm" id="date" value="{{ isset($employee) ? $date : '' }}" required>
+                                    <input type="month" name="month" class="form-control form-control-sm" id="date" value="{{ isset($employee) ? $month : '' }}" required>
                                 </div>
                                 <div class="col-md-1 col-sm-6 d-flex align-items-end">
                                     <button class="btn btn-success btn-sm btn-block"><i class="fas fa-file-pdf"></i> Generate</button>
@@ -52,8 +41,14 @@
                             </div>
                         </div>                        
                     </form>
-                    <iframe 
-                    src="{{ isset($dtrRecords) ? route('pdfTirednes') : '' }}" width="100%" height="600px"></iframe>
+                    @php
+                        $iframeSrc = request()->isMethod('post') && isset($employeeId, $month) 
+                            ? route('pdfTirednes', ['employeeId' => $employeeId, 'month' => $month]) 
+                            : '';
+                    @endphp
+                    
+                    <iframe src="{{ $iframeSrc }}" width="100%" height="600px"></iframe>
+                
                  </div>
             </div>
         </div>
