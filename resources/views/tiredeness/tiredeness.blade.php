@@ -22,18 +22,15 @@
                                         @if(auth()->guard($guard)->user()->role !== "employee")
                                             @foreach($employeeall as $emp)
                                                 <option value="{{ $emp->emp_ID }}" @if(isset($employee) && $employee && $emp->emp_ID == $employee->emp_ID) selected @endif>
-                                                    {{ $emp->lname }}
-                                                    {{ $emp->prefix }}
-                                                    {{ $emp->fname }}
-                                                    {{ isset($emp->mname) ? substr($emp->mname, 0, 1).'.' : '' }}
+                                                    {{ $emp->lname }} {{ $emp->prefix }} {{ $emp->fname }} {{ isset($emp->mname) ? substr($emp->mname, 0, 1).'.' : '' }}
                                                 </option>
                                             @endforeach
                                         @endif
                                     </select>                                    
                                 </div>
                                 <div class="col-md-3 col-sm-6">
-                                    <label class="badge badge-secondary lbel">TO</label>
-                                    <input type="month" name="month" class="form-control form-control-sm" id="date" value="{{ isset($employee) ? $month : '' }}" required>
+                                    <label class="badge badge-secondary lbel">TO</label> 
+                                    <input type="month" name="month" class="form-control form-control-sm" id="date" value="{{ ($month !== null) ? $month : date('Y-m') }}" required>
                                 </div>
                                 <div class="col-md-1 col-sm-6 d-flex align-items-end">
                                     <button class="btn btn-success btn-sm btn-block"><i class="fas fa-file-pdf"></i> Generate</button>
@@ -42,13 +39,9 @@
                         </div>                        
                     </form>
                     @php
-                        $iframeSrc = request()->isMethod('post') && isset($employeeId, $month) 
-                            ? route('pdfTirednes', ['employeeId' => $employeeId, 'month' => $month]) 
-                            : '';
+                        $iframeSrc = request()->isMethod('post') && isset($employeeId, $month) ? route('pdfTirednes', ['employeeId' => $employeeId, 'month' => $month]) : '';
                     @endphp
-                    
                     <iframe src="{{ $iframeSrc }}" width="100%" height="600px"></iframe>
-                
                  </div>
             </div>
         </div>
