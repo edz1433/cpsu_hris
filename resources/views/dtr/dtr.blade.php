@@ -3,7 +3,7 @@
 @section('body')
 <div class="container-fluid">
     <div class="row" style="padding-top: 10px;">
-        <div class="col-2">
+        <div class="col-md-2">
             @include('dtr.submenu')
         </div>
         <div class="col-lg-10">
