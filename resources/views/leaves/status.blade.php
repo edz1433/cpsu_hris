@@ -76,8 +76,9 @@
                                         <i class="fas fa-stamp bg-info"></i>
                                         <div class="timeline-item">
                                             <span class="time time-{{ $leaves->id }}">{{ (isset($leaves->date_filing)) ? \Carbon\Carbon::parse($leaves->date_filing)->format('F j, Y h:i A') : '' }}</span>
-                                            <h3 class="timeline-header"><a href="#">Leaves Application</a></h3>
+                                            <h3 class="timeline-header"><a href="#">Leave Application</a></h3>
                                             <div class="timeline-body">
+                                                <span class="badge badge-success"><b>#{{ $leaves->transnum }}</b></span><br> 
                                                 <span><b>TYPE OF LEAVE TO AVAILED OF :</b> {{ $leaveTypes[$leaves->leave_type] }}</span><br>
                                                 <span><b>DETAILS OF LEAVE :</b> {{ $leavedetails[$leaves->leave_purpose] }} @if($leaves->leave_detail) ({{ $leaves->leave_detail }}) @endif</span><br>
                                                 <span><b>INCLUSIVE DATES :</b> {{ $leaves->date_range }}</span><br>
@@ -236,8 +237,9 @@
                                         <i class="fas fa-stamp bg-info"></i>
                                         <div class="timeline-item">
                                             <span class="time time-{{ $leaves->id }}">{{ (isset($leaves->date_filing)) ? \Carbon\Carbon::parse($leaves->date_filing)->format('F j, Y h:i A') : '' }}</span>
-                                            <h3 class="timeline-header"><a href="#">Leaves Application</a></h3>
+                                            <h3 class="timeline-header"><a href="#">Leave Application</a></h3>
                                             <div class="timeline-body">
+                                                <span class="badge badge-success"><b>#{{ $leaves->transnum }}</b></span><br>    
                                                 <span><b>TYPE OF LEAVE TO AVAILED OF :</b> {{ $leaveTypes[$leaves->leave_type] }}</span><br>
                                                 <span><b>DETAILS OF LEAVE :</b> {{ $leavedetails[$leaves->leave_purpose] }} @if($leaves->leave_detail) ({{ $leaves->leave_detail }}) @endif</span><br>
                                                 <span><b>INCLUSIVE DATES :</b> {{ $leaves->date_range }}</span><br>

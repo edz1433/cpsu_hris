@@ -158,7 +158,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/eligibility-create', [EligibilityController::class, 'eligibilityCreate'])->name('eligibilityCreate');
         Route::get('/eligibility-edit/{id?}/{eid}', [EligibilityController::class, 'eligibilityEdit'])->name('eligibilityEdit');
         Route::post('/eligibility-update/{id}', [EligibilityController::class, 'eligibilityUpdate'])->name('eligibilityUpdate');
-        Route::get('/eligibility-delete/{id}', [EligibilityController::class, 'eliDelete'])->name('eliDelete');
+        Route::post('/eligibility-delete/{id}', [EligibilityController::class, 'eliDelete'])->name('eliDelete');
         Route::post('/eligibility-approve/{id}', [EligibilityController::class, 'eliApprove'])->name('eliApprove');
 
         //Work-experience
@@ -166,21 +166,24 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/work-experience-create', [WorkExperienceController::class, 'workexperienceCreate'])->name('workexperienceCreate');
         Route::get('/work-experience-edit/{id?}/{eid}', [WorkExperienceController::class, 'workexperienceEdit'])->name('workexperienceEdit');
         Route::post('/work-experience-update/{id}', [WorkExperienceController::class, 'workexperienceUpdate'])->name('workexperienceUpdate');
-        Route::get('/work-experience-delete/{id}', [WorkExperienceController::class, 'workDelete'])->name('workDelete');
+        Route::post('/work-experience-delete/{id}', [WorkExperienceController::class, 'workDelete'])->name('workDelete');
+        Route::post('/work-experience-approve/{id}', [WorkExperienceController::class, 'expApprove'])->name('expApprove');
 
         //Voluntary-works
         Route::get('/voluntary-work/{id?}', [VoluntaryWorkController::class, 'voluntaryworks'])->name('voluntary-work');
         Route::post('/voluntary-work-create', [VoluntaryWorkController::class, 'voluntaryworksCreate'])->name('voluntaryworksCreate');
         Route::get('/voluntary-work-edit/{id?}/{eid}', [VoluntaryWorkController::class, 'voluntaryworksEdit'])->name('voluntaryworksEdit');
         Route::post('/voluntary-work-update/{id}', [VoluntaryWorkController::class, 'voluntaryworksUpdate'])->name('voluntaryworksUpdate');
-        Route::get('/voluntary-work-delete/{id}', [VoluntaryWorkController::class, 'workDelete'])->name('workDelete');
+        Route::post('/voluntary-work-delete/{id}', [VoluntaryWorkController::class, 'voluntaryworkDelete'])->name('voluntaryworkDelete');
+        Route::post('/voluntary-work-approve/{id}', [VoluntaryWorkController::class, 'voluntaryworksApprove'])->name('voluntaryworksApprove');
         
         //Learning-development
         Route::get('/learning-dev/{id?}', [LearningDevController::class, 'learningdev'])->name('learning-dev');
         Route::post('/learning-dev-create', [LearningDevController::class, 'learningdevCreate'])->name('learningdevCreate');
         Route::get('/learning-dev-edit/{id?}/{eid}', [LearningDevController::class, 'learningdevEdit'])->name('learningdevEdit');
         Route::post('/learning-dev-update/{id}', [LearningDevController::class, 'learningdevUpdate'])->name('learningdevUpdate');
-        Route::get('/learning-dev-delete/{id}', [LearningDevController::class, 'learningdevDelete'])->name('learningdevDelete');
+        Route::post('/learning-dev-delete/{id}', [LearningDevController::class, 'learningdevDelete'])->name('learningdevDelete');
+        Route::post('/learning-dev-approve/{id}', [LearningDevController::class, 'learningdevApprove'])->name('learningdevApprove');
 
         //Other Information
         Route::get('/other-info/{id?}', [OtherInfoController::class, 'otherInfo'])->name('otherInfo');
@@ -245,7 +248,12 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/leaves-update', [LeaveCreditController::class, 'leavesUpdate'])->name('leavesUpdate');
         Route::post('/delete/{id}/{empid}', [LeaveCreditController::class, 'leavesDelete'])->name('leavesDelete');  
     });
-    Route::get('/esign', [LeaveApplicationController::class, 'eSign'])->name('eSign');  
+
+    //Notification
+    Route::prefix('notification')->group(function() {
+        Route::get('/load/{page}', [LeaveApplicationController::class, 'loadMore'])->name('notificationload');
+    });   
+
     // Logout
     Route::prefix('leave')->group(function() {
         Route::get('/', [LeaveCreditController::class, 'leavesReadEmp'])->name('leavesReadEmp');

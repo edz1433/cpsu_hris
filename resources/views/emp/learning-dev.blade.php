@@ -17,6 +17,9 @@
         border: 1px solid #ddd;
         padding: 10px;
     }
+    .custom-modal {
+        max-width: 80%;
+    }
 </style>
 <section class="content">
     <div class="container-fluid">
@@ -62,7 +65,7 @@
                                                 </div>
                                             </div>
 
-                                            <div class="col-md-4">
+                                            <div class="col-md-2">
                                                 <label class="badge badge-secondary text-wrap lbel">Number of Hours</label>
                                                 <input type="number" name="num_hours" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($learningdevedit) ? $learningdevedit->num_hours : '' }}" autocomplete="off" required>
                                             </div>
@@ -72,9 +75,14 @@
                                                 <input type="text" name="types" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($learningdevedit) ? $learningdevedit->types : '' }}" autocomplete="off" required>
                                             </div>
                                             
-                                            <div class="col-md-4">
+                                            <div class="col-md-3">
                                                 <label class="badge badge-secondary text-wrap lbel">Conducted/ Sponsored By</label>
                                                 <input type="text" name="conducted" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($learningdevedit) ? $learningdevedit->conducted : '' }}" autocomplete="off" required>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <label class="badge badge-secondary text-wrap lbel">Attachment</label>
+                                                <input type="file" name="attachment" class="form-control form-control-sm" accept="application/pdf" placeholder="N/A" {{ isset($workexperienceedit) ? '' : 'required' }}>
                                             </div>
                                     
                                             <div class="col-md-12 mt-2">
@@ -109,12 +117,24 @@
                                         <th class="align-middle">TITLE OF LEARNING AND DEVELOPMENT INTERVENTIONS/TRAINING PROGRAMS</th> 
                                         <td class="align-middle">{{ $learning->learning_dev }}</td>
                                         <th class="text-center align-middle" rowspan="9" width="5%">
-                                            <a href="{{ route('learningdevEdit', ['id' => $empid, 'eid' => $learning->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
-                                                <i class="fas fa-pen"></i>
-                                            </a>
-                                            <button class="btn btn-danger btn-sm mb-2 learningdev_delete" value="{{ $learning->id }}" title="Delete">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            @if($guard == "web")
+                                                <a href="{{ route('learningdevEdit', ['id' => $empid, 'eid' => $learning->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
+                                                <button class="btn btn-danger btn-sm mb-2 learningdev_delete" value="{{ $learning->id }}" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                                <button class="btn btn-success btn-sm learningdev_approve mb-2" value="{{ $learning->id }}" title="Approve">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            @elseif($guard == "employee" && $learning->status == 0)
+                                                <a href="{{ route('learningdevEdit', ['id' => $empid, 'eid' => $learning->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
+                                                <button class="btn btn-danger btn-sm mb-2 learningdev_delete" value="{{ $learning->id }}" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            @endif
                                         </th> 
                                     </tr>
                                     <tr class="learningdev-row row-{{ $learning->id }}">
@@ -136,8 +156,28 @@
                                         <th class="align-middle">CONDUCTED/ SPONSORED BY</th>
                                         <td class="align-middle">{{ $learning->conducted }}</td>
                                     </tr>
-                                    <tr>
-                                        <th colspan="3"></th>
+                                    <tr class="workexperience-row row-{{ $learning->id }}">
+                                        <th class="align-middle">Attachment</th>
+                                        <td class="align-middle">
+                                            <a href="#" class="text-info" data-toggle="modal" data-target="#pdfModal" 
+                                               data-label="{{ $learning->careereligible }}" 
+                                               data-pdf="{{ asset('storage/' . $learning->attachment) }}" onclick="showPdfModal(this)">
+                                                <i class="fas fa-eye fa-xs"></i> <b>Preview</b>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr class="learningdev-row row-{{ $learning->id }}">
+                                        <th class="align-middle">Status</th>
+                                        <td class="align-middle">
+                                            @if ($learning->status == 0)
+                                                <span class="badge badge-warning" id="status-{{ $learning->id }}">To be Reviewed</span>
+                                            @else
+                                                <span class="badge badge-success">Reviewed</span>
+                                            @endif
+                                        </td>                                
+                                    </tr>
+                                    <tr class="learningdev-row row-{{ $learning->id }}">
+                                        <td colspan="3"></td>
                                     </tr>
                                 </tbody>
                                 @endforeach
@@ -149,4 +189,35 @@
         </div>
     </div>
 </section>
+<div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg custom-modal" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pdfModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closePdfModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <iframe id="modalPdf" src="" width="100%" height="600px" style="border: none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function showPdfModal(link) {
+        var label = link.getAttribute('data-label');
+        var pdfUrl = link.getAttribute('data-pdf');
+        
+        document.getElementById('pdfModalLabel').innerText = label;
+        document.getElementById('modalPdf').src = pdfUrl;
+        
+        var modal = new bootstrap.Modal(document.getElementById('pdfModal'));
+        modal.show();
+    }
+
+    function closePdfModal() {
+        document.getElementById('modalPdf').src = '';
+    }
+</script>
 @endsection

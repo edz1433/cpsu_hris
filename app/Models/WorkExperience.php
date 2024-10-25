@@ -17,6 +17,8 @@ class WorkExperience extends Model
         'department',
         'salary',
         'sg_grade',
+        'attachment',
+        'stat_app',
         'status',
         'service',
     ];

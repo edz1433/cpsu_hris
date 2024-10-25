@@ -17,6 +17,7 @@ use App\Models\OtherInfo;
 use App\Models\InfoQuestion;
 use App\Models\PdsReference;
 use App\Models\GovId;
+use App\Models\Notification;
 
 class VoluntaryWorkController extends Controller
 {
@@ -76,19 +77,42 @@ class VoluntaryWorkController extends Controller
             'inc_date2' => 'required',
             'num_hours' => 'nullable',
             'position' => 'required',
+            'attachment' => 'required|file|mimes:pdf',
         ]);
-
-        VoluntaryWork::create([
+    
+        $attachmentPath = null;
+    
+        if ($request->hasFile('attachment')) {
+            $attachment = $request->file('attachment');
+            $originalName = pathinfo($attachment->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $attachment->getClientOriginalExtension();
+            $randomNumber = rand(10000, 99999);
+            $newFileName = $originalName . '-' . $randomNumber . '.' . $extension;
+    
+            $attachmentPath = $attachment->storeAs('Voluntarywork', $newFileName, 'public');
+        }
+    
+        $voluntarywork = VoluntaryWork::create([
             'empid' => $request->input('empid'),
             'org_name' => $request->input('org_name'),
             'inc_date1' => $request->input('inc_date1'),
             'inc_date2' => $request->input('inc_date2'),
             'num_hours' => $request->input('num_hours'),
             'position' => $request->input('position'),
+            'attachment' => $attachmentPath,
         ]);
 
+        Notification::create([
+            'empid' => $request->input('empid'),
+            'lapp_id' => $voluntarywork->id,
+            'category' => 3,
+            'utype' => 'hr',
+            'module' => 'pds',
+        ]);
+    
         return redirect()->back()->with('success', 'Added successfully!');
-    }   
+    }
+       
 
     public function voluntaryworksEdit($id, $eid)
     {
@@ -110,21 +134,59 @@ class VoluntaryWorkController extends Controller
             'inc_date2' => 'required',
             'num_hours' => 'nullable',
             'position' => 'required',
+            'attachment' => 'nullable|file|mimes:pdf',
         ]);
-
+    
         $voluntaryworks = VoluntaryWork::findOrFail($id);
+    
+        $attachmentPath = $voluntaryworks->attachment;
+    
+        if ($request->hasFile('attachment')) {
+            $attachment = $request->file('attachment');
+            $originalName = pathinfo($attachment->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $attachment->getClientOriginalExtension();
+            $randomNumber = rand(10000, 99999);
+            $newFileName = $originalName . '-' . $randomNumber . '.' . $extension;
+    
+            $attachmentPath = $attachment->storeAs('Voluntarywork', $newFileName, 'public');
+    
+            if ($voluntaryworks->attachment && \Storage::disk('public')->exists($voluntaryworks->attachment)) {
+                \Storage::disk('public')->delete($voluntaryworks->attachment);
+            }
+        }
+    
         $voluntaryworks->update([
             'org_name' => $request->input('org_name'),
             'inc_date1' => $request->input('inc_date1'),
             'inc_date2' => $request->input('inc_date2'),
             'num_hours' => $request->input('num_hours'),
             'position' => $request->input('position'),
+            'attachment' => $attachmentPath,
         ]);
-
+    
         return redirect()->back()->with('success', 'Updated successfully!');
+    }   
+    
+    public function voluntaryworksApprove($id){
+        $voluntarywork = VoluntaryWork::find($id);
+        
+        if ($voluntarywork) {
+            $voluntarywork->status = 1;
+            $voluntarywork->save();
+
+            return response()->json([
+                'status' => 200,
+                'message' => "Approved Successfully",
+            ]);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => "Record not found",
+            ]);
+        }
     }
 
-    public function workDelete($id)
+    public function voluntaryworkDelete($id)
     {
         $voluntaryworks = VoluntaryWork::find($id);
         

@@ -1,7 +1,7 @@
 <script>
     $(document).on('click', '.voluntaryworks_delete', function(e){
     var id = $(this).val();
-    var url = "{{ route('workDelete', ['id' => ':id']) }}";
+    var url = "{{ route('voluntaryworkDelete', ['id' => ':id']) }}";
     url = url.replace(':id', id);
     
     $.ajaxSetup({
@@ -21,7 +21,7 @@
     }).then((result) => { 
         if (result.isConfirmed){
             $.ajax({
-                type: "GET",
+                type: "POST",
                 url: url,
                 success: function (response) {  
                     $(".voluntaryworks-row.row-" + id).fadeOut(2000);
@@ -38,6 +38,58 @@
         }
     })
 });  
+
+$(document).on('click', '.voluntaryworks_approve', function(e) {
+    var id = $(this).val();
+    var url = "{{ route('voluntaryworksApprove', ['id' => ':id']) }}";
+    url = url.replace(':id', id);
+    
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You want to approve this voluntary work!",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, approve!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                type: "POST",
+                url: url,
+                success: function(response) {
+                    Swal.fire({
+                        title: 'Approved!',
+                        text: 'The voluntary work has been approved.',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 1000
+                    });
+                    
+                    $("#status-" + id)
+                    .text("Reviewed") 
+                    .removeClass("badge-warning")
+                    .addClass("badge-success"); 
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred while approving.',
+                        icon: 'error',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                }
+            });
+        }
+    });
+});
 
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.querySelector('input[name="table_search"]');

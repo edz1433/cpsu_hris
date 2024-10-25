@@ -17,6 +17,7 @@ use App\Models\OtherInfo;
 use App\Models\InfoQuestion;
 use App\Models\PdsReference;
 use App\Models\GovId;
+use App\Models\Notification;
 
 class EligibilityController extends Controller
 {
@@ -87,20 +88,20 @@ class EligibilityController extends Controller
             'place_exam' => 'required',
             'number' => 'required',
             'date_valid' => 'required',
-            'attachment' => 'required', 
+            'attachment' => 'required|file|mimes:pdf',
         ]);
-
+        
         $attachmentPath = null;
         if ($request->hasFile('attachment')) {
             $attachment = $request->file('attachment');
             $originalName = pathinfo($attachment->getClientOriginalName(), PATHINFO_FILENAME);
             $extension = $attachment->getClientOriginalExtension();
             $randomNumber = rand(10000, 99999);
-            $newFileName = $randomNumber . '_' . $originalName . '.' . $extension;
+            $newFileName = $originalName . '-' . $randomNumber . '.' . $extension;
             $attachmentPath = $attachment->storeAs('Eligibility', $newFileName, 'public');
         }
-
-        Eligibility::create([
+    
+        $eligibility = Eligibility::create([
             'empid' => $request->input('empid'),
             'careereligible' => $request->input('careereligible'),
             'rating' => $request->input('rating'),
@@ -110,9 +111,17 @@ class EligibilityController extends Controller
             'date_valid' => $request->input('date_valid'),
             'attachment' => $attachmentPath,
         ]);
-
+        
+        Notification::create([
+            'empid' => $request->input('empid'),
+            'lapp_id' => $eligibility->id,
+            'category' => 1,
+            'utype' => 'hr',
+            'module' => 'pds',
+        ]);
+    
         return redirect()->back()->with('success', 'Eligibility submitted successfully.');
-    }
+    }    
 
     public function eligibilityUpdate(Request $request, $id)
     {
@@ -123,7 +132,7 @@ class EligibilityController extends Controller
             'place_exam' => 'required',
             'number' => 'required',
             'date_valid' => 'required',
-            'attachment' => 'nullable|file',
+            'attachment' => 'required|file|mimes:pdf',
         ]);
 
         $eligibility = Eligibility::findOrFail($id);

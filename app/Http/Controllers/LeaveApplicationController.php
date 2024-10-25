@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\PayrollEmployee;
 use App\Models\LeaveCredit;
 use App\Models\LeaveApplication;
+use App\Models\Notification;
 use App\Models\Setting;
 use Carbon\Carbon;
 
@@ -43,8 +44,13 @@ class LeaveApplicationController extends Controller
         if (is_null($employee->supervisor) || $employee->supervisor == 0) {
             return redirect()->back()->withErrors(['error' => 'No Supervisor Assigned']);
         }
+
+        $lastTransnum = LeaveApplication::orderBy('id', 'desc')->first();
+        $newTransnum = $lastTransnum ? intval($lastTransnum->transnum) + 1 : 1;
+        $transnum = str_pad($newTransnum, 6, '0', STR_PAD_LEFT);
     
         $leaveApplication = LeaveApplication::create([
+            'transnum' => $transnum,
             'empid' => $request->empid,
             'position' => $employee->position,
             'leave_type' => $request->leave_type,
@@ -65,12 +71,63 @@ class LeaveApplicationController extends Controller
             'hr_prefix' => $hremp->prefix,
             'department' => $payrollEmployee->emp_dept,
         ]);
-    
+
+        $leaveTypes = [
+            1 => 'Vacation Leave',
+            2 => 'Mandatory/Forced Leave',
+            3 => 'Sick Leave',
+            4 => 'Maternity Leave',
+            5 => 'Paternity Leave',
+            6 => 'Special Privilege Leave',
+            7 => 'Solo Parent Leave',
+            8 => 'Study Leave',
+            9 => '10-Day VAWC Leave',
+            10 => 'Rehabilitation Privilege',
+            11 => 'Special Leave Benefits for Women',
+            12 => 'Special Emergency (Calamity) Leave',
+            13 => 'Adoption Leave',
+            14 => 'Others'
+        ];
+
+        Notification::create([
+            'empid' => $request->empid,
+            'lapp_id' => $leaveApplication->id,
+            'category' => 1,
+            'utype' => 'hr',
+            'module' => 'leave',
+        ]);
+        
         $this->genApplication($leaveApplication->id);
         
         return redirect()->back()->with('success', 'Submitted successfully');
     }
+
+    public function leavesnotif($id){
+        Notification::where('id', $id)->update(['status' => 1]);
+
+        $this->leaveStatus($notification->lapp_id);
+    }
+
+    public function loadMore(Request $request, $page)
+    {
+        if ($request->ajax()) {
+            $notifications = Notification::join('leave_applications', 'notifications.lapp_id', '=', 'leave_applications.id')
+                ->join('employees', 'employees.emp_ID', '=', 'leave_applications.empid')
+                ->select('notifications.*', 'leave_applications.*', 'employees.id as eid', 'employees.fname', 'employees.lname', 'employees.profile', 'notifications.status as notifstat', 'notifications.created_at as notif_created_at')
+                ->orderBy('notifications.created_at', 'desc')
+                ->paginate(10, ['*'], 'page', $page);
     
+            if ($notifications->isEmpty()) {
+                return response()->json(['html' => '']);
+            }
+            
+            $view = view('partials.notification_items', compact('notifications'))->render();
+            return response()->json(['html' => $view]);
+        }
+    
+        return response()->json(['html' => '']); // Handle non-AJAX request
+    }
+       
     public function leaveStatus($id = null){
         $guard = $this->getGuard();
         $empid = ($id) ? $id : auth()->guard($guard)->user()->id;
@@ -175,12 +232,19 @@ class LeaveApplicationController extends Controller
                 $leaveApplication->less_vl = 0;
             }
         }
-        if ($leavetype == 1 || $leavetype == 2) {
+
+        if($leavetype == 1 || $leavetype == 2) {
             if ($daysdeduct > $employee->vl) {
                 return response()->json(['error' => 'Insufficient leave credits'], 400);
             }
             $leaveApplication->less_sl = 0;
             $leaveApplication->less_vl = $daysdeduct;
+        }
+
+        if($leavetype == 6) {
+            if ($daysdeduct > $employee->special_pl) {
+                return response()->json(['error' => 'Insufficient leave credits'], 400);
+            }
         }
         
         $originalPath = $leaveApplication->gen_app;
@@ -191,9 +255,11 @@ class LeaveApplicationController extends Controller
         
         $leaveApplication->emp_esign = 1;
         $leaveApplication->save();
+        
+        Notification::where('lapp_id', $leaveApplication->id)->where('category', 1)->update(['status' => 1]);
 
         $this->genApplication($leaveApplication->id);
-    
+        
         return response()->json([
             'success' => true,
             'message' => 'Leave approved successfully.',
@@ -253,12 +319,48 @@ class LeaveApplicationController extends Controller
             3 => 'sl'
         ];
 
+        $leaveTypes = [
+            1 => 'Vacation Leave',
+            2 => 'Mandatory/Forced Leave',
+            3 => 'Sick Leave',
+            4 => 'Maternity Leave',
+            5 => 'Paternity Leave',
+            6 => 'Special Privilege Leave',
+            7 => 'Solo Parent Leave',
+            8 => 'Study Leave',
+            9 => '10-Day VAWC Leave',
+            10 => 'Rehabilitation Privilege',
+            11 => 'Special Leave Benefits for Women',
+            12 => 'Special Emergency (Calamity) Leave',
+            13 => 'Adoption Leave',
+            14 => 'Others'
+        ];
+        
         if($request->by == 0){
             $leaveApplication->emp_esign = $emp_esign;
+            $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
+            $employeeName = ucwords(strtolower($employee->fname . ' ' . $employee->lname));
+
+            Notification::create([
+                'empid' => $leaveApplication->empid,
+                'lapp_id' => $leaveApplication->id,
+                'category' => 2,
+                'utype' => 'hr',
+                'module' => 'leave',
+            ]);
         }
         
         if($request->by == 1){
             $leaveApplication->sup_sdate = Carbon::now();
+            Notification::where('lapp_id', $leaveApplication->id)->where('category', 2)->update(['status' => 1]);
+            
+            Notification::create([
+                'empid' => $leaveApplication->empid,
+                'lapp_id' => $leaveApplication->id,
+                'category' => 2,
+                'utype' => 'hr',
+                'module' => 'leave',
+            ]);
         }
 
         if($request->by == 2){
@@ -279,6 +381,8 @@ class LeaveApplicationController extends Controller
             }if($leaveApplication->leave_type == 3){
                 $employee->vl -= $leaveApplication->less_vl;
                 $employee->sl -= $leaveApplication->less_sl;
+            }if($leaveApplication->leave_type == 6){
+                $employee->special_pl -= ($leaveApplication->days - $leaveApplication->day_wpay);
             }
         
             $employee->save();
@@ -330,8 +434,14 @@ class LeaveApplicationController extends Controller
 
             if ($request->by == 4) {
                 $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
-                $employee->vl += $leaveApplication->less_vl ?? 0;
-                $employee->sl += $leaveApplication->less_sl ?? 0;
+                if (in_array($leaveApplication->leave_type, [1, 2, 3])){
+                    $employee->vl += $leaveApplication->less_vl ?? 0;
+                    $employee->sl += $leaveApplication->less_sl ?? 0;
+                }
+                if($leaveApplication->leave_type == 6){
+                    $employee->special_pl += ($leaveApplication->days - $leaveApplication->day_wpay);
+                }
+
                 $employee->save();
                 
                 $leaveApplication->remarks_stat = 4;

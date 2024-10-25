@@ -148,7 +148,7 @@
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input leave-type" type="radio" value="6" name="leave_type" disabled required>
+                                    <input class="form-check-input leave-type" type="radio" value="6" name="leave_type" required>
                                     <label class="form-check-label" for="radio3">
                                         <b>Special Privilege Leave</b> <span class="ft">(Sec. 21, Rule XVI, Omnibus Rules Implementing E.O No. 292)</span>
                                     </label>

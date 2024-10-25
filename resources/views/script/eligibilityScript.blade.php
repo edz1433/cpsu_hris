@@ -21,7 +21,7 @@
         }).then((result) => {
             if (result.isConfirmed){
                 $.ajax({
-                    type: "GET",
+                    type: "POST",
                     url: url,
                     success: function (response) {  
                         $(".eligibility-row.row-" + id).fadeOut(2000);
@@ -73,7 +73,7 @@
                         });
                         
                         $("#status-" + id)
-                        .text("Approved") 
+                        .text("Reviewed") 
                         .removeClass("badge-warning")
                         .addClass("badge-success"); 
                     },

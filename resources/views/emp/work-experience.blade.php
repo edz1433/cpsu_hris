@@ -17,6 +17,9 @@
         border: 1px solid #ddd;
         padding: 10px;
     }
+    .custom-modal {
+        max-width: 80%;
+    }
 </style>
 <section class="content">
 <div class="container-fluid">
@@ -73,25 +76,29 @@
                                             <input type="text" name="sg_grade" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($workexperienceedit) ? $workexperienceedit->sg_grade : '' }}" autocomplete="off">
                                         </div>
 
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="badge badge-secondary text-wrap lbel">Monthly Salary</label>
-                                            <input type="text" name="salary" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($workexperienceedit) ? number_format($workexperienceedit->salary) : '' }}" autocomplete="off"  oninput="formatNumber(this)" onkeypress="return isNumberKey(event)" required>
+                                            <input type="text" name="salary" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($workexperienceedit) ? $workexperienceedit->salary : '' }}" autocomplete="off"  oninput="formatNumber(this)" onkeypress="return isNumberKey(event)" required>
                                         </div>
 
-
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="badge badge-secondary text-wrap lbel">Status of Appointment</label>
-                                            <input type="text" name="status" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($workexperienceedit) ? $workexperienceedit->status : '' }}" autocomplete="off">
+                                            <input type="text" name="stat_app" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($workexperienceedit) ? $workexperienceedit->status : '' }}" autocomplete="off">
                                         </div>
 
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="badge badge-secondary text-wrap lbel">Government Service (Y/N)</label>
                                             <select name="service" class="form-control form-control-sm" autocomplete="off" required>
                                                 <option value="" {{ old('service', isset($workexperienceedit) && $workexperienceedit->service === '' ? 'selected' : '') }}>N/A</option>
                                                 <option value="N" {{ old('service', isset($workexperienceedit) && $workexperienceedit->service === 'N' ? 'selected' : '') }}>No</option>
                                                 <option value="Y" {{ old('service', isset($workexperienceedit) && $workexperienceedit->service === 'Y' ? 'selected' : '') }}>Yes</option>
                                             </select>
-                                        </div>                                        
+                                        </div>      
+                                        
+                                        <div class="col-md-3">
+                                            <label class="badge badge-secondary text-wrap lbel">Attachment</label>
+                                            <input type="file" name="attachment" class="form-control form-control-sm" accept="application/pdf" placeholder="N/A" {{ isset($workexperienceedit) ? '' : 'required' }}>
+                                        </div>
                                         
                                         <div class="col-md-12 mt-2">
                                             <button type="submit" name="btn-submit" class="btn btn-success btn-sm mt-1 float-right">
@@ -128,12 +135,24 @@
                                         {{ \Carbon\Carbon::parse($work->inc_date2)->format('m/d/Y') }}
                                     </td>
                                     <th class="text-center align-middle" rowspan="9" width="5%">
+                                        @if($guard == "web")
                                         <a href="{{ route('workexperienceEdit', ['id' => $empid, 'eid' => $work->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
                                             <i class="fas fa-pen"></i>
                                         </a>
                                         <button class="btn btn-danger btn-sm mb-2 workexperience_delete" value="{{ $work->id }}" title="Delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
+                                        <button class="btn btn-success btn-sm workexperience_approve" value="{{ $work->id }}" title="Approve">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        @elseif($guard == "employee" && $work->status == 0)
+                                            <a href="{{ route('workexperienceEdit', ['id' => $empid, 'eid' => $work->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
+                                                <i class="fas fa-pen"></i>
+                                            </a>
+                                            <button class="btn btn-danger btn-sm mb-2 workexperience_delete" value="{{ $work->id }}" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        @endif
                                     </th>                                                                                                                            
                                 </tr>
                                 <tr class="workexperience-row row-{{ $work->id }}">
@@ -150,15 +169,35 @@
                                 </tr>
                                 <tr class="workexperience-row row-{{ $work->id }}">
                                     <th class="align-middle">Monthly Salary</th>
-                                    <td class="align-middle">{{ number_format($work->salary) }}</td>
+                                    <td class="align-middle">{{ $work->salary }}</td>
                                 </tr>
                                 <tr class="workexperience-row row-{{ $work->id }}">
                                     <th class="align-middle">Status of Appointment</th>
-                                    <td class="align-middle">{{ $work->status }}</td>
+                                    <td class="align-middle">{{ $work->stat_app }}</td>
                                 </tr>
                                 <tr class="workexperience-row row-{{ $work->id }}">
                                     <th class="align-middle">Government Service (Y/N)</th>
                                     <td class="align-middle">{{ ($work->service == "Y") ? 'Yest' : 'No' }}</td>
+                                </tr>
+                                <tr class="workexperience-row row-{{ $work->id }}">
+                                    <th class="align-middle">Attachment</th>
+                                    <td class="align-middle">
+                                        <a href="#" class="text-info" data-toggle="modal" data-target="#pdfModal" 
+                                           data-label="{{ $work->careereligible }}" 
+                                           data-pdf="{{ asset('storage/' . $work->attachment) }}" onclick="showPdfModal(this)">
+                                            <i class="fas fa-eye fa-xs"></i> <b>Preview</b>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr class="workexperience-row row-{{ $work->id }}">
+                                    <th class="align-middle">Status</th>
+                                    <td class="align-middle">
+                                        @if ($work->status == 0)
+                                            <span class="badge badge-warning" id="status-{{ $work->id }}">To be Reviewed</span>
+                                        @else
+                                            <span class="badge badge-success">Reviewed</span>
+                                        @endif
+                                    </td>                                
                                 </tr>
                                 <tr class="workexperience-row row-{{ $work->id }}">
                                     <td colspan="3"></td>
@@ -173,4 +212,35 @@
     </div>
 </div>
 </section>
+<div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg custom-modal" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pdfModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closePdfModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <iframe id="modalPdf" src="" width="100%" height="600px" style="border: none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function showPdfModal(link) {
+        var label = link.getAttribute('data-label');
+        var pdfUrl = link.getAttribute('data-pdf');
+        
+        document.getElementById('pdfModalLabel').innerText = label;
+        document.getElementById('modalPdf').src = pdfUrl;
+        
+        var modal = new bootstrap.Modal(document.getElementById('pdfModal'));
+        modal.show();
+    }
+
+    function closePdfModal() {
+        document.getElementById('modalPdf').src = '';
+    }
+</script>
 @endsection

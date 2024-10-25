@@ -17,6 +17,9 @@
         border: 1px solid #ddd;
         padding: 10px;
     }
+    .custom-modal {
+        max-width: 80%;
+    }
 </style>
 <section class="content">
 <div class="container-fluid">
@@ -81,7 +84,7 @@
 
                                         <div class="col-md-2">
                                             <label class="badge badge-secondary text-wrap lbel">Attachment</label>
-                                            <input type="file" name="attachment" class="form-control form-control-sm" placeholder="N/A" {{ isset($eligibilityedit) ? '' : 'required' }}>
+                                            <input type="file" name="attachment" class="form-control form-control-sm" accept="application/pdf" placeholder="N/A" {{ isset($eligibilityedit) ? '' : 'required' }}>
                                         </div>
                                         
                                         <div class="col-md-12 mt-2">
@@ -159,7 +162,9 @@
                                 <tr class="eligibility-row row-{{ $eli->id }}">
                                     <th class="align-middle">Attachment</th>
                                     <td class="align-middle">
-                                        <a href="#" class="text-info" data-toggle="modal" data-target="#imageModal" data-label="{{ $eli->careereligible }}" data-image="{{ asset('storage/' . $eli->attachment) }}">
+                                        <a href="#" class="text-info" data-toggle="modal" data-target="#pdfModal" 
+                                           data-label="{{ $eli->careereligible }}" 
+                                           data-pdf="{{ asset('storage/' . $eli->attachment) }}" onclick="showPdfModal(this)">
                                             <i class="fas fa-eye fa-xs"></i> <b>Preview</b>
                                         </a>
                                     </td>
@@ -170,7 +175,7 @@
                                         @if ($eli->status == 0)
                                             <span class="badge badge-warning" id="status-{{ $eli->id }}">To be Reviewed</span>
                                         @else
-                                            <span class="badge badge-success">Approved</span>
+                                            <span class="badge badge-success">Reviewed</span>
                                         @endif
                                     </td>                                
                                 </tr>
@@ -187,35 +192,35 @@
     </div>
 </div>
 </section>
-<!-- Image Preview Modal -->
-<div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+<div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg custom-modal" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="imageModalLabel"></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <h5 class="modal-title" id="pdfModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closePdfModal()">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body text-center">
-                <img id="modalImage" src="#" alt="Image Preview" class="img-fluid">
+                <iframe id="modalPdf" src="" width="100%" height="600px" style="border: none;"></iframe>
             </div>
         </div>
     </div>
 </div>
 <script>
-    document.querySelectorAll('[data-toggle="modal"]').forEach(link => {
-        link.addEventListener('click', function(event) {
-            event.preventDefault();
-            const imagePath = this.getAttribute('data-image');
-            const modalImage = document.getElementById('modalImage');
+    function showPdfModal(link) {
+        var label = link.getAttribute('data-label');
+        var pdfUrl = link.getAttribute('data-pdf');
+        
+        document.getElementById('pdfModalLabel').innerText = label;
+        document.getElementById('modalPdf').src = pdfUrl;
+        
+        var modal = new bootstrap.Modal(document.getElementById('pdfModal'));
+        modal.show();
+    }
 
-            const labelText = this.getAttribute('data-label');
-            const modalLabel = document.getElementById('imageModalLabel');
-
-            modalLabel.innerText = labelText;
-            modalImage.src = imagePath;
-        });
-    });
+    function closePdfModal() {
+        document.getElementById('modalPdf').src = '';
+    }
 </script>
 @endsection

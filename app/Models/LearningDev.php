@@ -18,6 +18,8 @@ class LearningDev extends Model
         'num_hours',
         'types',
         'conducted',
+        'attachment',
+        'status',
     ];
 
 }

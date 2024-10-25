@@ -574,7 +574,7 @@
             <tbody>
                 @foreach($datas['eligibility'] as $eligble)
                     <tr>
-                        <th class="bordered tl">{{ strtoupper($eligble->career_eligible) }}</th>
+                        <th class="bordered tl">{{ strtoupper($eligble->careereligible  ) }}</th>
                         <th class="bordered">{{ $eligble->rating }}</th>
                         <th class="bordered">{{ $eligble->date_exam }}</th>
                         <th class="bordered">{{ strtoupper($eligble->place_exam) }}</th>
@@ -627,7 +627,7 @@
                         <th class="bordered">{{ $experience->inc_date2 }}</th>
                         <th class="bordered">{{ strtoupper($experience->position) }}</th>
                         <th class="bordered">{{ strtoupper($experience->department) }}</th>
-                        <th class="bordered">{{ number_format($experience->salary) }}</th>
+                        <th class="bordered">{{ $experience->salary }}</th>
                         <th class="bordered">{{ strtoupper($experience->sg_grade) }}</th>
                         <th class="bordered">{{ strtoupper($experience->status) }}</th>
                         <th class="bordered">{{ strtoupper($experience->service) }}</th>
@@ -687,7 +687,7 @@
                         <th class="bordered tl">{{ strtoupper($voluntary->org_name) }}</th>
                         <th class="bordered">{{ $voluntary->inc_date1 }}</th>
                         <th class="bordered">{{ $voluntary->inc_date2 }}</th>
-                        <th class="bordered">{{ $voluntary->num_hours.' HOURS' }}</th>
+                        <th class="bordered">{{ $voluntary->num_hours.' Hrs.' }}</th>
                         <th class="bordered" colspan="2">{{ strtoupper($voluntary->position) }}</th>
                     </tr>
                 @endforeach
@@ -723,10 +723,10 @@
                 </tr>
                 @foreach($datas['learningdev'] as $learning)
                     <tr>
-                        <th class="bordered">{{ strtoupper($learning->learning_dev) }}</th>
+                        <th class="bordered tl">{{ strtoupper($learning->learning_dev) }}</th>
                         <th class="bordered">{{ $learning->inc_date1 }}</th>
                         <th class="bordered">{{ $learning->inc_date2 }}</th>
-                        <th class="bordered">{{ $learning->num_hours.' HOURS' }}</th>
+                        <th class="bordered">{{ $learning->num_hours.' Hrs.' }}</th>
                         <th class="bordered">{{ strtoupper($learning->types) }}</th>
                         <th class="bordered">{{ strtoupper($learning->conducted) }}</th>
                     </tr>
@@ -763,7 +763,7 @@
                 </tr>    
 
                 <tr>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[0]) ? trim($otherinfo_skills_hob[0]) : ''; }}<</th>
+                    <th class="bordered tl" colspan="2">{{ isset($otherinfo_skills_hob[0]) ? trim($otherinfo_skills_hob[0]) : ''; }}<</th>
                     <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[0]) ? trim($otherinfo_recognition[0]) : ''; }}<</th>
                     <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[0]) ? trim($otherinfo_mem_org[0]) : ''; }}<</th>
                 </tr>    

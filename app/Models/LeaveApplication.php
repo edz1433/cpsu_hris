@@ -9,6 +9,7 @@ class LeaveApplication extends Model
 {
     protected $fillable = [
         'id',
+        'transnum',
         'empid',
         'position',
         'salary',

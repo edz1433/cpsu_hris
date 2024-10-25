@@ -12,6 +12,11 @@
     .modal-backdrop {
         background-color: transparent;
     }
+
+    .vcenter{
+        text-align: center;
+        vertical-align: middle;
+    }
 </style>
 <section class="content">
 <div class="container-fluid">
@@ -28,12 +33,12 @@
                             <thead>
                                 <tr>
                                     <th>LEAVE TYPE</th>
-                                    <th>INCLUSIVE DATES</th>
-                                    <th class="text-center">DAYS APPLIED</th>
-                                    <th class="text-center">DAYS W/OUT PAY</th>
-                                    <th>DATE OF FILING</th>
-                                    <th>STATUS</th>
-                                    <th>ACTION</th>
+                                    <th class="vcenter">INCLUSIVE DATES</th>
+                                    <th class="vcenter" width="50">DAYS APPLIED</th>
+                                    <th class="vcenter" width="60">DAYS W/OUT PAY</th>
+                                    <th class="vcenter">DATE OF FILING</th>
+                                    <th class="vcenter">STATUS</th>
+                                    <th class="vcenter">ACTION</th>
                                 </tr>
                             </thead>
                             <tbody>

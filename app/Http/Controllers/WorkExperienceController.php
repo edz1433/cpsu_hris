@@ -17,6 +17,7 @@ use App\Models\OtherInfo;
 use App\Models\InfoQuestion;
 use App\Models\PdsReference;
 use App\Models\GovId;
+use App\Models\Notification;
 
 class WorkExperienceController extends Controller
 {
@@ -77,29 +78,46 @@ class WorkExperienceController extends Controller
             'department' => 'required',
             'sg_grade' => 'nullable',
             'salary' => 'nullable',
-            'status' => 'nullable',
+            'stat_app' => 'nullable',
             'service' => 'required',
+            'attachment' => 'required|file|mimes:pdf',
         ]);
-
-        $salary = $request->input('salary');
-        if (!is_null($salary)) {
-            $salary = str_replace(',', '', $salary);
+        
+        $attachmentPath = null;
+    
+        if ($request->hasFile('attachment')) {
+            $attachment = $request->file('attachment');
+            $originalName = pathinfo($attachment->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $attachment->getClientOriginalExtension();
+            $randomNumber = rand(10000, 99999);
+            $newFileName = $originalName . '-' . $randomNumber . '.' . $extension;
+    
+            $attachmentPath = $attachment->storeAs('Workexperience', $newFileName, 'public');
         }
-
-        WorkExperience::create([
+    
+        $workexperience = WorkExperience::create([
             'empid' => $request->input('empid'),
             'inc_date1' => $request->input('inc_date1'),
             'inc_date2' => $request->input('inc_date2'),
             'position' => $request->input('position'),
             'department' => $request->input('department'),
             'sg_grade' => $request->input('sg_grade'),
-            'salary' => $salary,
-            'status' => $request->input('status'),
+            'salary' => $request->input('salary'),
+            'stat_app' => $request->input('stat_app'),
             'service' => $request->input('service'),
+            'attachment' => $attachmentPath,
         ]);
 
+        Notification::create([
+            'empid' => $request->input('empid'),
+            'lapp_id' => $workexperience->id,
+            'category' => 2,
+            'utype' => 'hr',
+            'module' => 'pds',
+        ]);
+    
         return redirect()->back()->with('success', 'Added successfully!');
-    }   
+    }    
 
     public function workexperienceEdit($id, $eid)
     {
@@ -123,14 +141,30 @@ class WorkExperienceController extends Controller
             'salary' => 'nullable',
             'status' => 'nullable',
             'service' => 'required',
+            'attachment' => 'nullable|file|mimes:pdf',
         ]);
-
+    
         $salary = $request->input('salary');
         if (!is_null($salary)) {
             $salary = str_replace(',', '', $salary);
         }
-
+    
         $workexperience = WorkExperience::findOrFail($id);
+
+        $attachmentPath = $workexperience->attachment;
+        if ($request->hasFile('attachment')) {
+            $attachment = $request->file('attachment');
+            $originalName = pathinfo($attachment->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $attachment->getClientOriginalExtension();
+            $randomNumber = rand(10000, 99999);
+            $newFileName = $randomNumber . '_' . $originalName . '.' . $extension;
+            $attachmentPath = $attachment->storeAs('WorkExperience', $newFileName, 'public');
+    
+            if ($workexperience->attachment && \Storage::disk('public')->exists($workexperience->attachment)) {
+                \Storage::disk('public')->delete($workexperience->attachment);
+            }
+        }
+    
         $workexperience->update([
             'inc_date1' => $request->input('inc_date1'),
             'inc_date2' => $request->input('inc_date2'),
@@ -140,9 +174,29 @@ class WorkExperienceController extends Controller
             'salary' => $salary,
             'status' => $request->input('status'),
             'service' => $request->input('service'),
+            'attachment' => $attachmentPath,
         ]);
-
+    
         return redirect()->back()->with('success', 'Updated successfully!');
+    }    
+
+    public function expApprove($id){
+        $workexperience = WorkExperience::find($id);
+        
+        if ($workexperience) {
+            $workexperience->status = 1;
+            $workexperience->save();
+
+            return response()->json([
+                'status' => 200,
+                'message' => "Approved Successfully",
+            ]);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => "Record not found",
+            ]);
+        }
     }
 
     public function workDelete($id)

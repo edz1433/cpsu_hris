@@ -17,6 +17,9 @@
         border: 1px solid #ddd;
         padding: 10px;
     }
+    .custom-modal {
+        max-width: 80%;
+    }
 </style>
 <section class="content">
     <div class="container-fluid">
@@ -62,14 +65,19 @@
                                                 </div>
                                             </div>
 
-                                            <div class="col-md-6">
+                                            <div class="col-md-4">
                                                 <label class="badge badge-secondary text-wrap lbel">Number of Hours</label>
                                                 <input type="number" name="num_hours" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($voluntaryworksedit) ? $voluntaryworksedit->num_hours : '' }}" autocomplete="off" required>
                                             </div>
                                             
-                                            <div class="col-md-6">
+                                            <div class="col-md-4">
                                                 <label class="badge badge-secondary text-wrap lbel">Position / Nature of Work</label>
                                                 <input type="text" name="position" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($voluntaryworksedit) ? $voluntaryworksedit->position : '' }}" autocomplete="off" required>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label class="badge badge-secondary text-wrap lbel">Attachment</label>
+                                                <input type="file" name="attachment" class="form-control form-control-sm" accept="application/pdf" placeholder="N/A" {{ isset($workexperienceedit) ? '' : 'required' }}>
                                             </div>
                                     
                                             <div class="col-md-12 mt-2">
@@ -104,12 +112,24 @@
                                         <th class="align-middle">NAME & ADDRESS OF ORGANIZATION</th> 
                                         <td class="align-middle">{{ $vwork->org_name }}</td>
                                         <th class="text-center align-middle" rowspan="9" width="5%">
-                                            <a href="{{ route('voluntaryworksEdit', ['id' => $empid, 'eid' => $vwork->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
-                                                <i class="fas fa-pen"></i>
-                                            </a>
-                                            <button class="btn btn-danger btn-sm mb-2 voluntaryworks_delete" value="{{ $vwork->id }}" title="Delete">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            @if($guard == "web")
+                                                <a href="{{ route('voluntaryworksEdit', ['id' => $empid, 'eid' => $vwork->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
+                                                <button class="btn btn-danger btn-sm mb-2 voluntaryworks_delete" value="{{ $vwork->id }}" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                                <button class="btn btn-success btn-sm voluntaryworks_approve mb-2" value="{{ $vwork->id }}" title="Approve">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            @elseif($guard == "employee" && $vwork->status == 0)
+                                                <a href="{{ route('voluntaryworksEdit', ['id' => $empid, 'eid' => $vwork->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
+                                                <button class="btn btn-danger btn-sm mb-2 voluntaryworks_delete" value="{{ $vwork->id }}" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            @endif
                                         </th> 
                                     </tr>
                                     <tr class="voluntaryworks-row row-{{ $vwork->id }}">
@@ -127,6 +147,29 @@
                                         <th class="align-middle">POSITION / NATURE OF WORK</th>
                                         <td class="align-middle">{{ $vwork->position }}</td>
                                     </tr>
+                                    <tr class="workexperience-row row-{{ $vwork->id }}">
+                                        <th class="align-middle">Attachment</th>
+                                        <td class="align-middle">
+                                            <a href="#" class="text-info" data-toggle="modal" data-target="#pdfModal" 
+                                               data-label="{{ $vwork->careereligible }}" 
+                                               data-pdf="{{ asset('storage/' . $vwork->attachment) }}" onclick="showPdfModal(this)">
+                                                <i class="fas fa-eye fa-xs"></i> <b>Preview</b>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr class="workexperience-row row-{{ $vwork->id }}">
+                                        <th class="align-middle">Status</th>
+                                        <td class="align-middle">
+                                            @if ($vwork->status == 0)
+                                                <span class="badge badge-warning" id="status-{{ $vwork->id }}">To be Reviewed</span>
+                                            @else
+                                                <span class="badge badge-success">Reviewed</span>
+                                            @endif
+                                        </td>                                
+                                    </tr>
+                                    <tr class="workexperience-row row-{{ $vwork->id }}">
+                                        <td colspan="3"></td>
+                                    </tr>
                                 </tbody>
                                 @endforeach
                             </table>
@@ -137,4 +180,35 @@
         </div>
     </div>
 </section>
+<div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg custom-modal" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pdfModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closePdfModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <iframe id="modalPdf" src="" width="100%" height="600px" style="border: none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function showPdfModal(link) {
+        var label = link.getAttribute('data-label');
+        var pdfUrl = link.getAttribute('data-pdf');
+        
+        document.getElementById('pdfModalLabel').innerText = label;
+        document.getElementById('modalPdf').src = pdfUrl;
+        
+        var modal = new bootstrap.Modal(document.getElementById('pdfModal'));
+        modal.show();
+    }
+
+    function closePdfModal() {
+        document.getElementById('modalPdf').src = '';
+    }
+</script>
 @endsection

@@ -320,3 +320,48 @@
     });
 </script>
 @endif
+<script>
+$(document).ready(function() {
+    var page = 1;
+    var loading = false;
+    var maxPages = {{ $notifications->lastPage() }};
+
+    function loadMoreNotifications(page) {
+        $.ajax({
+            url: '{{ route('notificationload', ':page') }}'.replace(':page', page),
+            type: "get",
+            beforeSend: function() {
+                loading = true;
+            }
+        })
+        .done(function(data) {
+            if (data.html === "") {
+                loading = false;
+                return;
+            }
+
+            $('#notifications-container').append(data.html);  
+            loading = false;
+
+            if (page >= maxPages) {
+                $('.dropdown-menu').off('scroll');
+            }
+        })
+        .fail(function(jqXHR, ajaxOptions, thrownError) {
+            console.log('Server error occurred');
+            loading = false;
+        });
+    }
+
+    $('.dropdown-menu').scroll(function() {
+        var dropdownMenu = $(this);
+
+        if (dropdownMenu.scrollTop() + dropdownMenu.innerHeight() >= dropdownMenu[0].scrollHeight && !loading) {
+            if (page < maxPages) {
+                page++;
+                loadMoreNotifications(page); 
+            }
+        }
+    });
+});
+</script>

@@ -103,7 +103,7 @@
                 <td></td>
                 <td class="fh b font1">{{ strtoupper($leaveApplication->lname) }} {{ strtoupper($leaveApplication->suffix) }}</td>
                 <td class="fh b font1">{{ strtoupper($leaveApplication->fname) }}</td>
-                <td class="fh b font1">{{ strtoupper($leaveApplication->mname) }}</td>
+                <td class="fh b font1">{{ isset($leaveApplication->mname) ? substr($leaveApplication->mname, 0, 1).'.' : ''}}</td>
             </tr>
             <tr>
                 <td colspan="1" class="fh b-top">2. DATE OF FILING 
@@ -259,7 +259,7 @@
                         <span style="font-size: 8px !important; color: white;">.</span>
                     </div>
                     <div style="margin-top: 2.45%">
-                        <center><span class="font1" style="width: 90%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->hr_fname) }} {{ strtoupper($leaveApplication->hr_mname) }} {{ strtoupper($leaveApplication->hr_lname) }} {{ strtoupper($leaveApplication->hr_suffix) }}{{ ($leaveApplication->hr_prefix) ? strtoupper(', '.$leaveApplication->hr_prefix) : '' }}</b></span></center>
+                        <center><span class="font1" style="width: 90%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->hr_fname) }} {{ isset($leaveApplication->hr_mname) ? substr($leaveApplication->hr_mname, 0, 1).'.' : ''}} {{ strtoupper($leaveApplication->hr_lname) }} {{ strtoupper($leaveApplication->hr_suffix) }}{{ ($leaveApplication->hr_prefix) ? strtoupper(', '.$leaveApplication->hr_prefix) : '' }}</b></span></center>
                         <center>Human Resource Management Officer</center>
                     </div>
                 </td>
@@ -283,7 +283,7 @@
                         <div style="margin-top: 2px; margin-left: 33px;"><span style="width: 95.7%; display: inline-block;  border-bottom: 1px solid black;"><span style="color: white;">.</span> {{ ($nextSixWords && $leaveApplication->remarks_stat !== 0) ? $nextSixWords : '' }}</span></div>
                         <div style="margin-top: 2px; margin-left: 33px;"><span style="width: 95.7%; display: inline-block;  border-bottom: 1px solid black;"><span style="color: white;">.</span> {{ ($thirdSixWords && $leaveApplication->remarks_stat !== 0) ? $thirdSixWords : '' }}</span></div>
                         <div style="margin-top: 7px; margin-left: 33px;"><span style="width: 95.7%; display: inline-block;  border-bottom: 1px solid black;"><span style="color: white;">.</span> {{ ($remainingWords && $leaveApplication->remarks_stat !== 0) ? $remainingWords : '' }}</span></div>
-                        <div style="margin-top: 12px; margin-left: 33px;"><span class="font1" style="width: 95.7%; display: inline-block;  border-bottom: 1px solid black;"><center><span style="color: white;">.</span><b><span style="padding-right: 26px;">{{ strtoupper($leaveApplication->supervisor_fname) }} {{ strtoupper($leaveApplication->supervisor_mname) }} {{ strtoupper($leaveApplication->supervisor_lname) }} {{ strtoupper($leaveApplication->supervisor_suffix) }}{{ ($leaveApplication->supervisor_prefix) ? strtoupper(', '.$leaveApplication->supervisor_prefix) : '' }}</span></b></span></center></div>
+                        <div style="margin-top: 12px; margin-left: 33px;"><span class="font1" style="width: 95.7%; display: inline-block;  border-bottom: 1px solid black;"><center><span style="color: white;">.</span><b><span style="padding-right: 26px;">{{ strtoupper($leaveApplication->supervisor_fname) }} {{ isset($leaveApplication->supervisor_mname) ? substr($leaveApplication->supervisor_mname, 0, 1).'.' : '' }} {{ strtoupper($leaveApplication->supervisor_lname) }} {{ strtoupper($leaveApplication->supervisor_suffix) }}{{ ($leaveApplication->supervisor_prefix) ? strtoupper(', '.$leaveApplication->supervisor_prefix) : '' }}</span></b></span></center></div>
                         <center>Immediate Supervisor</center>
                         <center>(Signature over Printed Name)</center>
                     </div>
@@ -331,7 +331,7 @@
             </tr>
             <tr>
                 <td colspan="6">
-                    <center><span class="font1" style="width: 28%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->president_fname) }} {{ strtoupper($leaveApplication->president_mname) }} {{ strtoupper($leaveApplication->president_lname) }} {{ strtoupper($leaveApplication->president_suffix) }}{{ isset($leaveApplication->pres_prefix) ? strtoupper(', '.$leaveApplication->pres_prefix) : '' }}</b></span></center>
+                    <center><span class="font1" style="width: 28%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->president_fname) }} {{ isset($leaveApplication->president_mname) ? substr($leaveApplication->president_mname, 0, 1) : '' }} {{ strtoupper($leaveApplication->president_lname) }} {{ strtoupper($leaveApplication->president_suffix) }}{{ isset($leaveApplication->pres_prefix) ? strtoupper(', '.$leaveApplication->pres_prefix) : '' }}</b></span></center>
                     <center>SUC President II</center>
                 </td>
             </tr>

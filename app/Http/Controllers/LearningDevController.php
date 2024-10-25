@@ -17,6 +17,7 @@ use App\Models\OtherInfo;
 use App\Models\InfoQuestion;
 use App\Models\PdsReference;
 use App\Models\GovId;
+use App\Models\Notification;
 
 class LearningDevController extends Controller
 {
@@ -77,9 +78,22 @@ class LearningDevController extends Controller
             'num_hours' => 'required',
             'types' => 'required',
             'conducted' => 'required',
+            'attachment' => 'required|file|mimes:pdf', 
         ]);
-
-        LearningDev::create([
+    
+        $attachmentPath = null;
+    
+        if ($request->hasFile('attachment')) {
+            $attachment = $request->file('attachment');
+            $originalName = pathinfo($attachment->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $attachment->getClientOriginalExtension();
+            $randomNumber = rand(10000, 99999);
+            $newFileName = $originalName . '-' . $randomNumber . '.' . $extension;
+    
+            $attachmentPath = $attachment->storeAs('LearningDev', $newFileName, 'public');
+        }
+    
+        $learningdev = LearningDev::create([
             'empid' => $request->input('empid'),
             'learning_dev' => $request->input('learning_dev'),
             'inc_date1' => $request->input('inc_date1'),
@@ -87,10 +101,19 @@ class LearningDevController extends Controller
             'num_hours' => $request->input('num_hours'),
             'types' => $request->input('types'),
             'conducted' => $request->input('conducted'),
+            'attachment' => $attachmentPath,
         ]);
 
+        Notification::create([
+            'empid' => $request->input('empid'),
+            'lapp_id' => $learningdev->id,
+            'category' => 1,
+            'utype' => 'hr',
+            'module' => 'pds',
+        ]);
+    
         return redirect()->back()->with('success', 'Added successfully!');
-    }   
+    } 
 
     public function learningdevEdit($id, $eid)
     {
@@ -113,9 +136,27 @@ class LearningDevController extends Controller
             'num_hours' => 'required',
             'types' => 'required',
             'conducted' => 'required',
+            'attachment' => 'nullable|file|mimes:pdf',
         ]);
-
+    
         $learningdev = LearningDev::findOrFail($id);
+    
+        $attachmentPath = $learningdev->attachment;
+    
+        if ($request->hasFile('attachment')) {
+            $attachment = $request->file('attachment');
+            $originalName = pathinfo($attachment->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $attachment->getClientOriginalExtension();
+            $randomNumber = rand(10000, 99999);
+            $newFileName = $originalName . '-' . $randomNumber . '.' . $extension;
+    
+            $attachmentPath = $attachment->storeAs('LearningDev', $newFileName, 'public');
+    
+            if ($learningdev->attachment && \Storage::disk('public')->exists($learningdev->attachment)) {
+                \Storage::disk('public')->delete($learningdev->attachment);
+            }
+        }
+    
         $learningdev->update([
             'learning_dev' => $request->input('learning_dev'),
             'inc_date1' => $request->input('inc_date1'),
@@ -123,11 +164,31 @@ class LearningDevController extends Controller
             'num_hours' => $request->input('num_hours'),
             'types' => $request->input('types'),
             'conducted' => $request->input('conducted'),
+            'attachment' => $attachmentPath,
         ]);
-
+    
         return redirect()->back()->with('success', 'Updated successfully!');
     }
 
+    public function learningdevApprove($id){
+        $learningdev = LearningDev::find($id);
+        
+        if ($learningdev) {
+            $learningdev->status = 1;
+            $learningdev->save();
+            
+            return response()->json([
+                'status' => 200,
+                'message' => "Approved Successfully",
+            ]);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => "Record not found",
+            ]);
+        }
+    }
+    
     public function learningdevDelete($id)
     {
         $learningdev = LearningDev::find($id);
