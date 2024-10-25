@@ -191,7 +191,7 @@
             <thead>
                 <tr>
                     <th colspan="9" class="bg1">
-                        <img src="{{ asset('Uploads/pds-header.png') }}" width="100.1%" alt="" srcset="">
+                        <img src="{{ public_path('Uploads/pds-header.png') }}" width="100.1%" alt="" srcset="">
                     </th>
                 </tr>
             </thead>
