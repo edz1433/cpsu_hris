@@ -277,7 +277,7 @@
 
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Email Address</label><br>
-                                    <input type="email" name="org_email" id="org_email" value="{{ $employee->org_email }}" data-column-id="{{ $empid }}" data-column-name="org_email" class="form-control form-control-sm update-field" placeholder="N/A">
+                                    <input type="email" name="org_email" id="org_email" value="{{ $employee->org_email }}" data-column-id="{{ $empid }}" data-column-name="org_email" class="form-control form-control-sm {{ ($guard !== 'employee') ? 'update-field' : ''}}" placeholder="N/A" @if($guard == 'employee') readonly @endif>
                                 </div>
 
                                 <div class="col-md-3">
