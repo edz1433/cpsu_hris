@@ -129,7 +129,7 @@
                                 <input type="hidden" name="empid" value="{{ $employee->id }}">
                                 <input type="hidden" id="lcid" name="lcid">
                                 <input class="form-control form-control-sm" type="hidden" id="date" name="date" value="{{ \Carbon\Carbon::now()->format('Y-m') }}" required>
-                                <input class="form-control form-control-sm" type="text" id="sl1" name="sl" step="0.001" min="0" max="30" placeholder="0.00" autocomplete="off" required>
+                                <input class="form-control form-control-sm" type="number" id="sl1" name="sl" step="0.001" min="0" max="30" placeholder="0.00" autocomplete="off" required>
                             </div>
                         </div>
             
