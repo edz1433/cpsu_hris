@@ -72,34 +72,35 @@
                         </div>
                     </div>    
                     @else
-                    <button type="submit" class="btn btn-sm btn-info float-right mb-2" data-toggle="modal" data-target="#leaveModal"><i class="fas fa-plus"></i></button>
+                    <button class="btn btn-sm btn-info float-right mb-2" data-toggle="modal" data-target="#leaveModal"><i class="fas fa-plus"></i></button>
+                    <button class="btn btn-sm btn-warning float-right mb-2 mr-1" data-toggle="modal" data-target="#leaveModalDeduct"><i class="fas fa-minus"></i></button>
                     <div class="table-responsive ">
                         <table class="table table-collapsed table-hover" id="example3">
                             <thead>
                                 <tr>
-                                    <th>Days</th>
-                                    <th>SL Earned</th>
-                                    <th>VL Earned</th>
+                                    <th>SL</th>
+                                    <th>VL</th>
                                     <th>For the Month of</th>
                                     <th>Remarks</th>
                                     <th>Date</th>
+                                    <th></th>
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead> 
                             <tbody>
                                 @foreach($leaves as $leave)
                                     <tr id="tr-{{ $leave->id }}">
-                                        <td class="text-center">@if($leave->stat == 0) <span class="badge badge-warning">(starting Balance)</span> @else {{ $leave->days }} @endif</td>
                                         <td class="text-center">{{ $leave->earn_sl }}</td>
                                         <td class="text-center">{{ $leave->earn_vl }}</td>
                                         <td>{{ \Carbon\Carbon::parse($leave->date)->format('F Y') }}</td>
                                         <td>{{ $leave->remarks }}</td>
                                         <td>{{ \Carbon\Carbon::parse($leave->created_at)->format('F d, Y') }}</td>
+                                        <td class="text-center">@if($leave->stat == 0) <span class="badge badge-warning">(starting Balance)</span> @elseif($leave->stat == 1 && $leave->days == 0) <span class="badge badge-danger">deducted</span> @else <span class="badge badge-success">addedd</span> @endif</td>
                                         <td  width="100" class="text-center">
-                                            <a href="#" class="btn btn-info btn-sm mb-2 leaves_edit" data-id="{{ $leave->id }}" title="Edit" data-toggle="modal" data-target="#leaveEditModal">
+                                            <a href="#" class="btn btn-info btn-sm mb-2 leaves_edit" data-id="{{ $leave->id }}" title="Edit" data-toggle="modal" data-target="{{ ($leave->stat == 1 && $leave->days == 0) ?  '#leaveModalDeductEdit ' : '#leaveEditModal' }}  ">
                                                 <i class="fas fa-pen"></i>
                                             </a>
-                                            <button class="btn {{ ($leave->stat == 0) ? 'btn-secondary leaves_delete' : 'btn-danger leaves_delete' }} btn-sm mb-2" value="{{ $leave->id }}" title="Delete">
+                                            <button class="btn {{ ($leave->stat == 0) ? 'btn-secondary' : 'btn-danger leaves_delete' }} btn-sm mb-2" value="{{ $leave->id }}" title="Delete">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </td>

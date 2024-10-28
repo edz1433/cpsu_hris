@@ -318,8 +318,13 @@
                         $('#vl1').val(response.data.earn_vl).removeAttr('min').removeAttr('max').prop('readonly', false);
                     } else {
                         $('#days1').prop('readonly', false); 
-                        $('#sl1').attr('min', 0).attr('max', 30).prop('readonly', true);
-                        $('#vl1').attr('min', 0).attr('max', 30).prop('readonly', true);
+                        if(response.data.days == 0){
+                            $('#sl1').attr('min', 0).attr('max', 00);
+                            $('#vl1').attr('min', 0).attr('max', 30);
+                        }else{
+                            $('#sl1').attr('min', 0).attr('max', 30).prop('readonly', true);
+                            $('#vl1').attr('min', 0).attr('max', 30).prop('readonly', true);
+                        }
                     }
 
                 } else {

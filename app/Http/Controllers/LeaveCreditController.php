@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Employee;
 use App\Models\LeaveCredit;
+use App\Models\Notification;
 use Carbon\Carbon;
 
 class LeaveCreditController extends Controller
@@ -84,6 +85,44 @@ class LeaveCreditController extends Controller
     
         return redirect()->back()->with('success', 'Save successfully.');
     }
+
+    public function leavescreditDeduct(Request $request){
+        $authid = auth()->user()->id;
+        $currentDate = Carbon::now()->format('Y-m');
+
+        $request->validate([
+            'empid' => 'required|exists:employees,id',
+            'sl' => 'required|numeric|min:0',
+            'vl' => 'required|numeric|min:0',
+        ]);
+        $employee = Employee::find($request->empid);
+
+        $leavecredit = LeaveCredit::create([
+            'empid' => $employee->emp_ID,
+            'days' => 0,
+            'earn_sl' => $request->sl,
+            'earn_vl' => $request->vl,
+            'remarks' => $request->remarks,
+            'date' => $request->date ?? $currentDate,
+            'add_by' => $authid,
+            'stat' => 1,
+        ]); 
+
+        Employee::where('id', $request->empid)->update([
+            'sl' => \DB::raw('sl - ' . $request->sl),
+            'vl' => \DB::raw('vl - ' . $request->vl),
+        ]);
+        
+        Notification::create([
+            'empid' => $request->empid,
+            'lapp_id' => $leavecredit->id,
+            'category' => 1,
+            'utype' => 'employee',
+            'module' => 'leavecredit',
+        ]);
+
+        return redirect()->back()->with('success', 'Save successfully.');
+    }
     
     public function leavesEdit(Request $request){
         $leavecredit = LeaveCredit::find($request->id);
@@ -91,6 +130,46 @@ class LeaveCreditController extends Controller
         return response()->json([
             'data'=> $leavecredit,
         ]);
+    }
+
+    public function leavescreditDeductUpdate(Request $request){
+        $authid = auth()->user()->id;
+        $leavecread = LeaveCredit::find($request->lcid);
+
+        $currentDate = Carbon::now()->format('Y-m');
+        $request->validate([
+            'empid' => 'required|exists:employees,id',
+            'sl' => 'required|numeric|min:0',
+            'vl' => 'required|numeric|min:0',
+        ]);
+    
+        $employee = Employee::find($request->empid);
+
+        if ($employee) {
+
+            $employee->update([
+                'sl' => ($employee->sl + $leavecread->earn_sl) - ($request->sl),
+                'vl' => ($employee->vl + $leavecread->earn_vl) - ($request->vl),
+            ]);            
+            
+            $employee->save();            
+            
+            LeaveCredit::where('id', $request->lcid)
+            ->update([
+                'days' => 0,
+                'earn_sl' => $request->sl,
+                'earn_vl' => $request->vl,
+                'remarks' => $request->remarks,
+                'date' => isset($request->date) ? $request->date : $currentDate,
+                'add_by' => $authid,
+                'stat' => 1,
+            ]);
+
+        } else {
+            return redirect()->back()->with('error', 'Employee not found.');
+        }
+    
+        return redirect()->back()->with('success', 'Save successfully.');
     }
 
     public function leavesUpdate(Request $request)
