@@ -24,6 +24,9 @@
             <p class="text-muted text-center">{{ $employee->position }}</p>
     
             <ul class="list-group list-group-unbordered custom-gap">
+                @if($guard == "web")
+                    <i class="fas fa-cog" data-toggle="modal" data-target="#modalSettingLeave" style="color: rgb(135, 129, 129); margin-left: 100%; margin-bottom: -8px; float: right;"></i>
+                @endif
                 <li class="list-group-item">
                     <b>Vacation Leave</b> <span class="float-right mt-1 badge badge-info" id="b-vl">{{ $employee->vl }}</span>
                 </li>
@@ -34,31 +37,31 @@
                     <b>Sick Leave</b> <span class="float-right mt-1 badge badge-info" id="b-sl">{{ $employee->sl }}</span>
                 </li>
                 <li class="list-group-item">
-                    <b>Special Privilege Leave</b> <span class="float-right mt-1 badge badge-info">{{ $employee->special_pl }}</span>
+                    <b>Special Privilege Leave</b> <span class="float-right mt-1 badge badge-info" id="special-pl">{{ $employee->special_pl }}</span>
                 </li>
                 <li class="list-group-item">
-                    <b>Solo Parent Leave</b> <span class="float-right mt-1 badge badge-info">{{ $employee->solo_pl }}</span>
+                    <b>Solo Parent Leave</b> <span class="float-right mt-1 badge badge-info" id="solo-pl">{{ $employee->solo_pl }}</span>
                 </li>
                 <li class="list-group-item">
-                    <b>Study Leave</b> <span class="float-right mt-1 badge badge-info">0</span>
+                    <b>Study Leave</b> <span class="float-right mt-1 badge badge-info" id="study-leave">{{ $employee->study_leave }}</span>
                 </li>
                 <li class="list-group-item">
-                    <b>10-Day VAWC Leave</b> <span class="float-right mt-1 badge badge-info">0</span>
+                    <b>10-Day VAWC Leave</b> <span class="float-right mt-1 badge badge-info" id="vawc-leave">{{ $employee->vawc_leave }}</span>
                 </li>
                 <li class="list-group-item">
-                    <b>Rehabilitation Privilege</b> <span class="float-right mt-1 badge badge-info">0</span>
+                    <b>Rehabilitation Privilege</b> <span class="float-right mt-1 badge badge-info" id="rehab-leave">{{ $employee->rehab_leave }}</span>
                 </li>
                 <li class="list-group-item">
-                    <b>Special Leave Benefits for Women</b> <span class="float-right mt-1 badge badge-info">0</span>
+                    <b>Special Leave Benefits for Women</b> <span class="float-right mt-1 badge badge-info" id="benefits-leave">{{ $employee->benefits_leave }}</span>
                 </li>
                 <li class="list-group-item">
-                    <b>Special Emergency (Calamity) Leave</b> <span class="float-right mt-1 badge badge-info">0</span>
+                    <b>Special Emergency (Calamity) Leave</b> <span class="float-right mt-1 badge badge-info" id="calamity-leave">{{ $employee->calamity_leave }}</span>
                 </li>
                 <li class="list-group-item">
-                    <b>Adoption Leave</b> <span class="float-right mt-1 badge badge-info">0</span>
+                    <b>Adoption Leave</b> <span class="float-right mt-1 badge badge-info" id="adopt-leave">{{ $employee->adopt_leave }}</span>
                 </li>
                 <li class="list-group-item">
-                    <b>Vacation Service Credit</b> <span class="float-right mt-1 badge badge-info">0</span>
+                    <b>Vacation Service Credit</b> <span class="float-right mt-1 badge badge-info" id="servcred-leave">{{ $employee->servcred_leave }}</span>
                 </li>
             </ul>
         </div>

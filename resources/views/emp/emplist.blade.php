@@ -24,6 +24,7 @@
                                         <th>Position</th>
                                         <th>Campus</th>
                                         <th>Status</th>
+                                        <th>Email</th>
                                         <th>Service</th>
                                         <th>Date Hire</th>
                                         <th>Status</th>
@@ -60,6 +61,7 @@
                                                 {{ $emp->status_name }}
                                             @endif
                                             </td>
+                                            <td>{{ $emp->org_email }}</td>
                                             <td>{{ $years.' years' .' '. $months. ' months' }}</td>
                                             <td>{{ isset($hireDate) ? date('F d, Y', strtotime($hireDate)) : '' }}</td>
                                             <td class="text-center">

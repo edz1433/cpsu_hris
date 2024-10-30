@@ -299,7 +299,7 @@
                 <tr>
                     <td class="bordered pl2 bg2">8. WEIGHT (kg)</td>
                     <th class="bordered pl2" colspan="2">{{ isset($datas['employee']->weight_kg) ? $datas['employee']->weight_kg.'kgs' : '' }}</th>
-                    <th class="bordered pl2" colspan="5">6207</th>
+                    <th class="bordered pl2" colspan="5">{{ isset($datas['employee']->add_zcode) ? $datas['employee']->add_zcode : '' }}</th>
                 </tr>
                 <tr>
                     <td class="bordered pl2 bg2">9. BLOOD TYPE</td>
@@ -343,7 +343,7 @@
                 <tr>
                     <td class="bordered pl2 bg2">12. PHILHEALTH NO.</td>
                     <th class="bordered pl2" colspan="2">{{ $datas['employee']->philhealth }}</th>
-                    <th class="bordered pl2" colspan="5">6207</th>
+                    <th class="bordered pl2" colspan="5">{{ isset($datas['employee']->padd_zcode) ? $datas['employee']->padd_zcode : '' }}</th>
                 </tr>
                 <tr>
                     <td class="bordered pl2 bg2">13. SSS NO.</td>

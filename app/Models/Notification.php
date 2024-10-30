@@ -12,6 +12,7 @@ class Notification extends Model
     protected $fillable = [
         'empid',
         'lapp_id',
+        'esign_id',
         'category',
         'utype',
         'module',

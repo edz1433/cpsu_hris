@@ -30,7 +30,7 @@ class LeaveCreditController extends Controller
         ->orderBy('leave_credits.created_at', 'desc')
         ->get();    
 
-        return view('leaves.emp-leaves', compact('leaves', 'guard', 'employee', 'emplalls'));
+        return view('leaves.emp-leaves', compact('leaves', 'guard', 'employee', 'emplalls', 'empid'));
     }
     
     public function leavesReadEmp(){
@@ -114,7 +114,7 @@ class LeaveCreditController extends Controller
         ]);
         
         Notification::create([
-            'empid' => $request->empid,
+            'empid' => $employee->emp_ID,
             'lapp_id' => $leavecredit->id,
             'category' => 1,
             'utype' => 'employee',

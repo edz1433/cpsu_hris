@@ -68,83 +68,12 @@
         
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
-                @if(auth()->guard($guard)->user()->role !== "employee")
-                <!-- Search Form -->
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="navbar-search" href="#" role="button">
-                        <i class="fas fa-search text-success1"></i>
-                    </a>
-                    <div class="navbar-search-block" style="width: 92%">
-                        <form class="form-inline">
-                            <div class="input-group">
-                                <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
-                                <div class="input-group-append">
-                                    <button class="btn btn-navbar" type="button" data-widget="navbar-search">
-                                        <i class="fas fa-times text-success1"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </li>
-
-                <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
-                        <i class="fas fa-bell text-success1"></i>
-                        <span class="badge badge-warning navbar-badge">{{ ($notificationsCount != 0) ? $notificationsCount : '' }}</span>
-                    </a>
-                    <div class="dropdown-menu notifications dropdown-notification dropdown-menu-lg dropdown-menu-right" style="left: inherit; right: 0; max-height: 400px; overflow-y: auto;">
-                        <span class="dropdown-item dropdown-header">{{ ($notificationsCount != 0) ? $notificationsCount : '' }} Notifications</span>
-                        <div class="dropdown-divider"></div>
-                        <div id="notifications-container">
-                            @php 
-                                $leaveTypes = [
-                                    1 => 'Vacation Leave',
-                                    2 => 'Mandatory/Forced Leave',
-                                    3 => 'Sick Leave',
-                                    4 => 'Maternity Leave',
-                                    5 => 'Paternity Leave',
-                                    6 => 'Special Privilege Leave',
-                                    7 => 'Solo Parent Leave',
-                                    8 => 'Study Leave',
-                                    9 => '10-Day VAWC Leave',
-                                    10 => 'Rehabilitation Privilege',
-                                    11 => 'Special Leave Benefits for Women',
-                                    12 => 'Special Emergency (Calamity) Leave',
-                                    13 => 'Adoption Leave',
-                                    14 => 'Others'
-                                ];
-                            @endphp
-                            @foreach ($notifications as $notif)
-                                @php 
-                                    $timeDifference = $notif->notif_created_at ? \Carbon\Carbon::parse($notif->notif_created_at)->timezone('Asia/Manila')->diffForHumans() : ''; 
-                                    $remarks = null;
-                                @endphp
-                                @if($notif->category == 1 && $notif->module == "leave")
-                                    @php 
-                                        $remarks = "is applying for " . strtolower($leaveTypes[$notif->leave_type]) . " (Application No: #" . $notif->transnum . ")"; 
-                                    @endphp 
-                                @elseif($notif->category == 2 && $notif->module == "leave")
-                                    @php 
-                                        $remarks = "is awaiting approval for a " . strtolower($leaveTypes[$notif->leave_type]) . " (Application No: #" . $notif->transnum . ")"; 
-                                    @endphp 
-                                @endif
-                                <a href="{{ route('leaveStatus', $notif->eid) }}" class="dropdown-item d-flex align-items-center">
-                                    <div class="mr-3">
-                                        <img src="{{ asset('Profile/Employee/'.$notif->profile) }}" class="img-circle" alt="User Image" width="40" height="40">
-                                    </div>
-                                    <div>
-                                        <p class="mb-0"><strong>{{ ucwords(strtolower($notif->fname . ' ' . $notif->lname)) }}</strong> {{ $remarks }}</p>
-                                        <span class="{{ ($notif->notifstat == 0) ? 'text-primary font-weight-bold' : "text-muted" }} text-sm">{{ $timeDifference }}</span>
-                                    </div>
-                                </a>
-                                <div class="dropdown-divider"></div>
-                            @endforeach
-                        </div>
-                        {{-- <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a> --}}
-                    </div>
-                </li>
+                @if($guard == "web")
+                    @include('layouts.notif-admin')
+                @else
+                    {{-- @include('layouts.notif-employee') --}}
                 @endif
+                
                 <!-- User Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle text-success1" href="#" role="button" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

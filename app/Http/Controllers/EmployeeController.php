@@ -253,17 +253,17 @@ class EmployeeController extends Controller
 
         $models = ['FamilyBg', 'EducBg', 'OtherInfo', 'InfoQuestion', 'PdsReference', 'GovId'];
 
-        foreach ($models as $model) {
-            $modelClass = "App\\Models\\{$model}";
+        // foreach ($models as $model) {
+        //     $modelClass = "App\\Models\\{$model}";
         
-            if (class_exists($modelClass)) {
-                $modelClass::create([
-                    'empid' => $newEmpID,
-                ]);
-            } else {
-                throw new Exception("Model {$modelClass} not found.");
-            }
-        }
+        //     if (class_exists($modelClass)) {
+        //         $modelClass::create([
+        //             'empid' => $newEmpID,
+        //         ]);
+        //     } else {
+        //         throw new Exception("Model {$modelClass} not found.");
+        //     }
+        // }
              
         
         return redirect()->back()->with('success', 'Employee added successfully.');

@@ -30,6 +30,7 @@ use App\Http\Controllers\PdsReferencesController;
 use App\Http\Controllers\GovIdController;
 use App\Http\Controllers\LeaveCreditController;
 use App\Http\Controllers\LeaveApplicationController;
+use App\Http\Controllers\NotificationController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -253,7 +254,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
 
     //Notification
     Route::prefix('notification')->group(function() {
-        Route::get('/load/{page}', [LeaveApplicationController::class, 'loadMore'])->name('notificationload');
+        Route::get('/load/{page}', [NotificationController::class, 'loadMore'])->name('notificationload');
     });   
 
     // Logout

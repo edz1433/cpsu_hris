@@ -482,7 +482,44 @@
         });
     });
 </script>
-    
+<script>
+    $(document).ready(function() {
+        $('.update-field').on('change', function() {
+            var elementType = $(this).prop('tagName').toLowerCase();
+            if (elementType === 'input' || elementType === 'textarea') {
+                columnid = $(this).data('column-id');
+                columnname = $(this).data('column-name');
+            } else if (elementType === 'select') {
+                columnid = $(this).find('option:selected').data('column-id');
+                columnname = $(this).find('option:selected').data('column-name');
+            }
+            
+            var value = $(this).val();
+
+            $.ajax({
+                url: '{{ route("employeeUpdate") }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    id: columnid,
+                    column: columnname,
+                    value: value
+                },
+                success: function(response) {
+                    
+                },
+                error: function(xhr, status, error) {
+                    if (xhr.status === 422) {
+                        var errors = xhr.responseJSON.errors;
+                        console.error('Validation errors:', errors);
+                    } else {
+                        console.error('Error:', error);
+                    }
+                }
+            });
+        });
+    });
+</script>
 <script>
     $('.approve-leave').on('click', function() {
         var id = $(this).data('id');
@@ -727,7 +764,7 @@ $(document).ready(function() {
 });
 </script> --}}
 @endif
-@if(request()->is('leave/status') || request()->is('leaves/status/*') || request()->is('leave/history*') || request()->is('leave/status/*'))
+@if(request()->is('leaves/') || request()->is('leave/status') || request()->is('leaves/status/*') || request()->is('leave/history*') || request()->is('leave/status/*'))
 <script>
     $(document).ready(function() {
         function updateLeaveInfo() {
@@ -737,7 +774,7 @@ $(document).ready(function() {
                 },
             });
 
-            var url = "{{ request()->is('leave/status') || request()->is('leave/history') ? route('leaveLive') : (request()->is('leave/status/*') || request()->is('leave/history/*') ? route('leaveLive', $empid) : '') }}";
+            var url = "{{ request()->is('leave/status') || request()->is('leave/history') ? route('leaveLive') : (request()->is('leaves/*') || request()->is('leave/status/*') || request()->is('leave/history/*') ? route('leaveLive', $empid) : '') }}";
             $.ajax({
                 url: url,
                 type: 'POST',
@@ -746,6 +783,15 @@ $(document).ready(function() {
                     if (response) {
                         $('#b-vl').text(response.vl);
                         $('#b-sl').text(response.sl);
+                        $('#special-pl').text(response.special_pl);
+                        $('#solo-pl').text(response.solo_pl);
+                        $('#study-leave').text(response.study_leave);
+                        $('#vawc-leave').text(response.vawc_leave);
+                        $('#rehab-leave').text(response.rehab_leave);
+                        $('#benefits-leave').text(response.benefits_leave);
+                        $('#calamity-leave').text(response.calamity_leave);
+                        $('#adopt-leave').text(response.adopt_leave);
+                        $('#servcred-leave').text(response.servcred_leave);
                     }
                 }
             });

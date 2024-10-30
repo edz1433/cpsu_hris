@@ -102,32 +102,12 @@ class LeaveApplicationController extends Controller
         return redirect()->back()->with('success', 'Submitted successfully');
     }
 
-    public function leavesnotif($id){
-        Notification::where('id', $id)->update(['status' => 1]);
+    // public function leavesnotif($id){
+    //     Notification::where('id', $id)->update(['status' => 1]);
 
-        $this->leaveStatus($notification->lapp_id);
-    }
+    //     $this->leaveStatus($notification->lapp_id);
+    // }
 
-    public function loadMore(Request $request, $page)
-    {
-        if ($request->ajax()) {
-            $notifications = Notification::join('leave_applications', 'notifications.lapp_id', '=', 'leave_applications.id')
-                ->join('employees', 'employees.emp_ID', '=', 'leave_applications.empid')
-                ->select('notifications.*', 'leave_applications.*', 'employees.id as eid', 'employees.fname', 'employees.lname', 'employees.profile', 'notifications.status as notifstat', 'notifications.created_at as notif_created_at')
-                ->orderBy('notifications.created_at', 'desc')
-                ->paginate(10, ['*'], 'page', $page);
-    
-            if ($notifications->isEmpty()) {
-                return response()->json(['html' => '']);
-            }
-            
-            $view = view('partials.notification_items', compact('notifications'))->render();
-            return response()->json(['html' => $view]);
-        }
-    
-        return response()->json(['html' => '']); // Handle non-AJAX request
-    }
-       
     public function leaveStatus($id = null){
         $guard = $this->getGuard();
         $empid = ($id) ? $id : auth()->guard($guard)->user()->id;
@@ -256,7 +236,15 @@ class LeaveApplicationController extends Controller
         $leaveApplication->emp_esign = 1;
         $leaveApplication->save();
         
-        Notification::where('lapp_id', $leaveApplication->id)->where('category', 1)->update(['status' => 1]);
+        Notification::where('lapp_id', $leaveApplication->id)->where('category', 1)->where('module', '=', 'leave')->where('utype', '=', 'hr')->update(['status' => 1]);
+
+        Notification::create([
+            'empid' => $leaveApplication->empid,
+            'lapp_id' => $leaveApplication->id,
+            'category' => 1,
+            'utype' => 'employee',
+            'module' => 'leave',
+        ]);
 
         $this->genApplication($leaveApplication->id);
         
@@ -348,23 +336,40 @@ class LeaveApplicationController extends Controller
                 'utype' => 'hr',
                 'module' => 'leave',
             ]);
+
+            Notification::where('lapp_id', $leaveApplication->id)->where('category', 1)->where('module', '=', 'leave')->where('utype', '=', 'employee')->update(['status' => 1]);
         }
         
         if($request->by == 1){
+            $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
             $leaveApplication->sup_sdate = Carbon::now();
-            Notification::where('lapp_id', $leaveApplication->id)->where('category', 2)->update(['status' => 1]);
-            
+
             Notification::create([
                 'empid' => $leaveApplication->empid,
                 'lapp_id' => $leaveApplication->id,
-                'category' => 2,
-                'utype' => 'hr',
+                'esign_id' => $employee->supervisor ?? 0,
+                'category' => 3,
+                'utype' => 'supervisor',
                 'module' => 'leave',
             ]);
+            
+            Notification::where('lapp_id', $leaveApplication->id)->where('category', 2)->where('module', '=', 'leave')->where('utype', '=', 'hr')->update(['status' => 1]);
         }
 
         if($request->by == 2){
+            $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
             $leaveApplication->hr_sdate = Carbon::now();
+
+            Notification::create([
+                'empid' => $leaveApplication->empid,
+                'lapp_id' => $leaveApplication->id,
+                'esign_id' => $employee->supervisor ?? 0,
+                'category' => 4,
+                'utype' => 'president',
+                'module' => 'leave',
+            ]);
+
+            Notification::where('lapp_id', $leaveApplication->id)->where('category', 3)->where('module', '=', 'leave')->where('utype', '=', 'supervisor')->update(['status' => 1]);
         }
 
         if ($request->by == 3) {
@@ -389,6 +394,16 @@ class LeaveApplicationController extends Controller
         
             $leaveApplication->history = 2;
             $leaveApplication->save();
+
+            Notification::create([
+                'empid' => $leaveApplication->empid,
+                'lapp_id' => $leaveApplication->id,
+                'category' => 2,
+                'utype' => 'employee',
+                'module' => 'leave',
+            ]);
+
+            Notification::where('lapp_id', $leaveApplication->id)->where('category', 4)->where('module', '=', 'leave')->where('utype', '=', 'president')->update(['status' => 1]);
         }        
         
         $leaveApplication->status = $status ?? 1;
@@ -458,7 +473,18 @@ class LeaveApplicationController extends Controller
                 'message' => 'Leave disapproved successfully.'
             ]);
         }
-    
+
+        Notification::create([
+            'empid' => $leaveApplication->empid,
+            'lapp_id' => $leaveApplication->id,
+            'category' => 5,
+            'utype' => 'hr',
+            'module' => 'employee',
+            'status' => 1,
+        ]);
+
+        Notification::where('lapp_id', $leaveApplication->id)->where('module', '=', 'leave')->update(['status' => 1]);
+        
         return response()->json([
             'success' => false,
             'message' => 'Leave application not found.',
@@ -675,7 +701,16 @@ class LeaveApplicationController extends Controller
     
         return response()->json([
             'vl' => $employee->vl,
-            'sl' => $employee->sl 
+            'sl' => $employee->sl,
+            'special_pl' => $employee->special_pl, 
+            'solo_pl' => $employee->solo_pl,
+            'study_leave' => $employee->study_leave,
+            'vawc_leave' => $employee->vawc_leave, 
+            'rehab_leave' => $employee->rehab_leave,
+            'benefits_leave' => $employee->benefits_leave,
+            'calamity_leave' => $employee->calamity_leave,
+            'adopt_leave' => $employee->adopt_leave,
+            'servcred_leave' => $employee->servcred_leave,
         ]);
     }
     
