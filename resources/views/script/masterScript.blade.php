@@ -40,9 +40,9 @@
 {{-- Notification --}}
 
 <script>
-    // document.addEventListener('contextmenu', function (e) {
-    //     e.preventDefault();
-    // });
+    document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+    });
     @if(Session::has('error'))
         toastr.options = {
             "closeButton":true,
