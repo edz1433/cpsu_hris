@@ -61,7 +61,7 @@ class MasterController extends Controller
                     WHEN DATE_FORMAT(bdate, '%m-%d') >= ? THEN 0
                     ELSE 1
                 END, DATE_FORMAT(bdate, '%m-%d') DESC", [$today->format('m-d')]) // Order by upcoming birthdays
-            ->take(7)
+            ->take(10)
             ->get()
             ->each(function ($employee) {
                 $employee->bdate = Carbon::parse($employee->bdate);
