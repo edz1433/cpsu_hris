@@ -52,18 +52,22 @@ class MasterController extends Controller
                 ? Employee::count()
                 : Employee::where('emp_ID', \Auth::guard('web')->user()->campus_id)->count();
 
-                $upcomingBirthdays = Employee::whereNotNull('bdate') // Ensure 'bdate' is not null
+            // Get today's date formatted for comparison
+            $today = Carbon::today();
+
+            // Fetch upcoming birthdays
+            $upcomingBirthdays = Employee::whereNotNull('bdate') // Ensure 'bdate' is not null
                 ->whereRaw("DATE_FORMAT(bdate, '%m-%d') >= ?", [$today->format('m-d')]) // Upcoming birthdays
                 ->orderByRaw("DATE_FORMAT(bdate, '%m-%d')") // Order by upcoming birthday
                 ->take(7) // Limit to 7 records
                 ->get()
-                ->map(function ($employee) {
-                    // Convert 'bdate' from string to Carbon instance
+                ->each(function ($employee) {
+                    // Convert 'bdate' to a Carbon instance
                     $employee->bdate = Carbon::parse($employee->bdate);
-                    return $employee;
                 });
 
-                dd($upcomingBirthdays);
+            // Debug output to check upcoming birthdays
+            dd($upcomingBirthdays);
 
             return view("home.dashboard", compact('campCount', 'empCount', 'offCount', 'userCount', 'chartEmployee', 'empStatusPercentages', 'upcomingBirthdays', 'guard'));
         }
