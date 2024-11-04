@@ -66,8 +66,8 @@ class MasterController extends Controller
                     $employee->bdate = Carbon::parse($employee->bdate);
                 });
 
-            // Debug output to check upcoming birthdays
-            dd($upcomingBirthdays);
+            // // Debug output to check upcoming birthdays
+            // dd($upcomingBirthdays);
 
             return view("home.dashboard", compact('campCount', 'empCount', 'offCount', 'userCount', 'chartEmployee', 'empStatusPercentages', 'upcomingBirthdays', 'guard'));
         }
