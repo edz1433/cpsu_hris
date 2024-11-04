@@ -57,14 +57,17 @@ class MasterController extends Controller
 
             // Fetch upcoming birthdays
             $upcomingBirthdays = Employee::whereNotNull('bdate') // Ensure 'bdate' is not null
-                ->whereRaw("DATE_FORMAT(bdate, '%m-%d') >= ?", [$today->format('m-d')]) // Upcoming birthdays
-                ->orderByRaw("DATE_FORMAT(bdate, '%m-%d')") // Order by upcoming birthday
-                ->take(7) // Limit to 7 records
-                ->get()
-                ->each(function ($employee) {
-                    // Convert 'bdate' to a Carbon instance
-                    $employee->bdate = Carbon::parse($employee->bdate);
-                });
+            ->select('id', 'fname', 'lname', 'mname', 'profile', 'bdate') // Select necessary fields
+            ->orderByRaw("CASE 
+                WHEN DATE_FORMAT(bdate, '%m-%d') >= ? THEN DATEDIFF(CONCAT(YEAR(?), '-', DATE_FORMAT(bdate, '%m-%d')), ?)
+                ELSE DATEDIFF(CONCAT(YEAR(?) + 1, '-', DATE_FORMAT(bdate, '%m-%d')), ?) 
+            END", [$today->format('m-d'), $today->format('Y-m-d'), $today->format('Y-m-d'), $today->format('Y'), $today->format('Y-m-d')]) // Calculate days until the birthday
+            ->take(7) // Limit to 7 records
+            ->get()
+            ->each(function ($employee) {
+                // Convert 'bdate' to a Carbon instance
+                $employee->bdate = Carbon::parse($employee->bdate);
+            });
 
             // // Debug output to check upcoming birthdays
             // dd($upcomingBirthdays);
