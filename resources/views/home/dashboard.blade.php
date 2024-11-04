@@ -182,7 +182,15 @@
                                 </div>
                                 <div class="product-info">
                                   <a href="#" class="product-title text-dark">{{ ucfirst(strtolower($employee->lname)) . ' ' . ucfirst(strtolower($employee->fname)) }}
-                                    <span class="float-right" style="margin-top: -2px;"><i class="fas fa-birthday-cake" style="color: #e71515;"></i></span>
+                                    @php
+                                        $birthday = Carbon\Carbon::parse($employee->bdate);
+                                    @endphp
+
+                                    <span class="float-right" style="margin-top: -2px;">
+                                        @if (now()->isSameDay($birthday))
+                                            <i class="fas fa-birthday-cake" style="color: #e71515;"></i>
+                                        @endif
+                                    </span>
                                   </a>
                                   <span class="product-description">
                                     MIS Staff <span class="float-right" style="margin-top: -2px;">{{ $employee->bdate->format('F j, Y') }}</span>
