@@ -60,7 +60,7 @@ class MasterController extends Controller
                 CASE
                     WHEN DATE_FORMAT(bdate, '%m-%d') >= ? THEN 0
                     ELSE 1
-                END, DATE_FORMAT(bdate, '%m-%d') DSC", [$today->format('m-d')]) // Order by upcoming birthdays
+                END, DATE_FORMAT(bdate, '%m-%d') DESC", [$today->format('m-d')]) // Order by upcoming birthdays
             ->take(7)
             ->get()
             ->each(function ($employee) {
