@@ -319,6 +319,12 @@
                     } else {
                         $('#days1').prop('readonly', false); 
                         if(response.data.days == 0){
+                            $('#lcid-ded').val(id);
+                            $('#days1-ded').val(response.data.days);
+                            $('#sl1-ded').val(response.data.earn_sl);
+                            $('#vl1-ded').val(response.data.earn_vl);
+                            $('#remarks1-ded').val(response.data.remarks);
+
                             $('#sl1').attr('min', 0).attr('max', 00);
                             $('#vl1').attr('min', 0).attr('max', 30);
                         }else{

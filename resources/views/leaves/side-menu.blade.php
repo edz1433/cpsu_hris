@@ -13,8 +13,13 @@
         @endif
         <div class="card-body box-profile">
             <div class="text-center position-relative">
+                @php
+                    use Illuminate\Support\Facades\File;
+                    $profileImagePath = 'Profile/Employee/' . $employee->profile;
+                    $imagePath = File::exists(public_path($profileImagePath)) ? $profileImagePath : 'Profile/Employee/default.png';
+                @endphp
                 <div class="profile-image-container">
-                    <img src="{{ asset('Profile/Employee/'.$employee->profile) }}" alt="User Image" class="profile-user-img img-fluid" id="changeProfilePicture">
+                    <img src="{{ asset($imagePath) }}" alt="User Image" class="profile-user-img img-fluid" id="changeProfilePicture">
                 </div>
                 <input type="file" id="profilePictureInput" style="display: none;" accept="image/*">
             </div>
