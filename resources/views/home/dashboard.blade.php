@@ -166,7 +166,7 @@
                         <div class="card-header">
                           <h3 class="card-title">Birthday</h3>
                           <div class="card-tools">
-                            <input type="month" class="form-control form-control-sm" style="width: auto; display: inline-block;" id="monthInput">
+                            {{-- <input type="month" class="form-control form-control-sm" style="width: auto; display: inline-block;" id="monthInput"> --}}
                           </div>
                         </div>
                         <div class="card-body p-0">
