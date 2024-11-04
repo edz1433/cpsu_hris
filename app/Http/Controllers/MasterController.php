@@ -52,22 +52,20 @@ class MasterController extends Controller
                 ? Employee::count()
                 : Employee::where('emp_ID', \Auth::guard('web')->user()->campus_id)->count();
 
-            // Get today's date formatted for comparison
             $today = Carbon::today();
 
-            // Fetch upcoming birthdays
-            $upcomingBirthdays = Employee::whereNotNull('bdate') // Ensure 'bdate' is not null
-            ->select('id', 'fname', 'lname', 'mname', 'profile', 'bdate') // Select necessary fields
-            ->orderByRaw("MONTH(bdate) - MONTH(?) + 12 * (YEAR(bdate) - YEAR(?)) ASC", [$today->format('Y-m-d'), $today->format('Y-m-d')]) // Order by month difference
-            ->take(7) // Limit to 7 records
+            $upcomingBirthdays = Employee::whereNotNull('bdate')
+            ->select('id', 'fname', 'lname', 'mname', 'profile', 'bdate')
+            ->orderByRaw("
+                CASE
+                    WHEN DATE_FORMAT(bdate, '%m-%d') >= ? THEN DATE_FORMAT(bdate, '%m-%d')
+                    ELSE CONCAT('12-', DATE_FORMAT(bdate, '%m-%d'))
+                END ASC", [$today->format('m-d')])
+            ->take(7)
             ->get()
             ->each(function ($employee) {
-                // Convert 'bdate' to a Carbon instance
                 $employee->bdate = Carbon::parse($employee->bdate);
             });
-
-            // // Debug output to check upcoming birthdays
-            // dd($upcomingBirthdays);
 
             return view("home.dashboard", compact('campCount', 'empCount', 'offCount', 'userCount', 'chartEmployee', 'empStatusPercentages', 'upcomingBirthdays', 'guard'));
         }
