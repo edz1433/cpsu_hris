@@ -3,7 +3,11 @@
         <div class="card-body box-profile">
             <div class="text-center position-relative">
                 <div class="profile-image-container">
-                    <img src="{{ asset('Profile/Employee/'.$employee->profile) }}" alt="User Image" class="profile-user-img img-fluid" id="changeProfilePicture">
+                    @php
+                        $imageUrl = asset('Profile/Employee/' . $employee->profile);
+                        $imagePath = public_path('Profile/Employee/' . $employee->profile);
+                    @endphp
+                    <img src="{{ file_exists($imagePath) ? $imageUrl : asset('Profile/Employee/default.png') }}" alt="User Image" class="profile-user-img img-fluid" id="changeProfilePicture">
                 </div>
                 <input type="file" id="profilePictureInput" style="display: none;" accept="image/*">
             </div>

@@ -364,7 +364,7 @@ class EmployeeController extends Controller
 
         return view("emp.pds", compact('employee', 'supervisor', 'guard', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid', 'columnstatus'));
     }
-
+    
     public function empEdit($id)
     {
         $emp = Employee::find($id);
