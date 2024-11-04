@@ -58,9 +58,9 @@ class MasterController extends Controller
             ->select('id', 'fname', 'lname', 'mname', 'profile', 'bdate')
             ->orderByRaw("
                 CASE
-                    WHEN DATE_FORMAT(bdate, '%m-%d') >= ? THEN DATE_FORMAT(bdate, '%m-%d')
-                    ELSE CONCAT('12-', DATE_FORMAT(bdate, '%m-%d'))
-                END ASC", [$today->format('m-d')])
+                    WHEN DATE_FORMAT(bdate, '%m-%d') >= ? THEN 0
+                    ELSE 1
+                END, DATE_FORMAT(bdate, '%m-%d') ASC", [$today->format('m-d')]) // Order by upcoming birthdays
             ->take(7)
             ->get()
             ->each(function ($employee) {
