@@ -58,8 +58,7 @@ class MasterController extends Controller
             // Fetch upcoming birthdays
             $upcomingBirthdays = Employee::whereNotNull('bdate') // Ensure 'bdate' is not null
                 ->whereRaw("DATE_FORMAT(bdate, '%m-%d') >= ?", [$today->format('m-d')]) // Upcoming birthdays
-                ->orWhereRaw("DATE_FORMAT(bdate, '%m-%d') < ?", [$today->format('m-d')]) // Include next year's birthdays
-                ->orderByRaw("DATEDIFF(DATE_FORMAT(bdate, '%Y-') . DATE_FORMAT(bdate, '%m-%d'), ?)", [$today->format('Y-m-d')]) // Order by how close the birthday is
+                ->orderByRaw("DATE_FORMAT(bdate, '%m-%d')") // Order by upcoming birthday
                 ->take(7) // Limit to 7 records
                 ->get()
                 ->each(function ($employee) {
