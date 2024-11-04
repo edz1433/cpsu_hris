@@ -1,10 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-    @php
-        // if (!session()->has('email')) {
-        //     return redirect()->back();
-        // }
-    @endphp
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -43,7 +38,7 @@
                 </p>
                 <form action="{{ route('verify.code') }}" method="POST">
                     @csrf
-                    <input type="hidden" name="email" value="{{ session('email') }}">
+                    <input type="hidden" id="email" name="email" value="{{ session('email') }}">
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
                             <span class="input-group-text">
@@ -59,5 +54,14 @@
             </div>
         </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var email = $('#email').val();
+            if(email == ""){
+                window.location.href = "{{ route('getLogin') }}";
+            }
+        });
+    </script>
 </body>
 </html>

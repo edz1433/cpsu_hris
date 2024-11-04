@@ -40,7 +40,7 @@ class GoogleAuthController extends Controller
                             ->subject('Verification Code');
                 });
     
-                session(['email' => $user->username]);
+                session()->flash('email', $user->username);
             } elseif ($employee) {
                 $employee->verification_code = $verification_code;
                 $employee->save();
@@ -50,7 +50,7 @@ class GoogleAuthController extends Controller
                             ->subject('Verification Code');
                 });
     
-                session(['email' => $employee->username]);
+                session()->flash('email', $employee->username);
             }
     
             return redirect()->route('verify');
@@ -70,7 +70,7 @@ class GoogleAuthController extends Controller
     public function verify(Request $request)
     {
         $verification_code = $request->input('verification_code');
-        $email = session('email'); 
+        $email = $request->input('email'); 
 
         $user = User::where('username', $email)->first();
         $employee = Employee::where('username', $email)->first();
