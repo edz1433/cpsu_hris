@@ -63,6 +63,8 @@ class MasterController extends Controller
                     return $employee;
                 });
 
+                dd($upcomingBirthdays);
+
             return view("home.dashboard", compact('campCount', 'empCount', 'offCount', 'userCount', 'chartEmployee', 'empStatusPercentages', 'upcomingBirthdays', 'guard'));
         }
     
