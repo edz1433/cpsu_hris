@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\DocuFolder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use Carbon\Carbon;
 
 class MasterController extends Controller
 {
@@ -44,11 +45,25 @@ class MasterController extends Controller
         $offCount = Office::all();
     
         if (\Auth::guard('web')->check()) {
+            $today = Carbon::now();
+            $currentYear = $today->year;
+
             $empCount = (\Auth::guard('web')->user()->campus_id == 1)
                 ? Employee::count()
                 : Employee::where('emp_ID', \Auth::guard('web')->user()->campus_id)->count();
 
-                return view("home.dashboard", compact('campCount', 'empCount', 'offCount', 'userCount', 'chartEmployee', 'empStatusPercentages', 'guard'));
+                $upcomingBirthdays = Employee::whereNotNull('bdate') // Ensure 'bdate' is not null
+                ->whereRaw("DATE_FORMAT(bdate, '%m-%d') >= ?", [$today->format('m-d')]) // Upcoming birthdays
+                ->orderByRaw("DATE_FORMAT(bdate, '%m-%d')") // Order by upcoming birthday
+                ->take(7) // Limit to 7 records
+                ->get()
+                ->map(function ($employee) {
+                    // Convert 'bdate' from string to Carbon instance
+                    $employee->bdate = Carbon::parse($employee->bdate);
+                    return $employee;
+                });
+
+            return view("home.dashboard", compact('campCount', 'empCount', 'offCount', 'userCount', 'chartEmployee', 'empStatusPercentages', 'upcomingBirthdays', 'guard'));
         }
     
         if (\Auth::guard('employee')->check()) {

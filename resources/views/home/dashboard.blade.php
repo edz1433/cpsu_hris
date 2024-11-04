@@ -14,7 +14,7 @@
       border-radius: 8px !important;
       width: 40px !important;
       height: 40px !important;
-    }
+    } 
 </style>
 @include('home.modal')
 <div class="container-fluid">
@@ -171,58 +171,29 @@
                         </div>
                         <div class="card-body p-0">
                           <ul class="products-list product-list-in-card pl-2 pr-2">
-                            <li class="item">
-                              <div class="product-img">
-                                <img class="border-radius" src="{{ asset('Employee/rosalie.jpg') }}" alt="Product Image">
-                              </div>
-                              <div class="product-info">
-                                <a href="#" class="product-title text-dark">Gargoles Rosalie 
-                                  <span class="float-right" style="margin-top: -2px;"><i class="fas fa-birthday-cake" style="color: #e71515;"></i></span>
-                                </a>
-                                <span class="product-description">
-                                  MIS Staff <span class="float-right" style="margin-top: -2px;">July 5, 2024</span>
-                                </span>
-                                
-                              </div>
-                            </li>
-                            <li class="item">
-                              <div class="product-img">
-                                <img class="border-radius" src="{{ asset('Employee/edwin.jpg') }}" alt="Product Image">
-                              </div>
-                              <div class="product-info">
-                                <a href="#" class="product-title text-dark">Abril Edwin</a>
-                                <span class="product-description">
-                                  MIS Staff  <span class="float-right" style="margin-top: -2px;">July 22, 1997</span>
-                                </span>
-                              </div>
-                            </li>
-                            <li class="item">
-                              <div class="product-img">
-                                <img class="border-radius" src="{{ asset('Employee/kyle.jpg') }}" alt="Product Image">
-                              </div>
-                              <div class="product-info">
-                                <a href="#" class="product-title text-dark">Dalmacio Joshua Kyle</a>
-                                <span class="product-description">
-                                  MIS Staff  <span class="float-right" style="margin-top: -2px;">July 23, 1996</span>
-                                </span>
-                              </div>
-                            </li>
-                            <li class="item">
-                              <div class="product-img">
-                                <img class="border-radius" src="{{ asset('Employee/gmar.jpg') }}" alt="Product Image">
-                              </div>
-                              <div class="product-info">
-                                <a href="#" class="product-title text-dark">Palma Gmar</a>
-                                <span class="product-description">
-                                  MIS Staff  <span class="float-right" style="margin-top: -2px;">July 24, 1995</span>
-                                </span>
-                              </div>
-                            </li>
+                            @foreach($upcomingBirthdays as $employee)
+                              <li class="item">
+                                <div class="product-img">
+                                    @php
+                                        $imageUrl = asset('Profile/Employee/' . $employee->profile);
+                                        $imagePath = public_path('Profile/Employee/' . $employee->profile);
+                                    @endphp
+                                    <img class="border-radius" src="{{ file_exists($imagePath) ? $imageUrl : asset('Profile/Employee/default.png') }}" alt="Product Image">
+                                </div>
+                                <div class="product-info">
+                                  <a href="#" class="product-title text-dark">{{ $employee->name }} 
+                                    <span class="float-right" style="margin-top: -2px;"><i class="fas fa-birthday-cake" style="color: #e71515;"></i></span>
+                                  </a>
+                                  <span class="product-description">
+                                    MIS Staff <span class="float-right" style="margin-top: -2px;">{{ $employee->bdate->format('F j, Y') }}</span>
+                                  </span>
+                                </div>
+                              </li>
+                            @endforeach
                           </ul>
                         </div>
                       </div>
-                    </div>
-                    
+                    </div>                    
                   </div>
                 </div>
                 
