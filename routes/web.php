@@ -120,6 +120,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     Route::prefix('employees')->group(function() {
         Route::get('/', [EmployeeController::class, 'emp_list'])->name('emp_list');
         Route::get('/add', [EmployeeController::class, 'empAdd'])->name('empAdd');
+        Route::get('/generate', [EmployeeController::class, 'genEmp'])->name('genEmp');
 
         Route::post('/create', [EmployeeController::class, 'empCreate'])->name('empCreate');
         Route::post('/update-profile/{id}', [EmployeeController::class, 'updateProfilePicture'])->name('updateProfilePicture');

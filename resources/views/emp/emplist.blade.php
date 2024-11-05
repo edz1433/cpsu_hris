@@ -8,6 +8,9 @@
                 <div class="card-body">
                     <div class="card-header">
                         <div class="card-tools">
+                            <a href="{{ route('genEmp') }}" target="_blank" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-file-pdf"></i> 
+                            </a>
                             <a href="{{ route('empAdd') }}" class="btn btn-outline-success btn-sm">
                                 <i class="fas fa-user-plus"></i> ADD NEW
                             </a>

@@ -364,6 +364,31 @@ class EmployeeController extends Controller
 
         return view("emp.pds", compact('employee', 'supervisor', 'guard', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid', 'columnstatus'));
     }
+
+    public function genEmp(){
+        $customPaper = array(0, 0, 970, 612);
+        $employees = Employee::leftjoin('dbcpsupms.offices', 'employees.emp_dept', '=', 'dbcpsupms.offices.id')
+        ->join('dbcpsupms.statuses', 'employees.emp_status', '=', 'dbcpsupms.statuses.id')
+        ->join('campuses', 'employees.camp_id', '=', 'campuses.id')
+        ->get();
+        
+        $pdf = \PDF::loadView('emp.gen-emp', compact('employees'))->setPaper($customPaper, 'portrait');
+
+        $pdf->setOption('margin-top', 0);
+        $pdf->setOption('margin-right', 0);
+        $pdf->setOption('margin-bottom', 0);
+        $pdf->setOption('margin-left', 0);
+
+        $pdf->setCallbacks([
+            'before_render' => function ($domPdf) {
+                $domPdf->getCanvas()->page_text(10, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, array(0, 0, 0));
+            },
+        ]);
+
+        $pdf->render();
+
+        return $pdf->stream();
+    }
     
     public function empEdit($id)
     {

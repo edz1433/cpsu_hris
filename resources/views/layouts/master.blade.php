@@ -77,11 +77,11 @@
                 <!-- User Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle text-success1" href="#" role="button" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        @if (auth()->guard($guard)->check() && auth()->guard($guard)->user()->profile)
-                            <img src="{{ asset('Profile/Employee/' . auth()->guard($guard)->user()->profile) }}" alt="User Image" class="profile-image">
-                        @else
-                            <img src="{{ asset('Profile/Employee/default.png') }}" alt="User Image" class="profile-image">
-                        @endif
+                        @php
+                            $profileUrl = asset('Profile/Employee/' . auth()->guard($guard)->user()->profile);
+                            $profilePath = public_path('Profile/Employee/' . auth()->guard($guard)->user()->profile);
+                        @endphp
+                        <img src="{{ file_exists($profilePath) && isset(auth()->guard($guard)->user()->profile) ? $profileUrl : asset('Profile/Employee/default.png') }}" alt="User Image" class="profile-image">
                     </a>                    
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
                         {{-- <a class="dropdown-item" href="{{ route('myAccount') }}"><i class="fas fa-key fa-xs"></i> My Account</a> --}}
