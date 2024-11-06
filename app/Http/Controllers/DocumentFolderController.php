@@ -137,7 +137,7 @@ class DocumentFolderController extends Controller
         $folderPath = public_path($folder->folder_path);
         if(\Auth::guard('web')->check()){
             $uid = auth()->guard('web')->user()->id;
-            $documents = Document::leftjoin('cpsupms.employees', 'documents.user_id', '=', 'cpsupms.employees.id')
+            $documents = Document::leftjoin('employees', 'documents.user_id', '=', 'employees.id')
             ->where('folder_id', $id)->get();
         }elseif(\Auth::guard('employee')->check()){
             
@@ -146,10 +146,10 @@ class DocumentFolderController extends Controller
     
             if (!empty($office)) {
                 $offid = $office->id;
-                $documents = Document::join('cpsupms.employees', function ($join) use ($offid, $uid) {
-                    $join->on('documents.user_id', '=', 'cpsupms.employees.id')
+                $documents = Document::join('employees', function ($join) use ($offid, $uid) {
+                    $join->on('documents.user_id', '=', 'employees.id')
                         ->where(function ($query) use ($offid, $uid) {
-                            $query->where('cpsupms.employees.emp_dept', '=', $offid)
+                            $query->where('employees.emp_dept', '=', $offid)
                                 ->orWhere('documents.user_id', '=', $uid);
                         });
                 })
