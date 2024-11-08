@@ -5,9 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\DocuFolder; 
 use App\Models\Document;
+use App\Models\Dpipop;
 
 class DocumentController extends Controller
 {
+    public function getGuard()
+    {
+        if(\Auth::guard('web')->check()) {
+            return 'web';
+        } elseif(\Auth::guard('employee')->check()) {
+            return 'employee';
+        }
+    }
+
     public function storeFile(Request $request, $id)
     {
         $process = isset($request->process) ? $request->process : '';
@@ -89,6 +99,15 @@ class DocumentController extends Controller
 
     }
 
+    public function perRating($empid = null, $folderId){
+        $guard = $this->getGuard();
+        $empid = ($empid) ? $empid : auth()->guard($guard)->user()->id;
+
+        $prs = Dpipop::where('user_id', $empid)->where('folder_id', $folderId)->get();
+
+        return view("drive.pr", compact('guard', 'prs'));
+    }
+    
     public function deleteFile($id)
     {
         $document = Document::find($id);

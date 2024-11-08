@@ -19,7 +19,7 @@
 
 #table-form {
     width: 100%;
-    font-size: 12px;
+    font-size: 10px;
 }
 
 #table-form td, th{
@@ -36,7 +36,9 @@
     width: 30px !important;
     height: 30px !important;
 }
-
+.border-b-n{
+    border-bottom: none;
+}
 
 </style>
 @if(request()->is('spms') || request()->is('spms/*'))
@@ -139,24 +141,27 @@
                 <table id="table-form">
                     <thead>
                         <tr>
-                            <th rowspan="3" class="text-center" width="210">MFO</th>
-                            <th rowspan="3" class="text-center" width="300">Success Indicators <br>(Targets + Measures)</th>
-                            <th rowspan="3" class="text-center" width="300">Actual Accomplishments /<br>Expenses</th>
-                            <th class="text-center" colspan="4">Rating</th>
-                            <th rowspan="3" class="text-center"  width="80">REMARKS</th>
-                            <th rowspan="3" class="text-center b-none"></th>
+                            <th rowspan="4" class="text-center" width="125">MFO/PAPs</th>
+                            <th rowspan="3" class="text-center" width="100">Success Indicators</th>
+                            <th colspan="2" class="text-center" width="100">Evidence</th>
+                            <th rowspan="4" class="text-center" width="70">Allotted Budget</th>
+                            <th rowspan="4" class="text-center" width="70">Division/ Individuals Accountable</th>
+                            <th rowspan="2" colspan="4" class="text-center border-b-n"></th>
+                            <th rowspan="4" class="text-center">Remarks/<br>Accomplishment</th>
                         </tr>
                         <tr>
-                            <th class="text-center" width="60">Q</th>
-                            <th class="text-center" width="60">E</th>
-                            <th class="text-center" width="60">T</th>
-                            <th class="text-center" width="60">A</th>
+                            <th rowspan="3" class="text-center" width="80">Individual Support Documents</th>
+                            <th rowspan="3" class="text-center" width="80">Report of Supervisor/ Other Offices</th>
                         </tr>
                         <tr>
-                            <th class="text-center" style="font-size: 10px;">Quality</th>
-                            <th class="text-center" style="font-size: 10px;">Efficiency</th>
-                            <th class="text-center" style="font-size: 10px;">Timeliness</th>
-                            <th class="text-center" style="font-size: 10px;">Average</th>
+                            <th class="b-none text-center" colspan="4" width="135" height="30">Rating Guide/Accomplishment</th>
+                        </tr>
+                        <tr>
+                            <th>(Targets + Measures)</th>
+                            <th class="text-center" width="135">Q</th>
+                            <th class="text-center" width="135">E</th>
+                            <th class="text-center" width="135">T</th>
+                            <th class="text-center" width="135">A</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-form">
@@ -165,25 +170,6 @@
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td class="b-none text-left"> <i class="fas fa-plus pl-1"></td>
-                        </tr>
-                         <tr>
-                            <td><b>CORE FUNCTIONS (80%)</b></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td class="b-none text-left"> <i class="fas fa-plus pl-1"></td>
-                        </tr>
-                        <tr>
-                            <td><b>SUPPORT FUNCTIONS (5%)</b></td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -219,33 +205,27 @@
                                     <label for="mfo" class="text-success1">MFO</label>
                                     <input type="hidden" name="user_id" class="form-control form-control-sm" value="{{ auth()->guard($guard)->user()->id }}" required>
                                     <input type="hidden" name="folder_id" class="form-control form-control-sm" value="{{ request()->is('spms/*') ? $folder->id : '' }}" required>
-                                    <input type="text" name="mfo[]" class="form-control form-control-sm" id="mfo" placeholder="Enter MFO" required>
+                                    <input type="text" name="mfo[]" class="form-control form-control-sm" id="mfo" value="CORE FUNCTIONS" placeholder="Enter MFO" autocomplete="off" required readonly>
                                 </div>
-                                <div class="form-group col-md-3 row0">
+                                <div class="form-group col-md-4 row0">
                                     <label for="percent" class="text-success1">Percent</label>
-                                    <input type="number" name="percent[]" class="form-control form-control-sm" id="percent" placeholder="percent" required>
-                                </div>
-                                <div class="form-group col-md-1 row0">
-                                    <label for="percent" class="">&nbsp;</label>
+                                    <input type="number" name="percent[]" class="form-control form-control-sm" id="percent" value="5" autocomplete="off" placeholder="percent" required>
                                 </div>
                                 <div class="form-group col-md-8 row1">
-                                    <input type="text" name="mfo[]" class="form-control form-control-sm" id="mfo" placeholder="Enter MFO" required>
+                                    <input type="text" name="mfo[]" class="form-control form-control-sm" id="mfo" value="STRATEGIC FUNCTIONS" placeholder="Enter MFO" autocomplete="off" required readonly>
                                 </div>
-                                <div class="form-group col-md-3 row1">
-                                    <input type="number" name="percent[]" class="form-control form-control-sm" id="percent" placeholder="percent" required>
-                                </div>
-                                <div class="form-group col-md-1 row1">
-                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteRow('row1')"><i class="fas fa-times"></i></button>
+                                <div class="form-group col-md-4 row1">
+                                    <input type="number" name="percent[]" class="form-control form-control-sm" id="percent" value="10" autocomplete="off" placeholder="percent" required>
                                 </div>
                                 <div class="form-group col-md-8 row2">
-                                    <input type="text" name="mfo[]" class="form-control form-control-sm" id="mfo" placeholder="Enter MFO" required>
+                                    <input type="text" name="mfo[]" class="form-control form-control-sm" id="mfo" value="SUPPORT FUNCTIONS" placeholder="Enter MFO" autocomplete="off" required readonly>
                                 </div>
-                                <div class="form-group col-md-3 row2">
-                                    <input type="number" name="percent[]" class="form-control form-control-sm" id="percent" placeholder="percent" required>
+                                <div class="form-group col-md-4 row2">
+                                    <input type="number" name="percent[]" class="form-control form-control-sm" id="percent" value="85" autocomplete="off" placeholder="percent" required>
                                 </div>
-                                <div class="form-group col-md-1 row2">
+                                {{-- <div class="form-group col-md-1 row2">
                                     <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteRow('row2')"><i class="fas fa-times"></i></button>
-                                </div>
+                                </div> --}}
                             </div>
                             <div class="form-row">
                                 <div class="col-md-12 mt-2 text-right">

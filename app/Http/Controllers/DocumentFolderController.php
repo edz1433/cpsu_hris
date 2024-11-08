@@ -103,16 +103,18 @@ class DocumentFolderController extends Controller
 
         $dpipops = Dpipop::join('employees', 'dpipops.user_id', '=', 'employees.id')
         ->where('folder_id', $id)
-        ->select('dpipops.user_id', 'dpipops.mfo', 'dpipops.percent', 'employees.fname', 'employees.lname', 'employees.mname', 'employees.profile', 'employees.id as empid')
+        ->select('dpipops.user_id', 'dpipops.pr_number', 'dpipops.mfo', 'dpipops.percent', 'employees.fname', 'employees.lname', 'employees.mname', 'employees.profile', 'employees.id as empid')
         ->get()
-        ->groupBy('user_id');
-
+        ->groupBy(['pr_number']);
+    
         $topUser = Dpipop::select('user_id')
-        ->selectRaw('COUNT(*) as count')
-        ->groupBy('user_id')
-        ->orderBy('count', 'desc')
-        ->first();
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('user_id')
+            ->orderBy('count', 'desc')
+            ->first();
+    
 
+        $rowCount = 0;
         if ($topUser) {
             $userId = $topUser->user_id;
             $rowCount = Dpipop::where('user_id', $userId)->count();

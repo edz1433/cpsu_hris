@@ -36,7 +36,6 @@
             }
         })
     }
-
 </script>
 
 <script>
@@ -160,7 +159,7 @@
                 formData.append('file', file);
                 $.ajax({
                     type: 'POST',
-                    url: '{{ route("document-store", $id) }}',
+                    url: '{{ route("document-store", $id ?? 0) }}',
                     data: formData,
                     contentType: false,
                     processData: false,

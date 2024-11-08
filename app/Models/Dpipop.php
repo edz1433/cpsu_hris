@@ -9,5 +9,5 @@ class Dpipop extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'folder_id', 'mfo', 'percent'];
+    protected $fillable = ['user_id', 'off_id', 'pr_number', 'folder_id', 'mfo', 'percent'];
 }

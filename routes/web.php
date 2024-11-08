@@ -78,6 +78,9 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/upload/{id}', [DocumentController::class, 'storeFile'])->name('document-store');
         Route::post('/update-file', [DocumentController::class, 'updateFile'])->name('document-update');
         Route::get('/delete-file/{id}', [DocumentController::class, 'deleteFile'])->name('delete-file');
+
+        //performance rating
+        Route::get('/pr/{empid?}/{folderId}', [DocumentController::class, 'perRating'])->name('per-rating');
     });
     
     // Drive Account

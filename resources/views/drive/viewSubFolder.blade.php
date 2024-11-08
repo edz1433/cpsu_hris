@@ -84,7 +84,7 @@
                                     $employee = $mfoItems->first();
                                     $fullName = Str::upper("{$employee->fname} {$employee->mname} {$employee->lname}");
                                 @endphp
-                                <tr data-toggle="modal" data-target="#modal-prform" onclick="showForm('{{ $employee->empid }}', '{{ $folder->id }}')">
+                                <tr onclick="showForm('{{ $employee->empid }}', '{{ $folder->id }}')">
                                     <td width="40">  
                                         <img src="{{ asset('Profile/Employee/'.$employee->profile) }}" alt="User Image" class="profile-image">
                                     </td>
@@ -120,22 +120,15 @@
     });
 </script>
 <script>
-function showForm(employeeId, folderId) {
-    $.ajax({
-        url: '/get-form-data',
-        type: 'POST',
-        data: {
-            _token: '{{ csrf_token() }}',
-            employee_id: employeeId,
-            folder_id: folderId
-        },
-        success: function(response) {
-            $('#modal-prform .modal-body').html(response.formHtml); 
-        },
-        error: function(xhr) {
-            console.error(xhr.responseText);
-        }
-    });
-}
+    function showForm(empid, folderId) {
+        // Open the generated URL in a new tab
+        window.open(
+            "{{ route('per-rating', ['empid' => ':empid', 'folderId' => ':folderId']) }}"
+                .replace(":empid", empid)
+                .replace(":folderId", folderId),
+            "_blank"
+        );
+    }
 </script>
+
 @endsection
