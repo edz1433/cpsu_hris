@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\DocuFolder; 
 use App\Models\Document;
 use App\Models\Dpipop;
+use App\Models\PrData;
 
 class DocumentController extends Controller
 {
@@ -105,7 +106,11 @@ class DocumentController extends Controller
 
         $prs = Dpipop::where('user_id', $empid)->where('folder_id', $folderId)->get();
 
-        return view("drive.pr", compact('guard', 'prs'));
+        $cores = PrData::where("pr_id", $prs[0]->id)->get();
+        $strats = PrData::where("pr_id", $prs[1]->id)->get();
+        $supports = PrData::where("pr_id", $prs[2]->id)->get();
+
+        return view("drive.pr", compact('guard', 'prs', 'cores', 'strats', 'supports'));
     }
     
     public function deleteFile($id)

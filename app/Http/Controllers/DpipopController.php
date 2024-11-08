@@ -45,6 +45,8 @@ class DpipopController extends Controller
     
         Dpipop::insert($data);
 
+
+
         // Retrieve the IDs of the inserted records
         $insertedRecords = Dpipop::where('user_id', $userId)
             ->orderBy('id', 'desc') // Order by descending id to get the most recent ones
@@ -84,7 +86,7 @@ class DpipopController extends Controller
             ],
             [
                 "pr_id" => $secondInsertedRecordId,
-                "mfo" => "<b>StG7. Information and Records Management<b>",
+                "mfo" => "StG7. Information and Records Management",
             ],
 
 
@@ -94,7 +96,7 @@ class DpipopController extends Controller
             ],
             [
                 "pr_id" => $thirdInsertedRecordId,
-                "mfo" => "<b>SuG3. Financial Management<b>",
+                "mfo" => "SuG3. Financial Management",
             ],
             [
                 "pr_id" => $thirdInsertedRecordId,
@@ -102,9 +104,6 @@ class DpipopController extends Controller
                 "target" => "100% Liquidation of cash advances after return to official station for local travel 30 days after travel",
                 "in_support" => "Certification from the Accountant",
                 "div_account" => "All Personnel",
-                "q" => "5 = liquidation was approved upon 1st submission<br>4 = approved upon 2nd submission with minor comments<br>3 = approved upon 2nd submission with major comments<br>2 = approved upon 3rd submission with minor comments<br>1 = approved upon 3rd submission with major comments", 
-                "e" => "5 = liquidated 100% of cash advances<br>1 = failed to liquidated 100% of cash advances",
-                "t" => "5 = submitted report 5 to 10 days early<br>4 = 1 to 4 days early<br>3 = on the deadline<br>2 = 1 to 4 days delayed<br>1 = 5 or more days delayed"
             ],
             [
                 "pr_id" => $thirdInsertedRecordId,
@@ -112,9 +111,6 @@ class DpipopController extends Controller
                 "target" => "100% Liquidation of cash advances for activities are conducted 15 days after activity",
                 "in_support" => "Certification from accountant",
                 "div_account" => "All Personnel",
-                "q" => "5 = liquidation was approved upon 1st submission<br>4 = approved upon 2nd submission with minor comments<br>3 = approved upon 2nd submission with major comments<br>2 = approved upon 3rd submission with minor comments<br>1 = approved upon 3rd submission with major comments", 
-                "e" => "5 = l5 = liquidated 100% of cash advances<br>1 = failed to liquidated 100% of cash advances",
-                "t" => "5 = submitted report 5 to 10 days early<br>4 = 1 to 4 days early<br>3 = on the deadline<br>2 = 1 to 4 days delayed<br>1 = 5 or more days delayed"
             ],
             [
                 "pr_id" => $thirdInsertedRecordId,
@@ -123,9 +119,62 @@ class DpipopController extends Controller
                 "in_support" => "Certification from accountant",
                 "report_sup" => "Accounting Office Report",
                 "div_account" => "All Personnel",
-                "q" => "5 = liquidation was approved upon 1st submission<br>4 = approved upon 2nd submission with minor comments<br>3 = approved upon 2nd submission with major comments<br>2 = approved upon 3rd submission with minor comments<br>1 = approved upon 3rd submission with major comments", 
-                "e" => "5 = l5 = liquidated 100% of cash advances<br>1 = failed to liquidated 100% of cash advances",
-                "t" => "5 = submitted report 5 to 10 days early<br>4 = 1 to 4 days early<br>3 = on the deadline<br>2 = 1 to 4 days delayed<br>1 = 5 or more days delayed"
+            ],
+            [
+                "pr_id" => $thirdInsertedRecordId,
+                "mfo" => "SuG4. Procurement Management",
+            ],
+            [
+                "pr_id" => $thirdInsertedRecordId,
+                "mfo" => "SuG5. Performance Management",
+            ],
+            [
+                "pr_id" => $thirdInsertedRecordId,
+                "mfo" => "Conduct of PBB Client Satisfaction Survey",
+                "target" => "Conduct of PBB Client Satisfaction Survey",
+                "in_support" => "Survey Forms",
+                "div_account" => "All Personnel",
+            ],
+            [
+                "pr_id" => $thirdInsertedRecordId,
+                "mfo" => "",
+                "target" => "100% #8888/CCB complaints resolution (w/in 1 yr)",
+                "report_sup" => "8888 Center report",
+                "div_account" => "All Personnel",
+            ],
+            [
+                "pr_id" => $thirdInsertedRecordId,
+                "mfo" => "",
+                "target" => "100% #8888/CCB compliance within 72 hours",
+                "report_sup" => "8888 Center report",
+                "div_account" => "All Personnel",
+            ],
+            [
+                "pr_id" => $thirdInsertedRecordId,
+                "mfo" => "SuG5i. Attendance to meetings and university activities",
+                "target" => "80% average attendance of employees to university activities (Graduation, Recognition, Charter Anniversary, Convocation, Foundation Anniversary, LGU Charter Anniversary)",
+                "in_support" => "HRMO Report",
+                "div_account" => "All Personnel",
+            ],
+            [
+                "pr_id" => $thirdInsertedRecordId,
+                "target" => "90% of personnel wear prescribed uniform (Monday, Tuesday, Thursday) (average, weekly)",
+                "in_support" => "Office Head report",
+                "div_account" => "All Personnel",
+            ],
+            [
+                "pr_id" => $thirdInsertedRecordId,
+                "mfo" => "SuG6. Human Resource Management",
+            ],
+            [
+                "pr_id" => $thirdInsertedRecordId,
+                "target" => "100% (__/__)  submission of Daily Time Record with complete attachments within 5 working days of the following month",
+                "report_sup" => "OH Monitoring/ HR Monitoring",
+                "div_account" => "All Personnel",
+            ],
+            [
+                "pr_id" => $thirdInsertedRecordId,
+                "mfo" => "SuG7a. Information Management",
             ],
         ];
 

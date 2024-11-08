@@ -201,27 +201,27 @@
                         <form id="uploadForm" method="POST" action="{{ request()->is('spms/*') ? route('createpr') : '' }}" enctype="multipart/form-data">
                             @csrf
                             <div class="form-row" id="newrow">
-                                <div class="form-group col-md-8 row0">
+                                <div class="form-group col-md-10 row0">
                                     <label for="mfo" class="text-success1">MFO</label>
                                     <input type="hidden" name="user_id" class="form-control form-control-sm" value="{{ auth()->guard($guard)->user()->id }}" required>
                                     <input type="hidden" name="folder_id" class="form-control form-control-sm" value="{{ request()->is('spms/*') ? $folder->id : '' }}" required>
                                     <input type="text" name="mfo[]" class="form-control form-control-sm" id="mfo" value="CORE FUNCTIONS" placeholder="Enter MFO" autocomplete="off" required readonly>
                                 </div>
-                                <div class="form-group col-md-4 row0">
+                                <div class="form-group col-md-2 row0">
                                     <label for="percent" class="text-success1">Percent</label>
-                                    <input type="number" name="percent[]" class="form-control form-control-sm" id="percent" value="5" autocomplete="off" placeholder="percent" required>
+                                    <input type="number" name="percent[]" class="form-control form-control-sm text-center" id="percent" value="5" autocomplete="off" placeholder="percent" required>
                                 </div>
-                                <div class="form-group col-md-8 row1">
+                                <div class="form-group col-md-10 row1">
                                     <input type="text" name="mfo[]" class="form-control form-control-sm" id="mfo" value="STRATEGIC FUNCTIONS" placeholder="Enter MFO" autocomplete="off" required readonly>
                                 </div>
-                                <div class="form-group col-md-4 row1">
-                                    <input type="number" name="percent[]" class="form-control form-control-sm" id="percent" value="10" autocomplete="off" placeholder="percent" required>
+                                <div class="form-group col-md-2 row1">
+                                    <input type="number" name="percent[]" class="form-control form-control-sm text-center" id="percent" value="10" autocomplete="off" placeholder="percent" required>
                                 </div>
-                                <div class="form-group col-md-8 row2">
+                                <div class="form-group col-md-10 row2">
                                     <input type="text" name="mfo[]" class="form-control form-control-sm" id="mfo" value="SUPPORT FUNCTIONS" placeholder="Enter MFO" autocomplete="off" required readonly>
                                 </div>
-                                <div class="form-group col-md-4 row2">
-                                    <input type="number" name="percent[]" class="form-control form-control-sm" id="percent" value="85" autocomplete="off" placeholder="percent" required>
+                                <div class="form-group col-md-2 row2">
+                                    <input type="number" name="percent[]" class="form-control form-control-sm text-center" id="percent" value="85" autocomplete="off" placeholder="percent" required>
                                 </div>
                                 {{-- <div class="form-group col-md-1 row2">
                                     <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteRow('row2')"><i class="fas fa-times"></i></button>
@@ -229,7 +229,7 @@
                             </div>
                             <div class="form-row">
                                 <div class="col-md-12 mt-2 text-right">
-                                    <button class="btn btn-secondary btn-sm" type="button" id="addRow"><i class="fas fa-plus fa-xs"></i> Add Row</button>
+                                    {{-- <button class="btn btn-secondary btn-sm" type="button" id="addRow"><i class="fas fa-plus fa-xs"></i> Add Row</button> --}}
                                     <button class="btn btn-success btn-sm" type="submit"><i class="fas fa-save"></i> Save</button>
                                 </div>
                             </div>
