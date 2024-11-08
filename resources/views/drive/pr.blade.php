@@ -24,7 +24,22 @@
     .border-b-n{
         border-bottom: none;
     }
+    .modal-dialog {
+        max-width: 90%;
+        height: 90%;
+        margin: 30px auto;
+    }
 </style>
+<div class="modal fade" id="modal-rating" tabindex="-1" role="dialog" aria-labelledby="modal-prform" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <iframe src="{{ asset('Uploads/spms-rating.pdf') }}" frameborder="0" style="width: 100%; height: 80vh;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+<button type="submit" class="btn btn-info btn-sm mb-1 float-right" data-toggle="modal" data-target="#modal-rating" style="margin-right: 30px;"><i class="fas fa-star"></i> rating</button>
 <table id="table-form">
     <thead>
         <tr>
@@ -34,7 +49,7 @@
             <th rowspan="4" class="text-center" width="70">Allotted Budget</th>
             <th rowspan="4" class="text-center" width="70">Division/ Individuals Accountable</th>
             <th rowspan="2" colspan="4" class="text-center border-b-n"></th>
-            <th rowspan="4" class="text-center">Remarks/<br>Accomplishment</th>
+            <th rowspan="4" class="text-center" width="70">Remarks/<br>Accomplishment</th>
         </tr>
         <tr>
             <th rowspan="3" class="text-center" width="80">Individual Support Documents</th>
@@ -44,11 +59,11 @@
             <th class="b-none text-center" colspan="4" width="135" height="30">Rating Guide/Accomplishment</th>
         </tr>
         <tr>
-            <th>(Targets + Measures)</th>
-            <th class="text-center" width="50">Q</th>
-            <th class="text-center" width="50">E</th>
-            <th class="text-center" width="50">T</th>
-            <th class="text-center" width="50">A</th>
+            <th class="text-center">(Targets + Measures)</th>
+            <th class="text-center" width="30">Q</th>
+            <th class="text-center" width="30">E</th>
+            <th class="text-center" width="30">T</th>
+            <th class="text-center" width="30">A</th>
         </tr>
     </thead>
     <tbody id="tbody-form">
@@ -64,7 +79,7 @@
             <td></td>
             <td></td>
             <td></td>
-            <td class="b-none text-left"> <i class="fas fa-plus pl-1"></td>
+            <td class="b-none text-left"> <i class="fas fa-plus fa-lg text-secondary pl-1"></td>
         </tr>
         @foreach($cores as $core)
         <tr>
@@ -79,7 +94,7 @@
             <td class="text-center">{{ $core->trate }}</td>
             <td class="text-center">{{ $core->a }}</td>
             <td class="text-center">{{ $core->remarks }}</td>
-            <td class="b-none text-left"> <i class="fas fa-plus pl-1"></td>
+            <td class="b-none text-left"> <i class="fas fa-pen text-secondary pl-1"></td>
         </tr>
         @endforeach
         <tr>
@@ -94,7 +109,7 @@
             <td></td>
             <td></td>
             <td></td>
-            <td class="b-none text-left"> <i class="fas fa-plus pl-1"></td>
+            <td class="b-none text-left"> <i class="fas fa-plus fa-lg text-secondary pl-1"></td>
         </tr>
         @foreach($strats as $strat)
         <tr>
@@ -109,7 +124,7 @@
             <td class="text-center">{{ $strat->trate }}</td>
             <td class="text-center">{{ $strat->a }}</td>
             <td class="text-center">{{ $strat->remarks }}</td>
-            <td class="b-none text-left"> <i class="fas fa-plus pl-1"></td>
+            <td class="b-none text-left"> <i class="fas fa-pen text-secondary pl-1"></td>
         </tr>
         @endforeach
         <tr>
@@ -124,7 +139,7 @@
             <td></td>
             <td></td>
             <td></td>
-            <td class="b-none text-left"> <i class="fas fa-plus pl-1"></td>
+            <td class="b-none text-left"> <i class="fas fa-plus fa-lg text-secondary pl-1"></td>
         </tr>
         @foreach($supports as $supp)
         <tr>
@@ -139,7 +154,7 @@
             <td class="text-center">{{ $supp->trate }}</td>
             <td class="text-center">{{ $supp->a }}</td>
             <td class="text-center">{{ $supp->remarks }}</td>
-            <td class="b-none text-left"> <i class="fas fa-plus pl-1"></td>
+            <td class="b-none text-left"> <i class="fas fa-pen text-secondary pl-1"></td>
         </tr>
         @endforeach
     </tbody>
