@@ -287,7 +287,51 @@
         })
     });  
 </script>
+<script>   
+    $(document).on('click', '.leaves_delete', function(e){
+        var id = $(this).val();
+        var url = "{{ route('leavesDelete', ['id' => ':id', 'empid' => $employee->id]) }}";
+        url = url.replace(':id', id);
 
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+        });
+    
+        Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed){
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    success: function (response) {  
+                        
+                        $('#b-vl').html(response.vl);
+                        $('#b-sl').html(response.sl);
+
+                        $("#tr-"+id).fadeOut(2000);
+                        Swal.fire({
+                        title:'Deleted!',
+                        text:'Your file has been deleted.',
+                        type:'success',
+                        icon: 'warning',
+                        showConfirmButton: false,
+                        timer: 1000
+                        })
+                    }
+                });
+            }
+        })
+    });  
+</script>
 <script>   
     $(document).on('click', '.leaves_edit', function(e){
         var id = $(this).data('id');
@@ -782,6 +826,48 @@ $(document).ready(function() {
 </script> --}}
 @endif
 @if(request()->is('leaves/') || request()->is('leave/status') || request()->is('leaves/status/*') || request()->is('leave/history*') || request()->is('leave/status/*'))
+<script>   
+    $(document).on('click', '.cacelLeave', function(e){
+        var id = $(this).val();
+        var url = "{{ route('cacelLeave', ['id' => ':id']) }}";
+        url = url.replace(':id', id);
+        
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+        });
+    
+        Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, cancel it!'
+        }).then((result) => {
+            if (result.isConfirmed){
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    success: function (response) {  
+                        Swal.fire({
+                        title:'Deleted!',
+                        text:'Application form canceled successfully.',
+                        type:'success',
+                        icon: 'warning',
+                        showConfirmButton: false,
+                        timer: 2000
+                        }).then(() => {
+                            location.reload();
+                        });
+                    }
+                });
+            }
+        })
+    });  
+</script>
 <script>
     $(document).ready(function() {
         function updateLeaveInfo() {

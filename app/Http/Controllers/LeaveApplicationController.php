@@ -760,4 +760,10 @@ class LeaveApplicationController extends Controller
             return redirect()->back()->with('error', 'Failed to sign the document.');
         }
     }
+
+    public function cacelLeave($id){
+        $leave = LeaveApplication::find($id);
+
+        $leave->delete();
+    }
 }

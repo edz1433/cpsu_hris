@@ -111,6 +111,10 @@
 
                                                                 <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="0" data-max="{{ $leaves->days }}"><i class="fas fa-upload"></i> Upload</button>
                                                             </div>
+                                                        @elseif($leaves->emp_esign == 0 && $leaves->hr_sign == null)
+                                                            <div class="float-right">
+                                                                <button type="button" class="btn btn-danger btn-sm cacelLeave" value="{{ $leaves->id }}" ><i class="fas fa-times"></i> Cancel</button>
+                                                            </div>
                                                         @endif
                                                     </div>
                                                 @endif 
