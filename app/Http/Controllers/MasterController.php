@@ -53,7 +53,7 @@ class MasterController extends Controller
                 : Employee::where('emp_ID', \Auth::guard('web')->user()->campus_id)->count();
 
             $today = Carbon::today();
-
+            
             $upcomingBirthdays = Employee::whereNotNull('employees.bdate')
             ->join('dbcpsupms.offices', 'employees.emp_dept', '=', 'dbcpsupms.offices.id')
             ->select('employees.id', 'employees.fname', 'employees.lname', 'employees.mname', 'employees.profile', 'employees.bdate', 'dbcpsupms.offices.office_abbr')
@@ -61,7 +61,7 @@ class MasterController extends Controller
                 CASE
                     WHEN DATE_FORMAT(employees.bdate, '%m-%d') >= ? THEN 0
                     ELSE 1
-                END, DATE_FORMAT(employees.bdate, '%m-%d') ASC", [$today->format('m-d')]) // Order by upcoming birthdays
+                END, DATE_FORMAT(employees.bdate, '%m-%d') ASC", [$today->format('m-d')])
             ->take(10)
             ->get()
             ->each(function ($employee) {
