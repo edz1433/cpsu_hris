@@ -54,19 +54,20 @@ class MasterController extends Controller
 
             $today = Carbon::today();
 
-            $upcomingBirthdays = Employee::whereNotNull('bdate')
-            ->select('id', 'fname', 'lname', 'mname', 'profile', 'bdate')
+            $upcomingBirthdays = Employee::whereNotNull('employees.bdate')
+            ->join('dbcpsupms.offices', 'employees.emp_dept', '=', 'dbcpsupms.offices.id')
+            ->select('employees.id', 'employees.fname', 'employees.lname', 'employees.mname', 'employees.profile', 'employees.bdate', 'dbcpsupms.offices.office_abbr')
             ->orderByRaw("
                 CASE
-                    WHEN DATE_FORMAT(bdate, '%m-%d') >= ? THEN 0
+                    WHEN DATE_FORMAT(employees.bdate, '%m-%d') >= ? THEN 0
                     ELSE 1
-                END, DATE_FORMAT(bdate, '%m-%d') DESC", [$today->format('m-d')]) // Order by upcoming birthdays
+                END, DATE_FORMAT(employees.bdate, '%m-%d') ASC", [$today->format('m-d')]) // Order by upcoming birthdays
             ->take(10)
             ->get()
             ->each(function ($employee) {
                 $employee->bdate = Carbon::parse($employee->bdate);
             });
-
+        
             return view("home.dashboard", compact('campCount', 'empCount', 'offCount', 'userCount', 'chartEmployee', 'empStatusPercentages', 'upcomingBirthdays', 'guard'));
         }
     

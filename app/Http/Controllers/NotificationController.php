@@ -115,4 +115,20 @@ class NotificationController extends Controller
         // Handle non-AJAX requests
         return response()->json(['html' => '']);
     }
+
+    public function updateNotif($menid,$lappid,$menu){
+        $categories = [
+            "eligibility" => 1,
+            "work-experience" => 2,
+            "voluntary-work" => 3,
+            "learning-dev" => 4
+        ];
+        
+        if (isset($categories[$menu])) {
+            $category = $categories[$menu];
+            $notification = Notification::where('lapp_id', $lappid)->where('category', $category)->where('module', 'pds')->update(['status' => 1]);
+        }  
+
+        return redirect()->route($menu, $menid);
+    }
 }

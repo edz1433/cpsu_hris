@@ -259,7 +259,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     //Notification
     Route::prefix('notification')->group(function() {
         Route::get('/load/{page}', [NotificationController::class, 'loadMore'])->name('notificationload');
-    });   
+        Route::get('/update-notif/{menid}/{lappid}/{menu}', [NotificationController::class, 'updateNotif'])->name('updateNotif');
+    });
 
     // Logout
     Route::prefix('leave')->group(function() {
@@ -277,6 +278,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         
         Route::post('/get-pdf-path', [LeaveApplicationController::class, 'getPdfPath'])->name('getPdfPath');
     });
+    
     Route::get('/leave/disapprove', [LeaveApplicationController::class, 'leaveDisapprove']);
     Route::get('/logout', [MasterController::class, 'logout'])->name('logout');
 });

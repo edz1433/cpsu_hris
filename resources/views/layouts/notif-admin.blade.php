@@ -61,8 +61,9 @@
                         @endphp
                         <a href="{{ route('leaveStatus', $notif->leave_emp_id) }}" class="dropdown-item d-flex align-items-center">
                             <div class="mr-3">
-                                <img src="{{ asset('Profile/Employee/'.$notif->leave_emp_profile) }}" class="img-circle" alt="User Image" width="40" height="40">
-                            </div>
+                                <img src="{{ file_exists(public_path('Profile/Employee/' . $notif->leave_emp_profile)) ? asset('Profile/Employee/' . $notif->leave_emp_profile) : 
+                                asset('Profile/Employee/default.png') }}" class="img-circle" alt="User Image" width="40" height="40">
+                            </div>                            
                             <div>
                                 <p class="mb-0">
                                     <strong>{{ ucwords(strtolower($notif->leave_emp_fullname)) }}</strong> {{ $remarks }}
@@ -78,36 +79,48 @@
                         @switch($notif->category)
                             @case(1)
                                     @php
+                                        $lappid = $notif->lapp_id;
+                                        $menid = $notif->pds_emp_eligi_id;
                                         $remarks = "has submitted new eligibility.";
                                         $profile = $notif->pds_emp_eligi_profile;
                                         $fullname = $notif->pds_emp_eligi_fullname;
+                                        $menu = "eligibility";
                                     @endphp
                                 @break
                             @case(2)
                                     @php
+                                        $lappid = $notif->lapp_id;
+                                        $menid = $notif->pds_emp_workexp_id;
                                         $remarks = "has submitted new work experience.";
                                         $profile = $notif->pds_emp_workexp_profile;
                                         $fullname = $notif->pds_emp_workexp_fullname;
+                                        $menu = "work-experience";
                                     @endphp
                                 @break
                             @case(3)
                                     @php
+                                        $lappid = $notif->lapp_id;
+                                        $menid = $notif->pds_emp_volworks_id;
                                         $remarks = "has submitted new voluntary works.";
                                         $profile = $notif->pds_emp_volworks_profile;
                                         $fullname = $notif->pds_emp_volworks_fullname;
+                                        $menu = "voluntary-work";
                                     @endphp
                                 @break
                             @case(4)
                                     @php
+                                        $lappid = $notif->lapp_id;
+                                        $menid = $notif->pds_emp_learndev_id;
                                         $remarks = "has submitted new Learning and Development.";
                                         $profile = $notif->pds_emp_learndev_profile;
                                         $fullname = $notif->pds_emp_learndev_fullname;
+                                        $menu = "learning-dev";
                                     @endphp
                                 @break
                             @break
                         @endswitch
             
-                        <a href="{{ route('eligibility', $notif->pds_emp_eligi_id) }}" class="dropdown-item d-flex align-items-center">
+                        <a href="{{ route('updateNotif', ['menid' => $menid, 'lappid' => $lappid, 'menu' => $menu]) }}" class="dropdown-item d-flex align-items-center">
                             <div class="mr-3">
                                 <img src="{{ asset('Profile/Employee/'.$profile) }}" class="img-circle" alt="User Image" width="40" height="40">
                             </div>

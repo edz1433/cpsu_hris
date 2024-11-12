@@ -81,6 +81,8 @@
             <td></td>
             <td class="b-none text-left"> <i class="fas fa-plus fa-lg text-secondary pl-1"></td>
         </tr>
+
+        
         @foreach($cores as $core)
         <tr>
             <td>{{ $core->mfo }}</td>

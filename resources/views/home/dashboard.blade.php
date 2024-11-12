@@ -193,7 +193,7 @@
                                     </span>
                                   </a>
                                   <span class="product-description">
-                                    MIS Staff <span class="float-right" style="margin-top: -2px;">{{ $employee->bdate->format('F j, Y') }}</span>
+                                    {{ $employee->office_abbr }} <span class="float-right" style="margin-top: -2px;">{{ $employee->bdate->format('F j, Y') }}</span>
                                   </span>
                                 </div>
                               </li>
