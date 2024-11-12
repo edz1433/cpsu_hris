@@ -413,22 +413,30 @@
             html: `
                 <input type="number" id="days-without-pay" class="swal2-input" placeholder="Enter days without pay..." 
                     min="0" max="${max}" style="width: calc(85% - 16px);">
+                <input type="number" id="holiday" class="swal2-input" placeholder="Enter holiday days..." 
+                    min="0" style="width: calc(85% - 16px);">
             `,
             preConfirm: () => {
                 var daysWithoutPay = document.getElementById('days-without-pay').value;
+                var holiday = document.getElementById('holiday').value;
     
                 if (!daysWithoutPay || daysWithoutPay < 0 || daysWithoutPay > max) {
-                    Swal.showValidationMessage(`Please enter a valid number of days (0-${max})`);
+                    Swal.showValidationMessage(`Please enter a valid number of days without pay (0-${max})`);
+                    return false;
+                }
+                if (!holiday || holiday < 0) {
+                    Swal.showValidationMessage(`Please enter a valid number of holiday days (0 or more)`);
                     return false;
                 }
     
-                return { daysWithoutPay };
+                return { daysWithoutPay, holiday };
             }
         }).then((result) => {
             if (result.isConfirmed) {
                 var formData = new FormData();
                 formData.append('id', id);
                 formData.append('day_wpay', result.value.daysWithoutPay);
+                formData.append('holiday', result.value.holiday);
                 formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
                 
                 $.ajax({
@@ -438,17 +446,19 @@
                     contentType: false,
                     processData: false,
                     success: function(response) {
-                        $('#days-wpay' + id).html(response.withpay);
-                        $('#days-withoutpay' + id).html(response.withoutpay);
+                        // $('#days-wpay' + id).html(response.withpay);
+                        // $('#days-withoutpay' + id).html(response.withoutpay);
                         Swal.fire({
                             title: 'Approved!',
                             text: 'The request has been approved.',
                             icon: 'success',
                             showConfirmButton: false,
-                            timer: 1000
-                        });
-                        $('#action-button0' + id).fadeOut(1000, function() {
-                            $(this).remove();
+                            timer: 2000
+                        }).then(() => {
+                            location.reload();
+                            // $('#action-button0' + id).fadeOut(1000, function() {
+                            //     $(this).remove();
+                            // });
                         });
                     },
                     error: function(xhr) {
@@ -487,6 +497,7 @@
             }
         });
     });
+</script>
 </script>
 <script>
     $(document).ready(function() {

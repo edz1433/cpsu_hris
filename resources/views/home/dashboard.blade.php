@@ -185,7 +185,7 @@
                                     @php
                                         $birthday = Carbon\Carbon::parse($employee->bdate);
                                     @endphp
-
+                                    
                                     <span class="float-right" style="margin-top: -2px;">
                                         @if (now()->isSameDay($birthday))
                                             <i class="fas fa-birthday-cake" style="color: #e71515;"></i>

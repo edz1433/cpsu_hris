@@ -26,6 +26,7 @@ use App\Models\OtherInfo;
 use App\Models\InfoQuestion;
 use App\Models\PdsReference;
 use App\Models\GovId;
+use App\Models\Device;
 use PDF;
 use Illuminate\Support\Facades\Hash;
 
@@ -109,7 +110,7 @@ class PdsController extends Controller
         $guard = $this->getGuard();
         $empid = auth()->guard($guard)->user()->id; 
         $employee = Employee::find($empid);
-
+        $devices = Device::all();
         $columnstatus = $this->columnStat($employee->emp_ID);
         
         $hprovinces = Province::where('region_id', $employee->add_region)->get();
@@ -130,8 +131,8 @@ class PdsController extends Controller
         $stat = Status::where('status_name', '!=', 'Part-time/JO')->get();
         $quali = Qualification::all();
         $camp = Campus::where('id', auth()->guard($guard)->user()->camp_id)->get();
-
-        return view("emp.pds", compact('employee', 'supervisor', 'guard', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid', 'columnstatus'));
+        
+        return view("emp.pds", compact('employee', 'supervisor', 'guard', 'devices', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid', 'columnstatus'));
     }
 
     public function generatepds($id = null){

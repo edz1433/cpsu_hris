@@ -28,6 +28,7 @@ use App\Models\InfoQuestion;
 use App\Models\PdsReference;
 use App\Models\GovId;
 use App\Models\PayrollEmployee;
+use App\Models\Device;
 use Illuminate\Support\Facades\Hash;
 
 class EmployeeController extends Controller
@@ -342,6 +343,7 @@ class EmployeeController extends Controller
         $empid = $id; 
         $employee = Employee::find($empid);
         $columnstatus = $this->columnStat($employee->emp_ID);
+        $devices = Device::all();
 
         $hprovinces = Province::where('region_id', $employee->add_region)->get();
         $hcities = City::where('city_id', $employee->add_city)->get();
@@ -362,7 +364,7 @@ class EmployeeController extends Controller
         $quali = Qualification::all();
         $camp = (auth()->user()->campus_id == 1) ? Campus::all() : Campus::where('id', auth()->user()->campus_id)->get();
 
-        return view("emp.pds", compact('employee', 'supervisor', 'guard', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid', 'columnstatus'));
+        return view("emp.pds", compact('employee', 'supervisor', 'guard', 'devices', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid', 'columnstatus'));
     }
 
     public function genEmp(){

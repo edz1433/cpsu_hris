@@ -49,6 +49,8 @@ class LeaveApplication extends Model
         'balance',
         'status',
         'gen_app',
+        'as_of',
+        'holiday'
     ];
 
     public function office()

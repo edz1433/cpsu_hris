@@ -254,7 +254,7 @@
             <tr>
                 <td colspan="3" class="bordered details vlt" width="116" style="height: 100px !important;">
                     <span>7.A CERTIFICATION OF LEAVE CREDITS</span><br>
-                    <center>As of <span style="width: 45.9%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ isset($leaveApplication->pres_sdate) ? strtoupper(\Carbon\Carbon::parse($leaveApplication->pres_sdate)->format('M d, Y')) : '' }}</b></span></center>
+                    <center>As of <span style="width: 45.9%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ isset($leaveApplication->as_of) ? strtoupper(\Carbon\Carbon::parse($leaveApplication->as_of)->format('M d, Y')) : '' }}</b></span></center>
                     <div style="margin-top: 17%; margin-left: 29%;">
                         <span style="font-size: 8px !important; color: white;">.</span>
                     </div>

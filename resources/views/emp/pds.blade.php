@@ -284,7 +284,15 @@
                                     <label class="badge badge-secondary lbel">Mobile Number</label><br>
                                     <input type="text" name="mobile" id="mobile" value="{{ $employee->mobile }}" data-column-id="{{ $empid }}" data-column-name="mobile" class="form-control form-control-sm update-field" placeholder="N/A">
                                 </div>
-
+                                
+                                <div class="col-md-3">
+                                    <label class="badge badge-secondary lbel">Biometric Area</label><br>
+                                    <select class="form-control form-control-sm select2 update-field" style="width: 100%;" name="supervisor">
+                                        @foreach ($devices as $dev)
+                                            <option value="{{ $dev->id }}" data-column-id="{{ $empid }}" data-column-name="area_id" @if($employee->area_id == $dev->id) selected @endif>{{ $dev->label }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group mtop">

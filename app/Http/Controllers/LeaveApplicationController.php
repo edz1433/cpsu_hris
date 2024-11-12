@@ -180,6 +180,7 @@ class LeaveApplicationController extends Controller
         $request->validate([
             'id' => 'required',
             'day_wpay' => 'required',
+            'holiday' => 'required',
         ]);
     
         $leaveApplication = LeaveApplication::find($request->id);
@@ -191,7 +192,12 @@ class LeaveApplicationController extends Controller
         }
     
         // $leaveApplication->hr_sdate = Carbon::now();
+        $leaveApplication->holiday = $request->holiday;
+        
+        $leaveApplication->days -= $request->holiday;
+
         $leaveApplication->day_wpay = $request->day_wpay;
+
         $daysdeduct = $leaveApplication->days - $request->day_wpay;
         
         if ($leavetype == 3) {
@@ -234,6 +240,7 @@ class LeaveApplicationController extends Controller
         }
         
         $leaveApplication->emp_esign = 1;
+        $leaveApplication->as_of = Carbon::now();
         $leaveApplication->save();
         
         Notification::where('lapp_id', $leaveApplication->id)->where('category', 1)->where('module', '=', 'leave')->where('utype', '=', 'hr')->update(['status' => 1]);
