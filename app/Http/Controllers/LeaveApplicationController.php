@@ -763,7 +763,7 @@ class LeaveApplicationController extends Controller
 
     public function cacelLeave($id){
         $leave = LeaveApplication::find($id);
-
+        
         $leave->delete();
     }
 }
