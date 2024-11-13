@@ -104,6 +104,7 @@
                                                     <div class="timeline-footer" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
                                                         @if($leaves->emp_esign == 1)
                                                             <div class="float-right mb-4">
+                                                                <button type="button" class="btn btn-danger btn-sm cacelLeave" value="{{ $leaves->id }}" ><i class="fas fa-times"></i> Cancel</button>
                                                                 
                                                                 <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
                                                                     <i class="fas fa-file-pdf"></i> View
