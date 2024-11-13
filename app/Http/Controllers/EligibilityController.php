@@ -131,7 +131,7 @@ class EligibilityController extends Controller
             'date_exam' => 'required',
             'place_exam' => 'required',
             'number' => 'required',
-            'date_valid' => 'required',
+            'date_valid' => 'nullable',
             'attachment' => 'required|file|mimes:pdf',
         ]);
 
