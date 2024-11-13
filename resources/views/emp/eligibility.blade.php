@@ -59,7 +59,7 @@
                                         
                                         <div class="col-md-3">
                                             <label class="badge badge-secondary text-wrap lbel">RATING (If Applicable)</label>
-                                            <input type="number" name="rating" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($eligibilityedit) ? $eligibilityedit->rating : '' }}" autocomplete="off">
+                                            <input type="number" name="rating" step="0.01" min="0" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($eligibilityedit) ? $eligibilityedit->rating : '' }}" autocomplete="off">
                                         </div>
                                         
                                         <div class="col-md-3">
