@@ -74,17 +74,21 @@ class EmployeeController extends Controller
     {
         $guard = $this->getGuard();
         $user = User::where('username', auth()->user()->username)->first();
+        
+        // Get offices excluding those containing 'UNKNOWN' or 'CAMPUS'
         $offices = Office::where('office_name', 'not like', '%UNKNOWN%')
-                 ->where('office_name', 'not like', '%CAMPUS%')
-                 ->get();
+                         ->where('office_name', 'not like', '%CAMPUS%')
+                         ->get();
     
+        // Get statuses excluding 'Part-time/JO'
         $stat = Status::where('status_name', '!=', 'Part-time/JO')->get();
     
         if (auth()->user()->role == "Payroll Extension") {
+            // Further filter statuses if the user's role is 'Payroll Extension'
             $stat->whereNotIn('status_name', ['Regular', 'Part-time/JO'])->get();
         }
     
-        // Create the query
+        // Create the employee query with window function
         $employee = Employee::join('dbcpsupms.offices', 'employees.emp_dept', '=', 'dbcpsupms.offices.id')
             ->join('dbcpsupms.statuses', 'employees.emp_status', '=', 'dbcpsupms.statuses.id')
             ->join('campuses', 'employees.camp_id', '=', 'campuses.id')
@@ -103,19 +107,26 @@ class EmployeeController extends Controller
                 'campuses.campus_abbr'
             );
     
-        // Optional: Filter by campus_id if the user is not an administrator
-        // if (auth()->user()->role != "Administrator" && auth()->user()->role != "Payroll Administrator") {
-        //     $employee->where('employees.camp_id', '=', auth()->user()->campus_id);
-        // }
+        // Optional: Filter by campus_id if the user is not an administrator or payroll admin
+        if (auth()->user()->role != "Administrator" && auth()->user()->role != "Payroll Administrator") {
+            $employee->where('employees.camp_id', '=', auth()->user()->campus_id);
+        }
     
         // Execute the query and retrieve the results
         $employee = $employee->get();
+    
+        // Get all qualifications
         $quali = Qualification::all();
-        $camp = (auth()->user()->campus_id == 1) ? Campus::all() : Campus::where('id', auth()->user()->campus_id)->get();
+    
+        // Get campuses based on the user's campus_id
+        $camp = (auth()->user()->campus_id == 1) 
+                ? Campus::all() 
+                : Campus::where('id', auth()->user()->campus_id)->get();
     
         // Return the view with the data
         return view("emp.emplist", compact('employee', 'offices', 'stat', 'quali', 'camp', 'guard'));
     }
+    
     
 
     public function empAdd(){
