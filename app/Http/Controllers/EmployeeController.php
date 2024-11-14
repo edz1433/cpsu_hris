@@ -77,35 +77,46 @@ class EmployeeController extends Controller
         $offices = Office::where('office_name', 'not like', '%UNKNOWN%')
                  ->where('office_name', 'not like', '%CAMPUS%')
                  ->get();
-
+    
         $stat = Status::where('status_name', '!=', 'Part-time/JO')->get();
-
+    
         if (auth()->user()->role == "Payroll Extension") {
             $stat->whereNotIn('status_name', ['Regular', 'Part-time/JO'])->get();
         }
-        
+    
+        // Create the query
         $employee = Employee::join('dbcpsupms.offices', 'employees.emp_dept', '=', 'dbcpsupms.offices.id')
-        ->join('dbcpsupms.statuses', 'employees.emp_status', '=', 'dbcpsupms.statuses.id')
-        ->join('campuses', 'employees.camp_id', '=', 'campuses.id')
-        ->select(
-            DB::raw('ROW_NUMBER() OVER (ORDER BY employees.id) as ids'),
-            DB::raw("CONCAT(employees.lname, ', ', employees.fname, ' ', employees.mname) AS full_name"),
-            'employees.*',
-            'offices.office_name',
-            'statuses.status_name',
-            'campuses.campus_abbr',
-        );
-        
+            ->join('dbcpsupms.statuses', 'employees.emp_status', '=', 'dbcpsupms.statuses.id')
+            ->join('campuses', 'employees.camp_id', '=', 'campuses.id')
+            ->select(
+                DB::raw('ROW_NUMBER() OVER (ORDER BY employees.id) as ids'),
+                DB::raw("CONCAT(employees.lname, ', ', employees.fname, ' ', employees.mname) AS full_name"),
+                'employees.id',
+                'employees.lname',
+                'employees.fname',
+                'employees.mname',
+                'employees.emp_dept',
+                'employees.emp_status',
+                'employees.camp_id',
+                'offices.office_name',
+                'statuses.status_name',
+                'campuses.campus_abbr'
+            );
+    
+        // Optional: Filter by campus_id if the user is not an administrator
         // if (auth()->user()->role != "Administrator" && auth()->user()->role != "Payroll Administrator") {
         //     $employee->where('employees.camp_id', '=', auth()->user()->campus_id);
         // }
     
+        // Execute the query and retrieve the results
         $employee = $employee->get();
         $quali = Qualification::all();
         $camp = (auth()->user()->campus_id == 1) ? Campus::all() : Campus::where('id', auth()->user()->campus_id)->get();
     
+        // Return the view with the data
         return view("emp.emplist", compact('employee', 'offices', 'stat', 'quali', 'camp', 'guard'));
     }
+    
 
     public function empAdd(){
         $regions = Region::all();
