@@ -72,10 +72,11 @@ class EmployeeController extends Controller
 
     public function emp_list()
     {
+        // Get guard and user details
         $guard = $this->getGuard();
         $user = User::where('username', auth()->user()->username)->first();
         
-        // Get offices excluding those containing 'UNKNOWN' or 'CAMPUS'
+        // Get offices excluding 'UNKNOWN' and 'CAMPUS'
         $offices = Office::where('office_name', 'not like', '%UNKNOWN%')
                          ->where('office_name', 'not like', '%CAMPUS%')
                          ->get();
@@ -88,13 +89,11 @@ class EmployeeController extends Controller
             $stat->whereNotIn('status_name', ['Regular', 'Part-time/JO'])->get();
         }
     
-        // Create the employee query with window function
+        // Create the employee query with Eloquent relationships
         $employee = Employee::join('dbcpsupms.offices', 'employees.emp_dept', '=', 'dbcpsupms.offices.id')
             ->join('dbcpsupms.statuses', 'employees.emp_status', '=', 'dbcpsupms.statuses.id')
             ->join('campuses', 'employees.camp_id', '=', 'campuses.id')
             ->select(
-                DB::raw('ROW_NUMBER() OVER (ORDER BY employees.id) as ids'),
-                DB::raw("CONCAT(employees.lname, ', ', employees.fname, ' ', employees.mname) AS full_name"),
                 'employees.id',
                 'employees.lname',
                 'employees.fname',
@@ -106,14 +105,20 @@ class EmployeeController extends Controller
                 'statuses.status_name',
                 'campuses.campus_abbr'
             );
-    
-        // Optional: Filter by campus_id if the user is not an administrator or payroll admin
+        
+        // Optionally, apply campus_id filter if the user is not an administrator
         if (auth()->user()->role != "Administrator" && auth()->user()->role != "Payroll Administrator") {
             $employee->where('employees.camp_id', '=', auth()->user()->campus_id);
         }
     
-        // Execute the query and retrieve the results
+        // Retrieve employees
         $employee = $employee->get();
+    
+        // Manually add row numbers to employees collection
+        $employee = $employee->map(function($item, $key) {
+            $item->ids = $key + 1; // Row number starts from 1
+            return $item;
+        });
     
         // Get all qualifications
         $quali = Qualification::all();
@@ -126,7 +131,6 @@ class EmployeeController extends Controller
         // Return the view with the data
         return view("emp.emplist", compact('employee', 'offices', 'stat', 'quali', 'camp', 'guard'));
     }
-    
     
 
     public function empAdd(){
