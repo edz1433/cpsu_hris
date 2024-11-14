@@ -79,8 +79,8 @@
                         @switch($notif->category)
                             @case(1)
                                     @php
-                                        $lappid = $notif->lapp_id;
-                                        $menid = $notif->pds_emp_eligi_id;
+                                        $lappid = $notif->lapp_id ?? 0;
+                                        $menid = $notif->pds_emp_eligi_id ?? 0;
                                         $remarks = "has submitted new eligibility.";
                                         $profile = $notif->pds_emp_eligi_profile;
                                         $fullname = $notif->pds_emp_eligi_fullname;
@@ -89,8 +89,8 @@
                                 @break
                             @case(2)
                                     @php
-                                        $lappid = $notif->lapp_id;
-                                        $menid = $notif->pds_emp_workexp_id;
+                                        $lappid = $notif->lapp_id ?? 0;
+                                        $menid = $notif->pds_emp_workexp_id ?? 0;
                                         $remarks = "has submitted new work experience.";
                                         $profile = $notif->pds_emp_workexp_profile;
                                         $fullname = $notif->pds_emp_workexp_fullname;
@@ -99,8 +99,8 @@
                                 @break
                             @case(3)
                                     @php
-                                        $lappid = $notif->lapp_id;
-                                        $menid = $notif->pds_emp_volworks_id;
+                                        $lappid = $notif->lapp_id ?? 0;
+                                        $menid = $notif->pds_emp_volworks_id ?? 0;
                                         $remarks = "has submitted new voluntary works.";
                                         $profile = $notif->pds_emp_volworks_profile;
                                         $fullname = $notif->pds_emp_volworks_fullname;
@@ -109,8 +109,8 @@
                                 @break
                             @case(4)
                                     @php
-                                        $lappid = $notif->lapp_id;
-                                        $menid = $notif->pds_emp_learndev_id;
+                                        $lappid = $notif->lapp_id ?? 0;
+                                        $menid = $notif->pds_emp_learndev_id ?? 0;
                                         $remarks = "has submitted new Learning and Development.";
                                         $profile = $notif->pds_emp_learndev_profile;
                                         $fullname = $notif->pds_emp_learndev_fullname;

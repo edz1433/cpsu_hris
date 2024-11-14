@@ -386,74 +386,74 @@
                     <th colspan="2" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->spouse_fname) }}</th>
                     <th class="tl bg2"><span style="font-size: 5px; display: block;">EXTENSION (JR, SR.)</span> <span class="f1">{!! isset($datas['familyBg']->spouse_ext) ? $datas['familyBg']->spouse_ext : '<span style="color:#eaeaea;">.</span>' !!}</span></th>
                     <th class="bordered" colspan="3">{{ isset($children_array[0]) ? strtoupper(trim($children_array[0])) : ''; }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[0]) ? \Carbon\Carbon::parse(trim($children_bday[0]))->format('m/d/Y') : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[0]) && !empty($children_bday[0]) ? \Carbon\Carbon::parse(trim($children_bday[0]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">&nbsp;&nbsp;MIDDLE NAME</td>
                     <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->spouse_mname) }}</th>
                     <th class="bordered" colspan="3">{{ isset($children_array[1]) ? strtoupper(trim($children_array[1])) : ''; }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[1]) ? \Carbon\Carbon::parse(trim($children_bday[1]))->format('m/d/Y') : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[1]) && !empty($children_bday[1]) ? \Carbon\Carbon::parse(trim($children_bday[1]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">&nbsp;&nbsp;OCCUPATION</td>
                     <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->occupation) }}</th>
                     <th class="bordered" colspan="3">{{ isset($children_array[2]) ? strtoupper(trim($children_array[2])) : ''; }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[2]) ? \Carbon\Carbon::parse(trim($children_bday[2]))->format('m/d/Y') : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[2]) && !empty($children_bday[2]) ? \Carbon\Carbon::parse(trim($children_bday[2]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2" style="font-size: 8px;">&nbsp;&nbsp;EMPLOYER/BUSINESS NAME</td>
                     <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->bus_name) }}</th>
                     <th class="bordered" colspan="3">{{ isset($children_array[3]) ? strtoupper(trim($children_array[3])) : ''; }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[3]) ? \Carbon\Carbon::parse(trim($children_bday[3]))->format('m/d/Y') : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[3]) && !empty($children_bday[3]) ? \Carbon\Carbon::parse(trim($children_bday[3]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">&nbsp;&nbsp;BUSINESS ADDRESS</td>
                     <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->bus_address) }}</th>
                     <th class="bordered" colspan="3">{{ isset($children_array[4]) ? strtoupper(trim($children_array[4])) : ''; }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[4]) ? \Carbon\Carbon::parse(trim($children_bday[4]))->format('m/d/Y') : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[4]) && !empty($children_bday[4]) ? \Carbon\Carbon::parse(trim($children_bday[4]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">&nbsp;&nbsp;TELEPHONE NO.</td>
                     <th colspan="3" class="bordered pl1 tl">{{ $datas['familyBg']->telephone }}</th>
                     <th class="bordered" colspan="3">{{ isset($children_array[5]) ? strtoupper(trim($children_array[5])) : ''; }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[5]) ? \Carbon\Carbon::parse(trim($children_bday[5]))->format('m/d/Y') : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[5]) && !empty($children_bday[5]) ? \Carbon\Carbon::parse(trim($children_bday[5]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl2 bt bg2" width="100">24. FATHERE'S SURNAME</td>
                     <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->father_sname) }}</th>
                     <th colspan="3" class="bordered pl1 tl">{{ isset($children_array[6]) ? strtoupper(trim($children_array[6])) : ''; }}</th>
-                    <th colspan="2" class="bordered pl1 tl">{{ isset($children_bday[6]) ? \Carbon\Carbon::parse(trim($children_bday[6]))->format('m/d/Y') : ''; }}</th>
+                    <th colspan="2" class="bordered pl1 tl">{{ isset($children_bday[6]) && !empty($children_bday[6]) ? \Carbon\Carbon::parse(trim($children_bday[6]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">&nbsp;&nbsp;FIRST NAME</td>
                     <th colspan="2" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->father_fname) }}</th>
                     <th class="tl bg2" style=""><span style="font-size: 5px; display: block;">EXTENSION (JR, SR.)</span> <span class="f1">{!! isset($datas['familyBg']->father_ext) ? $datas['familyBg']->father_ext : '<span style="color:#eaeaea;">.</span>' !!}</span></th>
                     <th class="bordered" colspan="3">{{ isset($children_array[7]) ? strtoupper(trim($children_array[7])) : ''; }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[7]) ? \Carbon\Carbon::parse(trim($children_bday[7]))->format('m/d/Y') : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[7]) && !empty($children_bday[7]) ? \Carbon\Carbon::parse(trim($children_bday[7]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">&nbsp;&nbsp;MIDDLE NAME</td>
                     <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->father_mname) }}</th>
                     <th class="bordered" colspan="3">{{ isset($children_array[8]) ? strtoupper(trim($children_array[8])) : ''; }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[8]) ? \Carbon\Carbon::parse(trim($children_bday[8]))->format('m/d/Y') : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[8]) && !empty($children_bday[8]) ? \Carbon\Carbon::parse(trim($children_bday[8]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl2 bt bg2" width="100" style="font-size: 8.8px !important;">25. MOTHERE'S MAIDEN NAME</td>
                     <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->mother_maiden) }}</th>
                     <th colspan="3" class="bordered pl1 tl">{{ isset($children_array[9]) ? strtoupper(trim($children_array[9])) : ''; }}</th>
-                    <th colspan="2" class="bordered pl1 tl">{{ isset($children_bday[9]) ? \Carbon\Carbon::parse(trim($children_bday[9]))->format('m/d/Y') : ''; }}</th>
+                    <th colspan="2" class="bordered pl1 tl">{{ isset($children_bday[9]) && !empty($children_bday[9]) ? \Carbon\Carbon::parse(trim($children_bday[9]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">&nbsp;&nbsp;SURNAME</td>
                     <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->mother_sname) }}</th>
                     <th class="bordered" colspan="3">{{ isset($children_array[10]) ? strtoupper(trim($children_array[10])) : ''; }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[10]) ? \Carbon\Carbon::parse(trim($children_bday[10]))->format('m/d/Y') : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[10]) && !empty($children_bday[10]) ? \Carbon\Carbon::parse(trim($children_bday[10]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">&nbsp;&nbsp;FIRST NAME</td>
                     <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->mother_fname) }}</th>
                     <th class="bordered" colspan="3">{{ isset($children_array[11]) ? strtoupper(trim($children_array[11])) : ''; }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[11]) ? \Carbon\Carbon::parse(trim($children_bday[11]))->format('m/d/Y') : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[11]) && !empty($children_bday[11]) ? \Carbon\Carbon::parse(trim($children_bday[11]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bb bg2">&nbsp;&nbsp;MIDDLE NAME</td>
@@ -724,8 +724,8 @@
                 @foreach($datas['learningdev'] as $learning)
                     <tr>
                         <th class="bordered tl">{{ strtoupper($learning->learning_dev) }}</th>
-                        <th class="bordered">{{ $learning->inc_date1 }}</th>
-                        <th class="bordered">{{ $learning->inc_date2 }}</th>
+                        <th class="bordered">{{ \Carbon\Carbon::parse($learning->inc_date1)->format('m/d/Y') }}</th>
+                        <th class="bordered">{{ \Carbon\Carbon::parse($learning->inc_date2)->format('m/d/Y') }}</th>                        
                         <th class="bordered">{{ $learning->num_hours.' Hrs.' }}</th>
                         <th class="bordered">{{ strtoupper($learning->types) }}</th>
                         <th class="bordered">{{ strtoupper($learning->conducted) }}</th>
