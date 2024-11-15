@@ -95,6 +95,9 @@ class EmployeeController extends Controller
             ->join('campuses', 'employees.camp_id', '=', 'campuses.id')
             ->select(
                 'employees.id',
+                'employees.emp_ID',
+                'employees.position',
+                'employees.org_email',
                 'employees.lname',
                 'employees.fname',
                 'employees.mname',
