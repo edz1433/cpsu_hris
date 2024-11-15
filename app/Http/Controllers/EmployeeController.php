@@ -106,7 +106,9 @@ class EmployeeController extends Controller
                 'employees.camp_id',
                 'offices.office_name',
                 'statuses.status_name',
-                'campuses.campus_abbr'
+                'campuses.campus_abbr',
+                'employees.emp_status',
+                'employees.stat_1'
             );
         
         // Optionally, apply campus_id filter if the user is not an administrator
