@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Tirdeness & Undertime</title>
+        <title>Tardiness & Undertime</title>
         <style>
             body {
                 font-family: Arial, sans-serif;
