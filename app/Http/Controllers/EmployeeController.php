@@ -296,7 +296,7 @@ class EmployeeController extends Controller
                 throw new Exception("Model {$modelClass} not found.");
             }
         }
-         
+            
         return redirect()->back()->with('success', 'Employee added successfully.');
     }
 
