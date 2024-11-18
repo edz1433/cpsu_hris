@@ -7,7 +7,7 @@
             <div class="card card-info card-outline">
                 <div class="card-header">
                     <h2 class="card-title text-success1">
-                        <b>TIREDNESS & UNDERTIME</b>
+                        <b>TARDINESS & UNDERTIME</b>
                     </h2>
                 </div>
                 <div class="card-body">

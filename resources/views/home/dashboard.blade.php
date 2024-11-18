@@ -66,7 +66,7 @@
                               <a href="{{ route('readTiredness'); }}">
                                 <div class="small-box pl-1 pt-2 bg-white">
                                     <div class="inner">
-                                        <h6 class="text-muted">Tiredness & Undertime</h6>
+                                        <h6 class="text-muted">Tardiness & Undertime</h6>
                                         <h3>0</h3>
                                     </div>
                                     <div class="icon">
