@@ -311,7 +311,7 @@ class LeaveApplicationController extends Controller
             $leaveApplication->gen_app = str_replace('public/', '', $newFilePath);
             $leaveApplication->save();
         }
-
+        
         $leave = [
             1 => 'vl',
             2 => 'vl',
