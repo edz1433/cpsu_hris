@@ -548,7 +548,8 @@ class LeaveApplicationController extends Controller
         ]);
     }    
 
-    public function genApplication($id) {
+    public function genApplication($id)
+    {
         $leaveApplication = LeaveApplication::with(['office:id,office_name,office_abbr'])
             ->join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
             ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
@@ -565,7 +566,7 @@ class LeaveApplicationController extends Controller
                 'pres.suffix as president_suffix', 'pres.prefix as president_prefix'
             )
             ->where('leave_applications.id', $id)->first();
-        
+    
         $customPaper = [0, 0, 595.28, 841.89];
         $pdf = \PDF::loadView('leaves.generate-leave', compact('leaveApplication'))->setPaper($customPaper, 'portrait')
             ->setOption('margin-top', 0)
@@ -578,23 +579,26 @@ class LeaveApplicationController extends Controller
                 }
             ]);
     
-        $directoryPath = public_path('Uploads/Leaveapplication');
         $randomNumber = mt_rand(100000, 999999);
-        
         $fileName = $randomNumber . '_leave_application_' . $id . '.pdf';
-        $filePath = $directoryPath . '/' . $fileName;
-
-        if (!file_exists($directoryPath)) {
-            mkdir($directoryPath, 0777, true);
+    
+        // Save file in storage/app/public/Leaveapplication
+        $filePath = 'Leaveapplication/' . $fileName;
+        $storagePath = storage_path('app/public/' . $filePath);
+    
+        // Ensure the directory exists
+        if (!file_exists(dirname($storagePath))) {
+            mkdir(dirname($storagePath), 0777, true);
         }
-
-        $leaveApplication->gen_app = 'Uploads/Leaveapplication/' . $fileName;
+    
+        $pdf->save($storagePath);
+    
+        // Update the `gen_app` column in the database
+        $leaveApplication->gen_app = $filePath;
         $leaveApplication->save();
-
-        $pdf->save($filePath);
-
+    
         return $filePath;
-    }    
+    }
     
     public function previewLeave($id){
         $guard = $this->getGuard();
@@ -690,15 +694,21 @@ class LeaveApplicationController extends Controller
     public function getPdfPath(Request $request)
     {
         $leaveId = $request->input('id');
-
-        $leave = LeaveApplication::find($leaveId);
-
-        if ($leave && $leave->gen_app) {
-            return response()->json(['path' => asset($leave->gen_app)]);
+    
+        if (!$leaveId) {
+            return response()->json(['error' => 'Leave ID is required'], 400);
         }
-
+    
+        $leave = LeaveApplication::find($leaveId);
+    
+        if ($leave && $leave->gen_app) {
+            $path = Storage::disk('public')->url($leave->gen_app);
+            return response()->json(['path' => $path]);
+        }
+    
         return response()->json(['error' => 'PDF not found'], 404);
     }
+    
 
     public function leaveLive($id = null)
     {

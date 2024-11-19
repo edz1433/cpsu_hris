@@ -86,17 +86,19 @@ class LeaveCreditController extends Controller
         return redirect()->back()->with('success', 'Save successfully.');
     }
 
-    public function leavescreditDeduct(Request $request){
+    public function leavescreditDeduct(Request $request)
+    {
         $authid = auth()->user()->id;
         $currentDate = Carbon::now()->format('Y-m');
-
+    
         $request->validate([
             'empid' => 'required|exists:employees,id',
             'sl' => 'required|numeric|min:0',
             'vl' => 'required|numeric|min:0',
         ]);
+    
         $employee = Employee::find($request->empid);
-
+    
         $leavecredit = LeaveCredit::create([
             'empid' => $employee->emp_ID,
             'days' => 0,
@@ -106,13 +108,13 @@ class LeaveCreditController extends Controller
             'date' => $request->date ?? $currentDate,
             'add_by' => $authid,
             'stat' => 1,
-        ]); 
-
-        Employee::where('id', $request->empid)->update([
-            'sl' => \DB::raw('sl - ' . $request->sl),
-            'vl' => \DB::raw('vl - ' . $request->vl),
         ]);
-        
+    
+        Employee::where('id', $request->empid)->update([
+            'sl' => \DB::raw('ROUND(sl - ' . $request->sl . ', 3)'),
+            'vl' => \DB::raw('ROUND(vl - ' . $request->vl . ', 3)'),
+        ]);
+    
         Notification::create([
             'empid' => $employee->emp_ID,
             'lapp_id' => $leavecredit->id,
@@ -120,9 +122,9 @@ class LeaveCreditController extends Controller
             'utype' => 'employee',
             'module' => 'leavecredit',
         ]);
-
+    
         return redirect()->back()->with('success', 'Save successfully.');
-    }
+    }    
     
     public function leavesEdit(Request $request){
         $leavecredit = LeaveCredit::find($request->id);

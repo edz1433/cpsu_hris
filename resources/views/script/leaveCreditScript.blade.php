@@ -916,6 +916,10 @@ $(document).ready(function() {
         $('#pdfModal').on('show.bs.modal', function(event) {
             var button = $(event.relatedTarget);
             var leaveId = button.data('id');
+            var pdfIframe = $('#pdfIframe');
+
+            pdfIframe.attr('src', '');
+
             $.ajax({
                 url: "{{ route('getPdfPath') }}",
                 type: 'POST',
@@ -925,14 +929,15 @@ $(document).ready(function() {
                 },
                 success: function(response) {
                     if (response.path) {
-                        $('#pdfIframe').attr('src', response.path);
+                        pdfIframe.attr('src', response.path);
                     } else {
                         console.error('PDF path not found');
+                        alert('The PDF file could not be found.');
                     }
                 },
                 error: function(xhr, status, error) {
                     console.error('Error loading PDF:', error);
-                    $('#pdfIframe').attr('src', '');
+                    alert('An error occurred while loading the PDF.');
                 }
             });
         });
@@ -942,5 +947,4 @@ $(document).ready(function() {
         });
     });
 </script>
-    
 @endif
