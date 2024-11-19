@@ -10,6 +10,7 @@ use App\Models\LeaveApplication;
 use App\Models\Notification;
 use App\Models\Setting;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class LeaveApplicationController extends Controller
 {
@@ -694,16 +695,14 @@ class LeaveApplicationController extends Controller
     public function getPdfPath(Request $request)
     {
         $leaveId = $request->input('id');
-    
-        if (!$leaveId) {
-            return response()->json(['error' => 'Leave ID is required'], 400);
-        }
-    
         $leave = LeaveApplication::find($leaveId);
     
         if ($leave && $leave->gen_app) {
-            $path = Storage::disk('public')->url($leave->gen_app);
-            return response()->json(['path' => $path]);
+            $filePath = 'public/' . $leave->gen_app;
+    
+            if (Storage::exists($filePath)) {
+                return response()->json(['path' => Storage::url($filePath)]);
+            }
         }
     
         return response()->json(['error' => 'PDF not found'], 404);

@@ -912,39 +912,36 @@ $(document).ready(function() {
     });
 </script>
 <script>
-    $(document).ready(function() {
-        $('#pdfModal').on('show.bs.modal', function(event) {
-            var button = $(event.relatedTarget);
-            var leaveId = button.data('id');
-            var pdfIframe = $('#pdfIframe');
-
-            pdfIframe.attr('src', '');
-
-            $.ajax({
-                url: "{{ route('getPdfPath') }}",
-                type: 'POST',
-                data: {
-                    id: leaveId,
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    if (response.path) {
-                        pdfIframe.attr('src', response.path);
-                    } else {
-                        console.error('PDF path not found');
-                        alert('The PDF file could not be found.');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error loading PDF:', error);
-                    alert('An error occurred while loading the PDF.');
+$(document).ready(function() {
+    $('#pdfModal').on('show.bs.modal', function(event) {
+        var button = $(event.relatedTarget);
+        var leaveId = button.data('id');
+        $.ajax({
+            url: "{{ route('getPdfPath') }}",
+            type: 'POST',
+            data: {
+                id: leaveId,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.path) {
+                    var fullPath = "{{ url('/') }}" + response.path;
+                    $('#pdfIframe').attr('src', fullPath);
+                } else {
+                    console.error('PDF path not found');
                 }
-            });
-        });
-
-        $('#pdfModal').on('hidden.bs.modal', function() {
-            $('#pdfIframe').attr('src', '');
+            },
+            error: function(xhr, status, error) {
+                console.error('Error loading PDF:', error);
+                $('#pdfIframe').attr('src', '');
+            }
         });
     });
+
+    $('#pdfModal').on('hidden.bs.modal', function() {
+        $('#pdfIframe').attr('src', '');
+    });
+});
 </script>
+    
 @endif
