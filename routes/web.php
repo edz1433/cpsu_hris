@@ -276,7 +276,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/history/{id?}', [LeaveApplicationController::class, 'historyRead'])->name('historyRead');
         Route::post('/return/{id?}', [LeaveApplicationController::class, 'leaveReturn'])->name('leaveReturn');
 
-        Route::post('/cacelLeave/{id}', [LeaveApplicationController::class, 'cacelLeave'])->name('cacelLeave');
+        Route::post('/cacelLeave/{id}', [LeaveApplicationController::class, 'cancelLeave'])->name('cancelLeave');
         
         Route::post('/get-pdf-path', [LeaveApplicationController::class, 'getPdfPath'])->name('getPdfPath');
     });

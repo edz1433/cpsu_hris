@@ -764,18 +764,20 @@ class LeaveApplicationController extends Controller
     public function cancelLeave($id)
     {
         $leave = LeaveApplication::find($id);
-        
+    
         if ($leave) {
             $empid = $leave->empid;
     
             $leave->delete();
-            
-            $notification = Notification::where('lapp_id', $id)
-            ->where('empid', $empid)
-            ->where('module', 'leave')->get();
-            
-            $notification->delete();
+    
+            Notification::where('lapp_id', $id)
+                ->where('empid', $empid)
+                ->where('module', '=', 'leave')
+                ->delete();
         }
+    
+        return response()->json(['success' => true, 'message' => 'Leave application canceled.']);
     }
+    
     
 }

@@ -826,10 +826,10 @@ $(document).ready(function() {
 </script> --}}
 @endif
 @if(request()->is('leaves/') || request()->is('leave/status') || request()->is('leaves/status/*') || request()->is('leave/history*') || request()->is('leave/status/*'))
-<script>   
-    $(document).on('click', '.cacelLeave', function(e){
+<script>
+    $(document).on('click', '.cancelLeave', function (e) {
         var id = $(this).val();
-        var url = "{{ route('cacelLeave', ['id' => ':id']) }}";
+        var url = "{{ route('cancelLeave', ['id' => ':id']) }}";
         url = url.replace(':id', id);
         
         $.ajaxSetup({
@@ -837,37 +837,46 @@ $(document).ready(function() {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
         });
-    
+
         Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, cancel it!'
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, cancel it!'
         }).then((result) => {
-            if (result.isConfirmed){
+            if (result.isConfirmed) {
                 $.ajax({
                     type: "POST",
                     url: url,
-                    success: function (response) {  
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: 'Deleted!',
+                                text: response.message,
+                                icon: 'success',
+                                showConfirmButton: false,
+                                timer: 2000
+                            }).then(() => {
+                                location.reload();
+                            });
+                        }
+                    },
+                    error: function () {
                         Swal.fire({
-                        title:'Deleted!',
-                        text:'Application form canceled successfully.',
-                        type:'success',
-                        icon: 'warning',
-                        showConfirmButton: false,
-                        timer: 2000
-                        }).then(() => {
-                            location.reload();
+                            title: 'Error!',
+                            text: 'Something went wrong. Please try again.',
+                            icon: 'error',
                         });
                     }
                 });
             }
-        })
-    });  
+        });
+    });
 </script>
+
 <script>
     $(document).ready(function() {
         function updateLeaveInfo() {
