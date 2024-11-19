@@ -107,23 +107,27 @@
                 <!-- Sidebar user panel (optional) -->
                 <div class="user-panel mt-4 d-flex">
                     <div class="image">
-                        @if (auth()->guard($guard)->check() && auth()->guard($guard)->user()->profile)
-                            <img src="{{ asset('Profile/Employee/' . auth()->guard($guard)->user()->profile) }}" class="img-circle1 elevation-2" alt="User Image">
-                        @else
-                            <img src="{{ asset('Profile/Employee/default.png') }}" class="img-circle1 elevation-2" alt="User Image">
-                        @endif
+                        @php
+                            $profileUrl = asset('Profile/Employee/' . auth()->guard($guard)->user()->profile);
+                            $profilePath = public_path('Profile/Employee/' . auth()->guard($guard)->user()->profile);
+                        @endphp
+                        <img src="{{ file_exists($profilePath) && auth()->guard($guard)->check() && auth()->guard($guard)->user()->profile ? $profileUrl : asset('Profile/Employee/default.png') }}" 
+                             class="img-circle1 elevation-2" 
+                             alt="User Image">
                     </div>                    
                     <div class="info ml-2" style="margin-top: -7px;">
-                        <span class="d-block">{{ ucwords(strtolower(auth()->guard($guard)->user()->fname)) }} {{ ucwords(strtolower(auth()->guard($guard)->user()->lname)) }}                        </span>
+                        <span class="d-block">
+                            {{ ucwords(strtolower(auth()->guard($guard)->user()->fname)) }} {{ ucwords(strtolower(auth()->guard($guard)->user()->lname)) }}
+                        </span>
                         <span class="d-block text-sm text-muted">
-                        @if($guard == "employee")
-                            {{ (auth()->guard($guard)->user()->emp_status == 1)  ? auth()->guard($guard)->user()->position : 'Employee' }}
-                        @else
-                            {{ ucfirst(auth()->guard($guard)->user()->role) }}
-                        @endif
+                            @if($guard == "employee")
+                                {{ auth()->guard($guard)->user()->emp_status == 1 ? auth()->guard($guard)->user()->position : 'Employee' }}
+                            @else
+                                {{ ucfirst(auth()->guard($guard)->user()->role) }}
+                            @endif
                         </span>
                     </div>
-                </div>
+                </div>                
                 <hr>
                 <!-- Sidebar Menu -->
                 @include('partials.control')
