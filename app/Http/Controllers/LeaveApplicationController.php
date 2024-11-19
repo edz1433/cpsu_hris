@@ -299,14 +299,17 @@ class LeaveApplicationController extends Controller
             $filenameArray = explode('/', $originalPath);
             $filename = end($filenameArray);
 
-            if (file_exists(public_path($originalPath)) && !is_dir(public_path($originalPath))) {
-                unlink(public_path($originalPath));
+            if (Storage::exists($originalPath)) {
+                Storage::delete($originalPath);
             }
-    
-            $path = public_path('Uploads/Leaveapplication');
-    
+
+            $storagePath = 'public/Leaveapplication';
+
             $file = $request->file('file');
-            $file->move($path, $filename);
+            $newFilePath = $file->storeAs($storagePath, $filename);
+
+            $leaveApplication->gen_app = str_replace('public/', '', $newFilePath);
+            $leaveApplication->save();
         }
 
         $leave = [
@@ -580,25 +583,29 @@ class LeaveApplicationController extends Controller
                 }
             ]);
     
-        $randomNumber = mt_rand(100000, 999999);
-        $fileName = $randomNumber . '_leave_application_' . $id . '.pdf';
-    
-        // Save file in storage/app/public/Leaveapplication
-        $filePath = 'Leaveapplication/' . $fileName;
-        $storagePath = storage_path('app/public/' . $filePath);
-    
-        // Ensure the directory exists
-        if (!file_exists(dirname($storagePath))) {
-            mkdir(dirname($storagePath), 0777, true);
-        }
-    
-        $pdf->save($storagePath);
-    
-        // Update the `gen_app` column in the database
-        $leaveApplication->gen_app = $filePath;
-        $leaveApplication->save();
-    
-        return $filePath;
+            $randomNumber = mt_rand(100000, 999999);
+            $fileName = $randomNumber . '_leave_application_' . $id . '.pdf';
+            
+            $filePath = 'Leaveapplication/' . $fileName;
+            $storagePath = storage_path('app/public/' . $filePath);
+            
+            if (!empty($leaveApplication->gen_app)) {
+                $oldFilePath = storage_path('app/public/' . $leaveApplication->gen_app);
+                if (file_exists($oldFilePath)) {
+                    unlink($oldFilePath);
+                }
+            }
+            
+            if (!file_exists(dirname($storagePath))) {
+                mkdir(dirname($storagePath), 0777, true);
+            }
+            
+            $pdf->save($storagePath);
+            
+            $leaveApplication->gen_app = $filePath;
+            $leaveApplication->save();
+            
+            return $filePath;
     }
     
     public function previewLeave($id){
@@ -698,16 +705,17 @@ class LeaveApplicationController extends Controller
         $leave = LeaveApplication::find($leaveId);
     
         if ($leave && $leave->gen_app) {
+            // Ensure the file path starts with 'public/'
             $filePath = 'public/' . $leave->gen_app;
     
             if (Storage::exists($filePath)) {
+                // Return only the relative path
                 return response()->json(['path' => Storage::url($filePath)]);
             }
         }
-    
+        
         return response()->json(['error' => 'PDF not found'], 404);
     }
-    
 
     public function leaveLive($id = null)
     {
@@ -787,6 +795,4 @@ class LeaveApplicationController extends Controller
     
         return response()->json(['success' => true, 'message' => 'Leave application canceled.']);
     }
-    
-    
 }
