@@ -761,9 +761,21 @@ class LeaveApplicationController extends Controller
         }
     }
 
-    public function cacelLeave($id){
+    public function cancelLeave($id)
+    {
         $leave = LeaveApplication::find($id);
         
-        $leave->delete();
+        if ($leave) {
+            $empid = $leave->empid;
+    
+            $leave->delete();
+            
+            $notification = Notification::where('lapp_id', $id)
+            ->where('empid', $empid)
+            ->where('module', 'leave')->get();
+            
+            $notification->delete();
+        }
     }
+    
 }

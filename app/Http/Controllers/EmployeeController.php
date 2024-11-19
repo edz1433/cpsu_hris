@@ -112,9 +112,9 @@ class EmployeeController extends Controller
             );
         
         // Optionally, apply campus_id filter if the user is not an administrator
-        if (auth()->user()->role != "Administrator" && auth()->user()->role != "Payroll Administrator") {
-            $employee->where('employees.camp_id', '=', auth()->user()->campus_id);
-        }
+        // if (auth()->user()->role != "Administrator" && auth()->user()->role != "Payroll Administrator") {
+        //     $employee->where('employees.camp_id', '=', auth()->user()->campus_id);
+        // }
     
         // Retrieve employees
         $employee = $employee->get();
@@ -296,7 +296,7 @@ class EmployeeController extends Controller
                 throw new Exception("Model {$modelClass} not found.");
             }
         }
-            
+
         return redirect()->back()->with('success', 'Employee added successfully.');
     }
 
