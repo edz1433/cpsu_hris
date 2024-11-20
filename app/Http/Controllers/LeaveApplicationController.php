@@ -10,6 +10,7 @@ use App\Models\LeaveApplication;
 use App\Models\Notification;
 use App\Models\Setting;
 use Carbon\Carbon;
+use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
 
 class LeaveApplicationController extends Controller
@@ -295,19 +296,38 @@ class LeaveApplicationController extends Controller
         }
     
         if ($request->hasFile('file')) {
+            // Get the original file path
             $originalPath = $leaveApplication->gen_app;
             $filenameArray = explode('/', $originalPath);
             $filename = end($filenameArray);
-
+        
+            // Delete the existing file if it exists
             if (Storage::exists($originalPath)) {
                 Storage::delete($originalPath);
             }
-
+        
+            // Define the storage path for the new file
             $storagePath = 'public/Leaveapplication';
-
+        
+            // Get the uploaded file
             $file = $request->file('file');
-            $newFilePath = $file->storeAs($storagePath, $filename);
-
+        
+            // Convert PDF to image using Intervention Image
+            $image = Image::make($file->getRealPath());
+        
+            // Save the image as a temporary file (PNG)
+            $tempImagePath = storage_path('app/public/temp_image.png');
+            $image->save($tempImagePath);
+        
+            // Now create a new PDF from the image
+            // (You'll need a PDF library to create a PDF from the image, like dompdf or fpdf)
+            $pdf = \PDF::loadView('pdf_template', ['image' => $tempImagePath]);
+            $newFilePath = $pdf->save(storage_path('app/'.$storagePath.'/'.$filename));
+        
+            // Remove the temporary image file
+            unlink($tempImagePath);
+        
+            // Update the leave application record with the new file path
             $leaveApplication->gen_app = str_replace('public/', '', $newFilePath);
             $leaveApplication->save();
         }
