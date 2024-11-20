@@ -620,21 +620,16 @@
                 formData.append('by', by);
                 formData.append('file', result.value.file);
                 formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
-
-                var csrfToken = $('meta[name="csrf-token"]').attr('content');
-                alert(csrfToken);
-                if (!csrfToken) {
-                    console.error("CSRF token not found. Please include the meta tag.");
-                    return;
-                }
-                formData.append('_token', csrfToken);
-
+                
                 $.ajax({
                     type: "POST",
                     url: approveUrl,
                     data: formData,
                     contentType: false,
                     processData: false,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     success: function(response) {
                         Swal.fire({
                             title: 'Approved!',
