@@ -622,6 +622,7 @@
                 formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
 
                 var csrfToken = $('meta[name="csrf-token"]').attr('content');
+                alert(csrfToken);
                 if (!csrfToken) {
                     console.error("CSRF token not found. Please include the meta tag.");
                     return;
