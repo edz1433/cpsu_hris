@@ -271,7 +271,7 @@ class LeaveApplicationController extends Controller
             'id' => 'required|integer|exists:leave_applications,id',
             'by' => 'required|integer|min:0|max:3',
             'day_wpay' => 'nullable|numeric',
-            'file' => 'required|file|mimes:pdf'
+            'file' => 'required|file|mimes:pdf|max:5048'
         ]);
         
         $leaveApplication = LeaveApplication::find($request->id);
