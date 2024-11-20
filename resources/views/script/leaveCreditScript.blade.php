@@ -619,8 +619,7 @@
                 formData.append('id', id);
                 formData.append('by', by);
                 formData.append('file', result.value.file);
-                formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
-                
+                // formData.append('_token', $('meta[name="csrf-token"]').attr('content'));    
                 $.ajax({
                     type: "POST",
                     url: approveUrl,
