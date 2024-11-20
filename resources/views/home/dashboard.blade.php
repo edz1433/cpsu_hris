@@ -215,7 +215,7 @@
         history.go(1);
     };
 </script>
-<script>
+{{-- <script>
   // Get the current date
   const currentDate = new Date();
   
@@ -233,5 +233,5 @@
   document.getElementById('monthInput').addEventListener('click', function() {
       this.showPicker = () => {};
   });
-</script>
+</script> --}}
 @endsection
