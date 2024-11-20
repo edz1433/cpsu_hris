@@ -677,7 +677,7 @@
                         } else {
                             Swal.fire({
                                 title: 'Error!',
-                                text: 'An error occurred while '+ errortext +' the leave.',
+                                text: 'An error occurred while '+ errortext +' the leave form.',
                                 icon: 'error',
                                 showConfirmButton: true,
                             });
