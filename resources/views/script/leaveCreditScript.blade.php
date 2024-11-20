@@ -621,6 +621,13 @@
                 formData.append('file', result.value.file);
                 formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
 
+                var csrfToken = $('meta[name="csrf-token"]').attr('content');
+                if (!csrfToken) {
+                    console.error("CSRF token not found. Please include the meta tag.");
+                    return;
+                }
+                formData.append('_token', csrfToken);
+
                 $.ajax({
                     type: "POST",
                     url: approveUrl,
