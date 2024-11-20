@@ -122,7 +122,12 @@
             
                         <a href="{{ route('updateNotif', ['menid' => $menid, 'lappid' => $lappid, 'menu' => $menu]) }}" class="dropdown-item d-flex align-items-center">
                             <div class="mr-3">
-                                <img src="{{ asset('Profile/Employee/'.$profile) }}" class="img-circle" alt="User Image" width="40" height="40">
+                                @php
+                                    $profileUrl = asset('Profile/Employee/' . $profile);
+                                    $profilePath = public_path('Profile/Employee/' . $profile);
+                                @endphp
+                                <img src="{{ file_exists($profilePath) && $profile ? $profileUrl : asset('Profile/Employee/default.png') }}" 
+                                     class="img-circle" alt="User Image" width="40" height="40">
                             </div>
                             <div>
                                 <p class="mb-0">
@@ -132,7 +137,7 @@
                                     {{ $timeDifference }}
                                 </span>
                             </div>
-                        </a>
+                        </a>                        
                     @break
                 @endswitch
             
