@@ -296,24 +296,27 @@ class LeaveApplicationController extends Controller
     
         if ($request->hasFile('file')) {
             $originalPath = $leaveApplication->gen_app;
-            $filenameArray = explode('/', $originalPath);
-            $filename = end($filenameArray);
             
-            // Ensure correct storage disk and check existence
-            if (Storage::disk('local')->exists($originalPath)) {
-                Storage::disk('local')->delete($originalPath);
+            // Extract the filename from the original path
+            $filename = basename($originalPath);
+        
+            // Check if the original file exists and delete it
+            if (Storage::disk('public')->exists($originalPath)) {
+                Storage::disk('public')->delete($originalPath);
             }
-            
-            $storagePath = 'public/Leaveapplication';
-            
-            // Upload the new file
+        
+            // Define the storage path for the new file
+            $storagePath = 'Leaveapplication';
+        
+            // Get the uploaded file and store it
             $file = $request->file('file');
-            $newFilePath = $file->storeAs($storagePath, $filename, 'local');
-            
+            $newFilePath = $file->storeAs($storagePath, $filename, 'public');
+        
             // Update the model with the new file path
-            $leaveApplication->gen_app = str_replace('public/', '', $newFilePath);
+            $leaveApplication->gen_app = $newFilePath;
             $leaveApplication->save();
         }
+        
         
         $leave = [
             1 => 'vl',
