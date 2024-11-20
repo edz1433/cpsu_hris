@@ -271,7 +271,7 @@ class LeaveApplicationController extends Controller
             'id' => 'required|integer|exists:leave_applications,id',
             'by' => 'required|integer|min:0|max:3',
             'day_wpay' => 'nullable|numeric',
-            // 'file' => 'required'`
+            // 'file' => 'required|file|mimes:pdf'
         ]);
         
         $leaveApplication = LeaveApplication::find($request->id);
@@ -298,19 +298,20 @@ class LeaveApplicationController extends Controller
             $originalPath = $leaveApplication->gen_app;
             $filenameArray = explode('/', $originalPath);
             $filename = end($filenameArray);
-    
+
             if (Storage::exists($originalPath)) {
                 Storage::delete($originalPath);
             }
-    
+
             $storagePath = 'public/Leaveapplication';
+
             $file = $request->file('file');
             $newFilePath = $file->storeAs($storagePath, $filename);
-    
+
             $leaveApplication->gen_app = str_replace('public/', '', $newFilePath);
             $leaveApplication->save();
         }
-        
+
         $leave = [
             1 => 'vl',
             2 => 'vl',
