@@ -298,16 +298,15 @@ class LeaveApplicationController extends Controller
             $originalPath = $leaveApplication->gen_app;
             $filenameArray = explode('/', $originalPath);
             $filename = end($filenameArray);
-
+    
             if (Storage::exists($originalPath)) {
                 Storage::delete($originalPath);
             }
-
+    
             $storagePath = 'public/Leaveapplication';
-
             $file = $request->file('file');
             $newFilePath = $file->storeAs($storagePath, $filename);
-
+    
             $leaveApplication->gen_app = str_replace('public/', '', $newFilePath);
             $leaveApplication->save();
         }

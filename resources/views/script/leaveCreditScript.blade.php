@@ -619,16 +619,14 @@
                 formData.append('id', id);
                 formData.append('by', by);
                 formData.append('file', result.value.file);
-                // formData.append('_token', $('meta[name="csrf-token"]').attr('content'));    
+                formData.append('_token', $('meta[name="csrf-token"]').attr('content'));  // Ensure CSRF token is added
+
                 $.ajax({
                     type: "POST",
                     url: approveUrl,
                     data: formData,
                     contentType: false,
                     processData: false,
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
                     success: function(response) {
                         Swal.fire({
                             title: 'Approved!',
