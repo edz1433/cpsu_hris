@@ -220,8 +220,8 @@ class LeaveCreditController extends Controller
         $employee = Employee::find($empid);
 
         $employee->update([
-            'sl' => $employee->sl - $emp->earn_sl,
-            'vl' => $employee->vl - $emp->earn_vl,
+            'sl' => $employee->sl + $emp->earn_sl,
+            'vl' => $employee->vl + $emp->earn_vl,
         ]);
 
         $emp->delete();
