@@ -587,6 +587,7 @@
         var by = $(this).data('by');
         var approveUrl = "{{ route('leaveApprove') }}";
         var btnapp = (by == 0) ? 'Yes, Submit it!' : 'Yes, approve it!';
+        var errortext = (by == 0) ? 'uploading' : 'approving';
 
         Swal.fire({
             title: 'Are you sure?',
@@ -676,7 +677,7 @@
                         } else {
                             Swal.fire({
                                 title: 'Error!',
-                                text: 'An error occurred while approving the leave.',
+                                text: 'An error occurred while '+ errortext +' the leave.',
                                 icon: 'error',
                                 showConfirmButton: true,
                             });
