@@ -302,7 +302,7 @@ class LeaveApplicationController extends Controller
             if (Storage::exists($originalPath)) {
                 Storage::delete($originalPath);
             }
-
+            
             $storagePath = 'public/Leaveapplication';
 
             $file = $request->file('file');
