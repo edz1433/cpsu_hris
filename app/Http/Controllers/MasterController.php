@@ -9,6 +9,12 @@ use App\Models\Office;
 use App\Models\Campus;
 use App\Models\User;
 use App\Models\DocuFolder;
+use App\Models\Dtr;
+use App\Models\LeaveApplication;
+use App\Models\Eligibility;
+use App\Models\WorkExperience;
+use App\Models\LearningDev;
+use App\Models\VoluntaryWork;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
@@ -30,7 +36,16 @@ class MasterController extends Controller
         $guard = $this->getGuard();
         $userCount = User::all();
         $campCount = Campus::all();
-        $chartEmployee = Employee::all();
+        $dtrCount = Dtr::whereDate('date', Carbon::now('Asia/Manila')->toDateString())->count();
+        $leaveapp1 = LeaveApplication::where('emp_esign', 0)->count('empid');
+        $leaveapp2 = LeaveApplication::where('emp_esign', 2)->where('history', 1)->where('status', 1)->count('empid');
+        $leaveappCount = $leaveapp1 + $leaveapp2;
+        $chartEmployee = Employee::where('stat_1', 1)->get();
+
+        $eliCount = Eligibility::where('status', 0)->count();
+        $workexpCount = WorkExperience::where('status', 0)->count();
+        $learDevCount = LearningDev::where('status', 0)->count();
+        $volWorkCount = VoluntaryWork::where('status', 0)->count();
 
         $totalEmployees = $chartEmployee->count();
         $empStatuses = [1, 2, 3, 4];
@@ -48,10 +63,6 @@ class MasterController extends Controller
             $today = Carbon::now();
             $currentYear = $today->year;
 
-            $empCount = (\Auth::guard('web')->user()->campus_id == 1)
-                ? Employee::count()
-                : Employee::where('emp_ID', \Auth::guard('web')->user()->campus_id)->count();
-
             $today = Carbon::today();
             
             $upcomingBirthdays = Employee::whereNotNull('employees.bdate')
@@ -68,7 +79,7 @@ class MasterController extends Controller
                 $employee->bdate = Carbon::parse($employee->bdate);
             });
         
-            return view("home.dashboard", compact('campCount', 'empCount', 'offCount', 'userCount', 'chartEmployee', 'empStatusPercentages', 'upcomingBirthdays', 'guard'));
+            return view("home.dashboard", compact('campCount', 'eliCount', 'workexpCount', 'learDevCount', 'volWorkCount', 'dtrCount', 'totalEmployees', 'leaveappCount', 'eliCount', 'offCount', 'userCount', 'chartEmployee', 'empStatusPercentages', 'upcomingBirthdays', 'guard'));
         }
     
         if (\Auth::guard('employee')->check()) {

@@ -3,7 +3,7 @@
 @section('body')
 <style>
     .bg-white {
-        border-radius: 25px;
+        border-radius: 15px;
     }
     .icon{
         position: absolute;
@@ -30,10 +30,10 @@
                               <div class="small-box pl-1 pt-2 bg-white">
                                   <div class="inner">
                                       <h6 class="text-gray">Employee</h6>
-                                      <h3 class="">{{ number_format($empCount) }}</h3>
+                                      <h3 class="">{{ number_format($totalEmployees) }}</h3>
                                   </div>
                                   <div class="icon">
-                                      <i class="fa-solid fa-user-group" style="color: #51A9F8; font-size: 30px !important;"></i>
+                                      <i class="fa-solid fa-user-tie" style="color: #9E9E9E; font-size: 30px !important;"></i>
                                   </div>
                               </div>
                           </div>
@@ -42,10 +42,10 @@
                               <div class="small-box pl-1 pt-2 bg-white">
                                   <div class="inner">
                                       <h6 class="text-muted">Present</h6>
-                                      <h3>0</h3>
+                                      <h3>{{ number_format($dtrCount) }}</h3>
                                   </div>
                                   <div class="icon">
-                                      <i class="fa-solid fa-users-viewfinder" style="color: #D2BD90; font-size: 30px !important;"></i>
+                                      <i class="fa-solid fa-users-viewfinder" style="color: #607D8B; font-size: 30px !important;"></i>
                                   </div>
                               </div>
                           </div>
@@ -53,15 +53,15 @@
                               <!-- small box -->
                               <div class="small-box pl-1 pt-2 bg-white">
                                   <div class="inner">
-                                      <h6 class="text-muted">Late</h6>
-                                      <h3>0</h3>
+                                      <h6 class="text-muted">Absent</h6>
+                                      <h3>{{ number_format($totalEmployees - $dtrCount) }}</h3>
                                   </div>
                                   <div class="icon">
-                                      <i class="fas fa-clock" style="color: #E6AB83; font-size: 30px !important;"></i>
+                                      <i class="fas fa-users-viewfinder" style="color: #FF7043; font-size: 30px !important;"></i>
                                   </div>
                               </div>
                           </div>
-                          <div class="col-lg-3 col-6">
+                          {{-- <div class="col-lg-3 col-6">
                               <!-- small box -->
                               <a href="{{ route('readTiredness'); }}">
                                 <div class="small-box pl-1 pt-2 bg-white">
@@ -74,6 +74,81 @@
                                     </div>
                                 </div>
                               </a>
+                          </div> --}}
+                          
+                          <div class="col-lg-3 col-6">
+                            <!-- small box -->
+                            <a href="{{ route('readTiredness'); }}">
+                              <div class="small-box pl-1 pt-2 bg-white">
+                                  <div class="inner">
+                                      <h6 class="text-muted">Leave Application</h6>
+                                      <h3>{{ number_format($leaveappCount) }}</h3>
+                                  </div>
+                                  <div class="icon">
+                                      <i class="fas fa-file-alt"  style="color: #9575CD;  font-size: 30px !important;"></i>
+                                  </div>
+                              </div>
+                            </a>
+                          </div>
+
+                          <div class="col-lg-3 col-6">
+                            <!-- small box -->
+                            <a href="{{ route('readTiredness'); }}">
+                              <div class="small-box pl-1 pt-2 bg-white">
+                                  <div class="inner">
+                                      <h6 class="text-muted">Eligibility</h6>
+                                      <h3>{{ number_format($eliCount) }}</h3>
+                                  </div>
+                                  <div class="icon">
+                                      <i class="fas fa-award"  style="color: #FFEB3B;  font-size: 30px !important;"></i>
+                                  </div>
+                              </div>
+                            </a>
+                          </div>
+
+                          <div class="col-lg-3 col-6">
+                            <!-- small box -->
+                            <a href="{{ route('readTiredness'); }}">
+                              <div class="small-box pl-1 pt-2 bg-white">
+                                  <div class="inner">
+                                      <h6 class="text-muted">Work experience</h6>
+                                      <h3>{{ number_format($workexpCount) }}</h3>
+                                  </div>
+                                  <div class="icon">
+                                      <i class="fas fa-tools"  style="color: #FF5722;  font-size: 30px !important;"></i>
+                                  </div>
+                              </div>
+                            </a>
+                          </div>
+
+                          <div class="col-lg-3 col-6">
+                            <!-- small box -->
+                            <a href="{{ route('readTiredness'); }}">
+                              <div class="small-box pl-1 pt-2 bg-white">
+                                  <div class="inner">
+                                      <h6 class="text-muted">Learning & Development</h6>
+                                      <h3>{{ number_format($learDevCount) }}</h3>
+                                  </div>
+                                  <div class="icon">
+                                      <i class="fas fa-book"  style="color: #7986CB;  font-size: 30px !important;"></i>
+                                  </div>
+                              </div>
+                            </a>
+                          </div>
+
+                          <div class="col-lg-3 col-6">
+                            <!-- small box -->
+                            <a href="{{ route('readTiredness'); }}">
+                              <div class="small-box pl-1 pt-2 bg-white">
+                                  <div class="inner">
+                                      <h6 class="text-muted">Voluntary works</h6>
+                                      <h3>{{ number_format($volWorkCount) }}</h3>
+                                  </div>
+                                  <div class="icon">
+                                      <i class="fas fa-hands-helping"  style="color: #388E3C;  font-size: 30px !important;"></i>
+                                  </div>
+                              </div>
+                            </a>
                           </div>
                       </div>
                     </div>
