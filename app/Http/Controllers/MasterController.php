@@ -13,7 +13,7 @@ use App\Models\Dtr;
 use App\Models\LeaveApplication;
 use App\Models\Eligibility;
 use App\Models\WorkExperience;
-use App\Models\LearningDev;
+use App\Models\LearningDev; 
 use App\Models\VoluntaryWork;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -37,11 +37,9 @@ class MasterController extends Controller
         $userCount = User::all();
         $campCount = Campus::all();
         $dtrCount = Dtr::whereDate('date', Carbon::now('Asia/Manila')->toDateString())->count();
-        $leaveapp1 = LeaveApplication::where('emp_esign', 0)->count('empid');
-        $leaveapp2 = LeaveApplication::where('emp_esign', 2)->where('history', 1)->where('status', 1)->count('empid');
-        $leaveappCount = $leaveapp1 + $leaveapp2;
         $chartEmployee = Employee::where('stat_1', 1)->get();
 
+        $leaveappCount = LeaveApplication::where('emp_esign', '!=', 1)->where('history', 1)->where('status', 1)->count('empid');
         $eliCount = Eligibility::where('status', 0)->count();
         $workexpCount = WorkExperience::where('status', 0)->count();
         $learDevCount = LearningDev::where('status', 0)->count();

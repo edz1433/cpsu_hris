@@ -1,7 +1,7 @@
 <nav style="margin-right: -30px; !important">
     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
         <li class="nav-item">
-            <a href="{{ route('dashboard') }}" class="nav-link text-success1 {{ request()->is('dashboard') || request()->is('myaccount') ? 'active' : '' }}">
+            <a href="{{ route('dashboard') }}" class="nav-link text-success1 {{ request()->is('dashboard') || request()->is('myaccount') || request()->is('pending/*') ? 'active' : '' }}">
                 <i class="pt-1 nav-icon fas fa-tachometer-alt"></i>
                 <p>Dashboard</p>
             </a>
@@ -14,12 +14,17 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a href="{{ route('readTiredness') }}" class="nav-link text-success1 {{ request()->is('tardiness*') ? 'active' : '' }}">
+                    <i class="pt-1 nav-icon fas fa-bed"></i>
+                    <p>Tardiness</p>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="{{ route('officeList') }}" class="nav-link text-success1 {{ request()->is('office*') ? 'active' : '' }}">
                     <i class="pt-1 nav-icon fas fa-building"></i>
                     <p>Offices</p>
                 </a>
-            </li>
-                    
+            </li>  
             <li class="nav-item">
                 <a href="#" class="nav-link text-success1 {{ request()->is('payslip') ? 'active' : '' }}">
                     <i class="pt-1 nav-icon fas fa-file-invoice"></i>

@@ -61,24 +61,10 @@
                                   </div>
                               </div>
                           </div>
-                          {{-- <div class="col-lg-3 col-6">
-                              <!-- small box -->
-                              <a href="{{ route('readTiredness'); }}">
-                                <div class="small-box pl-1 pt-2 bg-white">
-                                    <div class="inner">
-                                        <h6 class="text-muted">Tardiness & Undertime</h6>
-                                        <h3>0</h3>
-                                    </div>
-                                    <div class="icon">
-                                        <i class="fas fa-bed"  style="color: #DC7DF8;  font-size: 30px !important;"></i>
-                                    </div>
-                                </div>
-                              </a>
-                          </div> --}}
                           
                           <div class="col-lg-3 col-6">
                             <!-- small box -->
-                            <a href="{{ route('readTiredness'); }}">
+                            <a href="{{ route('readPending', 1) }}"> 
                               <div class="small-box pl-1 pt-2 bg-white">
                                   <div class="inner">
                                       <h6 class="text-muted">Leave Application</h6>
@@ -93,7 +79,7 @@
 
                           <div class="col-lg-3 col-6">
                             <!-- small box -->
-                            <a href="{{ route('readTiredness'); }}">
+                            <a href="{{ route('readPending', 2) }}">
                               <div class="small-box pl-1 pt-2 bg-white">
                                   <div class="inner">
                                       <h6 class="text-muted">Eligibility</h6>
@@ -108,10 +94,10 @@
 
                           <div class="col-lg-3 col-6">
                             <!-- small box -->
-                            <a href="{{ route('readTiredness'); }}">
+                            <a href="{{ route('readPending', 3) }}">
                               <div class="small-box pl-1 pt-2 bg-white">
                                   <div class="inner">
-                                      <h6 class="text-muted">Work experience</h6>
+                                      <h6 class="text-muted">Working experience</h6>
                                       <h3>{{ number_format($workexpCount) }}</h3>
                                   </div>
                                   <div class="icon">
@@ -123,7 +109,7 @@
 
                           <div class="col-lg-3 col-6">
                             <!-- small box -->
-                            <a href="{{ route('readTiredness'); }}">
+                            <a href="{{ route('readPending', 4) }}">
                               <div class="small-box pl-1 pt-2 bg-white">
                                   <div class="inner">
                                       <h6 class="text-muted">Learning & Development</h6>
@@ -138,7 +124,7 @@
 
                           <div class="col-lg-3 col-6">
                             <!-- small box -->
-                            <a href="{{ route('readTiredness'); }}">
+                            <a href="{{ route('readPending', 5) }}">
                               <div class="small-box pl-1 pt-2 bg-white">
                                   <div class="inner">
                                       <h6 class="text-muted">Voluntary works</h6>

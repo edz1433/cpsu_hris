@@ -73,7 +73,7 @@
     }
 
     .bg-default{
-        background-color: #3B8682;
+        background-color: #3B8682 !important;
     }
 
     .glowing {

@@ -31,6 +31,7 @@ use App\Http\Controllers\GovIdController;
 use App\Http\Controllers\LeaveCreditController;
 use App\Http\Controllers\LeaveApplicationController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PendingController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -138,6 +139,10 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/', [TirednessController::class, 'readTiredness'])->name('readTiredness');
         Route::post('/', [TirednessController::class, 'readTiredness'])->name('tirednessSearch');
         Route::get('/pdf/{employeeId}/{month}', [TirednessController::class, 'pdfTirednes'])->name('pdfTirednes');
+    });
+
+    Route::prefix('pending')->group(function(){
+        Route::get('/{type}', [PendingController::class, 'readPending'])->name('readPending');
     });
     
     //pds
