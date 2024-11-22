@@ -101,7 +101,7 @@
                                 <tr>
                                     <td>{{ $emp->lname }}, {{ $emp->fname }} {{ $emp->suffix }} {{ isset($emp->mname) ? strtoupper(substr($emp->mname, 0, 1)).'.' : '' }}</td>
                                     <td class="text-center">
-                                        <a href="{{ $route }}" target="_blank" class='btn btn-secondary btn-sm employee_edit mr-1' style='width: 30px;' value="{{ $emp->id }}">
+                                        <a href="{{ $route }}" target="_blank" class='btn btn-info btn-sm employee_edit mr-1' style='width: 30px;' value="{{ $emp->id }}">
                                             <i class="fas fa-exclamation-circle" style="font-size: 0.75rem;"></i>  
                                         </a>
                                     </td>
