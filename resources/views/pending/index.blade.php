@@ -76,7 +76,7 @@
                             </thead>
                             @foreach ($employees as $emp)
                             @php
-                             switch ($type) {
+                            switch ($type) {
                                 case '1':
                                     $route = route('leaveStatus', $emp->id);
                                     break;
@@ -96,7 +96,7 @@
                                 case '5':
                                     $route = route('learning-dev', $emp->id);
                                     break;
-                             }
+                            }
                             @endphp
                                 <tr>
                                     <td>{{ $emp->lname }}, {{ $emp->fname }} {{ $emp->suffix }} {{ isset($emp->mname) ? strtoupper(substr($emp->mname, 0, 1)).'.' : '' }}</td>

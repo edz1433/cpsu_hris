@@ -148,6 +148,7 @@
         function enablePurposeFields() {
             $('.purpose-detail').find('input').prop('disabled', false);
             $('.purpose-detail').find('input[type="text"]').prop('readonly', false);
+            $('#monetizationdefault').prop('checked', true);
         }
 
         function disablePurposeFields() {
@@ -155,6 +156,7 @@
             $('.purpose-detail').find('input[type="text"]').prop('readonly', true);
             $('.purpose-detail').find('input[type="radio"]').prop('checked', false);
             $('.purpose-detail').find('input[type="text"]').val('');
+            $('#monetizationdefault').prop('checked', false);
         }
 
         function enableLeaveSpecificFields() {

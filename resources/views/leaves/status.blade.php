@@ -80,7 +80,7 @@
                                             <div class="timeline-body">
                                                 <span class="badge badge-success"><b>#{{ $leaves->transnum }}</b></span><br> 
                                                 <span><b>TYPE OF LEAVE TO AVAILED OF :</b> {{ $leaveTypes[$leaves->leave_type] }}</span><br>
-                                                <span><b>DETAILS OF LEAVE :</b> {{ $leavedetails[$leaves->leave_purpose] }} @if($leaves->leave_detail) ({{ $leaves->leave_detail }}) @endif</span><br>
+                                                <span><b>DETAILS OF LEAVE :</b> {{ $leavedetails[$leaves->leave_purpose] ?? null }} @if($leaves->leave_detail) ({{ $leaves->leave_detail }}) @endif</span><br>
                                                 <span><b>INCLUSIVE DATES :</b> {{ $leaves->date_range }}</span><br>
                                                 <span><b>DAYS :</b> {{ ($leaves->emp_esign == 0) ? $leaves->days : ($leaves->days + $leaves->holiday) }}</span><br>
                                                 
@@ -247,7 +247,7 @@
                                             <div class="timeline-body">
                                                 <span class="badge badge-success"><b>#{{ $leaves->transnum }}</b></span><br>    
                                                 <span><b>TYPE OF LEAVE TO AVAILED OF :</b> {{ $leaveTypes[$leaves->leave_type] }}</span><br>
-                                                <span><b>DETAILS OF LEAVE :</b> {{ $leavedetails[$leaves->leave_purpose] }} @if($leaves->leave_detail) ({{ $leaves->leave_detail }}) @endif</span><br>
+                                                <span><b>DETAILS OF LEAVE :</b> {{ $leavedetails[$leaves->leave_purpose] ?? null }} @if($leaves->leave_detail) ({{ $leaves->leave_detail }}) @endif</span><br>
                                                 <span><b>INCLUSIVE DATES :</b> {{ $leaves->date_range }}</span><br>
                                                 <span><b>DAYS :</b> {{ $leaves->days }}</span><br>
                                                 

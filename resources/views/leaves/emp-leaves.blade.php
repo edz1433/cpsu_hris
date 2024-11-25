@@ -252,14 +252,16 @@
                                     </label>
                                 </div>
                                 <i>Other Purpose</i>
+                                <input class="form-check-input" type="radio" value="" name="leave_purpose" style="display: none;" checked id="monetizationdefault">    
                                 <div class="form-check w-100 purpose-detail">
-                                    <input class="form-check-input" type="radio" value="7" name="leave_purpose" id="monetization" required disabled>
+                                    <input class="form-check-input" type="radio" value="7" name="leave_purpose" id="monetization" disabled>
+                                    
                                     <label class="form-check-label" for="monetization">
                                         <b>Monetization of Leave Credits</b>
                                     </label>
-                                </div>
+                                </div> 
                                 <div class="form-check w-100 purpose-detail">
-                                    <input class="form-check-input" type="radio" value="8" name="leave_purpose" id="terminal-leave" required disabled>
+                                    <input class="form-check-input" type="radio" value="8" name="leave_purpose" id="terminal-leave" disabled>
                                     <label class="form-check-label" for="terminal-leave">
                                         <b>Terminal Leave</b> <input class="input-details ml-5" type="text" id="leaves_4" name="leave_detail[]" autocomplete="off" >
                                     </label>

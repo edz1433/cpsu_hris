@@ -37,7 +37,7 @@
     
         .table-custom th {
             background-color: #d6f0f463; /* Light gray background */
-            font-size: 14px;
+            font-size: 8px;
             font-weight: bold;
             padding: 3px;
             border-top: none;
@@ -46,7 +46,7 @@
     
         .table-custom td {
             padding: 3px;
-            font-size: 12px;
+            font-size: 8px;
             border-color: #dee2e6; /* Match Bootstrap's default border color */
         }
     

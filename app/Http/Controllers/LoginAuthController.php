@@ -38,7 +38,7 @@ class LoginAuthController extends Controller
     
             if ($role == "Payroll Administrator") {
                 auth()->guard('web')->logout();
-                return redirect("http://hris.cpsu.edu.ph:20000/hr-payroll-login/{$request->username}/{$request->password}");
+                return redirect("https://hris.cpsu.edu.ph/pms/hr-payroll-login/{$request->username}/{$request->password}");
             }
     
             return redirect()->route('dashboard')->with('success', 'Login Successfully');
