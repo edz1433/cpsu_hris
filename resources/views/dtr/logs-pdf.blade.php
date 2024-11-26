@@ -115,14 +115,14 @@
                     </thead>
                     <tbody>
                         @foreach ($logs as $log)
-                            @if ($log['type'] == 'time_in' && $campuses[$log['device_in_campus']] != NULL)
+                            @if ($log['type'] == 'time_in' && isset($campuses[$log['device_in_campus']]))
                                 <tr>
                                     <td>
                                         <b>{{ ucwords(strtolower($log['fname'])) }} {{ ucwords(strtolower($log['lname'])) }} {{ ucwords(strtolower($log['suffix'])) }}</b>
                                         <span class="text-success">logged in</span> at {{ $campuses[$log['device_in_campus']] }}, {{ $log['device_in_label'] }} at <b class="b">{{ convertTo12HourFormat($log['time']) }}</b>.
                                     </td>
                                 </tr>
-                            @elseif ($log['type'] == 'time_out' && !empty($log['time']) && $campuses[$log['device_out_campus']] != NULL)
+                            @elseif ($log['type'] == 'time_out' && !empty($log['time']) && && isset($campuses[$log['device_out_campus']]))
                                 <tr>
                                     <td>
                                         <b>{{ ucwords(strtolower($log['fname'])) }} {{ ucwords(strtolower($log['lname'])) }} {{ ucwords(strtolower($log['suffix'])) }}</b>
