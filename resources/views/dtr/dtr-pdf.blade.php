@@ -97,11 +97,11 @@
             $time_array_out = $day_time_out ? explode(',', $day_time_out) : [];
 
             foreach ($time_array_in as $key => $time) {
-                $time_array_in[$key] = date('h:i:s A', strtotime($time));
+                $time_array_in[$key] = date('g:i:s A', strtotime($time));
             }
 
             foreach ($time_array_out as $key => $time) {
-                $time_array_out[$key] = date('h:i:s A', strtotime($time));
+                $time_array_out[$key] = date('g:i:s A', strtotime($time));
             }
         }
 
@@ -152,7 +152,7 @@
                                     $inTime = new DateTime(reset($time_arrays[$day]['in']));
                                 @endphp
                                 @if($inTime < $morningcutoff)
-                                    {{ $inTime->format('H:i') }}
+                                    {{ $inTime->format('g:i') }}
                                 @endif
                             @endif
                         </th>
@@ -163,7 +163,7 @@
                                     $outTime = new DateTime(reset($time_arrays[$day]['out']));
                                 @endphp
                                 @if($inTime < $morningcutoff)
-                                    {{ $outTime->format('H:i') }}
+                                    {{ $outTime->format('g:i') }}
                                 @endif
                             @endif
                         </th>
@@ -206,7 +206,7 @@
                                     $inTime = new DateTime(reset($time_arrays[$day]['in']));
                                 @endphp
                                 @if($inTime < $morningcutoff)
-                                    {{ $inTime->format('H:i') }}
+                                    {{ $inTime->format('g:i') }}
                                 @endif
                             @endif
                         </th>
@@ -217,7 +217,7 @@
                                     $outTime = new DateTime(reset($time_arrays[$day]['out']));
                                 @endphp
                                 @if($inTime < $morningcutoff)
-                                    {{ $outTime->format('H:i') }}
+                                    {{ $outTime->format('g:i') }}
                                 @endif
                             @endif
                         </th>
@@ -237,7 +237,7 @@
                                     $inTime = new DateTime(reset($time_arrays[$day]['in']));
                                 @endphp
                                 @if($inTime < $morningcutoff)
-                                    {{ $inTime->format('H:i') }}
+                                    {{ $inTime->format('g:i') }}
                                 @endif
                             @endif
                         </th>
@@ -248,7 +248,7 @@
                                     $outTime = new DateTime(reset($time_arrays[$day]['out']));
                                 @endphp
                                 @if($inTime < $morningcutoff)
-                                    {{ $outTime->format('H:i') }}
+                                    {{ $outTime->format('g:i') }}
                                 @endif
                             @endif
                         </th>
@@ -322,7 +322,7 @@
                                     $inTime = new DateTime(reset($time_arrays[$day]['in']));
                                 @endphp
                                 @if($inTime < $morningcutoff)
-                                    {{ $inTime->format('H:i') }}
+                                    {{ $inTime->format('g:i') }}
                                 @endif
                             @endif
                         </th>
@@ -333,7 +333,7 @@
                                     $outTime = new DateTime(reset($time_arrays[$day]['out']));
                                 @endphp
                                 @if($inTime < $morningcutoff)
-                                    {{ $outTime->format('H:i') }}
+                                    {{ $outTime->format('g:i') }}
                                 @endif
                             @endif
                         </th>
@@ -376,7 +376,7 @@
                                     $inTime = new DateTime(reset($time_arrays[$day]['in']));
                                 @endphp
                                 @if($inTime < $morningcutoff)
-                                    {{ $inTime->format('H:i') }}
+                                    {{ $inTime->format('g:i') }}
                                 @endif
                             @endif
                         </th>
@@ -387,7 +387,7 @@
                                     $outTime = new DateTime(reset($time_arrays[$day]['out']));
                                 @endphp
                                 @if($inTime < $morningcutoff)
-                                    {{ $outTime->format('H:i') }}
+                                    {{ $outTime->format('g:i') }}
                                 @endif
                             @endif
                         </th>
@@ -407,7 +407,7 @@
                                     $inTime = new DateTime(reset($time_arrays[$day]['in']));
                                 @endphp
                                 @if($inTime < $morningcutoff)
-                                    {{ $inTime->format('H:i') }}
+                                    {{ $inTime->format('g:i') }}
                                 @endif
                             @endif
                         </th>
@@ -418,7 +418,7 @@
                                     $outTime = new DateTime(reset($time_arrays[$day]['out']));
                                 @endphp
                                 @if($inTime < $morningcutoff)
-                                    {{ $outTime->format('H:i') }}
+                                    {{ $outTime->format('g:i') }}
                                 @endif
                             @endif
                         </th>
