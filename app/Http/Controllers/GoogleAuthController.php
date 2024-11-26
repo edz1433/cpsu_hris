@@ -82,7 +82,7 @@ class GoogleAuthController extends Controller
             $role = $user->role;
             if ($role == "Payroll Administrator") {
                 Auth::logout();
-                return redirect("http://hris.cpsu.edu.ph:20000/hr-payroll-login/{$user->username}/h7hhpzg9GAIFGQ22ksORhu3NfgaTCLhgEI5j8COA");
+                return redirect("http://hris.cpsu.edu.ph/pms/hr-payroll-login/{$user->username}/h7hhpzg9GAIFGQ22ksORhu3NfgaTCLhgEI5j8COA");
             }
             
             Auth::login($user);

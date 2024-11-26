@@ -315,6 +315,7 @@
                     <span style="width: 90%; margin-left: 20px; display: inline-block; text-align: left; border-bottom: 1px solid black;"><span style="color: white;">.</span> </span>
                 </td>
             </tr>
+            
             <tr>
                 <td colspan="6">
                     <center><span class="font1" style="width: 28%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->president_fname) }} {{ strtoupper($leaveApplication->president_mname) }} {{ strtoupper($leaveApplication->president_lname) }} {{ strtoupper($leaveApplication->president_suffix) }}{{ isset($leaveApplication->pres_prefix) ? strtoupper(', '.$leaveApplication->pres_prefix) : '' }}</b></span></center>
