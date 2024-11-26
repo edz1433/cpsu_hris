@@ -254,7 +254,7 @@
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                         <th class="font1 center">{{ count($time_arrays[$day]['overtime']) > 0 ? substr(reset($time_arrays[$day]['overtime']), 0, strrpos(reset($time_arrays[$day]['overtime']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['overtime']) > 0 ? substr(end($time_arrays[$day]['overtime']), 0, strrpos(end($time_arrays[$day]['overtime']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['overtime']) > 1 ? substr(end($time_arrays[$day]['overtime']), 0, strrpos(end($time_arrays[$day]['overtime']), ':')) : '' }}</th>
                     </tr>
                 @endfor
                 @for ($day = 16; $day <= 31; $day++)
@@ -288,7 +288,7 @@
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                         <th class="font1 center">{{ count($time_arrays[$day]['overtime']) > 0 ? substr(reset($time_arrays[$day]['overtime']), 0, strrpos(reset($time_arrays[$day]['overtime']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['overtime']) > 0 ? substr(end($time_arrays[$day]['overtime']), 0, strrpos(end($time_arrays[$day]['overtime']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['overtime']) > 1 ? substr(end($time_arrays[$day]['overtime']), 0, strrpos(end($time_arrays[$day]['overtime']), ':')) : '' }}</th>
                     </tr>
                 @endfor
             @elseif ($period == 3)
@@ -300,7 +300,7 @@
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                         <th class="font1 center">{{ count($time_arrays[$day]['overtime']) > 0 ? substr(reset($time_arrays[$day]['overtime']), 0, strrpos(reset($time_arrays[$day]['overtime']), ':')) : '' }}</th>
-                        <th class="font1 center">{{ count($time_arrays[$day]['overtime']) > 0 ? substr(end($time_arrays[$day]['overtime']), 0, strrpos(end($time_arrays[$day]['overtime']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['overtime']) > 1 ? substr(end($time_arrays[$day]['overtime']), 0, strrpos(end($time_arrays[$day]['overtime']), ':')) : '' }}</th>
                     </tr>
                 @endforeach
             @endif
