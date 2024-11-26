@@ -274,7 +274,7 @@
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: left; margin-top: -25px;"><b>VERIFIED</b> as to the prescribed office hours:</span>
         </div>
         <div>
-            <span class="font"><b> </b></span><br>
+            <span class="font"><b>{{ ($employee->emp_dept == 19) ? 'RYAN B. ESCORIAL, DIT' : ''}}</b></span><br>
             <span class="header" style="relative; display: inline-block; width: 50%; text-align: center;"></span>
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: center; margin-top: -25px;">Immediate Supervisor’s Signature </span>
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: center; margin-top: -37px;">over Printed Name</span>
@@ -444,7 +444,7 @@
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: left; margin-top: -25px;"><b>VERIFIED</b> as to the prescribed office hours:</span>
         </div>
         <div>
-            <span class="font"><b> </b></span><br>
+            <span class="font"><b>{{ ($employee->emp_dept == 19) ? 'RYAN B. ESCORIAL, DIT' : ''}}</b></span><br>
             <span class="header" style="relative; display: inline-block; width: 50%; text-align: center;"></span>
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: center; margin-top: -25px;">Immediate Supervisor’s Signature </span>
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: center; margin-top: -37px;">over Printed Name</span>
