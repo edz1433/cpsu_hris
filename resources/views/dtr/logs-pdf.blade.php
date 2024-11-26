@@ -115,22 +115,37 @@
                     </thead>
                     <tbody>
                         @foreach ($logs as $log)
-                            @if ($log['type'] == 'time_in' && isset($campuses[$log['device_in_campus']]))
-                                <tr>
-                                    <td>
-                                        <b>{{ ucwords(strtolower($log['fname'])) }} {{ ucwords(strtolower($log['lname'])) }} {{ ucwords(strtolower($log['suffix'])) }}</b>
-                                        <span class="text-success">logged in</span> at {{ $campuses[$log['device_in_campus']] }}, {{ $log['device_in_label'] }} at <b class="b">{{ convertTo12HourFormat($log['time']) }}</b>.
-                                    </td>
-                                </tr>
-                            @elseif ($log['type'] == 'time_out' && !empty($log['time']) && && isset($campuses[$log['device_out_campus']]))
-                                <tr>
-                                    <td>
-                                        <b>{{ ucwords(strtolower($log['fname'])) }} {{ ucwords(strtolower($log['lname'])) }} {{ ucwords(strtolower($log['suffix'])) }}</b>
-                                        <span class="text-danger">logged out</span> at {{ $campuses[$log['device_out_campus']] }}, {{ $log['device_out_label'] }} at <b class="b">{{ convertTo12HourFormat($log['time']) }}</b>.
-                                    </td>
-                                </tr>
-                            @endif
-                        @endforeach
+                        @if ($log['type'] == 'time_in' && isset($campuses[$log['device_in_campus']]))
+                            <tr>
+                                <td>
+                                    <b>
+                                        {{ ucwords(strtolower($log['fname'])) }} 
+                                        {{ ucwords(strtolower($log['lname'])) }}
+                                        {{ !empty($log['suffix']) ? ucwords(strtolower($log['suffix'])) : '' }}
+                                    </b>
+                                    <span class="text-success">logged in</span> 
+                                    at {{ $campuses[$log['device_in_campus']] }}, 
+                                    {{ $log['device_in_label'] ?? 'Unknown Label' }} 
+                                    at <b class="b">{{ convertTo12HourFormat($log['time'] ?? '00:00:00') }}</b>.
+                                </td>
+                            </tr>
+                        @elseif ($log['type'] == 'time_out' && !empty($log['time']) && isset($campuses[$log['device_out_campus']]))
+                            <tr>
+                                <td>
+                                    <b>
+                                        {{ ucwords(strtolower($log['fname'])) }} 
+                                        {{ ucwords(strtolower($log['lname'])) }}
+                                        {{ !empty($log['suffix']) ? ucwords(strtolower($log['suffix'])) : '' }}
+                                    </b>
+                                    <span class="text-danger">logged out</span> 
+                                    at {{ $campuses[$log['device_out_campus']] }}, 
+                                    {{ $log['device_out_label'] ?? 'Unknown Label' }} 
+                                    at <b class="b">{{ convertTo12HourFormat($log['time']) }}</b>.
+                                </td>
+                            </tr>
+                        @endif
+                    @endforeach
+                    
                     </tbody>
                 </table>
                 @endforeach
