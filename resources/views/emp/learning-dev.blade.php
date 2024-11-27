@@ -96,92 +96,104 @@
                             </div>
                             </div>
                         </div>
-                        <div class="scrollable">                    
-                            <table class="table table-bordered table-hover mt-2">
-                                <div class="card-header">
-                                    <h3 class="card-title"></h3>
-                                    <div class="card-tools">
-                                        <div class="input-group input-group-sm" style="width: 150px;">
-                                            <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
-                                            <div class="input-group-append">
-                                                <button type="submit" class="btn btn-default">
-                                                <i class="fas fa-search"></i>
-                                                </button>
-                                            </div>
-                                        </div>    
-                                    </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title"></h3>
+                                <div class="card-tools">
+                                    <div class="input-group input-group-sm" style="width: 150px;">
+                                        <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
+                                        <div class="input-group-append">
+                                            <button type="submit" class="btn btn-default">
+                                            <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>    
                                 </div>
-                                @foreach($learningdev as $learning)
-                                <tbody>
-                                    <tr class="learningdev-row row-{{ $learning->id }}">
-                                        <th class="align-middle">TITLE OF LEARNING AND DEVELOPMENT INTERVENTIONS/TRAINING PROGRAMS</th> 
-                                        <td class="align-middle">{{ $learning->learning_dev }}</td>
-                                        <th class="text-center align-middle" rowspan="9" width="5%">
-                                            @if($guard == "web")
-                                                <a href="{{ route('learningdevEdit', ['id' => $empid, 'eid' => $learning->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
-                                                    <i class="fas fa-pen"></i>
+                            </div>
+                            <div class="scrollable">                    
+                                <table class="table table-bordered table-hover mt-2">
+                                    @foreach($learningdev as $learning)
+                                    <tbody>
+                                        <tr class="learningdev-row row-{{ $learning->id }}">
+                                            <th class="align-middle">TITLE OF LEARNING AND DEVELOPMENT INTERVENTIONS/TRAINING PROGRAMS</th> 
+                                            <td class="align-middle">{{ $learning->learning_dev }}</td>
+                                            <th class="text-center align-middle" rowspan="9" width="5%">
+                                                @if($guard == "web")
+                                                    <a href="{{ route('learningdevEdit', ['id' => $empid, 'eid' => $learning->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
+                                                        <i class="fas fa-pen"></i>
+                                                    </a>
+                                                    <button class="btn btn-success btn-sm learningdev_approve mb-2" value="{{ $learning->id }}" title="Approve">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    @if ($learning->status == 0)
+                                                        <button class="btn btn-warning btn-sm mb-2" data-toggle="modal" data-target="#learndev-modal" onclick="openlearndevModal({{ $learning->id }})" title="Cancel">
+                                                            <i class="fas fa-times" style="padding-left: 1px; padding-right: 1px;"></i>
+                                                        </button>
+                                                    @endif
+                                                    <button class="btn btn-danger btn-sm mb-2 learningdev_delete" value="{{ $learning->id }}" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                @elseif($guard == "employee" && $learning->status == 0)
+                                                    <a href="{{ route('learningdevEdit', ['id' => $empid, 'eid' => $learning->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
+                                                        <i class="fas fa-pen"></i>
+                                                    </a>
+                                                    <button class="btn btn-danger btn-sm mb-2 learningdev_delete" value="{{ $learning->id }}" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                @endif
+                                            </th> 
+                                        </tr>
+                                        <tr class="learningdev-row row-{{ $learning->id }}">
+                                            <th class="align-middle" width="50%">INCLUSIVE DATES</th>
+                                            <td class="align-middle">
+                                                {{ \Carbon\Carbon::parse($learning->inc_date1)->format('m/d/Y') }} - 
+                                                {{ \Carbon\Carbon::parse($learning->inc_date2)->format('m/d/Y') }}
+                                            </td>                                                                                                                
+                                        </tr>
+                                        <tr class="learningdev-row row-{{ $learning->id }}">
+                                            <th class="align-middle">NUMBER OF HOURS</th>
+                                            <td class="align-middle">{{ number_format($learning->num_hours) }}</td>
+                                        </tr>
+                                        <tr class="learningdev-row row-{{ $learning->id }}">
+                                            <th class="align-middle">Type of LD ( Managerial/ Supervisory/ Technical/etc) </th>
+                                            <td class="align-middle">{{ $learning->types }}</td>
+                                        </tr>
+                                        <tr class="learningdev-row row-{{ $learning->id }}">
+                                            <th class="align-middle">CONDUCTED/ SPONSORED BY</th>
+                                            <td class="align-middle">{{ $learning->conducted }}</td>
+                                        </tr>
+                                        <tr class="workexperience-row row-{{ $learning->id }}">
+                                            <th class="align-middle">Attachment</th>
+                                            <td class="align-middle">
+                                                <a href="#" class="text-info" data-toggle="modal" data-target="#pdfModal" 
+                                                data-label="{{ $learning->careereligible }}" 
+                                                data-pdf="{{ asset('storage/' . $learning->attachment) }}" onclick="showPdfModal(this)">
+                                                    <i class="fas fa-eye fa-xs"></i> <b>Preview</b>
                                                 </a>
-                                                <button class="btn btn-danger btn-sm mb-2 learningdev_delete" value="{{ $learning->id }}" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                                <button class="btn btn-success btn-sm learningdev_approve mb-2" value="{{ $learning->id }}" title="Approve">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                            @elseif($guard == "employee" && $learning->status == 0)
-                                                <a href="{{ route('learningdevEdit', ['id' => $empid, 'eid' => $learning->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
-                                                    <i class="fas fa-pen"></i>
-                                                </a>
-                                                <button class="btn btn-danger btn-sm mb-2 learningdev_delete" value="{{ $learning->id }}" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            @endif
-                                        </th> 
-                                    </tr>
-                                    <tr class="learningdev-row row-{{ $learning->id }}">
-                                        <th class="align-middle" width="50%">INCLUSIVE DATES</th>
-                                        <td class="align-middle">
-                                            {{ \Carbon\Carbon::parse($learning->inc_date1)->format('m/d/Y') }} - 
-                                            {{ \Carbon\Carbon::parse($learning->inc_date2)->format('m/d/Y') }}
-                                        </td>                                                                                                                
-                                    </tr>
-                                    <tr class="learningdev-row row-{{ $learning->id }}">
-                                        <th class="align-middle">NUMBER OF HOURS</th>
-                                        <td class="align-middle">{{ number_format($learning->num_hours) }}</td>
-                                    </tr>
-                                    <tr class="learningdev-row row-{{ $learning->id }}">
-                                        <th class="align-middle">Type of LD ( Managerial/ Supervisory/ Technical/etc) </th>
-                                        <td class="align-middle">{{ $learning->types }}</td>
-                                    </tr>
-                                    <tr class="learningdev-row row-{{ $learning->id }}">
-                                        <th class="align-middle">CONDUCTED/ SPONSORED BY</th>
-                                        <td class="align-middle">{{ $learning->conducted }}</td>
-                                    </tr>
-                                    <tr class="workexperience-row row-{{ $learning->id }}">
-                                        <th class="align-middle">Attachment</th>
-                                        <td class="align-middle">
-                                            <a href="#" class="text-info" data-toggle="modal" data-target="#pdfModal" 
-                                               data-label="{{ $learning->careereligible }}" 
-                                               data-pdf="{{ asset('storage/' . $learning->attachment) }}" onclick="showPdfModal(this)">
-                                                <i class="fas fa-eye fa-xs"></i> <b>Preview</b>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    <tr class="learningdev-row row-{{ $learning->id }}">
-                                        <th class="align-middle">Status</th>
-                                        <td class="align-middle">
-                                            @if ($learning->status == 0)
-                                                <span class="badge badge-warning" id="status-{{ $learning->id }}">To be Reviewed</span>
-                                            @else
-                                                <span class="badge badge-success">Reviewed</span>
-                                            @endif
-                                        </td>                                
-                                    </tr>
-                                    <tr class="learningdev-row row-{{ $learning->id }}">
-                                        <td colspan="3"></td>
-                                    </tr>
-                                </tbody>
-                                @endforeach
-                            </table>
+                                            </td>
+                                        </tr>
+                                        <tr class="learningdev-row row-{{ $learning->id }}">
+                                            <th class="align-middle">Status</th>
+                                            <td class="align-middle">
+                                                @if ($learning->status == 0)
+                                                    <span class="badge badge-warning" id="status-{{ $learning->id }}">To be Reviewed</span>
+                                                @elseif($learning->status == 1)
+                                                    <span class="badge badge-success">Reviewed</span>
+                                                @else
+                                                    <span class="badge badge-danger">Canceled</span>
+                                                    <div class="mt-1 text-muted">
+                                                        <strong>Remarks:</strong> {{ $learning->remarks }}
+                                                    </div>
+                                                @endif
+                                            </td>                                
+                                        </tr>
+                                        <tr class="learningdev-row row-{{ $learning->id }}">
+                                            <td colspan="3"></td>
+                                        </tr>
+                                    </tbody>
+                                    @endforeach
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -189,6 +201,32 @@
         </div>
     </div>
 </section>
+<div class="modal fade" id="learndev-modal" tabindex="-1" aria-labelledby="eligibleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <form method="POST" action="{{ route('learningdevCancel') }}">
+                @csrf
+                <div class="modal-header">
+      
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="learndev-id">
+                    <div class="form-group">
+                        <span class="badge badge-secondary">Remarks</span>
+                      <textarea name="remarks" id="remarks" class="form-control" rows="3" placeholder="Enter remarks" required></textarea>
+                    </div>
+                    <div style="float: right;">
+                        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                    </div>
+                </div>
+                <div class="modal-footer mt-3">
+             
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg custom-modal" role="document">
         <div class="modal-content">
@@ -218,6 +256,14 @@
 
     function closePdfModal() {
         document.getElementById('modalPdf').src = '';
+    }
+
+    function openlearndevModal(id) {
+        document.getElementById('learndev-id').value = id;
+
+        document.getElementById('remarks').value = '';
+
+        document.getElementById('remarks').focus();
     }
 </script>
 @endsection

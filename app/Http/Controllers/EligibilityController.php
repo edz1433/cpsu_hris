@@ -159,11 +159,26 @@ class EligibilityController extends Controller
             'number' => $request->input('number'),
             'date_valid' => $request->input('date_valid'),
             'attachment' => $attachmentPath,
+            'status' => 0,
         ]);
 
         return redirect()->back()->with('success', 'Eligibility updated successfully.');
     }
 
+    public function eliCancel(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => 'required',
+            'remarks' => 'required',
+        ]);
+        
+        Eligibility::where('id', $validated['id'])->update([
+            'status' => 2,
+            'remarks' => $validated['remarks']
+        ]);
+
+        return redirect()->back()->with('success', 'Successfully canceled.');
+    }
 
     public function eliDelete($id)
     {

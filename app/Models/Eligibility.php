@@ -19,6 +19,7 @@ class Eligibility extends Model
         'date_valid',
         'attachment',
         'status',
+        'remarks',
     ];
 
     public $timestamps = false;

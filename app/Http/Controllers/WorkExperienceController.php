@@ -175,6 +175,7 @@ class WorkExperienceController extends Controller
             'status' => $request->input('status'),
             'service' => $request->input('service'),
             'attachment' => $attachmentPath,
+            'status' => 0,
         ]);
     
         return redirect()->back()->with('success', 'Updated successfully!');
@@ -218,5 +219,20 @@ class WorkExperienceController extends Controller
                 'message' => "Record not found",
             ]);
         }
+    }
+    
+    public function workexperienceCancel(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => 'required',
+            'remarks' => 'required',
+        ]);
+
+        WorkExperience::where('id', $validated['id'])->update([
+            'status' => 2,
+            'remarks' => $validated['remarks']
+        ]);
+
+        return redirect()->back()->with('success', 'Successfully canceled.');
     }
 }

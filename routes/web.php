@@ -170,6 +170,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/eligibility-update/{id}', [EligibilityController::class, 'eligibilityUpdate'])->name('eligibilityUpdate');
         Route::post('/eligibility-delete/{id}', [EligibilityController::class, 'eliDelete'])->name('eliDelete');
         Route::post('/eligibility-approve/{id}', [EligibilityController::class, 'eliApprove'])->name('eliApprove');
+        Route::post('/eligibility-cancel', [EligibilityController::class, 'eliCancel'])->name('eliCancel');
 
         //Work-experience
         Route::get('/work-experience/{id?}', [WorkExperienceController::class, 'workexperience'])->name('work-experience');
@@ -178,6 +179,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/work-experience-update/{id}', [WorkExperienceController::class, 'workexperienceUpdate'])->name('workexperienceUpdate');
         Route::post('/work-experience-delete/{id}', [WorkExperienceController::class, 'workDelete'])->name('workDelete');
         Route::post('/work-experience-approve/{id}', [WorkExperienceController::class, 'expApprove'])->name('expApprove');
+        Route::post('/work-experience-cancel', [WorkExperienceController::class, 'workexperienceCancel'])->name('workexperienceCancel');
 
         //Voluntary-works
         Route::get('/voluntary-work/{id?}', [VoluntaryWorkController::class, 'voluntaryworks'])->name('voluntary-work');
@@ -186,7 +188,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/voluntary-work-update/{id}', [VoluntaryWorkController::class, 'voluntaryworksUpdate'])->name('voluntaryworksUpdate');
         Route::post('/voluntary-work-delete/{id}', [VoluntaryWorkController::class, 'voluntaryworkDelete'])->name('voluntaryworkDelete');
         Route::post('/voluntary-work-approve/{id}', [VoluntaryWorkController::class, 'voluntaryworksApprove'])->name('voluntaryworksApprove');
-        
+        Route::post('/voluntary-work-cancel', [VoluntaryWorkController::class, 'voluntaryworksCancel'])->name('voluntaryworksCancel');
+
         //Learning-development
         Route::get('/learning-dev/{id?}', [LearningDevController::class, 'learningdev'])->name('learning-dev');
         Route::post('/learning-dev-create', [LearningDevController::class, 'learningdevCreate'])->name('learningdevCreate');
@@ -194,6 +197,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/learning-dev-update/{id}', [LearningDevController::class, 'learningdevUpdate'])->name('learningdevUpdate');
         Route::post('/learning-dev-delete/{id}', [LearningDevController::class, 'learningdevDelete'])->name('learningdevDelete');
         Route::post('/learning-dev-approve/{id}', [LearningDevController::class, 'learningdevApprove'])->name('learningdevApprove');
+        Route::post('/learning-dev-cancel', [LearningDevController::class, 'learningdevCancel'])->name('learningdevCancel');
 
         //Other Information
         Route::get('/other-info/{id?}', [OtherInfoController::class, 'otherInfo'])->name('otherInfo');

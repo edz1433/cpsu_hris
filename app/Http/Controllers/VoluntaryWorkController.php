@@ -162,6 +162,7 @@ class VoluntaryWorkController extends Controller
             'num_hours' => $request->input('num_hours'),
             'position' => $request->input('position'),
             'attachment' => $attachmentPath,
+            'status' => 0,
         ]);
     
         return redirect()->back()->with('success', 'Updated successfully!');
@@ -203,5 +204,20 @@ class VoluntaryWorkController extends Controller
                 'message' => "Record not found",
             ]);
         }
+    }
+
+    public function voluntaryworksCancel(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => 'required',
+            'remarks' => 'required',
+        ]);
+
+        VoluntaryWork::where('id', $validated['id'])->update([
+            'status' => 2,
+            'remarks' => $validated['remarks']
+        ]);
+
+        return redirect()->back()->with('success', 'Successfully canceled.');
     }
 }

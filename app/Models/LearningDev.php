@@ -20,6 +20,7 @@ class LearningDev extends Model
         'conducted',
         'attachment',
         'status',
+        'remarks',
     ];
 
 }

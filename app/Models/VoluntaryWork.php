@@ -17,6 +17,7 @@ class VoluntaryWork extends Model
         'num_hours',
         'position',
         'attachment',
-        'status'
+        'status',
+        'remarks',
     ];
 }

@@ -111,100 +111,114 @@
                           </div>
                         </div>
                     </div>
-                    <div class="scrollable">                    
-                        <table class="table table-bordered table-hover mt-2">
-                            <div class="card-header">
-                                <h3 class="card-title"></h3>
-                                <div class="card-tools">
-                                    <div class="input-group input-group-sm" style="width: 150px;">
-                                        <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
-                                        <div class="input-group-append">
-                                            <button type="submit" class="btn btn-default">
-                                            <i class="fas fa-search"></i>
-                                            </button>
-                                        </div>
-                                    </div>    
-                                </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"></h3>
+                            <div class="card-tools">
+                                <div class="input-group input-group-sm" style="width: 150px;">
+                                    <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-default">
+                                        <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>    
                             </div>
-                            @foreach($workexperience as $work)
-                            <tbody>
-                                <tr class="workexperience-row row-{{ $work->id }}">
-                                    <th class="align-middle" width="50%">Inclusive Dates</th>
-                                    <td class="align-middle">
-                                        {{ \Carbon\Carbon::parse($work->inc_date1)->format('m/d/Y') }} - 
-                                        {{ \Carbon\Carbon::parse($work->inc_date2)->format('m/d/Y') }}
-                                    </td>
-                                    <th class="text-center align-middle" rowspan="9" width="5%">
-                                        @if($guard == "web")
-                                        <a href="{{ route('workexperienceEdit', ['id' => $empid, 'eid' => $work->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
-                                            <i class="fas fa-pen"></i>
-                                        </a>
-                                        <button class="btn btn-danger btn-sm mb-2 workexperience_delete" value="{{ $work->id }}" title="Delete">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                        <button class="btn btn-success btn-sm workexperience_approve" value="{{ $work->id }}" title="Approve">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                        @elseif($guard == "employee" && $work->status == 0)
-                                            <a href="{{ route('workexperienceEdit', ['id' => $empid, 'eid' => $work->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
-                                                <i class="fas fa-pen"></i>
+                        </div>
+                        <div class="scrollable">                    
+                            <table class="table table-bordered table-hover mt-2">
+                                @foreach($workexperience as $work)
+                                <tbody>
+                                    <tr class="workexperience-row row-{{ $work->id }}">
+                                        <th class="align-middle" width="50%">Inclusive Dates</th>
+                                        <td class="align-middle">
+                                            {{ \Carbon\Carbon::parse($work->inc_date1)->format('m/d/Y') }} - 
+                                            {{ \Carbon\Carbon::parse($work->inc_date2)->format('m/d/Y') }}
+                                        </td>
+                                        <th class="text-center align-middle" rowspan="9" width="5%">
+                                            @if($guard == "web")
+                                                <a href="{{ route('workexperienceEdit', ['id' => $empid, 'eid' => $work->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
+                                                <button class="btn btn-success btn-sm mb-2 workexperience_approve" value="{{ $work->id }}" title="Approve">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                
+                                                @if ($work->status == 0)
+                                                    <button class="btn btn-warning btn-sm mb-2" data-toggle="modal" data-target="#workexp-modal" onclick="openworkexpModal({{ $work->id }})" title="Cancel">
+                                                        <i class="fas fa-times" style="padding-left: 1px; padding-right: 1px;"></i>
+                                                    </button>
+                                                @endif
+
+                                                <button class="btn btn-danger btn-sm mb-2 workexperience_delete" value="{{ $work->id }}" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            @elseif($guard == "employee" && $work->status == 0)
+                                                <a href="{{ route('workexperienceEdit', ['id' => $empid, 'eid' => $work->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
+                                                <button class="btn btn-danger btn-sm mb-2 workexperience_delete" value="{{ $work->id }}" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            @endif
+                                        </th>                                                                                                                            
+                                    </tr>
+                                    <tr class="workexperience-row row-{{ $work->id }}">
+                                        <th class="align-middle">Position Title </th> 
+                                        <td class="align-middle">{{ $work->position }}</td>
+                                    </tr>
+                                    <tr class="workexperience-row row-{{ $work->id }}">
+                                        <th class="align-middle">Department / Agency / Office / Company (Write in full/Do not abbreviate)</th>
+                                        <td class="align-middle">{{ $work->department }}</td> 
+                                    </tr>
+                                    <tr class="workexperience-row row-{{ $work->id }}">
+                                        <th class="align-middle">Salary/ Job/ Pay Grade (if applicable)& STEP (Format "00-0")/ Increment</th>
+                                        <td class="align-middle">{{ $work->sg_grade }}</td>
+                                    </tr>
+                                    <tr class="workexperience-row row-{{ $work->id }}">
+                                        <th class="align-middle">Monthly Salary</th>
+                                        <td class="align-middle">{{ $work->salary }}</td>
+                                    </tr>
+                                    <tr class="workexperience-row row-{{ $work->id }}">
+                                        <th class="align-middle">Status of Appointment</th>
+                                        <td class="align-middle">{{ $work->stat_app }}</td>
+                                    </tr>
+                                    <tr class="workexperience-row row-{{ $work->id }}">
+                                        <th class="align-middle">Government Service (Y/N)</th>
+                                        <td class="align-middle">{{ ($work->service == "Y") ? 'Yes' : 'No' }}</td>
+                                    </tr>
+                                    <tr class="workexperience-row row-{{ $work->id }}">
+                                        <th class="align-middle">Attachment</th>
+                                        <td class="align-middle">
+                                            <a href="#" class="text-info" data-toggle="modal" data-target="#pdfModal" 
+                                            data-label="{{ $work->careereligible }}" 
+                                            data-pdf="{{ asset('storage/' . $work->attachment) }}" onclick="showPdfModal(this)">
+                                                <i class="fas fa-eye fa-xs"></i> <b>Preview</b>
                                             </a>
-                                            <button class="btn btn-danger btn-sm mb-2 workexperience_delete" value="{{ $work->id }}" title="Delete">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        @endif
-                                    </th>                                                                                                                            
-                                </tr>
-                                <tr class="workexperience-row row-{{ $work->id }}">
-                                    <th class="align-middle">Position Title </th> 
-                                    <td class="align-middle">{{ $work->position }}</td>
-                                </tr>
-                                <tr class="workexperience-row row-{{ $work->id }}">
-                                    <th class="align-middle">Department / Agency / Office / Company (Write in full/Do not abbreviate)</th>
-                                    <td class="align-middle">{{ $work->department }}</td> 
-                                </tr>
-                                <tr class="workexperience-row row-{{ $work->id }}">
-                                    <th class="align-middle">Salary/ Job/ Pay Grade (if applicable)& STEP (Format "00-0")/ Increment</th>
-                                    <td class="align-middle">{{ $work->sg_grade }}</td>
-                                </tr>
-                                <tr class="workexperience-row row-{{ $work->id }}">
-                                    <th class="align-middle">Monthly Salary</th>
-                                    <td class="align-middle">{{ $work->salary }}</td>
-                                </tr>
-                                <tr class="workexperience-row row-{{ $work->id }}">
-                                    <th class="align-middle">Status of Appointment</th>
-                                    <td class="align-middle">{{ $work->stat_app }}</td>
-                                </tr>
-                                <tr class="workexperience-row row-{{ $work->id }}">
-                                    <th class="align-middle">Government Service (Y/N)</th>
-                                    <td class="align-middle">{{ ($work->service == "Y") ? 'Yes' : 'No' }}</td>
-                                </tr>
-                                <tr class="workexperience-row row-{{ $work->id }}">
-                                    <th class="align-middle">Attachment</th>
-                                    <td class="align-middle">
-                                        <a href="#" class="text-info" data-toggle="modal" data-target="#pdfModal" 
-                                           data-label="{{ $work->careereligible }}" 
-                                           data-pdf="{{ asset('storage/' . $work->attachment) }}" onclick="showPdfModal(this)">
-                                            <i class="fas fa-eye fa-xs"></i> <b>Preview</b>
-                                        </a>
-                                    </td>
-                                </tr>
-                                <tr class="workexperience-row row-{{ $work->id }}">
-                                    <th class="align-middle">Status</th>
-                                    <td class="align-middle">
-                                        @if ($work->status == 0)
-                                            <span class="badge badge-warning" id="status-{{ $work->id }}">To be Reviewed</span>
-                                        @else
-                                            <span class="badge badge-success">Reviewed</span>
-                                        @endif
-                                    </td>                                
-                                </tr>
-                                <tr class="workexperience-row row-{{ $work->id }}">
-                                    <td colspan="3"></td>
-                                </tr>
-                            </tbody>
-                            @endforeach
-                        </table>
+                                        </td>
+                                    </tr>
+                                    <tr class="workexperience-row row-{{ $work->id }}">
+                                        <th class="align-middle">Status</th>
+                                        <td class="align-middle">
+                                            @if ($work->status == 0)
+                                                <span class="badge badge-warning" id="status-{{ $work->id }}">To be Reviewed</span>
+                                            @elseif($work->status == 1)
+                                                <span class="badge badge-success">Reviewed</span>
+                                            @else
+                                                <span class="badge badge-danger">Canceled</span>
+                                                <div class="mt-1 text-muted">
+                                                    <strong>Remarks:</strong> {{ $work->remarks }}
+                                                </div>
+                                            @endif
+                                        </td>                                
+                                    </tr>
+                                    <tr class="workexperience-row row-{{ $work->id }}">
+                                        <td colspan="3"></td>
+                                    </tr>
+                                </tbody>
+                                @endforeach
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -212,6 +226,32 @@
     </div>
 </div>
 </section>
+<div class="modal fade" id="workexp-modal" tabindex="-1" aria-labelledby="eligibleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <form method="POST" action="{{ route('workexperienceCancel') }}">
+                @csrf
+                <div class="modal-header">
+      
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="workexp-id">
+                    <div class="form-group">
+                        <span class="badge badge-secondary">Remarks</span>
+                      <textarea name="remarks" id="remarks" class="form-control" rows="3" placeholder="Enter remarks" required></textarea>
+                    </div>
+                    <div style="float: right;">
+                        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                    </div>
+                </div>
+                <div class="modal-footer mt-3">
+             
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg custom-modal" role="document">
         <div class="modal-content">
@@ -241,6 +281,14 @@
 
     function closePdfModal() {
         document.getElementById('modalPdf').src = '';
+    }
+
+    function openworkexpModal(id) {
+        document.getElementById('workexp-id').value = id;
+
+        document.getElementById('remarks').value = '';
+
+        document.getElementById('remarks').focus();
     }
 </script>
 @endsection

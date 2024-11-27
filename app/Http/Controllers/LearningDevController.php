@@ -165,6 +165,7 @@ class LearningDevController extends Controller
             'types' => $request->input('types'),
             'conducted' => $request->input('conducted'),
             'attachment' => $attachmentPath,
+            'status' => 0,
         ]);
     
         return redirect()->back()->with('success', 'Updated successfully!');
@@ -206,5 +207,20 @@ class LearningDevController extends Controller
                 'message' => "Record not found",
             ]);
         }
+    }
+    
+    public function learningdevCancel(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => 'required',
+            'remarks' => 'required',
+        ]);
+
+        LearningDev::where('id', $validated['id'])->update([
+            'status' => 2,
+            'remarks' => $validated['remarks']
+        ]);
+
+        return redirect()->back()->with('success', 'Successfully canceled.');
     }
 }
