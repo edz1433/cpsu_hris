@@ -42,7 +42,7 @@
                               </a>
                             </h4>
                           </div>
-                          <div id="collapseOne" class="collapse  {{ (count($workexperience) > 0) ? '' : 'show' }} {{ isset($workexperienceedit) ? 'show' : '' }}" data-parent="#accordion" style="">
+                          <div id="collapseOne" class="collapse show" data-parent="#accordion" style="">
                             <div class="card-body bg-form">
                                 <form class="form-horizontal" action="{{ isset($workexperienceedit) ? route('workexperienceUpdate', $workexperienceedit->id) : route('workexperienceCreate') }}" method="POST" enctype="multipart/form-data">
                                     @csrf
@@ -177,7 +177,7 @@
                                 </tr>
                                 <tr class="workexperience-row row-{{ $work->id }}">
                                     <th class="align-middle">Government Service (Y/N)</th>
-                                    <td class="align-middle">{{ ($work->service == "Y") ? 'Yest' : 'No' }}</td>
+                                    <td class="align-middle">{{ ($work->service == "Y") ? 'Yes' : 'No' }}</td>
                                 </tr>
                                 <tr class="workexperience-row row-{{ $work->id }}">
                                     <th class="align-middle">Attachment</th>

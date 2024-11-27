@@ -42,7 +42,7 @@
                               </a>
                             </h4>
                           </div>
-                          <div id="collapseOne" class="collapse  {{ (count($eligibility) > 0) ? '' : 'show' }} {{ isset($eligibilityedit) ? 'show' : '' }}" data-parent="#accordion" style="">
+                          <div id="collapseOne" class="collapse show" data-parent="#accordion" style="">
                             <div class="card-body bg-form">
                                 <form class="form-horizontal" action="{{ isset($eligibilityedit) ? route('eligibilityUpdate', $eligibilityedit->id) : route('eligibilityCreate') }}" method="POST" enctype="multipart/form-data">
                                     @csrf
@@ -123,11 +123,14 @@
                                             <a href="{{ route('eligibilityEdit', ['id' => $empid, 'eid' => $eli->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
                                                 <i class="fas fa-pen"></i>
                                             </a>
+                                            <button class="btn btn-success btn-sm mb-2 eligible_approve" value="{{ $eli->id }}" title="Approve">
+                                                <i class="fas fa-check"></i>
+                                            </button>
                                             <button class="btn btn-danger btn-sm mb-2 eligible_delete" value="{{ $eli->id }}" title="Delete">
                                                 <i class="fas fa-trash"></i>
                                             </button>
-                                            <button class="btn btn-success btn-sm eligible_approve" value="{{ $eli->id }}" title="Approve">
-                                                <i class="fas fa-check"></i>
+                                            <button class="btn btn-warning btn-sm" value="{{ $eli->id }}" title="Cancel">
+                                                <i class="fas fa-times"></i>
                                             </button>
                                         @elseif($guard == "employee" && $eli->status == 0)
                                             <a href="{{ route('eligibilityEdit', ['id' => $empid, 'eid' => $eli->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">

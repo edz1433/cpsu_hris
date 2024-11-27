@@ -42,7 +42,7 @@
                                 </a>
                                 </h4>
                             </div>
-                            <div id="collapseOne" class="collapse  {{ (count($learningdev) > 0) ? '' : 'show' }} {{ isset($learningdevedit) ? 'show' : '' }}" data-parent="#accordion" style="">
+                            <div id="collapseOne" class="collapse show" data-parent="#accordion" style="">
                                 <div class="card-body bg-form">
                                     <form class="form-horizontal" action="{{ isset($learningdevedit) ? route('learningdevUpdate', $learningdevedit->id) : route('learningdevCreate') }}" method="POST" enctype="multipart/form-data">
                                         @csrf

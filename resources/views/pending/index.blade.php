@@ -15,37 +15,37 @@
                             <a href="{{ route('readPending', 1) }}" class="nav-link">
                                 <i class="{{ request()->is('pending/1') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-calendar-check" style="width: 20px;"></i>
                                 <span class="{{ request()->is('pending/1') ? 'text-dark' : 'text-muted' }} text-bold">Leave Application</span>
-                                <span class="float-right badge badge-secondary" class="">0</span>
+                                <span class="float-right badge badge-warning" class="">{{ number_format($leaveappCount) }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ route('readPending', 2) }}" class="nav-link">
                                 <i class="{{ request()->is('pending/2') ? 'text-dark' : 'text-muted' }} pr-2 fas fas fa-certificate" style="width: 20px;"></i>
                                 <span class="{{ request()->is('pending/2') ? 'text-dark' : 'text-muted' }} text-bold">Eligibility</span>
-                                <span class="float-right badge badge-secondary" class="">0</span>
+                                <span class="float-right badge badge-warning" class="">{{ number_format($eliCount) }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ route('readPending', 3) }}" class="nav-link">
                                 <i class="{{ request()->is('pending/3') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-briefcase" style="width: 20px;"></i>
                                 <span class="{{ request()->is('pending/3') ? 'text-dark' : 'text-muted' }} text-bold">Work Experience</span>
-                                <span class="float-right badge badge-secondary" class="">0</span>
+                                <span class="float-right badge badge-warning" class="">{{ number_format($workexpCount) }}</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('readPending', 5) }}" class="nav-link">
+                                <i class="{{ request()->is('pending/5') ? 'text-dark' : 'text-muted' }} pr-2 fas fas fa-book" style="width: 20px;"></i>
+                                <span class="{{ request()->is('pending/5') ? 'text-dark' : 'text-muted' }} text-bold">Learning and Development</span>
+                                <span class="float-right badge badge-warning" class="">{{ number_format($learDevCount) }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{ route('readPending', 4) }}" class="nav-link">
                                 <i class="{{ request()->is('pending/4') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-hand-holding-heart" style="width: 20px;"></i>
                                 <span class="{{ request()->is('pending/4') ? 'text-dark' : 'text-muted' }} text-bold">Voluntary Work</span>
-                                <span class="float-right badge badge-secondary" class="">0</span>
+                                <span class="float-right badge badge-warning" class="">{{ number_format($volWorkCount) }}</span>
                             </a>
                         </li> 
-                        <li class="nav-item">
-                            <a href="{{ route('readPending', 5) }}" class="nav-link">
-                                <i class="{{ request()->is('pending/5') ? 'text-dark' : 'text-muted' }} pr-2 fas fas fa-book" style="width: 20px;"></i>
-                                <span class="{{ request()->is('pending/5') ? 'text-dark' : 'text-muted' }} text-bold">Learning and Development</span>
-                                <span class="float-right badge badge-secondary" class="">0</span>
-                            </a>
-                        </li>
                     </ul>
                 </div>
             </div>
