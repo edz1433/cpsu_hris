@@ -88,7 +88,7 @@
                                 case '3':
                                     $route = route('work-experience', $emp->id);
                                     break;
-                        
+                                
                                 case '4':
                                     $route = route('voluntary-work', $emp->id);
                                     break;

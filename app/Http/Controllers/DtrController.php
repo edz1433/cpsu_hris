@@ -149,14 +149,14 @@ class DtrController extends Controller
     {
         $guard = $this->getGuard();
         $currentDate = Carbon::now()->toDateString();
-
-        $data = null;
+    
         $data = [
             "employeeId" => $employeeId,
             "dateFrom" => $dateFrom,
             "dateTo" => $dateTo,
         ];
     
+        // Fetch DTR records with necessary conditions
         $dtrRecords = Dtr::join('employees', 'dtrs.emp_ID', '=', 'employees.emp_ID')
             ->when(is_null($dateFrom) && is_null($dateTo), function ($query) use ($currentDate, $employeeId) {
                 return $query->whereDate('dtrs.date', $currentDate)
@@ -171,7 +171,7 @@ class DtrController extends Controller
             ->orderBy('dtrs.time_in', 'asc')
             ->orderBy('dtrs.time_out', 'asc')
             ->get();
-        
+    
         $groupedRecords = $dtrRecords->groupBy('emp_ID');
     
         $devices = Fdevice::all();
@@ -221,6 +221,7 @@ class DtrController extends Controller
                 }
             }
     
+            // Sort sessions by time
             usort($logSessions, function ($a, $b) {
                 return strtotime($a['time']) - strtotime($b['time']);
             });
@@ -228,23 +229,24 @@ class DtrController extends Controller
             $processedLogs[$employeeId] = $logSessions;
         }
     
+        // Define paper size and margins
         $customPaper = [0, 0, 612, 970];
         $pdf = \PDF::loadView('dtr.logs-pdf', compact('guard', 'dtrRecords', 'processedLogs', 'data'))
             ->setPaper($customPaper, 'portrait')
             ->setOptions([
-                'margin-top' => 0,
-                'margin-right' => 0,
-                'margin-bottom' => 0,
-                'margin-left' => 0,
+                'margin-top' => 10,
+                'margin-right' => 10,
+                'margin-bottom' => 10,
+                'margin-left' => 10,
+            ])
+            ->setCallbacks([
+                'before_render' => function ($domPdf) {
+                    $domPdf->getCanvas()->page_text(10, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, [0, 0, 0]);
+                },
             ]);
     
-        $pdf->setCallbacks([
-            'before_render' => function ($domPdf) {
-                $domPdf->getCanvas()->page_text(10, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, [0, 0, 0]);
-            },
-        ]);
-    
         return $pdf->stream();
-    }    
+    }
+      
     
 }

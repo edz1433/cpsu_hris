@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>DTR 
-        @if($data != null) 
+        <title>DTR @if($data != null) 
             {{ 
                 ($data['dateFrom'] != $data['dateTo']) 
                 ? date('F j, Y', strtotime($data['dateFrom'])) . ' to ' . date('F j, Y', strtotime($data['dateTo'])) 
@@ -22,21 +21,18 @@
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
-            opacity: 0.95;
-            margin: 0;
-            padding: 0;
+            opacity: 0.9; /* Adjust opacity for the whole body */
         }
-
-        .b {
+    
+        .b{
             color: #000000;
-            font-weight: bold;
         }
-
+    
+        /* Apply a semi-transparent background to the table */
         .table-container {
             background-color: rgba(255, 255, 255, 0.8); /* White with 80% opacity */
             padding: 20px;
             border-radius: 10px;
-            margin-top: -40px;
         }
     
         .table-custom th {
@@ -72,62 +68,10 @@
         .table-sm th, .table-sm td {
             padding: 0.2rem;
         }
-
-        @media print {
-            body {
-                background: none;
-                margin: 0;
-                padding: 0;
-            }
-            
-            .table-container {
-                background: none;
-                padding: 0;
-            }
-
-            .page-break {
-                page-break-after: always;
-            }
-
-            .table-custom th, .table-custom td {
-                font-size: 10px;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="table-container">
-        @php
-            if (!function_exists('convertTo12HourFormat')) {
-                function convertTo12HourFormat($time) {
-                    return date("g:i:s A", strtotime($time));
-                }
-            }
-
-            $campuses = [
-                '1' => 'CPSU Main',
-                '2' => 'CPSU Candoni',
-                '3' => 'CPSU Cauayan',
-                '4' => 'CPSU Hinigaran',
-                '5' => 'CPSU Hinoba-an',
-                '6' => 'CPSU Ilog',
-                '7' => 'CPSU San Carlo',
-                '8' => 'CPSU Sipalay',
-                '9' => 'CPSU Victorias',
-                '10' => 'CPSU Murcia',
-                '11' => 'CPSU Valladolid',
-                '12' => 'CPSU Moises Padilla',
-            ];
-
-            $logsGroupedByDate = [];
-            foreach ($processedLogs as $employeeId => $logs) {
-                foreach ($logs as $log) {
-                    $logsGroupedByDate[$log['date']][] = $log;
-                }
-            }
-
-            ksort($logsGroupedByDate);
-        @endphp
         @foreach ($logsGroupedByDate as $date => $logs)
             <table class="table table-sm table-custom" style="page-break-inside: avoid;">
                 <thead>
@@ -169,7 +113,7 @@
                     @endforeach
                 </tbody>
             </table>
-            <div class="page-break"></div>
+            <div style="page-break-after: always;"></div>
         @endforeach
     </div>
 </body>
