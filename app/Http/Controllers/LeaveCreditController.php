@@ -27,7 +27,7 @@ class LeaveCreditController extends Controller
         $leaves = LeaveCredit::where('empid', $employee->emp_ID)
         ->join('users', 'leave_credits.add_by', '=', 'users.id')
         ->select('leave_credits.*', 'users.fname', 'users.mname', 'users.lname')
-        ->orderBy('leave_credits.id', 'desc') 
+        ->orderBy('leave_credits.created_at', 'desc')
         ->get();
     
         return view('leaves.emp-leaves', compact('leaves', 'guard', 'employee', 'emplalls', 'empid'));
