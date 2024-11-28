@@ -88,7 +88,7 @@
                                 </tr>
                             </thead> 
                             <tbody>
-                                @foreach($leaves->sortByDesc('created_at') as $leave)
+                                @foreach($leaves as $leave)
                                 @php $date = ($leave->created_at) ? \Carbon\Carbon::parse($leave->created_at)->format('F d, Y') : '' @endphp
                                     <tr id="tr-{{ $leave->id }}">
                                         <td class="text-center">{{ $leave->earn_sl }}</td>
