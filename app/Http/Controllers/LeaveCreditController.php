@@ -27,10 +27,10 @@ class LeaveCreditController extends Controller
         $leaves = LeaveCredit::where('empid', $employee->emp_ID)
         ->join('users', 'leave_credits.add_by', '=', 'users.id')
         ->select('leave_credits.*', 'users.fname', 'users.mname', 'users.lname')
-        ->orderByRaw('CASE WHEN leave_credits.stat = 0 THEN 0 ELSE 0 END')
-        ->orderBy('leave_credits.created_at', 'desc')
-        ->get();    
-
+        ->orderByRaw('CASE WHEN leave_credits.stat = 0 THEN 1 ELSE 0 END') // Push stat = 0 to the bottom
+        ->orderBy('leave_credits.id', 'desc') // Order the rest by latest ID inserted
+        ->get();
+    
         return view('leaves.emp-leaves', compact('leaves', 'guard', 'employee', 'emplalls', 'empid'));
     }
     
