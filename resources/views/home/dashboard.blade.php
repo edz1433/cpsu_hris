@@ -248,7 +248,7 @@
                                     @endphp
                                     
                                     <span class="float-right" style="margin-top: -2px;">
-                                        @if (now('Asia/Manila')->isSameDay(\Carbon\Carbon::parse($birthday)))
+                                        @if ($employee->bdate->format('F j') == now('Asia/Manila')->format('F j'))
                                             <i class="fas fa-birthday-cake" style="color: #e71515;"></i>
                                         @endif
                                     </span>
