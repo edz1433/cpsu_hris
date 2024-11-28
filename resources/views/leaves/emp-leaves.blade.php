@@ -88,13 +88,14 @@
                                 </tr>
                             </thead> 
                             <tbody>
-                                @foreach($leaves as $leave)
+                                @foreach($leaves->sortByDesc('created_at') as $leave)
+                                @php $date = ($leave->created_at) ? \Carbon\Carbon::parse($leave->created_at)->format('F d, Y') : '' @endphp
                                     <tr id="tr-{{ $leave->id }}">
                                         <td class="text-center">{{ $leave->earn_sl }}</td>
                                         <td class="text-center">{{ $leave->earn_vl }}</td>
                                         <td>{{ \Carbon\Carbon::parse($leave->date)->format('F Y') }}</td>
                                         <td>{{ $leave->remarks }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($leave->created_at)->format('F d, Y') }}</td>
+                                        <td>{{ $date }}</td>
                                         <td class="text-center">@if($leave->stat == 0) <span class="badge badge-warning">(starting Balance)</span> @elseif($leave->stat == 1 && $leave->days == 0) <span class="badge badge-danger">deducted</span> @else <span class="badge badge-success">addedd</span> @endif</td>
                                         <td  width="100" class="text-center">
                                             <a href="#" class="btn btn-info btn-sm mb-2 leaves_edit" data-id="{{ $leave->id }}" title="Edit" data-toggle="modal" data-target="{{ ($leave->stat == 1 && $leave->days == 0) ?  '#leaveModalDeductEdit ' : '#leaveEditModal' }}  ">
