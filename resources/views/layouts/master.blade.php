@@ -145,7 +145,7 @@
             <!-- /.content -->
         </div>
         <!-- /.content-wrapper -->
-
+        
         <!-- Control Sidebar -->
         <aside class="control-sidebar control-sidebar-dark">
             <!-- Control sidebar content goes here -->
@@ -155,7 +155,7 @@
         <!-- Main Footer -->
         <footer class="main-footer">
             <div class="float-right d-none d-sm-inline">
-                Maintain and Manage by <a href="#">MIS</a>.
+                Maintained and Managed by <a href="#">MIS</a>.
             </div>
             <strong>All rights reserved.</strong>
         </footer>

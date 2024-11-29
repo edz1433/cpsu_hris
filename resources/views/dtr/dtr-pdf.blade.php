@@ -99,6 +99,13 @@
             sort($time_array_in);
             sort($time_array_out);
 
+            $time_array_in = array_filter($time_array_in, function($time) {
+                $time_obj = strtotime($time);
+                return $time_obj < strtotime('14:00:00');
+            });
+
+            $time_array_in = array_values($time_array_in);
+
             foreach ($time_array_in as $key => $time) {
                 $time_array_in[$key] = date('g:i:s A', strtotime($time));
             }
