@@ -119,7 +119,7 @@
     <div class="column1"> 
         <img src="{{ asset('Uploads/dtr-header.jpg') }}" width="110%" style="margin-top: 30px;" alt="Header Image">
         <div>
-            <span class="font">Name of Employee :</span> <span class="header" style="relative; display: inline-block; width: 73%; text-align: left;">&nbsp; @if(isset($employee)) {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->prefix)) }} {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(ucwords($employee->mname)) }} @endif</span>
+            <span class="font">Name of Employee :</span> <span class="header" style="relative; display: inline-block; width: 73%; text-align: left;">&nbsp; @if(isset($employee)) {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(substr($employee->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->suffix)) }}@endif</span>
         </div>
         <div style="margin-top: -9px;">
             <span class="font">Office/Campus/College : </span> <span class="header" style="relative; display: inline-block; width: 67.5%; text-align: left;">&nbsp;{{ isset($employee) ? strtoupper(ucwords($employee->office_name)) : '' }}</span>
@@ -268,7 +268,7 @@
             <b style="margin-left: 25px;">CERTIFY</b> on my honor that the above is a true and correct of hours of worked performed, record of which was made daily at of arrival and departure from office:
         </p> 
         <div><br>
-            <span class="font"><b>@if(isset($employee)) {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->prefix)) }} {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(ucwords($employee->mname)) }} @endif</b></span><br>
+            <span class="font"><b>@if(isset($employee)) {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(substr($employee->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->suffix)) }}@endif</b></span><br>
             <span class="header" style="relative; display: inline-block; width: 50%; text-align: center;"></span>
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: center; margin-top: -25px;">Employee’s Signature</span>
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: center; margin-top: -37px;">over Printed Name</span>
@@ -277,7 +277,7 @@
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: left; margin-top: -25px;"><b>VERIFIED</b> as to the prescribed office hours:</span>
         </div>
         <div>
-            <span class="font"><b>{{ ($employee->emp_dept == 19) ? 'RYAN B. ESCORIAL, DIT' : ''}}</b></span><br>
+            <span class="font"><b>@if(isset($supervisor)) {{ strtoupper(ucwords($supervisor->fname)) }} {{ strtoupper(substr($supervisor->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($supervisor->lname)) }}{{ ($supervisor->prefix) ? ', '.strtoupper(ucwords($supervisor->prefix)) : ''}}@endif</b></span><br>
             <span class="header" style="relative; display: inline-block; width: 50%; text-align: center;"></span>
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: center; margin-top: -25px;">Immediate Supervisor’s Signature </span>
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: center; margin-top: -37px;">over Printed Name</span>
@@ -289,7 +289,7 @@
     <div class="column2"> 
         <img src="{{ asset('Uploads/dtr-header.jpg') }}" width="110%" style="margin-top: 30px;" alt="Header Image">
         <div>
-            <span class="font">Name of Employee :</span> <span class="header" style="relative; display: inline-block; width: 73%; text-align: left;">&nbsp; @if(isset($employee)) {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->prefix)) }} {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(ucwords($employee->mname)) }} @endif</span>
+            <span class="font">Name of Employee :</span> <span class="header" style="relative; display: inline-block; width: 73%; text-align: left;">&nbsp; @if(isset($employee)) {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(substr($employee->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->suffix)) }}@endif</span>
         </div>
         <div style="margin-top: -9px;">
             <span class="font">Office/Campus/College : </span> <span class="header" style="relative; display: inline-block; width: 67.5%; text-align: left;">&nbsp;{{ isset($employee) ? strtoupper(ucwords($employee->office_name)) : '' }}</span>
@@ -438,7 +438,7 @@
             <b style="margin-left: 25px;">CERTIFY</b> on my honor that the above is a true and correct of hours of worked performed, record of which was made daily at of arrival and departure from office:
         </p> 
         <div><br>
-            <span class="font"><b>@if(isset($employee)) {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->prefix)) }} {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(ucwords($employee->mname)) }} @endif</b></span><br>
+            <span class="font"><b>@if(isset($employee)) {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(substr($employee->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->suffix)) }}@endif</b></span><br>
             <span class="header" style="relative; display: inline-block; width: 50%; text-align: center;"></span>
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: center; margin-top: -25px;">Employee’s Signature</span>
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: center; margin-top: -37px;">over Printed Name</span>
@@ -447,7 +447,7 @@
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: left; margin-top: -25px;"><b>VERIFIED</b> as to the prescribed office hours:</span>
         </div>
         <div>
-            <span class="font"><b>{{ ($employee->emp_dept == 19) ? 'RYAN B. ESCORIAL, DIT' : ''}}</b></span><br>
+            <span class="font"><b>@if(isset($supervisor)) {{ strtoupper(ucwords($supervisor->fname)) }} {{ strtoupper(substr($supervisor->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($supervisor->lname)) }}{{ ($supervisor->prefix) ? ', '.strtoupper(ucwords($supervisor->prefix)) : ''}}@endif</b></span><br>
             <span class="header" style="relative; display: inline-block; width: 50%; text-align: center;"></span>
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: center; margin-top: -25px;">Immediate Supervisor’s Signature </span>
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: center; margin-top: -37px;">over Printed Name</span>

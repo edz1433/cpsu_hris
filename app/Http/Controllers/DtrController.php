@@ -100,7 +100,11 @@ class DtrController extends Controller
         ->join('dbcpsupms.offices', 'employees.emp_dept', '=', 'dbcpsupms.offices.id')
         ->select('employees.*', 'dbcpsupms.offices.office_name')
         ->first();
-    
+
+        $supervisor = Employee::where('id', $employee->supervisor)
+        ->select('employees.fname', 'employees.lname', 'employees.mname', 'employees.prefix')
+        ->first();
+        
         $dtrRecords = Dtr::where('emp_ID', $employeeId)
                         ->whereYear('date', $year)
                         ->whereMonth('date', $month)
@@ -110,6 +114,7 @@ class DtrController extends Controller
     
         $pdf = PDF::loadView($form, [
             'employee' => $employee,
+            'supervisor' => $supervisor,
             'dtrRecords' => $dtrRecords,
             'period' => $period,
             'date' => $date,
