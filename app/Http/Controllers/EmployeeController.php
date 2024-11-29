@@ -315,7 +315,7 @@ class EmployeeController extends Controller
         if ($request->hasFile('profileImage')) {
             $profileImagePath = public_path('Profile/Employee/');
 
-            if ($employee->profile && file_exists($profileImagePath . $employee->profile)) {
+            if ($employee->profile != "default.png" && file_exists($profileImagePath . $employee->profile)) {
                 unlink($profileImagePath . $employee->profile);
             }
     
