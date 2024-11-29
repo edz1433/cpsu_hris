@@ -96,6 +96,9 @@
             $time_array_in = $day_time_in ? explode(',', $day_time_in) : [];
             $time_array_out = $day_time_out ? explode(',', $day_time_out) : [];
 
+            sort($time_array_in);
+            sort($time_array_out);
+
             foreach ($time_array_in as $key => $time) {
                 $time_array_in[$key] = date('g:i:s A', strtotime($time));
             }
