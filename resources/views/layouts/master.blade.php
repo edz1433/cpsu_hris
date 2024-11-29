@@ -73,14 +73,15 @@
                 @else
                     {{-- @include('layouts.notif-employee') --}}
                 @endif
-                 
+                
                 <!-- User Dropdown -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle text-success1" href="#" role="button" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         @php
-                            $profilePath = public_path('Profile/Employee/' . auth()->guard($guard)->user()->profile);
-                            $profileUrl = file_exists($profilePath) && isset(auth()->guard($guard)->user()->profile)
-                                ? asset('Profile/Employee/' . auth()->guard($guard)->user()->profile)
+                            $profile = auth()->guard($guard)->user()->profile;
+                            $profilePath = public_path('Profile/Employee/' . $profile);
+                            $profileUrl = !empty($profile) && file_exists($profilePath) 
+                                ? asset('Profile/Employee/' . $profile) 
                                 : asset('Profile/Employee/default.png');
                         @endphp
                         <img src="{{ $profileUrl }}" alt="User Image" class="profile-image">
@@ -89,7 +90,8 @@
                         {{-- <a class="dropdown-item" href="{{ route('myAccount') }}"><i class="fas fa-key fa-xs"></i> My Account</a> --}}
                         <a class="dropdown-item" href="{{ route('logout') }}"><i class="fas fa-power-off fa-xs"></i> Sign Out</a>
                     </div>
-                </li>                
+                </li>
+                
             </ul>
         </nav>
         
