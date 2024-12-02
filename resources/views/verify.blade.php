@@ -33,9 +33,11 @@
                         <img src="{{ asset('template/img/CPSU_L.png') }}" class="img-responsive">
                     </a>
                 </div>
-                <p class="login-box-msg">
-                    <span class="text-light">Verify Your Email</span>
-                </p>
+                <p class="login-box-msg" style=" margin-bottom: -20px !important;">
+                    <span class="text-light">Verify Your Email</span> 
+                </p>   
+                
+                <span style="font-size: 12px; margin-left: 18px; color: rgb(255, 236, 236);">A verification code has been sent to your email.</span>
                 <form action="{{ route('verify.code') }}" method="POST">
                     @csrf
                     <input type="hidden" id="email" name="email" value="{{ session('email') }}">
@@ -55,13 +57,13 @@
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
+    {{-- <script>
         $(document).ready(function () {
             var email = $('#email').val();
             if(email == ""){
                 window.location.href = "{{ route('getLogin') }}";
             }
         });
-    </script>
+    </script> --}}
 </body>
 </html>
