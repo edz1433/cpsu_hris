@@ -29,6 +29,12 @@ class LeaveApplicationController extends Controller
             'empid' => 'required|exists:employees,emp_ID',
             'date_range' => 'required|string',
         ]);
+
+        $checkleave = LeaveApplication::where('empid', $request->empid)->where('status', 2)->get();
+
+        if ($checkleave->isNotEmpty()) {
+            return redirect()->back()->with('error', 'One Leave Application at a time');
+        }
     
         $leaveDetails = array_filter($request->input('leave_detail'));
         $firstDetail = reset($leaveDetails);
@@ -43,7 +49,7 @@ class LeaveApplicationController extends Controller
         $purpose = $request->leave_purpose;
     
         if (is_null($employee->supervisor) || $employee->supervisor == 0) {
-            return redirect()->back()->withErrors(['error' => 'No Supervisor Assigned']);
+            return redirect()->back()->with(['error' => 'No Supervisor Assigned']);
         }
 
         $lastTransnum = LeaveApplication::orderBy('id', 'desc')->first();
@@ -450,6 +456,7 @@ class LeaveApplicationController extends Controller
                 $leaveApplication->sup_sdate = $currdate;
                 $leaveApplication->remarks_details = $request->remarks;
                 $leaveApplication->status = 3;
+                $leaveApplication->history = 2;
             }
             
             if ($request->by == 3) {

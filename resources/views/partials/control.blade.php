@@ -15,7 +15,7 @@
             </li>
             <li class="nav-item">
                 <a href="{{ route('readTiredness') }}" class="nav-link text-success1 {{ request()->is('tardiness*') ? 'active' : '' }}">
-                    <i class="pt-1 nav-icon fas fa-bed"></i>
+                    <i class="pt-1 nav-icon fas fa-hourglass-start"></i>
                     <p>Tardiness</p>
                 </a>
             </li>

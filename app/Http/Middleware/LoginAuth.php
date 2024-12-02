@@ -19,20 +19,23 @@ class LoginAuth
         if (auth()->guard('web')->check()) {
             $userRole = auth()->guard('web')->user()->role;
     
-            if ($userRole == 'HR Administrator') {
+            if ($userRole !== 'Administrator') {
                 if ($request->is('user') || $request->is('user/*')) {
                     return redirect()->route('dashboard')->with('error1', 'You do not have permission to access this page');
                 }
             }
         } elseif (auth()->guard('employee')->check()) {
-            if ($request->is('users') || $request->is('users/*') || $request->is('office') || $request->is('office/*') || $request->is('employees') || $request->is('pds/family-bg/*')) {
-                return redirect()->route('empPDS')->with('error', 'You do not have permission to access this page');
+            if ($request->is('users') || $request->is('users/*') || $request->is('office') || $request->is('office/*') || $request->is('employees') || $request->is('leave/status/*') || $request->is('leave/history/*')
+            || $request->is('tardiness') || $request->is('leaves') || $request->is('leaves') || $request->is('pds/family-bg/*') || $request->is('pds/educ-bg/*') || $request->is('pds/eligibility/*') 
+            || $request->is('pds/work-experience/*') || $request->is('pds/voluntary-work/*') || $request->is('pds/learning-dev/*') || $request->is('pds/other-info/*') || $request->is('pds/info-question/*') 
+            || $request->is('pds/references/*') || $request->is('pds/government-id/*')) {
+                return redirect()->route('empPDS')->with('error1', 'You do not have permission to access this page');
             }
             if ($request->is('dashboard') || $request->is('dashboard/*')) {
-                return redirect()->route('empPDS')->with('error', 'The dashboard is currently under development.');
+                return redirect()->route('empPDS')->with('error1', 'The dashboard is currently under development.');
             }            
         }else {
-            return redirect()->route('getLogin')->with('error', 'You have to sign in first to access this page');
+            return redirect()->route('getLogin')->with('error1', 'You have to sign in first to access this page');
         }
         
         $response = $next($request);

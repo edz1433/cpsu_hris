@@ -65,7 +65,7 @@ class PdsController extends Controller
             'colreferences' => $references->referencesValue(),
             'colgovids' => $govids->govidsValue(),
         ];
-
+        
         return $columnstatus;
     }
 
