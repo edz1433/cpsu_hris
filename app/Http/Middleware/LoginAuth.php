@@ -31,7 +31,7 @@ class LoginAuth
             || $request->is('pds/references/*') || $request->is('pds/government-id/*')) {
                 return redirect()->route('empPDS')->with('error1', 'You do not have permission to access this page');
             }
-            if ($request->is('leaves') && auth()->guard('employee')->user()->emp_status != 1) {
+            if ($request->is('leave') && auth()->guard('employee')->user()->emp_status != 1) {
                 return redirect()->route('empPDS')->with('error1', 'You do not have permission to access this page');
             }
             if ($request->is('dashboard') || $request->is('dashboard/*')) {
