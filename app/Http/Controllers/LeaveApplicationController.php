@@ -30,7 +30,7 @@ class LeaveApplicationController extends Controller
             'date_range' => 'required|string',
         ]);
 
-        $checkleave = LeaveApplication::where('empid', $request->empid)->where('status', 2)->get();
+        $checkleave = LeaveApplication::where('empid', $request->empid)->where('history', 2)->get();
 
         if ($checkleave->isNotEmpty()) {
             return redirect()->back()->with('error', 'One Leave Application at a time');
@@ -156,11 +156,7 @@ class LeaveApplicationController extends Controller
         if ($setting->suc_pres !== auth()->guard($guard)->user()->id) {
             $leavesapphead->where('leave_applications.supervisor', auth()->guard($guard)->user()->id);
         }else{
-            if($setting->hr == auth()->guard($guard)->user()->id){
-                $leavesapphead->whereIn('leave_applications.status', [3])->where('empid', $employee->emp_ID);
-            }else{
-                $leavesapphead->whereIn('leave_applications.status', [3]);
-            }
+            $leavesapphead->whereIn('leave_applications.status', [3]);
         }
 
         $leavesapphead = $leavesapphead->select(
