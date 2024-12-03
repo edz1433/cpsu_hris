@@ -271,7 +271,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/update-notif/{menid}/{lappid}/{menu}', [NotificationController::class, 'updateNotif'])->name('updateNotif');
     });
 
-    // Logout
+    // leave
     Route::prefix('leave')->group(function() {
         Route::get('/', [LeaveCreditController::class, 'leavesReadEmp'])->name('leavesReadEmp');
         Route::post('/create', [LeaveApplicationController::class, 'LeaveAppCreate'])->name('LeaveAppCreate');
