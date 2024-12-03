@@ -66,7 +66,7 @@
                                             </td>
                                             <td>{{ $emp->org_email }}</td>
                                             <td>{{ $years.' years' .' '. $months. ' months' }}</td>
-                                            <td>{{ isset($hireDate) ? date('F d, Y', strtotime($hireDate)) : '' }}</td>
+                                            <td>{{ $hireDate }}</td>
                                             <td class="text-center">
                                                 <div class="custom-control custom-switch">
                                                     <input type="checkbox" class="custom-control-input" onchange="toggleStat(this.checked, {{ $emp->id }})" id="switch{{ $emp->id }}" {{ $emp->stat_1 == 1 ? 'checked' : '' }}>

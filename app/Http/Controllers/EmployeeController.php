@@ -98,6 +98,7 @@ class EmployeeController extends Controller
                 'employees.emp_ID',
                 'employees.position',
                 'employees.org_email',
+                'employees.date_hired',
                 'employees.lname',
                 'employees.fname',
                 'employees.mname',
