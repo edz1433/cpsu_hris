@@ -30,7 +30,7 @@ class LeaveApplicationController extends Controller
             'date_range' => 'required|string',
         ]);
 
-        $checkleave = LeaveApplication::where('empid', $request->empid)->where('history', 2)->get();
+        $checkleave = LeaveApplication::where('empid', $request->empid)->where('history', 1)->get();
 
         if ($checkleave->isNotEmpty()) {
             return redirect()->back()->with('error', 'One Leave Application at a time');
