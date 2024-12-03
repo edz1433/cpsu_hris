@@ -133,7 +133,7 @@
                                                     <button class="btn btn-danger btn-sm mb-2 learningdev_delete" value="{{ $learning->id }}" title="Delete">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
-                                                @elseif($guard == "employee" && $learning->status == 0)
+                                                    @elseif($guard == "employee" && in_array($learning->status, [0, 2]))
                                                     <a href="{{ route('learningdevEdit', ['id' => $empid, 'eid' => $learning->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
                                                         <i class="fas fa-pen"></i>
                                                     </a>
