@@ -176,6 +176,9 @@ class LeaveApplicationController extends Controller
         ->get();
 
         // dd($leavesapphead);
+        if($guard == 'web'){
+            $leavesapphead = [];
+        }
         
         $emplalls = Employee::where('emp_status', 1)->get();
 
