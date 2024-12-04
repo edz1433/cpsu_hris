@@ -153,13 +153,10 @@ class LeaveApplicationController extends Controller
         $leavesapphead = LeaveApplication::join('employees as emp', 'emp.emp_ID', '=', 'leave_applications.empid')
             ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor');
         
-        if($guard == 'web'){
-            $leavesapphead->whereIn('leave_applications.status', [999]);
-        }
-        if($guard == 'employee'){
-            if($setting->suc_pres == auth()->guard($guard)->user()->id){
-                $leavesapphead->whereIn('leave_applications.status', [3]);
-            }
+        if ($setting->suc_pres !== auth()->guard($guard)->user()->id) {
+            $leavesapphead->where('leave_applications.supervisor', auth()->guard($guard)->user()->id);
+        }else{
+            $leavesapphead->whereIn('leave_applications.status', [3]);
         }
 
         $leavesapphead = $leavesapphead->select(
