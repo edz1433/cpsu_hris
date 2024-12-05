@@ -149,79 +149,127 @@
                     <th colspan="2" class="font1 center">OVERTIME</th>
                 </tr>
             </thead>
-            <tbody>    
-                @php 
-                    $morningCutoff = new DateTime('10:00');
-                    $morningOutStart = new DateTime('10:00');
-                    $morningOutEnd = new DateTime('13:30');
-                    $noonInStart = new DateTime('11:00');
-                    $noonInEnd = new DateTime('11:30');
-                    $afternoonOutStart = new DateTime('15:00');
-                @endphp
-                @for ($day = 1; $day <= 31; $day++)
+            <tbody>	
+            @php $morningcutoff = new DateTime('10:00'); @endphp
+            @if ($period == 1)
+                {{-- Display days 1-15 --}}
+                @for ($day = 1; $day <= 15; $day++)
                     <tr>
                         <th class="font center" width="15">{{ $day }}</th>
-                        <td class="font1 center">
-                            @if(isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 0)
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['in']) > 0)
                                 @php
                                     $inTime = new DateTime(reset($time_arrays[$day]['in']));
                                 @endphp
-                                @if($inTime < $morningCutoff)
+                                @if($inTime < $morningcutoff)
                                     {{ $inTime->format('g:i') }}
-                                @else
-                                    
                                 @endif
-                            @else
-                                
                             @endif
-                        </td>
-                        <td class="font1 center">
-                            @if(isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 0)
+                        </th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['out']) > 0)
                                 @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
                                     $outTime = new DateTime(reset($time_arrays[$day]['out']));
                                 @endphp
-                                @if($outTime > $morningOutStart && $outTime < $morningOutEnd)
+                                @if($inTime < $morningcutoff)
                                     {{ $outTime->format('g:i') }}
-                                @else
-                                    
                                 @endif
-                            @else
-                                
                             @endif
-                        </td>
-                        <td class="font1 center">
-                            @if(isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 1)
-                                @php
-                                    $noonInTime = new DateTime(end($time_arrays[$day]['in']));
-                                @endphp
-                                @if($noonInTime > $noonInStart)
-                                    {{ $noonInTime->format('g:i') }}
-                                @else
-                                    
-                                @endif
-                            @else
-                                
-                            @endif
-                        </td>
-                        <td class="font1 center">
-                            @if(isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 1)
-                                @php
-                                    $afternoonOutTime = new DateTime(end($time_arrays[$day]['out']));
-                                @endphp
-                                @if($afternoonOutTime > $afternoonOutStart)
-                                    {{ $afternoonOutTime->format('g:i') }}
-                                @else
-                                    
-                                @endif
-                            @else
-                                
-                            @endif
-                        </td>
-                        <td></td>
-                        <td></td>
+                        </th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
                     </tr>
                 @endfor
-            </tbody> 
+                @for ($day = 16; $day <= 31; $day++)
+                    <tr>
+                        <th class="font center" width="15">{{ $day }}</th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                    </tr>
+                @endfor
+            @elseif ($period == 2)
+                @for ($day = 1; $day <= 15; $day++)
+                    <tr>
+                        <th class="font center" width="15">{{ $day }}</th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                    </tr>
+                @endfor
+                @for ($day = 16; $day <= 31; $day++)
+                    
+                    <tr>
+                        <th class="font center" width="15">{{ $day }}</th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['in']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $inTime->format('g:i') }}
+                                @endif
+                            @endif
+                        </th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['out']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                    $outTime = new DateTime(reset($time_arrays[$day]['out']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $outTime->format('g:i') }}
+                                @endif
+                            @endif
+                        </th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                    </tr>
+                @endfor
+            @elseif ($period == 3)
+                @foreach ($time_arrays as $day => $times)
+                    <tr>
+                        <th class="font center" width="15">{{ $day }}</th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['in']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $inTime->format('g:i') }}
+                                @endif
+                            @endif
+                        </th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['out']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                    $outTime = new DateTime(reset($time_arrays[$day]['out']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $outTime->format('g:i') }}
+                                @endif
+                            @endif
+                        </th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                    </tr>
+                @endforeach
+            @endif
+            </tbody>
         </table>
         <p style="font-size: 10px; text-align: left;">
             <b style="margin-left: 25px;">CERTIFY</b> on my honor that the above is a true and correct of hours of worked performed, record of which was made daily at of arrival and departure from office:
@@ -271,79 +319,127 @@
                     <th colspan="2" class="font1 center">OVERTIME</th>
                 </tr>
             </thead>
-            <tbody>    
-                @php 
-                    $morningCutoff = new DateTime('10:00');
-                    $morningOutStart = new DateTime('10:00');
-                    $morningOutEnd = new DateTime('13:30');
-                    $noonInStart = new DateTime('11:00');
-                    $noonInEnd = new DateTime('11:30');
-                    $afternoonOutStart = new DateTime('15:00');
-                @endphp
-                @for ($day = 1; $day <= 31; $day++)
+            <tbody>	
+            @php $morningcutoff = new DateTime('10:00'); @endphp
+            @if ($period == 1)
+                {{-- Display days 1-15 --}}
+                @for ($day = 1; $day <= 15; $day++)
                     <tr>
                         <th class="font center" width="15">{{ $day }}</th>
-                        <td class="font1 center">
-                            @if(isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 0)
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['in']) > 0)
                                 @php
                                     $inTime = new DateTime(reset($time_arrays[$day]['in']));
                                 @endphp
-                                @if($inTime < $morningCutoff)
+                                @if($inTime < $morningcutoff)
                                     {{ $inTime->format('g:i') }}
-                                @else
-                                    
                                 @endif
-                            @else
-                                
                             @endif
-                        </td>
-                        <td class="font1 center">
-                            @if(isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 0)
+                        </th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['out']) > 0)
                                 @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
                                     $outTime = new DateTime(reset($time_arrays[$day]['out']));
                                 @endphp
-                                @if($outTime > $morningOutStart && $outTime < $morningOutEnd)
+                                @if($inTime < $morningcutoff)
                                     {{ $outTime->format('g:i') }}
-                                @else
-                                    
                                 @endif
-                            @else
-                                
                             @endif
-                        </td>
-                        <td class="font1 center">
-                            @if(isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 1)
-                                @php
-                                    $noonInTime = new DateTime(end($time_arrays[$day]['in']));
-                                @endphp
-                                @if($noonInTime > $noonInStart)
-                                    {{ $noonInTime->format('g:i') }}
-                                @else
-                                    
-                                @endif
-                            @else
-                                
-                            @endif
-                        </td>
-                        <td class="font1 center">
-                            @if(isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 1)
-                                @php
-                                    $afternoonOutTime = new DateTime(end($time_arrays[$day]['out']));
-                                @endphp
-                                @if($afternoonOutTime > $afternoonOutStart)
-                                    {{ $afternoonOutTime->format('g:i') }}
-                                @else
-                                    
-                                @endif
-                            @else
-                                
-                            @endif
-                        </td>
-                        <td></td>
-                        <td></td>
+                        </th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
                     </tr>
                 @endfor
-            </tbody> 
+                @for ($day = 16; $day <= 31; $day++)
+                    <tr>
+                        <th class="font center" width="15">{{ $day }}</th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                    </tr>
+                @endfor
+            @elseif ($period == 2)
+                @for ($day = 1; $day <= 15; $day++)
+                    <tr>
+                        <th class="font center" width="15">{{ $day }}</th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                    </tr>
+                @endfor
+                @for ($day = 16; $day <= 31; $day++)
+                    
+                    <tr>
+                        <th class="font center" width="15">{{ $day }}</th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['in']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $inTime->format('g:i') }}
+                                @endif
+                            @endif
+                        </th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['out']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                    $outTime = new DateTime(reset($time_arrays[$day]['out']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $outTime->format('g:i') }}
+                                @endif
+                            @endif
+                        </th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                    </tr>
+                @endfor
+            @elseif ($period == 3)
+                @foreach ($time_arrays as $day => $times)
+                    <tr>
+                        <th class="font center" width="15">{{ $day }}</th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['in']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $inTime->format('g:i') }}
+                                @endif
+                            @endif
+                        </th>
+                        <th class="font1 center">
+                            @if(count($time_arrays[$day]['out']) > 0)
+                                @php
+                                    $inTime = new DateTime(reset($time_arrays[$day]['in']));
+                                    $outTime = new DateTime(reset($time_arrays[$day]['out']));
+                                @endphp
+                                @if($inTime < $morningcutoff)
+                                    {{ $outTime->format('g:i') }}
+                                @endif
+                            @endif
+                        </th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['in']) > 1 ? substr(end($time_arrays[$day]['in']), 0, strrpos(end($time_arrays[$day]['in']), ':')) : '' }}</th>
+                        <th class="font1 center">{{ count($time_arrays[$day]['out']) > 1 ? substr(end($time_arrays[$day]['out']), 0, strrpos(end($time_arrays[$day]['out']), ':')) : '' }}</th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                    </tr>
+                @endforeach
+            @endif
+            </tbody>
         </table>
         <p style="font-size: 10px; text-align: left;">
             <b style="margin-left: 25px;">CERTIFY</b> on my honor that the above is a true and correct of hours of worked performed, record of which was made daily at of arrival and departure from office:
