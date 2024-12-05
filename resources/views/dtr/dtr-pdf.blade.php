@@ -170,11 +170,13 @@
                                 @endphp
                                 @if($inTime < $morningCutoff)
                                     {{ $inTime->format('g:i') }}
+                                @elseif($inTime > $noonInStart) <!-- Skip display here if it's for Noon In -->
+                                
                                 @else
-
+                                
                                 @endif
                             @else
-
+                            
                             @endif
                         </td>
                         <!-- Morning Time Out -->
@@ -186,10 +188,10 @@
                                 @if($outTime > $morningOutStart && $outTime < $morningOutEnd)
                                     {{ $outTime->format('g:i') }}
                                 @else
-
+                                
                                 @endif
                             @else
-
+                            
                             @endif
                         </td>
                         <!-- Afternoon Time In -->
@@ -200,11 +202,18 @@
                                 @endphp
                                 @if($noonInTime > $noonInStart && $noonInTime < $afternoonOutStart)
                                     {{ $noonInTime->format('g:i') }}
+                                @elseif($inTime > $noonInStart && count($time_arrays[$day]['in']) == 1) 
+                                    <!-- Display Morning In as Noon In if it's greater than Noon In Start -->
+                                    {{ $inTime->format('g:i') }}
                                 @else
-
+                                
                                 @endif
                             @else
-
+                                @if(isset($inTime) && $inTime > $noonInStart)
+                                    {{ $inTime->format('g:i') }}
+                                @else
+                                
+                                @endif
                             @endif
                         </td>
                         <!-- Afternoon Time Out -->
@@ -216,10 +225,10 @@
                                 @if($afternoonOutTime > $afternoonOutStart)
                                     {{ $afternoonOutTime->format('g:i') }}
                                 @else
-
+                                
                                 @endif
                             @else
-
+                            
                             @endif
                         </td>
                         <td></td>
@@ -227,7 +236,6 @@
                     </tr>
                 @endfor
             </tbody>
-
         </table>
         <p style="font-size: 10px; text-align: left;">
             <b style="margin-left: 25px;">CERTIFY</b> on my honor that the above is a true and correct of hours of worked performed, record of which was made daily at of arrival and departure from office:
@@ -285,7 +293,7 @@
                     $noonInStart = new DateTime('11:00');
                     $noonInEnd = new DateTime('11:30');
                     $afternoonOutStart = new DateTime('13:31');
-                    $afternoonOutEnd = new DateTime('18:00');
+                    $afternoonOutEnd = new DateTime('23:59');
                 @endphp
                 @for ($day = 1; $day <= 31; $day++)
                     <tr>
@@ -298,11 +306,13 @@
                                 @endphp
                                 @if($inTime < $morningCutoff)
                                     {{ $inTime->format('g:i') }}
+                                @elseif($inTime > $noonInStart) <!-- Skip display here if it's for Noon In -->
+                                
                                 @else
-
+                                
                                 @endif
                             @else
-
+                            
                             @endif
                         </td>
                         <!-- Morning Time Out -->
@@ -314,10 +324,10 @@
                                 @if($outTime > $morningOutStart && $outTime < $morningOutEnd)
                                     {{ $outTime->format('g:i') }}
                                 @else
-
+                                
                                 @endif
                             @else
-
+                            
                             @endif
                         </td>
                         <!-- Afternoon Time In -->
@@ -328,11 +338,18 @@
                                 @endphp
                                 @if($noonInTime > $noonInStart && $noonInTime < $afternoonOutStart)
                                     {{ $noonInTime->format('g:i') }}
+                                @elseif($inTime > $noonInStart && count($time_arrays[$day]['in']) == 1) 
+                                    <!-- Display Morning In as Noon In if it's greater than Noon In Start -->
+                                    {{ $inTime->format('g:i') }}
                                 @else
-
+                                
                                 @endif
                             @else
-
+                                @if(isset($inTime) && $inTime > $noonInStart)
+                                    {{ $inTime->format('g:i') }}
+                                @else
+                                
+                                @endif
                             @endif
                         </td>
                         <!-- Afternoon Time Out -->
@@ -344,10 +361,10 @@
                                 @if($afternoonOutTime > $afternoonOutStart)
                                     {{ $afternoonOutTime->format('g:i') }}
                                 @else
-
+                                
                                 @endif
                             @else
-
+                            
                             @endif
                         </td>
                         <td></td>
@@ -355,7 +372,6 @@
                     </tr>
                 @endfor
             </tbody>
-
         </table>
         <p style="font-size: 10px; text-align: left;">
             <b style="margin-left: 25px;">CERTIFY</b> on my honor that the above is a true and correct of hours of worked performed, record of which was made daily at of arrival and departure from office:
