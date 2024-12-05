@@ -419,7 +419,7 @@
                     <th class="bordered" colspan="2">{{ isset($children_bday[5]) && !empty($children_bday[5]) ? \Carbon\Carbon::parse(trim($children_bday[5]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
-                    <td class="pl2 bt bg2" width="100">24. FATHERE'S SURNAME</td>
+                    <td class="pl2 bt bg2" width="100">24. FATHER'S SURNAME</td>
                     <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->father_sname) }}</th>
                     <th colspan="3" class="bordered pl1 tl">{{ isset($children_array[6]) ? strtoupper(trim($children_array[6])) : ''; }}</th>
                     <th colspan="2" class="bordered pl1 tl">{{ isset($children_bday[6]) && !empty($children_bday[6]) ? \Carbon\Carbon::parse(trim($children_bday[6]))->format('m/d/Y') : ''; }}</th>
@@ -438,7 +438,7 @@
                     <th class="bordered" colspan="2">{{ isset($children_bday[8]) && !empty($children_bday[8]) ? \Carbon\Carbon::parse(trim($children_bday[8]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
-                    <td class="pl2 bt bg2" width="100" style="font-size: 8.8px !important;">25. MOTHERE'S MAIDEN NAME</td>
+                    <td class="pl2 bt bg2" width="100" style="font-size: 8.8px !important;">25. MOTHER'S MAIDEN NAME</td>
                     <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->mother_maiden) }}</th>
                     <th colspan="3" class="bordered pl1 tl">{{ isset($children_array[9]) ? strtoupper(trim($children_array[9])) : ''; }}</th>
                     <th colspan="2" class="bordered pl1 tl">{{ isset($children_bday[9]) && !empty($children_bday[9]) ? \Carbon\Carbon::parse(trim($children_bday[9]))->format('m/d/Y') : ''; }}</th>
