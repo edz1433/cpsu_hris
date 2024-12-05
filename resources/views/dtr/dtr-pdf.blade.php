@@ -209,7 +209,7 @@
                         </td>
                         <!-- Afternoon Time Out -->
                         <td class="font1 center">
-                            @if(isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) >= 0)
+                            @if(isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 0)
                                 @php
                                     $afternoonOutTime = new DateTime(end($time_arrays[$day]['out']));
                                 @endphp
@@ -337,7 +337,7 @@
                         </td>
                         <!-- Afternoon Time Out -->
                         <td class="font1 center">
-                            @if(isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) >= 0)
+                            @if(isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 0)
                                 @php
                                     $afternoonOutTime = new DateTime(end($time_arrays[$day]['out']));
                                 @endphp
