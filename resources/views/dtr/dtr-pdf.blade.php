@@ -156,11 +156,13 @@
                     $morningOutEnd = new DateTime('13:30');
                     $noonInStart = new DateTime('11:00');
                     $noonInEnd = new DateTime('11:30');
-                    $afternoonOutStart = new DateTime('15:00');
+                    $afternoonOutStart = new DateTime('13:31');
+                    $afternoonOutEnd = new DateTime('18:00');
                 @endphp
                 @for ($day = 1; $day <= 31; $day++)
                     <tr>
                         <th class="font center" width="15">{{ $day }}</th>
+                        <!-- Morning Time In -->
                         <td class="font1 center">
                             @if(isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 0)
                                 @php
@@ -169,12 +171,13 @@
                                 @if($inTime < $morningCutoff)
                                     {{ $inTime->format('g:i') }}
                                 @else
-                                    
+
                                 @endif
                             @else
-                                
+
                             @endif
                         </td>
+                        <!-- Morning Time Out -->
                         <td class="font1 center">
                             @if(isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 0)
                                 @php
@@ -183,26 +186,28 @@
                                 @if($outTime > $morningOutStart && $outTime < $morningOutEnd)
                                     {{ $outTime->format('g:i') }}
                                 @else
-                                    
+
                                 @endif
                             @else
-                                
+
                             @endif
                         </td>
+                        <!-- Afternoon Time In -->
                         <td class="font1 center">
                             @if(isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 1)
                                 @php
                                     $noonInTime = new DateTime(end($time_arrays[$day]['in']));
                                 @endphp
-                                @if($noonInTime > $noonInStart)
+                                @if($noonInTime > $noonInStart && $noonInTime < $afternoonOutStart)
                                     {{ $noonInTime->format('g:i') }}
                                 @else
-                                    
+
                                 @endif
                             @else
-                                
+
                             @endif
                         </td>
+                        <!-- Afternoon Time Out -->
                         <td class="font1 center">
                             @if(isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 1)
                                 @php
@@ -211,17 +216,18 @@
                                 @if($afternoonOutTime > $afternoonOutStart)
                                     {{ $afternoonOutTime->format('g:i') }}
                                 @else
-                                    
+
                                 @endif
                             @else
-                                
+
                             @endif
                         </td>
                         <td></td>
                         <td></td>
                     </tr>
                 @endfor
-            </tbody> 
+            </tbody>
+
         </table>
         <p style="font-size: 10px; text-align: left;">
             <b style="margin-left: 25px;">CERTIFY</b> on my honor that the above is a true and correct of hours of worked performed, record of which was made daily at of arrival and departure from office:
@@ -278,11 +284,13 @@
                     $morningOutEnd = new DateTime('13:30');
                     $noonInStart = new DateTime('11:00');
                     $noonInEnd = new DateTime('11:30');
-                    $afternoonOutStart = new DateTime('15:00');
+                    $afternoonOutStart = new DateTime('13:31');
+                    $afternoonOutEnd = new DateTime('18:00');
                 @endphp
                 @for ($day = 1; $day <= 31; $day++)
                     <tr>
                         <th class="font center" width="15">{{ $day }}</th>
+                        <!-- Morning Time In -->
                         <td class="font1 center">
                             @if(isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 0)
                                 @php
@@ -291,12 +299,13 @@
                                 @if($inTime < $morningCutoff)
                                     {{ $inTime->format('g:i') }}
                                 @else
-                                    
+
                                 @endif
                             @else
-                                
+
                             @endif
                         </td>
+                        <!-- Morning Time Out -->
                         <td class="font1 center">
                             @if(isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 0)
                                 @php
@@ -305,26 +314,28 @@
                                 @if($outTime > $morningOutStart && $outTime < $morningOutEnd)
                                     {{ $outTime->format('g:i') }}
                                 @else
-                                    
+
                                 @endif
                             @else
-                                
+
                             @endif
                         </td>
+                        <!-- Afternoon Time In -->
                         <td class="font1 center">
                             @if(isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 1)
                                 @php
                                     $noonInTime = new DateTime(end($time_arrays[$day]['in']));
                                 @endphp
-                                @if($noonInTime > $noonInStart)
+                                @if($noonInTime > $noonInStart && $noonInTime < $afternoonOutStart)
                                     {{ $noonInTime->format('g:i') }}
                                 @else
-                                    
+
                                 @endif
                             @else
-                                
+
                             @endif
                         </td>
+                        <!-- Afternoon Time Out -->
                         <td class="font1 center">
                             @if(isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 1)
                                 @php
@@ -333,17 +344,18 @@
                                 @if($afternoonOutTime > $afternoonOutStart)
                                     {{ $afternoonOutTime->format('g:i') }}
                                 @else
-                                    
+
                                 @endif
                             @else
-                                
+
                             @endif
                         </td>
                         <td></td>
                         <td></td>
                     </tr>
                 @endfor
-            </tbody> 
+            </tbody>
+
         </table>
         <p style="font-size: 10px; text-align: left;">
             <b style="margin-left: 25px;">CERTIFY</b> on my honor that the above is a true and correct of hours of worked performed, record of which was made daily at of arrival and departure from office:
