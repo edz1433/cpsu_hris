@@ -93,7 +93,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/', [DtrController::class, 'dtrSearch'])->name('dtrSearch');
         Route::get('/dtr-logs', [DtrController::class, 'dtrLogs'])->name('dtrLogs');
         Route::post('/dtr-logs', [DtrController::class, 'dtrLogs'])->name('dtrLogspost');
-        Route::get('/dtr-log-pdf/{employeeId}/{dateFrom}/{dateTo}', [DtrController::class, 'logDtrView'])->name('logDtrView');
+        Route::get('/dtr-log-pdf/{employeeId}/{dateFrom}/{dateTo}/{overtime?}', [DtrController::class, 'logDtrView'])->name('logDtrView');
         Route::get('/pdf', [DtrController::class, 'dtrPdf'])->name('dtr-pdf');
     });
     //DPIPOP

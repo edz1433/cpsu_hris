@@ -111,7 +111,7 @@
                 '4' => 'CPSU Hinigaran',
                 '5' => 'CPSU Hinoba-an',
                 '6' => 'CPSU Ilog',
-                '7' => 'CPSU San Carlo',
+                '7' => 'CPSU San Carlos',
                 '8' => 'CPSU Sipalay',
                 '9' => 'CPSU Victorias',
                 '10' => 'CPSU Murcia',
@@ -125,7 +125,7 @@
                     $logsGroupedByDate[$log['date']][] = $log;
                 }
             }
-
+            
             ksort($logsGroupedByDate);
         @endphp
         @foreach ($logsGroupedByDate as $date => $logs)

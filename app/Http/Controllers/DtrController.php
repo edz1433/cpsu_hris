@@ -67,6 +67,7 @@ class DtrController extends Controller
             'employee' => 'required',
             'period' => 'required',
             'date' => 'required|date_format:Y-m',
+            'overtime' => 'nullable',
         ]);
     
         $employeeId = $request->input('employee');
@@ -139,18 +140,20 @@ class DtrController extends Controller
             $employeeId = $request->input('employee') ?? auth()->guard($guard)->user()->emp_ID;
             $dateFrom = $request->input('date_from', null);
             $dateTo = $request->input('date_to', null);
-    
+            $overtime = $request->input('overtime', null);
+
             $data = [
                 "employeeId" => $employeeId,
                 "dateFrom" => $dateFrom,
                 "dateTo" => $dateTo,
+                "overtime" => $overtime,
             ];
         }
     
         return view('dtr.log', compact('guard', 'employeeall', 'data'));
     }
     
-    public function logDtrView($employeeId, $dateFrom = null, $dateTo = null)
+    public function logDtrView($employeeId, $dateFrom = null, $dateTo = null, $overtime = null)
     {
         $guard = $this->getGuard();
         $currentDate = Carbon::now()->toDateString();
@@ -159,6 +162,7 @@ class DtrController extends Controller
             "employeeId" => $employeeId,
             "dateFrom" => $dateFrom,
             "dateTo" => $dateTo,
+            "overtime" => $overtime
         ];
     
         // Fetch DTR records with necessary conditions
@@ -187,43 +191,63 @@ class DtrController extends Controller
     
         foreach ($groupedRecords as $employeeId => $records) {
             $logSessions = [];
-    
+            
             foreach ($records as $record) {
-                $timeInArray = explode(',', $record->time_in);
-                $deviceInCampArray = explode(',', $record->device_id_in);
-    
-                foreach ($timeInArray as $index => $timeIn) {
-                    $deviceInId = $deviceInCampArray[$index] ?? null;
-                    $logSessions[] = [
-                        'time' => $timeIn,
-                        'type' => 'time_in',
-                        'session' => $index == 0 ? 'Morning' : ($index == 1 ? 'Noon' : 'Afternoon'),
-                        'date' => $record->date,
-                        'lname' => $record->lname,
-                        'fname' => $record->fname,
-                        'suffix' => $record->suffix,
-                        'device_in_label' => $deviceLabels[$deviceInId] ?? 'Unknown',
-                        'device_in_campus' => $deviceCampus[$deviceInId] ?? 'Unknown',
-                    ];
+                if($overtime == null){
+                    $timeInArray = explode(',', $record->time_in);
+                    $deviceInCampArray = explode(',', $record->device_id_in);
+        
+                    foreach ($timeInArray as $index => $timeIn) {
+                        $deviceInId = $deviceInCampArray[$index] ?? null;
+                        $logSessions[] = [
+                            'time' => $timeIn,
+                            'type' => 'time_in',
+                            'session' => $index == 0 ? 'Morning' : ($index == 1 ? 'Noon' : 'Afternoon'),
+                            'date' => $record->date,
+                            'lname' => $record->lname,
+                            'fname' => $record->fname,
+                            'suffix' => $record->suffix,
+                            'device_in_label' => $deviceLabels[$deviceInId] ?? 'Unknown',
+                            'device_in_campus' => $deviceCampus[$deviceInId] ?? 'Unknown',
+                        ];
+                    }
+        
+                    $timeOutArray = explode(',', $record->time_out);
+                    $deviceOutCampArray = explode(',', $record->device_id_out);
+        
+                    foreach ($timeOutArray as $index => $timeOut) {
+                        $deviceOutId = $deviceOutCampArray[$index] ?? null;
+                        $logSessions[] = [
+                            'time' => $timeOut,
+                            'type' => 'time_out',
+                            'session' => $index == 0 ? 'Morning' : ($index == 1 ? 'Afternoon' : 'Evening'),
+                            'date' => $record->date,
+                            'lname' => $record->lname,
+                            'fname' => $record->fname,
+                            'suffix' => $record->suffix,
+                            'device_out_label' => $deviceLabels[$deviceOutId] ?? 'Unknown',
+                            'device_out_campus' => $deviceCampus[$deviceOutId] ?? 'Unknown',
+                        ];
+                    }
                 }
-    
-                $timeOutArray = explode(',', $record->time_out);
-                $deviceOutCampArray = explode(',', $record->device_id_out);
-    
-                foreach ($timeOutArray as $index => $timeOut) {
-                    $deviceOutId = $deviceOutCampArray[$index] ?? null;
+                $overtimeArray = explode(',', $record->time_over);
+                $deviceOvertimeCampArray = explode(',', $record->device_id_over);
+                
+                foreach ($overtimeArray as $index => $timeOut) {
+                    $deviceOvertimeId = $deviceOvertimeCampArray[$index] ?? null;
                     $logSessions[] = [
                         'time' => $timeOut,
-                        'type' => 'time_out',
+                        'type' => 'overtime',
                         'session' => $index == 0 ? 'Morning' : ($index == 1 ? 'Afternoon' : 'Evening'),
                         'date' => $record->date,
                         'lname' => $record->lname,
                         'fname' => $record->fname,
                         'suffix' => $record->suffix,
-                        'device_out_label' => $deviceLabels[$deviceOutId] ?? 'Unknown',
-                        'device_out_campus' => $deviceCampus[$deviceOutId] ?? 'Unknown',
+                        'device_out_label' => $deviceLabels[$deviceOvertimeId] ?? 'Unknown',
+                        'device_out_campus' => $deviceCampus[$deviceOvertimeId] ?? 'Unknown',
                     ];
                 }
+                
             }
     
             // Sort sessions by time
@@ -236,7 +260,8 @@ class DtrController extends Controller
     
         // Define paper size and margins
         $customPaper = [0, 0, 612, 970];
-        $pdf = \PDF::loadView('dtr.logs-pdf', compact('guard', 'dtrRecords', 'processedLogs', 'data'))
+        $page = ($overtime == 1) ? 'dtr.logs-pdf-overtime' : 'dtr.logs-pdf';
+        $pdf = \PDF::loadView($page, compact('guard', 'dtrRecords', 'processedLogs', 'data'))
             ->setPaper($customPaper, 'portrait')
             ->setOptions([
                 'margin-top' => 10,
