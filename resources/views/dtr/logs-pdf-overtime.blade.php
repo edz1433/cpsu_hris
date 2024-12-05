@@ -148,8 +148,7 @@
                                         {{ ucwords(strtolower($log['lname'])) }}
                                         {{ !empty($log['suffix']) ? ucwords(strtolower($log['suffix'])) : '' }}
                                     </b>
-                                    <span class="text-success">logged in</span> 
-                                    <span class="text-danger">logged out</span> 
+                                    <span class="text-danger">logged</span> 
                                     at {{ $campusName }} 
                                     at <b class="b">{{ convertTo12HourFormat($log['time']) }}</b>.
                                 </td>
