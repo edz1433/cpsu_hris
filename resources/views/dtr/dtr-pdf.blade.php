@@ -183,7 +183,7 @@
                                 @php
                                     $outTime = new DateTime(reset($time_arrays[$day]['out']));
                                 @endphp
-                                @if($outTime >= $morningOutStart && $outTime <= $morningOutEnd)
+                                @if($outTime > $morningOutStart && $outTime < $morningOutEnd)
                                     {{ $outTime->format('g:i') }}
                                 @else
 
@@ -311,7 +311,7 @@
                                 @php
                                     $outTime = new DateTime(reset($time_arrays[$day]['out']));
                                 @endphp
-                                @if($outTime >= $morningOutStart && $outTime <= $morningOutEnd)
+                                @if($outTime > $morningOutStart && $outTime < $morningOutEnd)
                                     {{ $outTime->format('g:i') }}
                                 @else
 
