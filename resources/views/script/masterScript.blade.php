@@ -87,11 +87,22 @@
     $(function () {
         $("#example1").DataTable({
             "responsive": false,
-            "lengthChange": true, 
+            "lengthChange": false, 
             "autoWidth": true,
             //"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
 
         }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+        // $("#example1").DataTable({
+        //     "responsive": false,
+        //     "lengthChange": false, // Removes the "Show Entries" dropdown
+        //     "autoWidth": true,
+        //     "searching": true, // Hides the search input
+        //     "paging": true, // Enables pagination
+        //     "dom": '<"top">rt<"bottom"p><"clear">', // Pagination only at the bottom
+        //     "pageLength": 10, // Sets the number of rows per page to 9
+        //     //"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+        // }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
 
         $("#example2").DataTable({
             "responsive": false,

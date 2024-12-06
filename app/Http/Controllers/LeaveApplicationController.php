@@ -727,6 +727,30 @@ class LeaveApplicationController extends Controller
         return response()->json(['error' => 'PDF not found'], 404);
     }
 
+    public function leaveReport(Request $request){
+        
+        $date = $request->input('date');
+        $datas = [];
+
+        $customPaper = array(0, 0, 612, 970);
+        $pdf = \PDF::loadView('leaves.leave-report', compact('datas'))->setPaper($customPaper, 'portrait');
+
+        $pdf->setOption('margin-top', 0);
+        $pdf->setOption('margin-right', 0);
+        $pdf->setOption('margin-bottom', 0);
+        $pdf->setOption('margin-left', 0);
+
+        $pdf->setCallbacks([
+            'before_render' => function ($domPdf) {
+                $domPdf->getCanvas()->page_text(10, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, array(0, 0, 0));
+            },
+        ]);
+
+        $pdf->render();
+
+        return $pdf->stream();
+    }
+
     public function leaveLive($id = null)
     {
         $guard = $this->getGuard();

@@ -288,6 +288,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/cacelLeave/{id}', [LeaveApplicationController::class, 'cancelLeave'])->name('cancelLeave');
         
         Route::post('/get-pdf-path', [LeaveApplicationController::class, 'getPdfPath'])->name('getPdfPath');
+        
+        Route::post('/leaves-report', [LeaveApplicationController::class, 'leaveReport'])->name('leaveReport');
     });
     
     Route::get('/leave/disapprove', [LeaveApplicationController::class, 'leaveDisapprove']);

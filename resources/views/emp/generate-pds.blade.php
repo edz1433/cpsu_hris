@@ -570,7 +570,6 @@
                     <td class="bordered vcenter bg2">Date of <br>Validity</td>
                 </tr>
             </tbody>
-            
             <tbody>
                 @foreach($datas['eligibility'] as $eligble)
                     <tr>

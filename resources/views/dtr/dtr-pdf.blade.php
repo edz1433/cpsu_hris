@@ -194,7 +194,7 @@
                         </td>
                         <!-- Afternoon Time In -->
                         <td class="font1 center">
-                            @if(isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) >= 0)
+                            @if(isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 0)
                                 @php
                                     $noonInTime = new DateTime(end($time_arrays[$day]['in']));
                                 @endphp
@@ -322,7 +322,7 @@
                         </td>
                         <!-- Afternoon Time In -->
                         <td class="font1 center">
-                            @if(isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) >= 0)
+                            @if(isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 0)
                                 @php
                                     $noonInTime = new DateTime(end($time_arrays[$day]['in']));
                                 @endphp
