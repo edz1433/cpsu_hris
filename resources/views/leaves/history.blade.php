@@ -27,13 +27,15 @@
                 <div class="card-header">
                     @include("leaves.top-menu")
                 </div>
+                @if($guard == "web")
                 <div class="col-12">
                     <form 
                         action="{{ route('leaveReport') }}" 
                         method="POST" 
                         class="input-group mt-3 w-50" 
+                        target="_blank"
                         style="float: right; margin-right: 12px;"
-                    >
+                        >
                         @csrf
                         <input 
                             type="text" 
@@ -48,9 +50,8 @@
                             </button>
                         </div>
                     </form>
-                
-                
-                </div>                
+                </div>  
+                @endif             
                 <div class="card-body">
                     <div class="tab-content">
                         <table class="table table-collapsed table-hover" id="example1">

@@ -10,6 +10,7 @@ use App\Models\LeaveApplication;
 use App\Models\Notification;
 use App\Models\Setting;
 use Carbon\Carbon;
+
 use Illuminate\Support\Facades\Storage;
 
 class LeaveApplicationController extends Controller
@@ -343,7 +344,7 @@ class LeaveApplicationController extends Controller
             13 => 'Adoption Leave',
             14 => 'Others'
         ];
-        
+         
         if($request->by == 0){
             $leaveApplication->emp_esign = $emp_esign;
             $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
@@ -729,11 +730,71 @@ class LeaveApplicationController extends Controller
 
     public function leaveReport(Request $request){
         
-        $date = $request->input('date');
-        $datas = [];
+        $filingdate = $request->input('date');
+        $startDate = null;
+        $endDate = null;
 
-        $customPaper = array(0, 0, 612, 970);
-        $pdf = \PDF::loadView('leaves.leave-report', compact('datas'))->setPaper($customPaper, 'portrait');
+        $setting = Setting::join('employees as hr', 'hr.id', '=', 'settings.hr')
+        ->join('employees as sucpres', 'sucpres.id', '=', 'settings.suc_pres')
+        ->select(
+            'settings.*', 
+            'hr.lname as hr_lname', 
+            'hr.fname as hr_fname', 
+            'hr.mname as hr_mname', 
+            'hr.suffix as hr_suffix',
+            'sucpres.lname as sucpres_lname', 
+            'sucpres.fname as sucpres_fname', 
+            'sucpres.mname as sucpres_mname', 
+            'sucpres.suffix as sucpres_suffix',
+        )
+        ->first();
+
+        if (strpos($filingdate, 'to') !== false) {
+            list($startDate, $endDate) = explode(' to ', $filingdate);
+        
+            $startDateObj = Carbon::parse($startDate)->startOfDay();
+            $endDateObj = Carbon::parse($endDate)->endOfDay();
+        
+            if ($startDateObj->format('F') === $endDateObj->format('F')) {
+                $formattedDateRange = $startDateObj->format('F j') . '-' . $endDateObj->format('j, Y');
+            } else {
+                $formattedDateRange = $startDateObj->format('F j, Y') . ' - ' . $endDateObj->format('F j, Y');
+            }
+        
+            $applications = LeaveApplication::whereBetween('date_filing', [$startDateObj, $endDateObj])
+                                             ->join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
+                                             // ->where('history', 2)
+                                             ->whereIn('leave_applications.status', [2, 3, 4])
+                                             ->orderBy('date_filing', 'asc')
+                                             ->select('leave_applications.*', 
+                                             'employees.lname', 
+                                             'employees.fname', 
+                                             'employees.mname', 
+                                             'employees.suffix',   
+                                             )
+                                            ->get();
+        } else {
+            $filingdateObj = Carbon::parse($filingdate)->startOfDay();
+        
+            $formattedDateRange = $filingdateObj->format('F j, Y');
+        
+            $applications = LeaveApplication::join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
+                                            ->whereDate('leave_applications.date_filing', '=', $filingdateObj->toDateString())
+                                            ->whereIn('leave_applications.status', [2, 3, 4])
+                                            // ->where('history', 2)
+                                            ->orderBy('leave_applications.date_filing', 'asc')
+                                            ->select(
+                                                'leave_applications.*', 
+                                                'employees.lname', 
+                                                'employees.fname', 
+                                                'employees.mname', 
+                                                'employees.suffix'
+                                            )
+                                            ->get();
+        }
+        
+        $customPaper = array(0, 0, 612, 936);
+        $pdf = \PDF::loadView('leaves.leave-report', compact('applications', 'formattedDateRange', 'setting'))->setPaper($customPaper, 'portrait');
 
         $pdf->setOption('margin-top', 0);
         $pdf->setOption('margin-right', 0);

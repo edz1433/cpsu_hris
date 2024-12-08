@@ -187,7 +187,7 @@
         const flatpickrInstance = flatpickr("#date_range", {
             mode: "range",
             dateFormat: "Y-m-d",
-            minDate: today, // Default to today's date
+            minDate: {{ request()->is('leave/history/*') ? 'null' : 'today' }}, // Default to today's date
             onChange: function(selectedDates) {
                 calculateWeekdays(selectedDates);
             }
