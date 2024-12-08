@@ -134,18 +134,19 @@
 
     <!-- Main Content -->
     <div class="content">
-        <p class="f2">{{ $formattedDateRange }}
+        @php
+            use Carbon\Carbon;
+            $chunks = array_chunk($applications->toArray(), 15);
+        @endphp
+    
+        <p class="f2">{{ \Carbon\Carbon::now('Asia/Manila')->format('F j, Y') }}
             <br>
             <b>{{ strtoupper($setting->sucpres_fname) }} {{ isset($setting->sucpres_mname) ? substr($setting->sucpres_mname, 0, 1) : '' }} {{ strtoupper($setting->sucpres_lname) }}, Ph.D</b>
             <br>
             SUC President II</p>
         <p class="f2">Sir:</p>
-        <p class="f2">The following are applications for leave from the HRIS as of December 5, 2024 for approval.</p>
-        @php
-            use Carbon\Carbon;
-            $chunks = array_chunk($applications->toArray(), 15);
-        @endphp
-        
+        <p class="f2">The following are applications for leave from the HRIS as of {{ $formattedDateRange }} for approval.</p>
+
         @foreach ($chunks as $chunk)
             <div class="table-container">
                 <table>
