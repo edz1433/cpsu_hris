@@ -125,7 +125,7 @@
         <div class="signature">
             <p class="f2">Respectfully,</p><br>
             <p class="f2"><b>{{ strtoupper($setting->hr_fname) }} {{ isset($setting->hr_mname) ? strtoupper(substr($setting->hr_mname, 0, 1)).'.' : '' }}  {{ strtoupper($setting->hr_lname) }}</b><br>
-            Head, Human Resource Management Office</p>
+            Head, Human Resource Management Office</p><br>
             <p class="f2">Approved:</p><br>
             <p class="f2"><b>{{ strtoupper($setting->sucpres_fname) }} {{ isset($setting->sucpres_mname) ? substr($setting->sucpres_mname, 0, 1) : '' }} {{ strtoupper($setting->sucpres_lname) }}, Ph.D</b><br>
             President</p>
