@@ -764,7 +764,7 @@ class LeaveApplicationController extends Controller
             $applications = LeaveApplication::whereBetween('date_filing', [$startDateObj, $endDateObj])
                                              ->join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
                                              // ->where('history', 2)
-                                             ->whereIn('leave_applications.status', [2, 3, 4])
+                                             ->whereIn('leave_applications.status', [3])
                                              ->orderBy('date_filing', 'asc')
                                              ->select('leave_applications.*', 
                                              'employees.lname', 
@@ -780,7 +780,7 @@ class LeaveApplicationController extends Controller
         
             $applications = LeaveApplication::join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
                                             ->whereDate('leave_applications.date_filing', '=', $filingdateObj->toDateString())
-                                            ->whereIn('leave_applications.status', [2, 3, 4])
+                                            ->whereIn('leave_applications.status', [3])
                                             // ->where('history', 2)
                                             ->orderBy('leave_applications.date_filing', 'asc')
                                             ->select(
