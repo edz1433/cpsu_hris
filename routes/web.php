@@ -131,6 +131,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/update', [EmployeeController::class, 'empUpdate'])->name('empUpdate');
         Route::post('/employee-update', [EmployeeController::class, 'employeeUpdate'])->name('employeeUpdate');
         Route::post('/toggle-acct-stat', [EmployeeController::class, 'toggleAcctStat'])->name('toggleAcctStat');
+        Route::post('/official-time/{empid}', [EmployeeController::class, 'OfficialTimeRead'])->name('OfficialTimeRead');
+        Route::post('/official-time-create', [EmployeeController::class, 'OfficialTimeCreate'])->name('OfficialTimeCreate');
 
         Route::get('/delete/{id}', [EmployeeController::class, 'empDelete'])->name('empDelete');
     });

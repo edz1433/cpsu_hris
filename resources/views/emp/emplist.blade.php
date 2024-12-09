@@ -1,6 +1,14 @@
 @extends('layouts.master')
 
 @section('body')
+<style>
+    .custom-label {
+        width: 45px;
+        padding: 0px;
+        padding-left: 5px;
+        text-align: center; /* Center align the text */
+    }
+</style>
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-12">
@@ -24,12 +32,11 @@
                                         <th>NO.</th>
                                         <th>Full Name</th>
                                         <th>Emp_ID</th> 
-                                        <th>Position</th>
                                         <th>Campus</th>
                                         <th>Status</th>
                                         <th>Email</th>
                                         <th>Service</th>
-                                        <th>Date Hire</th>
+                                        <th>Date Hired</th>
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
@@ -51,9 +58,8 @@
                                     @endphp
                                         <tr id="tr-{{ $emp->id }}">
                                             <td>{{ $cnt++ }}</td>
-                                            <td>{{ $emp->lname }}, {{ $emp->fname }} {{ $emp->suffix }} {{ isset($emp->mname) ? strtoupper(substr($emp->mname, 0, 1)).'.' : '' }}</td>
+                                            <td><b>{{ $emp->lname }}, {{ $emp->fname }} {{ $emp->suffix }} {{ isset($emp->mname) ? strtoupper(substr($emp->mname, 0, 1)).'.' : '' }}</b><br><i>{{ $emp->position}}</i> </td>
                                             <td>{{ $emp->emp_ID}}</td>
-                                            <td>{{ $emp->position}}</td>
                                             <td>{{ $emp->campus_abbr}}</td>
                                             <td>
                                             @if($emp->partime_rate > 0)
@@ -87,6 +93,9 @@
                                                     <a href="{{ route('PDS', $emp->id) }}" title="PDS" class='btn btn-info btn-xs employee_edit mr-1' style='width: 30px;' value="{{ $emp->id }}">
                                                         <i class='fas fa-file-alt'></i>
                                                     </a>
+                                                    <a title="Working Hours" data-toggle="modal" data-target="#officialTime" onclick="OfficialTime('{{ $emp->emp_ID }}')" class='btn btn-primary btn-xs mr-1' style='width: 30px;'>
+                                                        <i class='fas fa-clock'></i>
+                                                    </a>
                                                     {{-- <button type='button' class='btn btn-danger btn-xs employee_delete' style='width: 30px;' value="{{ $emp->id }}">
                                                         <i class='fas fa-trash'></i>
                                                     </button> --}}
@@ -103,5 +112,142 @@
         </div>
     </div>
 </div>
- <!-- /End Modal -->
+<div class="modal fade" id="officialTime">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">    
+            <div class="card-header">
+                <h2 class="card-title text-success1">
+                    <b>OFFICIAL WORKING HOURS</b>
+                </h2>
+            </div>        
+            <div class="card-body bg-form">
+                <form class="form-horizontal add-form" action="{{ route('OfficialTimeCreate') }}" method="POST">
+                    @csrf
+                    <div class="form-group mtop">
+                        {{-- Monday --}}
+                        <div class="form-row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <input type="hidden" name="empid" class="form-control form-control-sm">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text custom-label"><b>MON.</b></span>
+                                        </div>
+                                        <input type="time" name="mon_mornin" class="form-control form-control-sm" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="mon_mornout" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="mon_noonin" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="mon_noonout" class="form-control form-control-sm" required>
+                            </div>
+                        </div>
+                        {{-- Tuesday --}}
+                        <div class="form-row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text custom-label"><b>TUE.</b></span>
+                                        </div>
+                                        <input type="time" name="tue_mornin" class="form-control form-control-sm" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="tue_mornout" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="tue_noonin" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="tue_noonout" class="form-control form-control-sm" required>
+                            </div>
+                        </div>
+                        {{-- Wendesday --}}
+                        <div class="form-row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text custom-label"><b>WED.</b></span>
+                                        </div>
+                                        <input type="time" name="wed_mornin" class="form-control form-control-sm" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="wed_mornout" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="wed_noonin" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="wed_noonout" class="form-control form-control-sm" required>
+                            </div>
+                        </div>
+                        {{-- Thursday --}}
+                        <div class="form-row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text custom-label"><b>THU.</b></span>
+                                        </div>
+                                        <input type="time" name="thu_mornin" class="form-control form-control-sm" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="thu_mornout" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="thu_noonin" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="thu_noonout" class="form-control form-control-sm" required>
+                            </div>
+                        </div>
+                        {{-- Thursday --}}
+                        <div class="form-row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text custom-label custom-label"><b>FRI.</b></span>
+                                        </div>
+                                        <input type="time" name="fri_mornin" class="form-control form-control-sm" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="fri_mornout" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="fri_noonin" class="form-control form-control-sm" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="time" name="fri_noonout" class="form-control form-control-sm" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row" style="float: right;">
+                            <div class="col-md-12">
+                                <button class="btn btn-success"><i class="fas fa-save"></i> SAVE</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    
+</script>
 @endsection

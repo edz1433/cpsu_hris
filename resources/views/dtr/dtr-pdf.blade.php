@@ -229,9 +229,9 @@
             </tbody>
 
         </table>
-        <p style="font-size: 10px; text-align: left;">
-            <b style="margin-left: 25px;">CERTIFY</b> on my honor that the above is a true and correct of hours of worked performed, record of which was made daily at of arrival and departure from office:
-        </p> 
+        <p style="font-size: 9.5px; text-align: left;">
+            <span style="margin-left: 20px;">I <b>CERTIFY</b></span> on my honor that the above is a true and correct report of the hours of work performed, record of which was made daily at the time of arrival and departure from office.
+        </p>    
         <div><br>
             <span class="font"><b>@if(isset($employee)) {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(substr($employee->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->suffix)) }}@endif</b></span><br>
             <span class="header" style="relative; display: inline-block; width: 50%; text-align: center;"></span>
@@ -357,8 +357,8 @@
             </tbody>
 
         </table>
-        <p style="font-size: 10px; text-align: left;">
-            <b style="margin-left: 25px;">CERTIFY</b> on my honor that the above is a true and correct of hours of worked performed, record of which was made daily at of arrival and departure from office:
+        <p style="font-size: 9.5px; text-align: left;">
+            <span style="margin-left: 20px;">I <b>CERTIFY</b></span> on my honor that the above is a true and correct report of the hours of work performed, record of which was made daily at the time of arrival and departure from office.
         </p> 
         <div><br>
             <span class="font"><b>@if(isset($employee)) {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(substr($employee->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->suffix)) }}@endif</b></span><br>
