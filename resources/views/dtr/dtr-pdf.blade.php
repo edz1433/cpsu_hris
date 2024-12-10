@@ -120,9 +120,100 @@
             'out' => $time_array_out,
         ];
     }
+
+    function convertTimeFormat($timeString) {
+        // Define the timezone for Asia/Manila
+        $timezone = new DateTimeZone('Asia/Manila');
+        
+        // Split the time range into start and end times
+        $times = explode('-', $timeString);
+
+        // Check if the time range is valid (contains exactly two parts)
+        if (count($times) === 2) {
+            // Convert start time to DateTime object with the Manila timezone
+            $startTime = new DateTime($times[0], $timezone);
+            $startFormatted = $startTime->format('g:i A');
+            
+            // Convert end time to DateTime object with the Manila timezone
+            $endTime = new DateTime($times[1], $timezone);
+            $endFormatted = $endTime->format('g:i A');
+            
+            return $startFormatted . ' - ' . $endFormatted;
+        }
+        
+        // Return a default value in case of invalid input
+        return 'Invalid time range';
+    }
+
+
+    $mornMonFormatted = convertTimeFormat($offtime->morn_mon);
+    $afterMonFormatted = convertTimeFormat($offtime->aft_mon);
+    
+    $monday = $mornMonFormatted.' || '.$afterMonFormatted;
+
+    $mornTueFormatted = convertTimeFormat($offtime->morn_tue);
+    $afterTueFormatted = convertTimeFormat($offtime->aft_tue);
+
+    $tuesday = $mornTueFormatted.' || '.$afterTueFormatted;
+
+    $mornWedFormatted = convertTimeFormat($offtime->morn_wed);
+    $afterWedFormatted = convertTimeFormat($offtime->aft_wed);
+
+    $wendesday = $mornWedFormatted.' || '.$afterWedFormatted;
+
+    $mornThuFormatted = convertTimeFormat($offtime->morn_thu);
+    $afterThuFormatted = convertTimeFormat($offtime->aft_thu);
+
+    $thursday = $mornThuFormatted.' || '.$afterThuFormatted;
+
+    $mornFriFormatted = convertTimeFormat($offtime->morn_fri);
+    $afterFriFormatted = convertTimeFormat($offtime->aft_fri);
+
+    $friday = $mornFriFormatted.' || '.$afterFriFormatted;
+
+   $regulartime = "8:00 AM - 12:00 PM || 1:00 PM - 5:00 PM";
+
+    $arrayday = [
+        '1' => $monday ?? '',
+        '2' => $tuesday ?? '',
+        '3' => $wendesday ?? '',
+        '4' => $thursday ?? '',
+        '5' => $friday ?? '',
+    ];
+    
+    $notnatch = [];
+
+    foreach ($arrayday as $day => $time) {
+        if ($time !== $regulartime) {
+            switch ($day) {
+                case '1':
+                    $notnatch[$day] = 'MON. ' . $time;
+                    break;
+                case '2':
+                    $notnatch[$day] = 'TUE. ' . $time;
+                    break;
+                case '3':
+                    $notnatch[$day] = 'WED. ' . $time;
+                    break;
+                case '4':
+                    $notnatch[$day] = 'THU. ' . $time;
+                    break;
+                case '5':
+                    $notnatch[$day] = 'FRI. ' . $time;
+                    break;
+            }
+        }
+    }
+
+    $countnmatch = count($notnatch);
+    $first_two_non_matching_days = array_slice($notnatch, 0, 2);
+    $third_and_fourth_non_matching_days = array_slice($notnatch, 2, 2);
+    $last_non_matching_day = $countnmatch === 5 ? end($notnatch) : null;
+
 @endphp
 
 <body>
+    
     <div class="column1"> 
         <img src="{{ asset('Uploads/dtr-header.jpg') }}" width="110%" style="margin-top: 30px;" alt="Header Image">
         <div>
@@ -135,9 +226,24 @@
             <span class="font">For the month of : </span> <span class="header" style="relative; display: inline-block; width: 37%; text-align: left;">&nbsp;{{ isset($employee) ? $startDate : '' }} - {{ isset($employee) ? $endDate : '' }}</span>, <span class="header" style="relative; display: inline-block; width: 36%; text-align: left;">&nbsp;{{ isset($employee) ? $year : '' }}</span>
         </div>
         <div style="margin-top: -9px;">
-            <span class="font">Official Hour of Arrival in Regular Days : </span> <span class="header" style="relative; display: inline-block; width: 49.3%; text-align: left;">&nbsp; </span>
+            <span class="font">Official Hour of Arrival in Regular Days : </span> <span class="header" style="relative; display: inline-block; width: 49.3%; text-align: left;">&nbsp; 8:00 AM - 12:00 PM || 1:00 PM - 5:00 PM</span>
         </div>
-        <div style="margin-top: -9px;">
+        @if($countnmatch > 0 && $countnmatch < 3)
+            <div style="margin-top: -2px;">
+                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8.2px;">&nbsp; {{ $first_two_non_matching_days[0] ?? ''}} @if(isset($first_two_non_matching_days[1]))||@endif {{ $first_two_non_matching_days[1] ?? ''}}</span>
+            </div>
+        @endif
+        @if($countnmatch > 2)
+            <div style="margin-top: -2px;">
+                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8.2px;">&nbsp; {{ $third_and_fourth_non_matching_days[0] ?? ''}} @if(isset($third_and_fourth_non_matching_days[1]))||@endif {{ $third_and_fourth_non_matching_days[1] ?? ''}}</span>
+            </div>
+        @endif
+        @if($countnmatch == 5)
+            <div style="margin-top: -9px;">
+                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8.2px;">&nbsp; {{ $last_non_matching_day ?? ''}}</span>
+            </div>
+        @endif
+        <div style="margin-top: {{ ($countnmatch == 0) ? '-9px;' : '' }}{{ ($countnmatch > 0 && $countnmatch < 3) ? '-18px;' : '' }}{{ ($countnmatch > 2 && $countnmatch < 5) ? '-20px;' : '' }}{{ ($countnmatch == 5) ? '-20px;' : '' }}">
             <span class="font">Saturdays : </span> <span class="header" style="relative; display: inline-block; width: 82.6%; text-align: left;">&nbsp;</span>
         </div> 
         <table class="table-time">
@@ -263,9 +369,24 @@
             <span class="font">For the month of : </span> <span class="header" style="relative; display: inline-block; width: 37%; text-align: left;">&nbsp;{{ isset($employee) ? $startDate : '' }} - {{ isset($employee) ? $endDate : '' }}</span>, <span class="header" style="relative; display: inline-block; width: 36%; text-align: left;">&nbsp;{{ isset($employee) ? $year : '' }}</span>
         </div>
         <div style="margin-top: -9px;">
-            <span class="font">Official Hour of Arrival in Regular Days : </span> <span class="header" style="relative; display: inline-block; width: 49.3%; text-align: left;">&nbsp; </span>
+            <span class="font">Official Hour of Arrival in Regular Days : </span> <span class="header" style="relative; display: inline-block; width: 49.3%; text-align: left;">&nbsp; 8:00 AM - 12:00 PM || 1:00 PM - 5:00 PM</span>
         </div>
-        <div style="margin-top: -9px;">
+        @if($countnmatch > 0 && $countnmatch < 3)
+            <div style="margin-top: -2px;">
+                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8.2px;">&nbsp; {{ $first_two_non_matching_days[0] ?? ''}} @if(isset($first_two_non_matching_days[1]))||@endif {{ $first_two_non_matching_days[1] ?? ''}}</span>
+            </div>
+        @endif
+        @if($countnmatch > 2)
+            <div style="margin-top: -2px;">
+                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8.2px;">&nbsp; {{ $third_and_fourth_non_matching_days[0] ?? ''}} @if(isset($third_and_fourth_non_matching_days[1]))||@endif {{ $third_and_fourth_non_matching_days[1] ?? ''}}</span>
+            </div>
+        @endif
+        @if($countnmatch == 5)
+            <div style="margin-top: -9px;">
+                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8.2px;">&nbsp; {{ $last_non_matching_day ?? ''}}</span>
+            </div>
+        @endif
+        <div style="margin-top: {{ ($countnmatch == 0) ? '-9px;' : '' }}{{ ($countnmatch > 0 && $countnmatch < 3) ? '-18px;' : '' }}{{ ($countnmatch > 2 && $countnmatch < 5) ? '-20px;' : '' }}{{ ($countnmatch == 5) ? '-20px;' : '' }}">
             <span class="font">Saturdays : </span> <span class="header" style="relative; display: inline-block; width: 82.6%; text-align: left;">&nbsp;</span>
         </div> 
         <table class="table-time">

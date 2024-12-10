@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Employee;
 use App\Models\Dtr;
 use App\Models\Fdevice;
+use App\Models\OfficialTime;
 use Carbon\Carbon; 
 use PDF;
 
@@ -110,6 +111,9 @@ class DtrController extends Controller
                         ->whereYear('date', $year)
                         ->whereMonth('date', $month)
                         ->get();
+        $offtime = OfficialTime::where('empid', '=', $employeeId)->first();
+
+        // dd($offtime);
         
         $form = ($overtime == 1) ? 'dtr.dtr-pdf-overtime' : 'dtr.dtr-pdf';
     
@@ -122,6 +126,7 @@ class DtrController extends Controller
             'startDate' => $startDate->format('F j'),
             'endDate' => $endDate->format('j'),
             'year' => $year, 
+            'offtime' => $offtime,
         ])->setPaper('Legal', 'portrait');
     
         return $pdf->stream();

@@ -566,16 +566,13 @@ class EmployeeController extends Controller
             'fri_noonin' => 'required                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ',
             'fri_noonout' => 'required                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ',
         ]);
-    
-        // Find the existing record or create a new one
+        
         $officialTime = OfficialTime::firstOrNew(['empid' => $request->empid]);
-    
-        // Function to convert AM/PM to 24-hour format with seconds
+
         $convertTo24HourFormat = function ($time) {
             return (new \DateTime($time))->format('H:i:s');
         };
     
-        // Combine morning and afternoon times into single fields
         $officialTime->morn_mon = $convertTo24HourFormat($request->mon_mornin) . '-' . $convertTo24HourFormat($request->mon_mornout);
         $officialTime->aft_mon = $convertTo24HourFormat($request->mon_noonin) . '-' . $convertTo24HourFormat($request->mon_noonout);
     
@@ -591,7 +588,6 @@ class EmployeeController extends Controller
         $officialTime->morn_fri = $convertTo24HourFormat($request->fri_mornin) . '-' . $convertTo24HourFormat($request->fri_mornout);
         $officialTime->aft_fri = $convertTo24HourFormat($request->fri_noonin) . '-' . $convertTo24HourFormat($request->fri_noonout);
     
-        // Save the updated or newly created record
         $officialTime->save();
     
         return redirect()->back()->with('success', 'Official time saved successfully.');
