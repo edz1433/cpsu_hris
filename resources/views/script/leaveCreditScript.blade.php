@@ -896,17 +896,17 @@ $(document).ready(function() {
                 dataType: 'json',
                 success: function(response) {
                     if (response) {
-                        $('#b-vl').text(response.vl);
-                        $('#b-sl').text(response.sl);
-                        $('#special-pl').text(response.special_pl);
-                        $('#solo-pl').text(response.solo_pl);
-                        $('#study-leave').text(response.study_leave);
-                        $('#vawc-leave').text(response.vawc_leave);
-                        $('#rehab-leave').text(response.rehab_leave);
-                        $('#benefits-leave').text(response.benefits_leave);
-                        $('#calamity-leave').text(response.calamity_leave);
-                        $('#adopt-leave').text(response.adopt_leave);
-                        $('#servcred-leave').text(response.servcred_leave);
+                        $('#b-vl').text(response.vl ?? 0);
+                        $('#b-sl').text(response.sl ?? 0);
+                        $('#special-pl').text(response.special_pl ?? 0);
+                        $('#solo-pl').text(response.solo_pl ?? 0);
+                        $('#study-leave').text(response.study_leave ?? 0);
+                        $('#vawc-leave').text(response.vawc_leave ?? 0);
+                        $('#rehab-leave').text(response.rehab_leave ?? 0);
+                        $('#benefits-leave').text(response.benefits_leave ?? 0);
+                        $('#calamity-leave').text(response.calamity_leave ?? 0);
+                        $('#adopt-leave').text(response.adopt_leave ?? 0);
+                        $('#servcred-leave').text(response.servcred_leave ?? 0);
                     }
                 }
             });

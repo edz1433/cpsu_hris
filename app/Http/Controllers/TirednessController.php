@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Employee;
 use App\Models\Dtr;
 use App\Models\Fdevice;
+use App\Models\OfficialTime;
 use Carbon\Carbon;
 use PDF;
 use Illuminate\Support\Facades\Route;
@@ -145,16 +146,18 @@ class TirednessController extends Controller
                 $record->total_hours = floor($totalMinutes / 60);
                 $record->remaining_minutes = $totalMinutes % 60;
             }
-        
+            $officialtimes = [];
             $form = 'tiredeness.tiredeness-pdf';
         }else{
             $dtrRecords = Dtr::where('emp_ID', $employeeId)
                 ->whereMonth('date', $monthNumber)->get();
 
+            $officialtimes = OfficialTime::where('empid', '=', $employeeId)->first();
+
             $form = 'tiredeness.tiredeness-pdf1';
         }
     
-        $pdf = PDF::loadView($form, compact('dtrRecords'))->setPaper('Legal', 'portrait');
+        $pdf = PDF::loadView($form, compact('dtrRecords', 'monthNumber', 'officialtimes'))->setPaper('Legal', 'portrait');
         
         return $pdf->stream();
     }
