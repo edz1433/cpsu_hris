@@ -73,7 +73,7 @@
                     
                     $morn_fri =  explode('-', $officialtimes->morn_fri);
                     $aft_fri =  explode('-', $officialtimes->aft_fri);
-        
+
                     $arraytime = [
                         'Monday' => [
                             'mornin' => $morn_mon[0],
@@ -118,6 +118,8 @@
                             'aftout' => '17:00:00',
                         ],
                     ];
+
+                    // dd($arraytime);
                 @endphp
                 
                 @php
@@ -158,72 +160,99 @@
                             usort($timeOutArray, function($a, $b) {
                                 return \Carbon\Carbon::parse($a)->timestamp - \Carbon\Carbon::parse($b)->timestamp;
                             });
+
+                            $timeInArray = [reset($timeInArray), end($timeInArray)];
+                            $timeOutArray = [reset($timeOutArray), end($timeOutArray)];
                 
-                            // Calculate late for morning
+                            // Morning Late Calculation
                             if (!empty($timeInArray[0])) {
                                 $actualTimeInMorning = \Carbon\Carbon::parse($timeInArray[0]);
                                 $scheduledTimeInMorning = \Carbon\Carbon::parse($schedule['mornin']);
                                 if ($actualTimeInMorning->gt($scheduledTimeInMorning)) {
-                                    $lateMorning = $actualTimeInMorning->diffInMinutes($scheduledTimeInMorning);
-                                    $totalLateMorning += $lateMorning;
+                                    $lateMorning = $actualTimeInMorning->diffInSeconds($scheduledTimeInMorning); // Calculate late in seconds
+                                    $totalLateMorning += $lateMorning; // Add to total
                                 }
                             }
-                
-                            // Calculate undertime for morning
+
+                            // Morning Undertime Calculation
                             if (!empty($timeOutArray[0])) {
                                 $actualTimeOutMorning = \Carbon\Carbon::parse($timeOutArray[0]);
                                 $scheduledTimeOutMorning = \Carbon\Carbon::parse($schedule['mornout']);
                                 if ($actualTimeOutMorning->lt($scheduledTimeOutMorning)) {
-                                    $undertimeMorning = $scheduledTimeOutMorning->diffInMinutes($actualTimeOutMorning);
-                                    $totalUndertimeMorning += $undertimeMorning;
+                                    $undertimeMorning = $scheduledTimeOutMorning->diffInSeconds($actualTimeOutMorning); // Calculate undertime in seconds
+                                    $totalUndertimeMorning += $undertimeMorning; // Add to total
                                 }
                             }
-                
-                            // Calculate late for afternoon
+
+                            // Afternoon Late Calculation
                             if (!empty($timeInArray[1])) {
                                 $actualTimeInAfternoon = \Carbon\Carbon::parse($timeInArray[1]);
                                 $scheduledTimeInAfternoon = \Carbon\Carbon::parse($schedule['aftin']);
                                 if ($actualTimeInAfternoon->gt($scheduledTimeInAfternoon)) {
-                                    $lateAfternoon = $actualTimeInAfternoon->diffInMinutes($scheduledTimeInAfternoon);
-                                    $totalLateAfternoon += $lateAfternoon;
+                                    $lateAfternoon = $actualTimeInAfternoon->diffInSeconds($scheduledTimeInAfternoon); // Calculate late in seconds
+                                    $totalLateAfternoon += $lateAfternoon; // Add to total
                                 }
                             }
-                
-                            // Calculate undertime for afternoon
+
+                            // Afternoon Undertime Calculation
                             if (!empty($timeOutArray[1])) {
                                 $actualTimeOutAfternoon = \Carbon\Carbon::parse($timeOutArray[1]);
                                 $scheduledTimeOutAfternoon = \Carbon\Carbon::parse($schedule['aftout']);
                                 if ($actualTimeOutAfternoon->lt($scheduledTimeOutAfternoon)) {
-                                    $undertimeAfternoon = $scheduledTimeOutAfternoon->diffInMinutes($actualTimeOutAfternoon);
-                                    $totalUndertimeAfternoon += $undertimeAfternoon;
+                                    $undertimeAfternoon = $scheduledTimeOutAfternoon->diffInSeconds($actualTimeOutAfternoon); // Calculate undertime in seconds
+                                    $totalUndertimeAfternoon += $undertimeAfternoon; // Add to total
                                 }
                             }
+
                         }
                     @endphp
-                
+                    @if (!function_exists('formatSecondsToMinutesAndSeconds'))
+                        @php
+                            function formatSecondsToMinutesAndSeconds($seconds)
+                            {
+                                $minutes = floor($seconds / 60);
+                                $remainingSeconds = $seconds % 60;
+                                return sprintf("%02d:%02d", $minutes, $remainingSeconds);
+                            }
+                        @endphp
+                    @endif
                     <tr>
                         {{-- <th class="text-center">{{ $dayOfWeek }}</th> --}}
                         <th class="text-center">{{ $i }}</th>
-                
-                        <!-- Late and undertime values -->           
-                        <th class="text-center">{{ $lateMorning ? number_format($lateMorning) : '' }}</th> {{-- On time --}}
-                        <th class="text-center">{{ $undertimeMorning ? number_format($undertimeMorning) : '' }}</th>{{-- None --}}
-                        <th class="text-center">{{ $lateAfternoon ? number_format($lateAfternoon) : '' }}</th>{{-- On time --}}
-                        <th class="text-center">{{ $undertimeAfternoon ? number_format($undertimeAfternoon) : '' }}</th> {{-- None --}}
+                           
+                        <!-- Morning Late -->
+                        <th class="text-center">
+                            {{ isset($lateMorning) ? formatSecondsToMinutesAndSeconds($lateMorning) : '' }}
+                        </th>
+
+                        <!-- Afternoon Late -->
+                        <th class="text-center">
+                            {{-- {{ isset($lateAfternoon) ? formatSecondsToMinutesAndSeconds($lateAfternoon) . ' ' . $actualTimeInAfternoon . ' ' . $schedule['aftin'] : '' }} --}}
+                            {{ isset($lateAfternoon) ? formatSecondsToMinutesAndSeconds($lateAfternoon) : '' }}
+                        </th>
+
+                        <!-- Morning Undertime -->
+                        <th class="text-center">
+                            {{ isset($undertimeMorning) ? formatSecondsToMinutesAndSeconds($undertimeMorning) : '' }}
+                        </th>
+
+                        <!-- Afternoon Undertime -->
+                        <th class="text-center">
+                            {{ isset($undertimeAfternoon) ? formatSecondsToMinutesAndSeconds($undertimeAfternoon) : '' }}
+                        </th>
+
                     </tr>
                 @endfor
                 
                 {{-- Add total row at the end --}}
                 <tr>
                     <th class="text-center">&nbsp;TOTAL&nbsp;</th>
-                    <th class="text-center">{{ $totalLateMorning ? number_format($totalLateMorning) : '' }}</th>
-                    <th class="text-center">{{ $totalUndertimeMorning ? number_format($totalUndertimeMorning) : '' }}</th>
-                    <th class="text-center">{{ $totalLateAfternoon ? number_format($totalLateAfternoon) : '' }}</th>
-                    <th class="text-center">{{ $totalUndertimeAfternoon ? number_format($totalUndertimeAfternoon) : '' }}</th>
+                    <th class="text-center">{{ isset($totalLateMorning) ? formatSecondsToMinutesAndSeconds($totalLateMorning) : '' }}</th>
+                    <th class="text-center">{{ isset($totalLateAfternoon) ? formatSecondsToMinutesAndSeconds($totalLateAfternoon) : '' }}</th>
+                    <th class="text-center">{{ isset($totalUndertimeMorning) ? formatSecondsToMinutesAndSeconds($totalUndertimeMorning) : '' }}</th>
+                    <th class="text-center">{{ isset($totalUndertimeAfternoon) ? formatSecondsToMinutesAndSeconds($totalUndertimeAfternoon) : '' }}</th>
                 </tr>
-            
             </thead>
-        </table>
-        
+        </table>    
     </body>
 </html>
