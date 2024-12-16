@@ -148,21 +148,27 @@
                         $lateMorning = $lateAfternoon = $undertimeMorning = $undertimeAfternoon = null;
                 
                         if ($schedule && $rowData) {
-                            // Parse time_in and time_out into arrays and sort them
-                            $timeInArray = $rowData->time_in ? explode(',', $rowData->time_in) : [];
-                            $timeOutArray = $rowData->time_out ? explode(',', $rowData->time_out) : [];
-                
-                            // Sort the time arrays
-                            usort($timeInArray, function($a, $b) {
-                                return \Carbon\Carbon::parse($a)->timestamp - \Carbon\Carbon::parse($b)->timestamp;
-                            });
-                
-                            usort($timeOutArray, function($a, $b) {
-                                return \Carbon\Carbon::parse($a)->timestamp - \Carbon\Carbon::parse($b)->timestamp;
-                            });
+                                // Parse time_in and time_out into arrays
+                                $timeInArray = $rowData->time_in ? explode(',', $rowData->time_in) : [];
+                                $timeOutArray = $rowData->time_out ? explode(',', $rowData->time_out) : [];
 
-                            $timeInArray = [reset($timeInArray), end($timeInArray)];
-                            $timeOutArray = [reset($timeOutArray), end($timeOutArray)];
+                                $timeInArray = array_filter($timeInArray, function ($time) {
+                                    $timeObject = \Carbon\Carbon::parse($time);
+                                    return $timeObject->lessThanOrEqualTo(\Carbon\Carbon::createFromTime(13, 30));
+                                });
+
+                                // Sort the arrays
+                                usort($timeInArray, function($a, $b) {
+                                    return \Carbon\Carbon::parse($a)->timestamp - \Carbon\Carbon::parse($b)->timestamp;
+                                });
+
+                                usort($timeOutArray, function($a, $b) {
+                                    return \Carbon\Carbon::parse($a)->timestamp - \Carbon\Carbon::parse($b)->timestamp;
+                                });
+                                
+                                // Keep only the first and last times in the arrays
+                                $timeInArray = [reset($timeInArray), end($timeInArray)];
+                                $timeOutArray = [reset($timeOutArray), end($timeOutArray)];
                 
                             // Morning Late Calculation
                             if (!empty($timeInArray[0])) {
