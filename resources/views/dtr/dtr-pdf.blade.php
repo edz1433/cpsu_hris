@@ -215,7 +215,7 @@
 <body>
     
     <div class="column1"> 
-        <img src="{{ asset('Uploads/dtr-header.jpg') }}" width="110%" style="margin-top: 30px;" alt="Header Image">
+        <img src="{{ asset('Uploads/dtr-header-old.png') }}" width="110%" style="margin-top: 30px;" alt="Header Image">
         <div>
             <span class="font">Name of Employee :</span> <span class="header" style="relative; display: inline-block; width: 73%; text-align: left;">&nbsp; @if(isset($employee)) {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(substr($employee->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->suffix)) }}@endif</span>
         </div>
@@ -353,11 +353,11 @@
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: center; margin-top: -37px;">over Printed Name</span>
         </div>
         <p style="font-size: 8px; text-align: center;">
-            Doc Control Code: CPSU-F-HRMO-03 Effective Date:  09/12/2018     Page No:  1 of 1
+            Doc Control Code: CPSU-F-HRMO-03 Effective Date: 09/12/2018 Page No:  1 of 1
         </p>
     </div>
     <div class="column2"> 
-        <img src="{{ asset('Uploads/dtr-header.jpg') }}" width="110%" style="margin-top: 30px;" alt="Header Image">
+        <img src="{{ asset('Uploads/dtr-header-old.png') }}" width="110%" style="margin-top: 30px;" alt="Header Image">
         <div>
             <span class="font">Name of Employee :</span> <span class="header" style="relative; display: inline-block; width: 73%; text-align: left;">&nbsp; @if(isset($employee)) {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(substr($employee->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->suffix)) }}@endif</span>
         </div>
