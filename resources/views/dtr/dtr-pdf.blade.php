@@ -266,72 +266,71 @@
                     $afternoonOutEnd = new DateTime('18:00');
                 @endphp
                 @for ($day = 1; $day <= 31; $day++)
-                    <tr>
-                        <th class="font center" width="15">{{ $day }}</th>
-                        <!-- Morning Time In -->
-                        <td class="font1 center">
-                            @if(isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 0)
+                <tr>
+                    <th class="font center" width="15">{{ $day }}</th>
+
+                    <!-- Morning Time In -->
+                    <td class="font1 center">
+                        @if (($period == 0) || ($period == 3) || ($period == 1 && $day <= 15) || ($period == 2 && $day > 15))
+                            @if (isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 0)
                                 @php
                                     $inTime = new DateTime(reset($time_arrays[$day]['in']));
                                 @endphp
-                                @if($inTime < $morningCutoff)
+                                @if ($inTime < $morningCutoff)
                                     {{ $inTime->format('g:i') }}
-                                @else
-
                                 @endif
-                            @else
-
                             @endif
-                        </td>
-                        <!-- Morning Time Out -->
-                        <td class="font1 center">
-                            @if(isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 0)
+                        @endif
+                    </td>
+
+                    <!-- Morning Time Out -->
+                    <td class="font1 center">
+                        @if (($period == 0) || ($period == 3) || ($period == 1 && $day <= 15) || ($period == 2 && $day > 15))
+                            @if (isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 0)
                                 @php
                                     $outTime = new DateTime(reset($time_arrays[$day]['out']));
                                 @endphp
-                                @if($outTime > $morningOutStart && $outTime < $morningOutEnd)
+                                @if ($outTime > $morningOutStart && $outTime < $morningOutEnd)
                                     {{ $outTime->format('g:i') }}
-                                @else
-
                                 @endif
-                            @else
-
                             @endif
-                        </td>
-                        <!-- Afternoon Time In -->
-                        <td class="font1 center">
-                            @if(isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 0)
+                        @endif
+                    </td>
+
+                    <!-- Afternoon Time In -->
+                    <td class="font1 center">
+                        @if (($period == 0) || ($period == 3) || ($period == 1 && $day <= 15) || ($period == 2 && $day > 15))
+                            @if (isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 0)
                                 @php
                                     $noonInTime = new DateTime(end($time_arrays[$day]['in']));
                                 @endphp
-                                @if($noonInTime > $noonInStart && $noonInTime < $afternoonOutStart)
+                                @if ($noonInTime > $noonInStart && $noonInTime < $afternoonOutStart)
                                     {{ $noonInTime->format('g:i') }}
-                                @else
-
                                 @endif
-                            @else
-
                             @endif
-                        </td>
-                        <!-- Afternoon Time Out -->
-                        <td class="font1 center">
-                            @if(isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 0)
+                        @endif
+                    </td>
+
+                    <!-- Afternoon Time Out -->
+                    <td class="font1 center">
+                        @if (($period == 0) || ($period == 3) || ($period == 1 && $day <= 15) || ($period == 2 && $day > 15))
+                            @if (isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 0)
                                 @php
                                     $afternoonOutTime = new DateTime(end($time_arrays[$day]['out']));
                                 @endphp
-                                @if($afternoonOutTime > $afternoonOutStart)
+                                @if ($afternoonOutTime > $afternoonOutStart)
                                     {{ $afternoonOutTime->format('g:i') }}
-                                @else
-
                                 @endif
-                            @else
-
                             @endif
-                        </td>
-                        <td></td>
-                        <td></td>
-                    </tr>
+                        @endif
+                    </td>
+
+                    <!-- Overtime Columns -->
+                    <td></td>
+                    <td></td>
+                </tr>
                 @endfor
+
             </tbody>
 
         </table>
@@ -409,71 +408,69 @@
                     $afternoonOutEnd = new DateTime('18:00');
                 @endphp
                 @for ($day = 1; $day <= 31; $day++)
-                    <tr>
-                        <th class="font center" width="15">{{ $day }}</th>
-                        <!-- Morning Time In -->
-                        <td class="font1 center">
-                            @if(isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 0)
+                <tr>
+                    <th class="font center" width="15">{{ $day }}</th>
+
+                    <!-- Morning Time In -->
+                    <td class="font1 center">
+                        @if (($period == 0) || ($period == 3) || ($period == 1 && $day <= 15) || ($period == 2 && $day > 15))
+                            @if (isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 0)
                                 @php
                                     $inTime = new DateTime(reset($time_arrays[$day]['in']));
                                 @endphp
-                                @if($inTime < $morningCutoff)
+                                @if ($inTime < $morningCutoff)
                                     {{ $inTime->format('g:i') }}
-                                @else
-
                                 @endif
-                            @else
-
                             @endif
-                        </td>
-                        <!-- Morning Time Out -->
-                        <td class="font1 center">
-                            @if(isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 0)
+                        @endif
+                    </td>
+
+                    <!-- Morning Time Out -->
+                    <td class="font1 center">
+                        @if (($period == 0) || ($period == 3) || ($period == 1 && $day <= 15) || ($period == 2 && $day > 15))
+                            @if (isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 0)
                                 @php
                                     $outTime = new DateTime(reset($time_arrays[$day]['out']));
                                 @endphp
-                                @if($outTime > $morningOutStart && $outTime < $morningOutEnd)
+                                @if ($outTime > $morningOutStart && $outTime < $morningOutEnd)
                                     {{ $outTime->format('g:i') }}
-                                @else
-
                                 @endif
-                            @else
-
                             @endif
-                        </td>
-                        <!-- Afternoon Time In -->
-                        <td class="font1 center">
-                            @if(isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 0)
+                        @endif
+                    </td>
+
+                    <!-- Afternoon Time In -->
+                    <td class="font1 center">
+                        @if (($period == 0) || ($period == 3) || ($period == 1 && $day <= 15) || ($period == 2 && $day > 15))
+                            @if (isset($time_arrays[$day]['in']) && count($time_arrays[$day]['in']) > 0)
                                 @php
                                     $noonInTime = new DateTime(end($time_arrays[$day]['in']));
                                 @endphp
-                                @if($noonInTime > $noonInStart && $noonInTime < $afternoonOutStart)
+                                @if ($noonInTime > $noonInStart && $noonInTime < $afternoonOutStart)
                                     {{ $noonInTime->format('g:i') }}
-                                @else
-
                                 @endif
-                            @else
-
                             @endif
-                        </td>
-                        <!-- Afternoon Time Out -->
-                        <td class="font1 center">
-                            @if(isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 0)
+                        @endif
+                    </td>
+
+                    <!-- Afternoon Time Out -->
+                    <td class="font1 center">
+                        @if (($period == 0) || ($period == 3) || ($period == 1 && $day <= 15) || ($period == 2 && $day > 15))
+                            @if (isset($time_arrays[$day]['out']) && count($time_arrays[$day]['out']) > 0)
                                 @php
                                     $afternoonOutTime = new DateTime(end($time_arrays[$day]['out']));
                                 @endphp
-                                @if($afternoonOutTime > $afternoonOutStart)
+                                @if ($afternoonOutTime > $afternoonOutStart)
                                     {{ $afternoonOutTime->format('g:i') }}
-                                @else
-
                                 @endif
-                            @else
-
                             @endif
-                        </td>
-                        <td></td>
-                        <td></td>
-                    </tr>
+                        @endif
+                    </td>
+
+                    <!-- Overtime Columns -->
+                    <td></td>
+                    <td></td>
+                </tr>
                 @endfor
             </tbody>
 
