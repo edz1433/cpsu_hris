@@ -36,7 +36,7 @@
             background-color: rgba(255, 255, 255, 0.8); /* White with 80% opacity */
             padding: 20px;
             border-radius: 10px;
-            margin-top: -40px;
+            margin-top: -15px;
         }
     
         .table-custom th {

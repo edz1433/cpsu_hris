@@ -258,12 +258,24 @@
 
                         <!-- Morning Undertime -->
                         <th class="text-center">
-                            {{ isset($undertimeMorning) ? formatSecondsToMinutesAndSeconds($undertimeMorning) : '' }}
+                            @if (empty($rowData))
+                            
+                            @elseif (empty($timeOutArray) || count($timeOutArray) === 1)
+                                Review
+                            @else
+                                {{ isset($undertimeMorning) ? formatSecondsToMinutesAndSeconds($undertimeMorning) : '' }}
+                            @endif
                         </th>
 
                         <!-- Afternoon Undertime -->
                         <th class="text-center">
-                            {{ isset($undertimeAfternoon) ? formatSecondsToMinutesAndSeconds($undertimeAfternoon) : '' }}
+                            @if (empty($rowData))
+                            
+                            @elseif (empty($timeOutArray) || count($timeOutArray) === 1)
+                                Review
+                            @else
+                                {{ isset($undertimeAfternoon) ? formatSecondsToMinutesAndSeconds($undertimeAfternoon) : '' }}
+                            @endif
                         </th>
 
                     </tr>
