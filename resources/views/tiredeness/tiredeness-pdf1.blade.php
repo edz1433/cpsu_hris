@@ -152,11 +152,18 @@
                                 $timeInArray = $rowData->time_in ? explode(',', $rowData->time_in) : [];
                                 $timeOutArray = $rowData->time_out ? explode(',', $rowData->time_out) : [];
 
+                                // Filter timeInArray for times less than or equal to 13:30
                                 $timeInArray = array_filter($timeInArray, function ($time) {
                                     $timeObject = \Carbon\Carbon::parse($time);
                                     return $timeObject->lessThanOrEqualTo(\Carbon\Carbon::createFromTime(13, 30));
                                 });
 
+                                // Filter timeOutArray for times greater than 10:30
+                                $timeOutArray = array_filter($timeOutArray, function ($time) {
+                                    $timeObject = \Carbon\Carbon::parse($time);
+                                    return $timeObject->greaterThan(\Carbon\Carbon::createFromTime(11, 00));
+                                });
+                                
                                 // Sort the arrays
                                 usort($timeInArray, function($a, $b) {
                                     return \Carbon\Carbon::parse($a)->timestamp - \Carbon\Carbon::parse($b)->timestamp;
@@ -167,8 +174,8 @@
                                 });
                                 
                                 // Keep only the first and last times in the arrays
-                                $timeInArray = [reset($timeInArray), end($timeInArray)];
-                                $timeOutArray = [reset($timeOutArray), end($timeOutArray)];
+                                $timeInArray = (count($timeInArray) >= 2) ? [reset($timeInArray), end($timeInArray)] : '';
+                                $timeOutArray = (count($timeOutArray) >= 2) ? [reset($timeOutArray), end($timeOutArray)] : '';
                 
                             // Morning Late Calculation
                             if (!empty($timeInArray[0])) {
