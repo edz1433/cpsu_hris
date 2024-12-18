@@ -235,13 +235,25 @@
                            
                         <!-- Morning Late -->
                         <th class="text-center">
-                            {{ isset($lateMorning) ? formatSecondsToMinutesAndSeconds($lateMorning) : '' }}
+                            @if (empty($rowData))
+
+                            @elseif (empty($timeInArray) || count($timeInArray) === 1)
+                                Review
+                            @else
+                                {{ isset($lateMorning) ? formatSecondsToMinutesAndSeconds($lateMorning) : '' }}
+                            @endif
                         </th>
 
                         <!-- Afternoon Late -->
                         <th class="text-center">
                             {{-- {{ isset($lateAfternoon) ? formatSecondsToMinutesAndSeconds($lateAfternoon) . ' ' . $actualTimeInAfternoon . ' ' . $schedule['aftin'] : '' }} --}}
-                            {{ isset($lateAfternoon) ? formatSecondsToMinutesAndSeconds($lateAfternoon) : '' }}
+                            @if (empty($rowData))
+                            
+                            @elseif (empty($timeInArray) || count($timeInArray) === 1)
+                                Review
+                            @else
+                                {{ isset($lateAfternoon) ? formatSecondsToMinutesAndSeconds($lateAfternoon) : '' }}
+                            @endif
                         </th>
 
                         <!-- Morning Undertime -->
