@@ -48,7 +48,7 @@
                                 11 => 'Special Leave Benefits for Women',
                                 12 => 'Special Emergency (Calamity) Leave',
                                 13 => 'Adoption Leave',
-                                14 => 'Others'
+                                14 => 'Vacation Service Credit'
                             ];
 
                             $leavedetails = [

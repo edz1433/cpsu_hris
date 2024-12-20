@@ -94,9 +94,9 @@ class LeaveApplicationController extends Controller
             11 => 'Special Leave Benefits for Women',
             12 => 'Special Emergency (Calamity) Leave',
             13 => 'Adoption Leave',
-            14 => 'Others'
+            14 => 'Vacation Service Credit'
         ];
-
+        
         Notification::create([
             'empid' => $request->empid,
             'lapp_id' => $leaveApplication->id,
@@ -243,6 +243,12 @@ class LeaveApplicationController extends Controller
                 return response()->json(['error' => 'Insufficient leave credits'], 400);
             }
         }
+
+        if($leavetype == 14) {
+            if ($daysdeduct > $employee->servcred_leave) {
+                return response()->json(['error' => 'Insufficient leave credits'], 400);
+            }
+        }
         
         $originalPath = $leaveApplication->gen_app;
         
@@ -342,9 +348,9 @@ class LeaveApplicationController extends Controller
             11 => 'Special Leave Benefits for Women',
             12 => 'Special Emergency (Calamity) Leave',
             13 => 'Adoption Leave',
-            14 => 'Others'
+            14 => 'Vacation Service Credit'
         ];
-         
+        
         if($request->by == 0){
             $leaveApplication->emp_esign = $emp_esign;
             $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
@@ -409,6 +415,8 @@ class LeaveApplicationController extends Controller
                 $employee->sl -= $leaveApplication->less_sl;
             }if($leaveApplication->leave_type == 6){
                 $employee->special_pl -= ($leaveApplication->days - $leaveApplication->day_wpay);
+            }if($leaveApplication->leave_type == 14){
+                $employee->servcred_leave -= ($leaveApplication->days - $leaveApplication->day_wpay);
             }
         
             $employee->save();
@@ -477,6 +485,9 @@ class LeaveApplicationController extends Controller
                 }
                 if($leaveApplication->leave_type == 6){
                     $employee->special_pl += ($leaveApplication->days - $leaveApplication->day_wpay);
+                }
+                if($leaveApplication->leave_type == 14){
+                    $employee->servcred_leave += ($leaveApplication->days - $leaveApplication->day_wpay);
                 }
 
                 $employee->save();

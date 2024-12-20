@@ -150,8 +150,8 @@
                         <div class="padd-check"><input type="checkbox" class="checkbox1" @if($leaveApplication->leave_type == 11) checked @endif> <b>Special Leave Benefits for Women</b> <span class="checkbox-label">(R.A No. 9710/CSC MC No. 25,s. 2010)</span></div>
                         <div class="padd-check"><input type="checkbox" class="checkbox1" @if($leaveApplication->leave_type == 12) checked @endif> <b>Special Emergency (Calamity) Leave</b> <span class="checkbox-label">(CSC MC No. 2,s. 2012, as amended)</span></div>
                         <div class="padd-check"><input type="checkbox" class="checkbox1" @if($leaveApplication->leave_type == 13) checked @endif> <b>Adoption Leave</b> <span class="checkbox-label">(R.A. No. 8552)</span></div>
-                        <div style="margin-top: 20px;">&nbsp;Others:<br></div>
-                        &nbsp;<span style="width: 58%;  display: inline-block; margin-bottom: -8px;  border-bottom: 1px solid black;"></span>
+                        <div style="margin-top: 20px;">&nbsp;Others: <br></div>
+                        &nbsp;<span style="width: 58%;  display: inline-block; margin-bottom: -8px;  border-bottom: 1px solid black; text-align: center;">@if($leaveApplication->leave_type == 14) <b>Vacation Service Credit</b> @endif</span>
                     </div>
                 </td>
                 <td colspan="3" class="bordered details vlt" width="100">

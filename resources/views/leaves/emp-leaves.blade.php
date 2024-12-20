@@ -200,9 +200,9 @@
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input leave-type" type="radio" value="14" name="leave_type" disabled required>
+                                    <input class="form-check-input leave-type" type="radio" value="14" name="leave_type" required>
                                     <label class="form-check-label" for="radio3">
-                                        <b>Others</b>
+                                        <b>Vacation Service Credit</b> <span class="ft">(R.A. No. 4670)</span>
                                     </label>
                                 </div>
                             </div> 
