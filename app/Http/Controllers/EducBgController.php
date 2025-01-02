@@ -79,4 +79,46 @@ class EducBgController extends Controller
         
         return response()->json(['success' => true]);
     }
+
+    public function educBgUpdateArray(Request $request)
+    {
+        // Validate the incoming request
+        $request->validate([
+            'schools' => 'required|array',
+            'degrees' => 'required|array',
+            'periods' => 'required|array',
+            'levels' => 'required|array',
+            'years' => 'required|array',
+            'honors' => 'required|array',
+            'schools.*' => 'nullable|string',
+            'degrees.*' => 'nullable|string',
+            'periods.*' => 'nullable|string',
+            'levels.*' => 'nullable|string',
+            'years.*' => 'nullable|date',
+            'honors.*' => 'nullable|string',
+        ]);
+        
+        $empid = $request->input('empid'); 
+        $educbg = EducBg::where("empid", '=', $empid)->first();
+        
+        $schools = $request->input('schools');
+        $degrees = $request->input('degrees');
+        $periods = $request->input('periods');
+        $levels = $request->input('levels');
+        $years = $request->input('years');
+        $honors = $request->input('honors');
+
+        // Update the 'educBg' table
+        $educbg->update([
+            'coll_school' => implode(',', $schools),
+            'coll_course' => implode(',', $degrees),
+            'coll_period' => implode(',', $periods),
+            'coll_level' => implode(',', $levels),
+            'coll_grad' => implode(',', $years),
+            'coll_honor' => implode(',', $honors),
+        ]);
+        
+        return response()->json(['success' => true]);
+    }
+
 }

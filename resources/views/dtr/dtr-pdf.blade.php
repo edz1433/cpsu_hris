@@ -261,7 +261,7 @@
                     $morningOutStart = new DateTime('10:00');
                     $morningOutEnd = new DateTime('13:30');
                     $noonInStart = new DateTime('11:00');
-                    $noonInEnd = new DateTime('11:30');
+                    $noonInEnd = new DateTime('11:35');
                     $afternoonOutStart = new DateTime('13:31');
                     $afternoonOutEnd = new DateTime('18:00');
                 @endphp
@@ -424,7 +424,7 @@
                             @endif
                         @endif
                     </td>
-
+                    
                     <!-- Morning Time Out -->
                     <td class="font1 center">
                         @if (($period == 0) || ($period == 3) || ($period == 1 && $day <= 15) || ($period == 2 && $day > 15))

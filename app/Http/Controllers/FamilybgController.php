@@ -117,7 +117,7 @@ class FamilybgController extends Controller
     public function familyBgUpdateArray(Request $request)
     {
         $request->validate([
-            'names' => 'required|array',
+            'names' => 'required|array', 
             'dates' => 'required|array',
             'names.*' => 'nullable|string',
             'dates.*' => 'nullable|date',
