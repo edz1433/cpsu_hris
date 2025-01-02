@@ -244,7 +244,7 @@
             </div>
         @endif
         <div style="margin-top: {{ ($countnmatch == 0) ? '-9px;' : '' }}{{ ($countnmatch > 0 && $countnmatch < 3) ? '-18px;' : '' }}{{ ($countnmatch > 2 && $countnmatch < 5) ? '-20px;' : '' }}{{ ($countnmatch == 5) ? '-20px;' : '' }}">
-            <span class="font">Saturdays : </span> <span class="header" style="relative; display: inline-block; width: 82.6%; text-align: left;">&nbsp;</span>
+            <span class="font">Saturdays : </span> <span class="header mb-2 mb-2" style="relative; display: inline-block; width: 82.6%; text-align: left;">&nbsp;</span>
         </div> 
         <table class="table-time">
             <thead>
@@ -386,7 +386,7 @@
             </div>
         @endif
         <div style="margin-top: {{ ($countnmatch == 0) ? '-9px;' : '' }}{{ ($countnmatch > 0 && $countnmatch < 3) ? '-18px;' : '' }}{{ ($countnmatch > 2 && $countnmatch < 5) ? '-20px;' : '' }}{{ ($countnmatch == 5) ? '-20px;' : '' }}">
-            <span class="font">Saturdays : </span> <span class="header" style="relative; display: inline-block; width: 82.6%; text-align: left;">&nbsp;</span>
+            <span class="font">Saturdays : </span> <span class="header mb-2" style="relative; display: inline-block; width: 82.6%; text-align: left;">&nbsp;</span>
         </div> 
         <table class="table-time">
             <thead>
