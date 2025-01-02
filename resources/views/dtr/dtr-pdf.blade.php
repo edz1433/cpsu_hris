@@ -228,19 +228,19 @@
         <div style="margin-top: -9px;">
             <span class="font">Official Hour of Arrival in Regular Days : </span> <span class="header" style="relative; display: inline-block; width: 49.3%; text-align: left;">&nbsp; 8:00 AM - 12:00 PM || 1:00 PM - 5:00 PM</span>
         </div>
-        @if($countnmatch > 0 && $countnmatch < 3)
+        @if($countnmatch > 0)
             <div style="margin-top: -2px;">
-                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8.2px;">&nbsp; {{ $first_two_non_matching_days[0] ?? ''}} @if(isset($first_two_non_matching_days[1]))||@endif {{ $first_two_non_matching_days[1] ?? ''}}</span>
+                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8px;">&nbsp; {{ $first_two_non_matching_days[0] ?? ''}} @if(isset($first_two_non_matching_days[1]))||@endif {{ $first_two_non_matching_days[1] ?? ''}}</span>
             </div>
         @endif
         @if($countnmatch > 2)
-            <div style="margin-top: -2px;">
-                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8.2px;">&nbsp; {{ $third_and_fourth_non_matching_days[0] ?? ''}} @if(isset($third_and_fourth_non_matching_days[1]))||@endif {{ $third_and_fourth_non_matching_days[1] ?? ''}}</span>
+            <div style="margin-top: -8px;">
+                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8px;">&nbsp; {{ $third_and_fourth_non_matching_days[0] ?? ''}} @if(isset($third_and_fourth_non_matching_days[1]))||@endif {{ $third_and_fourth_non_matching_days[1] ?? ''}}</span>
             </div>
         @endif
         @if($countnmatch == 5)
             <div style="margin-top: -9px;">
-                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8.2px;">&nbsp; {{ $last_non_matching_day ?? ''}}</span>
+                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8px;">&nbsp; {{ $last_non_matching_day ?? ''}}</span>
             </div>
         @endif
         <div style="margin-top: {{ ($countnmatch == 0) ? '-9px;' : '' }}{{ ($countnmatch > 0 && $countnmatch < 3) ? '-18px;' : '' }}{{ ($countnmatch > 2 && $countnmatch < 5) ? '-20px;' : '' }}{{ ($countnmatch == 5) ? '-20px;' : '' }}">
@@ -337,7 +337,7 @@
         <p style="font-size: 9.5px; text-align: left;">
             <span style="margin-left: 20px;">I <b>CERTIFY</b></span> on my honor that the above is a true and correct report of the hours of work performed, record of which was made daily at the time of arrival and departure from office.
         </p>    
-        <div><br>
+        <div>
             <span class="font"><b>@if(isset($employee)) {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(substr($employee->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->suffix)) }}@endif</b></span><br>
             <span class="header" style="relative; display: inline-block; width: 50%; text-align: center;"></span>
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: center; margin-top: -25px;">Employee’s Signature</span>
@@ -370,19 +370,19 @@
         <div style="margin-top: -9px;">
             <span class="font">Official Hour of Arrival in Regular Days : </span> <span class="header" style="relative; display: inline-block; width: 49.3%; text-align: left;">&nbsp; 8:00 AM - 12:00 PM || 1:00 PM - 5:00 PM</span>
         </div>
-        @if($countnmatch > 0 && $countnmatch < 3)
+        @if($countnmatch > 0)
             <div style="margin-top: -2px;">
-                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8.2px;">&nbsp; {{ $first_two_non_matching_days[0] ?? ''}} @if(isset($first_two_non_matching_days[1]))||@endif {{ $first_two_non_matching_days[1] ?? ''}}</span>
+                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8px;">&nbsp; {{ $first_two_non_matching_days[0] ?? ''}} @if(isset($first_two_non_matching_days[1]))||@endif {{ $first_two_non_matching_days[1] ?? ''}}</span>
             </div>
         @endif
         @if($countnmatch > 2)
-            <div style="margin-top: -2px;">
-                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8.2px;">&nbsp; {{ $third_and_fourth_non_matching_days[0] ?? ''}} @if(isset($third_and_fourth_non_matching_days[1]))||@endif {{ $third_and_fourth_non_matching_days[1] ?? ''}}</span>
+            <div style="margin-top: -8px;">
+                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8px;">&nbsp; {{ $third_and_fourth_non_matching_days[0] ?? ''}} @if(isset($third_and_fourth_non_matching_days[1]))||@endif {{ $third_and_fourth_non_matching_days[1] ?? ''}}</span>
             </div>
         @endif
         @if($countnmatch == 5)
             <div style="margin-top: -9px;">
-                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8.2px;">&nbsp; {{ $last_non_matching_day ?? ''}}</span>
+                <span class="header" style="relative; display: inline-block; width: 98%; text-align: left; font-size: 8px;">&nbsp; {{ $last_non_matching_day ?? ''}}</span>
             </div>
         @endif
         <div style="margin-top: {{ ($countnmatch == 0) ? '-9px;' : '' }}{{ ($countnmatch > 0 && $countnmatch < 3) ? '-18px;' : '' }}{{ ($countnmatch > 2 && $countnmatch < 5) ? '-20px;' : '' }}{{ ($countnmatch == 5) ? '-20px;' : '' }}">
@@ -478,7 +478,7 @@
         <p style="font-size: 9.5px; text-align: left;">
             <span style="margin-left: 20px;">I <b>CERTIFY</b></span> on my honor that the above is a true and correct report of the hours of work performed, record of which was made daily at the time of arrival and departure from office.
         </p> 
-        <div><br>
+        <div>
             <span class="font"><b>@if(isset($employee)) {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(substr($employee->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->suffix)) }}@endif</b></span><br>
             <span class="header" style="relative; display: inline-block; width: 50%; text-align: center;"></span>
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: center; margin-top: -25px;">Employee’s Signature</span>
