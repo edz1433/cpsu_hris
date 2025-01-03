@@ -751,7 +751,7 @@ class LeaveApplicationController extends Controller
     {
         $leaveId = $request->input('id');
         $leave = LeaveApplication::find($leaveId);
-    
+        
         if ($leave && $leave->gen_app) {
             // Ensure the file path starts with 'public/'
             $filePath = 'public/' . $leave->gen_app;
