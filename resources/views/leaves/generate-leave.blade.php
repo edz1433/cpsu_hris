@@ -369,7 +369,8 @@
                 <td class="bordered text-center">{{ ($emp_esign != 0) ? $leaveApplication->total_sl - $leaveApplication->less_sl : 0}}</td>
             </tr>
         </table>
-        <span style="font-size: 9px; text-align: center; margin-left: 26%; margin-top: -5px;">Doc Control Code: CPSU-F-HRMO-15 REV-01 Effective Date: 08/31/2022 Page No. <b>1</b> of <b>2</b></span>
+        <span style="font-size: 9px; text-align: center; margin-left: 26%; margin-top: -5px; opacity: 0.8">Doc Control Code: CPSU-F-HRMO-15 REV-01 Effective Date: 08/31/2022 Page No. <b>1</b> of <b>2</b><br>
+            <img src="{{ asset($leaveApplication->transnum.'.png') }}" style="width: 100px; margin-left: 5px; margin-top: -6%; height: 20px;"></span>
     </div>
     
     <div class="back-page">

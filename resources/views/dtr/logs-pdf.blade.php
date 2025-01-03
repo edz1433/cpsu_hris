@@ -15,6 +15,11 @@
     </title>
     
     <style>
+        @font-face {
+            font-family: 'Code128';
+            src: url("{{ asset('fonts/Code128.ttf') }}") format('truetype');
+        }
+        
         body {
             font-family: 'Roboto', sans-serif;
             background-image: url('{{ asset('Uploads/hris.png') }}') !important;
@@ -25,6 +30,13 @@
             opacity: 0.95;
             margin: 0;
             padding: 0;
+        }
+
+        .barcode {
+            font-family: 'Code128', sans-serif;
+            font-size: 48px;
+            text-align: center;
+            margin-top: 20px;
         }
 
         .b {
@@ -96,6 +108,9 @@
     </style>
 </head>
 <body>
+    <div class="barcode">
+        000004
+    </div>    
     <div class="table-container">
         @php
             if (!function_exists('convertTo12HourFormat')) {

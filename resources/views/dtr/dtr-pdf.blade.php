@@ -261,7 +261,7 @@
                     $morningOutStart = new DateTime('10:00');
                     $morningOutEnd = new DateTime('13:30');
                     $noonInStart = new DateTime('11:00');
-                    $noonInEnd = new DateTime('11:35');
+                    $noonInEnd = new DateTime('11:30');
                     $afternoonOutStart = new DateTime('13:31');
                     $afternoonOutEnd = new DateTime('18:00');
                 @endphp

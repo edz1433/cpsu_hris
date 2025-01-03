@@ -16,11 +16,15 @@ return [
     */
     'providers' => [
         // ...
+        Pdf2Image\Pdf2ImageServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
+        SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
     ],
     
     'aliases' => [
         // ...
+        'Pdf2Image' => Pdf2Image\Pdf2Image::class,
+        'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
         'PDF' => Barryvdh\DomPDF\Facade::class,
     ],
 

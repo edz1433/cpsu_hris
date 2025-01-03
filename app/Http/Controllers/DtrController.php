@@ -9,6 +9,9 @@ use App\Models\Fdevice;
 use App\Models\OfficialTime;
 use Carbon\Carbon; 
 use PDF;
+use Picqer\Barcode\BarcodeGeneratorPNG;
+use Illuminate\Support\Facades\File;
+use Pdf2Image\Pdf2Image;
 
 class DtrController extends Controller
 {
@@ -138,25 +141,57 @@ class DtrController extends Controller
         
         $employeeall = null;
         $employeeall = Employee::all();
-  
-        $data = null;
     
+        $data = null;
+        $barcode = null;
+        $barcodeNumber = "0356565165161";  // Set your barcode number here
+        
         if ($request->isMethod('post')) {
             $employeeId = $request->input('employee') ?? auth()->guard($guard)->user()->emp_ID;
             $dateFrom = $request->input('date_from', null);
             $dateTo = $request->input('date_to', null);
             $overtime = $request->input('overtime', null);
-
+    
             $data = [
                 "employeeId" => $employeeId,
                 "dateFrom" => $dateFrom,
                 "dateTo" => $dateTo,
                 "overtime" => $overtime,
             ];
+    
+            $generator = new BarcodeGeneratorPNG();
+            $barcode = $generator->getBarcode($barcodeNumber, $generator::TYPE_CODE_128);
+    
+            $barcodePath = public_path('leave-barcode.png');
+            
+            // Create the barcode image
+            $image = imagecreatefromstring($barcode);
+            $fontPath = public_path('fonts/Code128.ttf');
+            $textColor = imagecolorallocate($image, 0, 0, 0); 
+            
+            $fontSize = 10;
+            $textWidth = imagettfbbox($fontSize, 0, $fontPath, $barcodeNumber);
+            $textX = (imagesx($image) - $textWidth[2]) / 2;
+            $textY = imagesy($image) - 10;
+    
+            // Add barcode text above the barcode
+            imagettftext($image, $fontSize, 0, $textX, $textY, $textColor, $fontPath, $barcodeNumber);
+            
+            // Add additional text below the barcode
+            $additionalText = "Your Custom Text Below Barcode";
+            $additionalTextWidth = imagettfbbox($fontSize, 0, $fontPath, $additionalText);
+            $textBelowX = (imagesx($image) - $additionalTextWidth[2]) / 2;
+            $textBelowY = imagesy($image) + 20;  // Position it 20 pixels below the barcode
+            
+            imagettftext($image, $fontSize, 0, $textBelowX, $textBelowY, $textColor, $fontPath, $additionalText);
+    
+            // Save the final image
+            imagepng($image, $barcodePath);
+            imagedestroy($image);
         }
     
-        return view('dtr.log', compact('guard', 'employeeall', 'data'));
-    }
+        return view('dtr.log', compact('guard', 'employeeall', 'data', 'barcode'));
+    }   
     
     public function logDtrView($employeeId, $dateFrom = null, $dateTo = null, $overtime = null)
     {

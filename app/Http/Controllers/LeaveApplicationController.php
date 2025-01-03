@@ -10,6 +10,8 @@ use App\Models\LeaveApplication;
 use App\Models\Notification;
 use App\Models\Setting;
 use Carbon\Carbon;
+use Picqer\Barcode\BarcodeGeneratorPNG;
+use Illuminate\Support\Facades\File;
 
 use Illuminate\Support\Facades\Storage;
 
@@ -592,9 +594,29 @@ class LeaveApplicationController extends Controller
                 'pres.suffix as president_suffix', 'pres.prefix as president_prefix'
             )
             ->where('leave_applications.id', $id)->first();
+       
+        $barcodeNumber = $leaveApplication->transnum;
+        $generator = new BarcodeGeneratorPNG();
+        $barcode = $generator->getBarcode($barcodeNumber, $generator::TYPE_CODE_128);
+        
+        $barcodePath = public_path($leaveApplication->transnum.'.png');
+        
+        $image = imagecreatefromstring($barcode);
+        $fontPath = public_path('fonts/Code128.ttf');
+        $textColor = imagecolorallocate($image, 0, 0, 0); 
+        
+        $fontSize = 10;
+        $textWidth = imagettfbbox($fontSize, 0, $fontPath, $barcodeNumber);
+        $textX = (imagesx($image) - $textWidth[2]) / 2;
+        $textY = imagesy($image) - 10;
+        
+        imagettftext($image, $fontSize, 0, $textX, $textY, $textColor, $fontPath, $barcodeNumber);
+        
+        imagepng($image, $barcodePath);
+        imagedestroy($image);
     
         $customPaper = [0, 0, 595.28, 841.89];
-        $pdf = \PDF::loadView('leaves.generate-leave', compact('leaveApplication'))->setPaper($customPaper, 'portrait')
+        $pdf = \PDF::loadView('leaves.generate-leave', compact('leaveApplication', 'barcodePath'))->setPaper($customPaper, 'portrait')
             ->setOption('margin-top', 0)
             ->setOption('margin-right', 0)
             ->setOption('margin-bottom', 0)
@@ -605,30 +627,34 @@ class LeaveApplicationController extends Controller
                 }
             ]);
     
-            $randomNumber = mt_rand(100000, 999999);
-            $fileName = $randomNumber . '_leave_application_' . $id . '.pdf';
-            
-            $filePath = 'Leaveapplication/' . $fileName;
-            $storagePath = storage_path('app/public/' . $filePath);
-            
-            if (!empty($leaveApplication->gen_app)) {
-                $oldFilePath = storage_path('app/public/' . $leaveApplication->gen_app);
-                if (file_exists($oldFilePath)) {
-                    unlink($oldFilePath);
-                }
+        $randomNumber = mt_rand(100000, 999999);
+        $fileName = $randomNumber . '_leave_application_' . $id . '.pdf';
+        
+        $filePath = 'Leaveapplication/' . $fileName;
+        $storagePath = storage_path('app/public/' . $filePath);
+        
+        if (!empty($leaveApplication->gen_app)) {
+            $oldFilePath = storage_path('app/public/' . $leaveApplication->gen_app);
+            if (file_exists($oldFilePath)) {
+                unlink($oldFilePath);
             }
-            
-            if (!file_exists(dirname($storagePath))) {
-                mkdir(dirname($storagePath), 0777, true);
-            }
-            
-            $pdf->save($storagePath);
-            
-            $leaveApplication->gen_app = $filePath;
-            $leaveApplication->save();
-            
-            return $filePath;
-    }
+        }
+        
+        if (!file_exists(dirname($storagePath))) {
+            mkdir(dirname($storagePath), 0777, true);
+        }
+        
+        $pdf->save($storagePath);
+        
+        $leaveApplication->gen_app = $filePath;
+        $leaveApplication->save();
+
+        if (file_exists($barcodePath)) {
+            unlink($barcodePath);
+        }
+        
+        return $filePath;
+    }    
     
     public function previewLeave($id){
         $guard = $this->getGuard();
