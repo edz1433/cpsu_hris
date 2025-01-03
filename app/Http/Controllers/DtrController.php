@@ -9,9 +9,6 @@ use App\Models\Fdevice;
 use App\Models\OfficialTime;
 use Carbon\Carbon; 
 use PDF;
-use Picqer\Barcode\BarcodeGeneratorPNG;
-use Illuminate\Support\Facades\File;
-use Intervention\Image\Facades\Image;
 
 class DtrController extends Controller
 {
@@ -65,76 +62,6 @@ class DtrController extends Controller
         return view('dtr.dtr', compact('guard', 'dtr', 'employeeall', 'employee', 'period', 'date', 'overtime'));
     }
 
-    // public function dtrPdf(Request $request)
-    // {
-    //     $request->validate([
-    //         'employee' => 'required',
-    //         'period' => 'required',
-    //         'date' => 'required|date_format:Y-m',
-    //         'overtime' => 'nullable',
-    //     ]);
-    
-    //     $employeeId = $request->input('employee');
-    //     $period = $request->input('period');
-    //     $date = $request->input('date');
-    //     $overtime = $request->input('overtime');
-    
-    //     $year = substr($date, 0, 4);
-    //     $month = substr($date, 5, 2);
-
-    //      // Calculate the start and end dates based on the period
-    //     $startDate = null;
-    //     $endDate = null;
-
-    //     switch ($period) {
-    //         case 1:
-    //             $startDate = Carbon::createFromDate($year, $month, 1);
-    //             $endDate = Carbon::createFromDate($year, $month, 15);
-    //             break;
-    //         case 2:
-    //             $startDate = Carbon::createFromDate($year, $month, 16);
-    //             $endDate = Carbon::createFromDate($year, $month)->endOfMonth();
-    //             break;
-    //         case 3:
-    //             $startDate = Carbon::createFromDate($year, $month, 1);
-    //             $endDate = Carbon::createFromDate($year, $month)->endOfMonth();
-    //             break;
-    //     }
-    
-    //     $employee = Employee::where('emp_ID', $employeeId)
-    //     ->join('dbcpsupms.offices', 'employees.emp_dept', '=', 'dbcpsupms.offices.id')
-    //     ->select('employees.*', 'dbcpsupms.offices.office_name')
-    //     ->first();
-
-    //     $supervisor = Employee::where('id', $employee->supervisor)
-    //     ->select('employees.fname', 'employees.lname', 'employees.mname', 'employees.prefix')
-    //     ->first();
-        
-    //     $dtrRecords = Dtr::where('emp_ID', $employeeId)
-    //                     ->whereYear('date', $year)
-    //                     ->whereMonth('date', $month)
-    //                     ->get();
-    //     $offtime = OfficialTime::where('empid', '=', $employeeId)->first();
-
-    //     // dd($offtime);
-        
-    //     $form = ($overtime == 1) ? 'dtr.dtr-pdf-overtime' : 'dtr.dtr-pdf';
-    
-    //     $pdf = PDF::loadView($form, [
-    //         'employee' => $employee,
-    //         'supervisor' => $supervisor,
-    //         'dtrRecords' => $dtrRecords,
-    //         'period' => $period,
-    //         'date' => $date,
-    //         'startDate' => $startDate->format('F j'),
-    //         'endDate' => $endDate->format('j'),
-    //         'year' => $year, 
-    //         'offtime' => $offtime,
-    //     ])->setPaper('Legal', 'portrait');
-    
-    //     return $pdf->stream();
-    // }
-
     public function dtrPdf(Request $request)
     {
         $request->validate([
@@ -151,11 +78,11 @@ class DtrController extends Controller
     
         $year = substr($date, 0, 4);
         $month = substr($date, 5, 2);
-    
-        // Calculate the start and end dates based on the period
+
+         // Calculate the start and end dates based on the period
         $startDate = null;
         $endDate = null;
-    
+
         switch ($period) {
             case 1:
                 $startDate = Carbon::createFromDate($year, $month, 1);
@@ -172,24 +99,24 @@ class DtrController extends Controller
         }
     
         $employee = Employee::where('emp_ID', $employeeId)
-            ->join('dbcpsupms.offices', 'employees.emp_dept', '=', 'dbcpsupms.offices.id')
-            ->select('employees.*', 'dbcpsupms.offices.office_name')
-            ->first();
-    
+        ->join('dbcpsupms.offices', 'employees.emp_dept', '=', 'dbcpsupms.offices.id')
+        ->select('employees.*', 'dbcpsupms.offices.office_name')
+        ->first();
+
         $supervisor = Employee::where('id', $employee->supervisor)
-            ->select('employees.fname', 'employees.lname', 'employees.mname', 'employees.prefix')
-            ->first();
-    
+        ->select('employees.fname', 'employees.lname', 'employees.mname', 'employees.prefix')
+        ->first();
+        
         $dtrRecords = Dtr::where('emp_ID', $employeeId)
                         ->whereYear('date', $year)
                         ->whereMonth('date', $month)
                         ->get();
-    
         $offtime = OfficialTime::where('empid', '=', $employeeId)->first();
-    
+
+        // dd($offtime);
+        
         $form = ($overtime == 1) ? 'dtr.dtr-pdf-overtime' : 'dtr.dtr-pdf';
     
-        // Generate the PDF
         $pdf = PDF::loadView($form, [
             'employee' => $employee,
             'supervisor' => $supervisor,
@@ -202,25 +129,7 @@ class DtrController extends Controller
             'offtime' => $offtime,
         ])->setPaper('Legal', 'portrait');
     
-        // Save the PDF to storage temporarily
-        $pdfPath = storage_path('app/public/dtr.pdf');
-        $pdf->save($pdfPath);
-    
-        // Convert the saved PDF to an image using Pdf2Image
-        $imagePath = public_path('images/dtr_image.png');
-    
-        // Initialize Pdf2Image and convert the first page of the PDF to an image
-        $pdf = new Pdf2Image($pdfPath);
-        $pdf->setOutputFormat('png'); // Output format (png)
-        $pdf->setResolution(300); // Set resolution
-        $pdf->setOutputFile($imagePath); // Set output image path
-        $pdf->convert(); // Perform the conversion
-    
-        // Optionally, delete the temporary PDF file
-        unlink($pdfPath);
-    
-        // Return the image URL
-        return response()->json(['image' => asset('images/dtr_image.png')]);
+        return $pdf->stream();
     }
 
     public function dtrLogs(Request $request)
