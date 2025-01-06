@@ -50,14 +50,14 @@
                 </a>
             </li>
         @else
-            {{-- @if(auth()->guard($guard)->user()->emp_status == 1)
+            @if(auth()->guard($guard)->user()->emp_status == 1)
                 <li class="nav-item">
                     <a href="{{ route('leavesReadEmp') }}" class="nav-link text-success1 {{ request()->is('leave') || request()->is('leave/*') ? 'active' : '' }}">
                         <i class="pt-1 nav-icon fas fa-calendar-check"></i>
                         <p>LEAVE</p>
                     </a>
                 </li>
-            @endif --}}
+            @endif
         @endif
 
         <li class="nav-item">
