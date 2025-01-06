@@ -597,24 +597,21 @@ class LeaveApplicationController extends Controller
        
         $barcodeNumber = $leaveApplication->transnum;
         $generator = new BarcodeGeneratorPNG();
+        $barcodePath = public_path($barcodeNumber . '.png');
+        
+        // Generate the barcode with text in a single image
         $barcode = $generator->getBarcode($barcodeNumber, $generator::TYPE_CODE_128);
-        
-        $barcodePath = public_path($leaveApplication->transnum.'.png');
-        
         $image = imagecreatefromstring($barcode);
         $fontPath = public_path('fonts/Code128.ttf');
-        $textColor = imagecolorallocate($image, 0, 0, 0); 
+        $textColor = imagecolorallocate($image, 0, 0, 0);
         
-        $fontSize = 10;
-        $textWidth = imagettfbbox($fontSize, 0, $fontPath, $barcodeNumber);
-        $textX = (imagesx($image) - $textWidth[2]) / 2;
-        $textY = imagesy($image) - 10;
+        // Add text below the barcode
+        imagettftext($image, 10, 0, (imagesx($image) - imagettfbbox(10, 0, $fontPath, $barcodeNumber)[2]) / 2, imagesy($image) - 10, $textColor, $fontPath, $barcodeNumber);
         
-        imagettftext($image, $fontSize, 0, $textX, $textY, $textColor, $fontPath, $barcodeNumber);
-        
+        // Save the image
         imagepng($image, $barcodePath);
         imagedestroy($image);
-    
+            
         $customPaper = [0, 0, 595.28, 841.89];
         $pdf = \PDF::loadView('leaves.generate-leave', compact('leaveApplication', 'barcodePath'))->setPaper($customPaper, 'portrait')
             ->setOption('margin-top', 0)
