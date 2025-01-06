@@ -63,26 +63,29 @@ class EducBgController extends Controller
         $employee = Employee::find($empid);
         $educBg = EducBg::where('empid', $employee->emp_ID)->first();
         $columnstatus = $this->columnStat($employee->emp_ID);
-        
+    
         return view("emp.educational-bg", compact('guard', 'empid', 'employee', 'educBg', 'columnstatus'));
     }
-
+    
     public function educBgUpdate(Request $request){
         $employee = Employee::find($request->id);
         $educbg = EducBg::where("empid", $employee->emp_ID)->first();
         $column = $request->column;
         $value = $request->value;
-
+    
+        if (!$educbg) {
+            return response()->json(['success' => false, 'message' => 'Record not found.']);
+        }
+    
         $educbg->update([
             $column => $value,
         ]);
-        
+    
         return response()->json(['success' => true]);
     }
-
+    
     public function educBgUpdateArray(Request $request)
     {
-        // Validate the incoming request
         $request->validate([
             'schools' => 'required|array',
             'degrees' => 'required|array',
@@ -97,18 +100,31 @@ class EducBgController extends Controller
             'years.*' => 'nullable|date',
             'honors.*' => 'nullable|string',
         ]);
-        
-        $empid = $request->input('empid'); 
+    
+        $empid = $request->input('empid');
         $educbg = EducBg::where("empid", '=', $empid)->first();
-        
+    
+        if (!$educbg) {
+            return response()->json(['success' => false, 'message' => 'Record not found.']);
+        }
+    
         $schools = $request->input('schools');
         $degrees = $request->input('degrees');
         $periods = $request->input('periods');
         $levels = $request->input('levels');
         $years = $request->input('years');
         $honors = $request->input('honors');
-
-        // Update the 'educBg' table
+    
+        if (
+            count($schools) !== count($degrees) ||
+            count($degrees) !== count($periods) ||
+            count($periods) !== count($levels) ||
+            count($levels) !== count($years) ||
+            count($years) !== count($honors)
+        ) {
+            return response()->json(['success' => false, 'message' => 'Mismatch in array lengths.']);
+        }
+    
         $educbg->update([
             'coll_school' => implode(',', $schools),
             'coll_course' => implode(',', $degrees),
@@ -117,8 +133,8 @@ class EducBgController extends Controller
             'coll_grad' => implode(',', $years),
             'coll_honor' => implode(',', $honors),
         ]);
-        
+    
         return response()->json(['success' => true]);
     }
-
+    
 }

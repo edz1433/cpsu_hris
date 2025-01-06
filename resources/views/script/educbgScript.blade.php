@@ -2,6 +2,7 @@
     $(document).ready(function() {
         let empid = "{{ $empid }}"; 
 
+        // Function to update the educational background data
         function updateData() {
             let schools = [];
             let degrees = [];
@@ -10,7 +11,7 @@
             let years = [];
             let honors = [];
 
-            // Extract data from the fields in the #college-container
+            // Extract values from input fields in #college-container
             $('#college-container .form-row').each(function() {
                 schools.push($(this).find('input[name="coll_school[]"]').val());
                 degrees.push($(this).find('input[name="coll_course[]"]').val());
@@ -20,12 +21,15 @@
                 honors.push($(this).find('input[name="coll_honor[]"]').val());
             });
 
-            // Ensure all fields have the same number of entries
-            if (schools.length !== degrees.length || schools.length !== periods.length || schools.length !== levels.length || schools.length !== years.length || schools.length !== honors.length) {
+            // Check if all arrays have the same length
+            if (schools.length !== degrees.length || schools.length !== periods.length ||
+                schools.length !== levels.length || schools.length !== years.length ||
+                schools.length !== honors.length) {
                 console.error('Mismatch between array lengths.');
                 return;
             }
 
+            // Send data via AJAX
             $.ajax({
                 url: "{{ route('educBgUpdateArray') }}",
                 type: 'POST',
@@ -52,39 +56,34 @@
             });
         }
 
-        // Add row button click event
+        // Add new row for educational background
         $('#add-row-college').click(function() {
             var newRowIndex = $('#college-container .form-row').length;
             var newRow = `
                 <div class="form-row mt-3 lbel" data-index="${newRowIndex}">
                     <div class="col-md-12">
-                        <button type="button" class="btn btn-outline-danger btn-sm btn-delete" style="float: right;"><i class="fas fa-trash fa-sm"></i></button>
+                        <button type="button" class="btn btn-outline-danger btn-sm btn-delete" style="float: right;"><i class="fas fa-times fa-sm"></i></button>
                     </div>
                     <div class="col-md-4">
                         <label class="badge badge-secondary text-wrap lbel">Name of School (Write in full)</label>
                         <input type="text" name="coll_school[]" class="form-control form-control-sm update-field" placeholder="N/A">
                     </div>
-
                     <div class="col-md-4">
                         <label class="badge badge-secondary text-wrap lbel">Basic Education/Degree/Course</label>
                         <input type="text" name="coll_course[]" class="form-control form-control-sm update-field" placeholder="N/A">
                     </div>
-                    
                     <div class="col-md-4">
                         <label class="badge badge-secondary text-wrap lbel">Period of attendance</label>
                         <input type="text" name="coll_period[]" class="form-control form-control-sm update-field" placeholder="ex: 2021 - 2024" oninput="validateDateRange(this)" onkeyup="restrictInput(this)">
                     </div>
-                    
                     <div class="col-md-4">
                         <label class="badge badge-secondary text-wrap lbel">Highest Level / Units Earned (if not graduated)</label>
                         <input type="text" name="coll_level[]" class="form-control form-control-sm update-field" placeholder="N/A">
                     </div>
-                    
                     <div class="col-md-4">
                         <label class="badge badge-secondary text-wrap lbel">Year Graduated</label>
                         <input type="month" name="coll_grad[]" class="form-control form-control-sm update-field" placeholder="N/A">
                     </div>
-                    
                     <div class="col-md-4">
                         <label class="badge badge-secondary text-wrap lbel">Scholarship / Academic Honors Received</label>
                         <input type="text" name="coll_honor[]" class="form-control form-control-sm update-field" placeholder="N/A">
@@ -95,18 +94,18 @@
             updateData();
         });
 
-        // Update data when input fields are modified
+        // Detect changes in input fields and update data
         $('#college-container').on('input', '.update-field', function() {
             updateData();
         });
 
-        // Delete row click event
+        // Handle row deletion
         $('#college-container').on('click', '.btn-delete', function() {
             $(this).closest('.form-row').remove();
             updateData();
         });
 
-        // Field update for individual fields (if you need it separately)
+        // Optional: Handle individual field updates
         $('.update-field').on('input', function() {
             var columnid = $(this).data('column-id');
             var columnname = $(this).attr('name');
@@ -124,20 +123,10 @@
                 success: function(response) {
                     console.log('Field updated successfully!');
                 },
-                error: function(xhr, status, error) {
-                    if (xhr.status === 422) {
-                        var errors = xhr.responseJSON.errors;
-                        console.error('Validation errors:', errors);
-                    } else {
-                        console.error('Error:', error);
-                    }
+                error: function(xhr) {
+                    console.error('Error:', xhr.responseText);
                 }
             });
-        });
-
-        // Batch update for array fields
-        $('.update-field-array').on('input', function() {
-            updateData();
         });
     });
 </script>

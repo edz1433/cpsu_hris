@@ -5,7 +5,7 @@ $(document).ready(function() {
 
     function updateData() {
         let nameChildren = [];
-        let dateBirths = [];
+        let dateBirths = []; 
 
         $('input[name="name_child[]"]').each(function() {
             nameChildren.push($(this).val());
