@@ -207,7 +207,10 @@
                     flatpickrInstance.set('minDate', null); // Allow previous dates
                     flatpickrInstance.clear(); // Clear previous selection
                 } else {
-                    flatpickrInstance.set('minDate', today); // Disable previous dates
+                    // flatpickrInstance.set('minDate', today); // Disable previous dates
+                    // flatpickrInstance.clear(); // Clear previous selection
+
+                    flatpickrInstance.set('minDate', null); // Allow previous dates
                     flatpickrInstance.clear(); // Clear previous selection
                 }
             });
