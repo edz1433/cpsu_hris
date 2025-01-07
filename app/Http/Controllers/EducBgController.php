@@ -57,54 +57,39 @@ class EducBgController extends Controller
         return $columnstatus;
     }
 
-    public function educbg($id = null){
+    public function educbg($id = null)
+    {
         $guard = $this->getGuard();
-        $empid = ($id) ? $id : auth()->guard($guard)->user()->id;
-        $employee = Employee::find($empid);
+        $empid = $id ?? auth()->guard($guard)->user()->id;
+        $employee = Employee::findOrFail($empid);
         $educBg = EducBg::where('empid', $employee->emp_ID)->first();
         $columnstatus = $this->columnStat($employee->emp_ID);
-    
+
         return view("emp.educational-bg", compact('guard', 'empid', 'employee', 'educBg', 'columnstatus'));
     }
-    
-    public function educBgUpdate(Request $request){
-        $employee = Employee::find($request->id);
-        $educbg = EducBg::where("empid", $employee->emp_ID)->first();
-        $column = $request->column;
-        $value = $request->value;
-    
-        if (!$educbg) {
-            return response()->json(['success' => false, 'message' => 'Record not found.']);
-        }
-    
-        $educbg->update([
-            $column => $value,
-        ]);
-    
-        return response()->json(['success' => true]);
-    }
-    
-    public function educBgUpdateArray(Request $request)
+
+    public function updateEducChild(Request $request)
     {
         $request->validate([
+            'empid' => 'required|exists:employees,emp_ID',
             'schools' => 'required|array',
             'degrees' => 'required|array',
             'periods' => 'required|array',
             'levels' => 'required|array',
             'years' => 'required|array',
             'honors' => 'required|array',
-            'schools.*' => 'nullable|string',
-            'degrees.*' => 'nullable|string',
-            'periods.*' => 'nullable|string',
-            'levels.*' => 'nullable|string',
-            'years.*' => 'nullable|date',
-            'honors.*' => 'nullable|string',
+            'schools.*' => 'nullable|string|max:255',
+            'degrees.*' => 'nullable|string|max:255',
+            'periods.*' => 'nullable|string|max:255',
+            'levels.*' => 'nullable|string|max:255',
+            'years.*' => 'nullable|date_format:Y-m',
+            'honors.*' => 'nullable|string|max:255',
         ]);
     
         $empid = $request->input('empid');
-        $educbg = EducBg::where("empid", '=', $empid)->first();
+        $educBg = EducBg::where('empid', $empid)->first();
     
-        if (!$educbg) {
+        if (!$educBg) {
             return response()->json(['success' => false, 'message' => 'Record not found.']);
         }
     
@@ -115,17 +100,11 @@ class EducBgController extends Controller
         $years = $request->input('years');
         $honors = $request->input('honors');
     
-        if (
-            count($schools) !== count($degrees) ||
-            count($degrees) !== count($periods) ||
-            count($periods) !== count($levels) ||
-            count($levels) !== count($years) ||
-            count($years) !== count($honors)
-        ) {
-            return response()->json(['success' => false, 'message' => 'Mismatch in array lengths.']);
+        if (count($schools) !== count($degrees) || count($schools) !== count($periods) || count($schools) !== count($levels) || count($schools) !== count($years) || count($schools) !== count($honors)) {
+            return response()->json(['success' => false, 'message' => 'Mismatch between array lengths.']);
         }
     
-        $educbg->update([
+        $educBg->update([
             'coll_school' => implode(',', $schools),
             'coll_course' => implode(',', $degrees),
             'coll_period' => implode(',', $periods),
@@ -135,6 +114,82 @@ class EducBgController extends Controller
         ]);
     
         return response()->json(['success' => true]);
-    }
+    }    
+
+    public function educBgUpdate(Request $request)
+    {
+        $employee = Employee::find($request->id);
+        $educBg = EducBg::where("empid", $employee->emp_ID)->first();
+    
+        if (!$educBg) {
+            return response()->json(['success' => false, 'message' => 'Education background record not found.']);
+        }
+    
+        $column = $request->column; 
+        $value = $request->value; 
+    
+        $educBg->update([
+            $column => $value,
+        ]);
+    
+        return response()->json(['success' => true]);
+    }    
+    
+    public function educBgUpdateArray(Request $request)
+    {
+        $request->validate([
+            'empid' => 'required',
+            'schools' => 'array', // Remove required to allow empty arrays
+            'degrees' => 'array',
+            'periods' => 'array',
+            'levels' => 'array',
+            'years' => 'array',
+            'honors' => 'array',
+            'schools.*' => 'nullable|string|max:255',
+            'degrees.*' => 'nullable|string|max:255',
+            'periods.*' => 'nullable|string|max:255',
+            'levels.*' => 'nullable|string|max:255',
+            'years.*' => 'nullable|date_format:Y-m',
+            'honors.*' => 'nullable|string|max:255',
+        ]);
+    
+        $empid = $request->input('empid');
+        $employee = Employee::find($empid);
+        $educBg = EducBg::where('empid', $employee->emp_ID)->first();
+    
+        if (!$educBg) {
+            return response()->json(['success' => false, 'message' => 'Education background record not found.']);
+        }
+    
+        // Retrieve input arrays, default to empty arrays if not provided
+        $schools = $request->input('schools', []);
+        $degrees = $request->input('degrees', []);
+        $periods = $request->input('periods', []);
+        $levels = $request->input('levels', []);
+        $years = $request->input('years', []);
+        $honors = $request->input('honors', []);
+    
+        // Pad arrays to match lengths
+        $maxLength = max(count($schools), count($degrees), count($periods), count($levels), count($years), count($honors));
+    
+        $schools = array_pad($schools, $maxLength, '');
+        $degrees = array_pad($degrees, $maxLength, '');
+        $periods = array_pad($periods, $maxLength, '');
+        $levels = array_pad($levels, $maxLength, '');
+        $years = array_pad($years, $maxLength, '');
+        $honors = array_pad($honors, $maxLength, '');
+    
+        // Update the record with imploded array values
+        $educBg->update([
+            'coll_school' => implode(',', $schools),
+            'coll_course' => implode(',', $degrees),
+            'coll_period' => implode(',', $periods),
+            'coll_level' => implode(',', $levels),
+            'coll_grad' => implode(',', $years),
+            'coll_honor' => implode(',', $honors),
+        ]);
+    
+        return response()->json(['success' => true]);
+    }    
     
 }

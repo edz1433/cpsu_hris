@@ -163,7 +163,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         
         //Educational Background
         Route::get('/educ-bg/{id?}', [EducBgController::class, 'educbg'])->name('educbg');
-        Route::post('/update-educ-child', [EducBgController::class, 'updateChild'])->name('update-educ-child');
+        Route::post('/update-educ-child', [EducBgController::class, 'updateEducChild'])->name('updateEducChild');
         Route::post('/educbg-update', [EducBgController::class, 'educBgUpdate'])->name('educBgUpdate');
         Route::post('/educbg-update-array', [EducBgController::class, 'educBgUpdateArray'])->name('educBgUpdateArray');
         

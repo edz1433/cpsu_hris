@@ -123,7 +123,7 @@ class FamilybgController extends Controller
             'dates.*' => 'nullable|date',
         ]);
         
-        $empid = $request->input('empid');  
+        $empid = $request->input('empid'); 
         $familybg = FamilyBg::where("empid", $empid)->first();
     
         $names = $request->input('names');

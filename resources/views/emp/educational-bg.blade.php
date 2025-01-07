@@ -25,7 +25,7 @@
                     </div>
                     <div class="form-group mtop">
                         <div class="form-row lbel">
-                            <div class="col-md-4">
+                            <div class="col-md-4"> 
                                 <label class="badge badge-secondary text-wrap lbel">Name of School (Write in full)</label>
                                 <input type="text" value="{{ $educBg->elem_school }}" name="elem_school" data-column-id="{{ $empid }}" class="form-control form-control-sm update-field" placeholder="N/A">
                             </div>
@@ -133,59 +133,67 @@
                         </div>
                     </div>
                     
-                    @php
-                        $schools = explode(',', $educBg->coll_school);
-                        $courses = explode(',', $educBg->coll_course);
-                        $periods = explode(',', $educBg->coll_period);
-                        $levels = explode(',', $educBg->coll_level);
-                        $gradYears = explode(',', $educBg->coll_grad);
-                        $honors = explode(',', $educBg->coll_honor);
-                    @endphp
-                    
-                    <div id="college-container">
-                        @foreach($schools as $index => $school)
-                            <div class="form-group mtop college-div" data-index="{{ $index }}">
-                                <div class="form-row lbel">
-                                    @if($index > 0)
-                                        <div class="col-md-12 mt-2">
-                                            <button type="button" class="btn btn-outline-danger btn-sm btn-delete" style="float: right;"><i class="fas fa-times fa-sm"></i></button>
-                                        </div>
-                                    @endif
-
-                                    <div class="col-md-4">
+                @php
+                    $schools = explode(',', $educBg->coll_school);
+                    $courses = explode(',', $educBg->coll_course);
+                    $periods = explode(',', $educBg->coll_period);
+                    $levels = explode(',', $educBg->coll_level);
+                    $gradYears = explode(',', $educBg->coll_grad);
+                    $honors = explode(',', $educBg->coll_honor);
+                @endphp
+                
+                <div id="college-container">
+                    @foreach($schools as $index => $school)
+                        <div class="form-group mtop college-div" data-index="{{ $index }}">
+                            <div class="form-row mt-3 lbel">
+                                @if($index > 0)
+                                    <div class="col-md-12 mt-2">
+                                        <button type="button" class="btn btn-outline-danger btn-sm btn-delete" style="float: right;">
+                                            <i class="fas fa-times fa-sm"></i>
+                                        </button>
+                                    </div>
+                                @endif
+                
+                                <div class="col-md-4">
+                                    @if($loop->first)
                                         <label class="badge badge-secondary text-wrap lbel">Name of School (Write in full)</label>
-                                        <input type="text" value="{{ trim($school) }}" name="coll_school[]" class="form-control form-control-sm update-field" placeholder="N/A" data-index="{{ $index }}">
-                                    </div>
-                    
-                                    <div class="col-md-4">
-                                        @if($loop->first)<label class="badge badge-secondary text-wrap lbel">Basic Education/Degree/Course</label>@else <label class="badge badge-secondary text-wrap lbel">Course</label>  @endif
-                                        <input type="text" value="{{ trim($courses[$index] ?? '') }}" name="coll_course[]" class="form-control form-control-sm update-field" placeholder="N/A" data-index="{{ $index }}">
-                                    </div>
-                    
-                                    <div class="col-md-4">
-                                        <label class="badge badge-secondary text-wrap lbel">Period of Attendance</label>
-                                        <input type="text" value="{{ trim($periods[$index] ?? '') }}" name="coll_period[]" class="form-control form-control-sm update-field" placeholder="ex: 2021 - 2024" data-index="{{ $index }}">
-                                    </div>
-                    
-                                    <div class="col-md-4">
-                                        <label class="badge badge-secondary text-wrap lbel">Highest Level / Units Earned (if not graduated)</label>
-                                        <input type="text" value="{{ trim($levels[$index] ?? '') }}" name="coll_level[]" class="form-control form-control-sm update-field" placeholder="N/A" data-index="{{ $index }}">
-                                    </div>
-                    
-                                    <div class="col-md-4">
-                                        <label class="badge badge-secondary text-wrap lbel">Year Graduated</label>
-                                        <input type="month" value="{{ trim($gradYears[$index] ?? '') }}" name="coll_grad[]" class="form-control form-control-sm update-field" placeholder="N/A" data-index="{{ $index }}">
-                                    </div>
-                    
-                                    <div class="col-md-4">
-                                        <label class="badge badge-secondary text-wrap lbel">Scholarship / Academic Honors Received</label>
-                                        <input type="text" value="{{ trim($honors[$index] ?? '') }}" name="coll_honor[]" class="form-control form-control-sm update-field" placeholder="N/A" data-index="{{ $index }}">
-                                    </div>
-                    
+                                    @endif
+                                    <input type="text" value="{{ trim($school) }}" name="coll_school[]" class="form-control form-control-sm update-field" placeholder="N/A" data-index="{{ $index }}">
+                                </div>
+                
+                                <div class="col-md-4">
+                                    @if($loop->first)
+                                        <label class="badge badge-secondary text-wrap lbel">Basic Education/Degree/Course</label>
+                                    @else
+                                        <label class="badge badge-secondary text-wrap lbel">Course</label>
+                                    @endif
+                                    <input type="text" value="{{ trim($courses[$index] ?? '') }}" name="coll_course[]" class="form-control form-control-sm update-field" placeholder="N/A" data-index="{{ $index }}">
+                                </div>
+                
+                                <div class="col-md-4">
+                                    <label class="badge badge-secondary text-wrap lbel">Period of Attendance</label>
+                                    <input type="text" value="{{ trim($periods[$index] ?? '') }}" name="coll_period[]" class="form-control form-control-sm update-field" placeholder="ex: 2021 - 2024" data-index="{{ $index }}">
+                                </div>
+                
+                                <div class="col-md-4">
+                                    <label class="badge badge-secondary text-wrap lbel">Highest Level / Units Earned (if not graduated)</label>
+                                    <input type="text" value="{{ trim($levels[$index] ?? '') }}" name="coll_level[]" class="form-control form-control-sm update-field" placeholder="N/A" data-index="{{ $index }}">
+                                </div>
+                
+                                <div class="col-md-4">
+                                    <label class="badge badge-secondary text-wrap lbel">Year Graduated</label>
+                                    <input type="month" value="{{ trim($gradYears[$index] ?? '') }}" name="coll_grad[]" class="form-control form-control-sm update-field" placeholder="N/A" data-index="{{ $index }}">
+                                </div>
+                
+                                <div class="col-md-4">
+                                    <label class="badge badge-secondary text-wrap lbel">Scholarship / Academic Honors Received</label>
+                                    <input type="text" value="{{ trim($honors[$index] ?? '') }}" name="coll_honor[]" class="form-control form-control-sm update-field" placeholder="N/A" data-index="{{ $index }}">
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
+                        </div>
+                    @endforeach
+                </div>
+                
                                   
                     <div class="form-group mtop">
                         <div class="form-row">
