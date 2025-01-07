@@ -75,27 +75,27 @@
                     </div>
                     <div class="col-md-4">
                         <label class="badge badge-secondary text-wrap lbel">Name of School</label>
-                        <input type="text" name="coll_school[]" class="form-control form-control-sm update-field" placeholder="N/A">
+                        <input type="text" name="coll_school[]" class="form-control form-control-sm update-child" placeholder="N/A">
                     </div>
                     <div class="col-md-4">
                         <label class="badge badge-secondary text-wrap lbel">Degree/Course</label>
-                        <input type="text" name="coll_course[]" class="form-control form-control-sm update-field" placeholder="N/A">
+                        <input type="text" name="coll_course[]" class="form-control form-control-sm update-child" placeholder="N/A">
                     </div>
                     <div class="col-md-4">
                         <label class="badge badge-secondary text-wrap lbel">Period of Attendance</label>
-                        <input type="text" name="coll_period[]" class="form-control form-control-sm update-field" placeholder="ex: 2021 - 2024">
+                        <input type="text" name="coll_period[]" class="form-control form-control-sm update-child" placeholder="ex: 2021 - 2024">
                     </div>
                     <div class="col-md-4">
                         <label class="badge badge-secondary text-wrap lbel">Highest Level/Units Earned</label>
-                        <input type="text" name="coll_level[]" class="form-control form-control-sm update-field" placeholder="N/A">
+                        <input type="text" name="coll_level[]" class="form-control form-control-sm update-child" placeholder="N/A">
                     </div>
                     <div class="col-md-4">
                         <label class="badge badge-secondary text-wrap lbel">Year Graduated</label>
-                        <input type="month" name="coll_grad[]" class="form-control form-control-sm update-field" placeholder="N/A">
+                        <input type="month" name="coll_grad[]" class="form-control form-control-sm update-child" placeholder="N/A">
                     </div>
                     <div class="col-md-4">
                         <label class="badge badge-secondary text-wrap lbel">Honors Received</label>
-                        <input type="text" name="coll_honor[]" class="form-control form-control-sm update-field" placeholder="N/A">
+                        <input type="text" name="coll_honor[]" class="form-control form-control-sm update-child" placeholder="N/A">
                     </div>
                 </div>
             `;
@@ -104,7 +104,7 @@
         });
 
         // Detect changes in input fields and update data
-        $('#college-container').on('input', '.update-field', function() {
+        $('#college-container').on('input', '.update-child', function() {
             updateData();
         });
 
@@ -112,6 +112,35 @@
         $('#college-container').on('click', '.btn-delete', function() {
             $(this).closest('.form-row').remove();
             updateData();
+        });
+    });
+
+    $('.update-field').on('input', function() {
+        columnid = $(this).data('column-id');
+        columnname = $(this).attr('name');
+
+        var value = $(this).val();
+        
+        $.ajax({
+            url: '{{ route("educBgUpdate") }}',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                id: columnid,
+                column: columnname,
+                value: value
+            },
+            success: function(response) {
+                
+            },
+            error: function(xhr, status, error) {
+                if (xhr.status === 422) {
+                    var errors = xhr.responseJSON.errors;
+                    console.error('Validation errors:', errors);
+                } else {
+                    console.error('Error:', error);
+                }
+            }
         });
     });
 </script>
