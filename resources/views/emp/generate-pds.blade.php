@@ -516,16 +516,35 @@
                     <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->voc_grad)[0]) ? strtoupper(explode('-', $datas['educBg']->voc_grad)[0]) : '' }}</th>
                     <th class="bordered vcenter">{{ strtoupper($datas['educBg']->voc_honor) }}</th>
                 </tr>
-                <tr>
-                    <td class="bordered pl1 bg2">COLLEGE</td>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->coll_school) }}</th>
-                    <th class="bordered vcenter" colspan="2">{{ strtoupper($datas['educBg']->coll_course) }}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->coll_period)[0]) ? strtoupper(explode('-', $datas['educBg']->coll_period)[0]) : '' }}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->coll_period)[1]) ? strtoupper(explode('-', $datas['educBg']->coll_period)[1]) : '' }}</th>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->coll_level) }}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->coll_grad)[0]) ? strtoupper(explode('-', $datas['educBg']->coll_grad)[0]) : '' }}</th>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->coll_honor) }}</th>
-                </tr>
+                @if ($datas['educBg'])
+                @php
+                    $schools = explode(',', $datas['educBg']->coll_school);
+                    $courses = explode(',', $datas['educBg']->coll_course);
+                    $periods = explode(',', $datas['educBg']->coll_period);
+                    $levels = explode(',', $datas['educBg']->coll_level);
+                    $grads = explode(',', $datas['educBg']->coll_grad);
+                    $honors = explode(',', $datas['educBg']->coll_honor);
+                    $maxRows = max(count($schools), count($courses), count($periods), count($levels), count($grads), count($honors));
+                @endphp
+            
+                @for ($i = 0; $i < $maxRows; $i++)
+                    <tr>
+                        <td class="bordered pl1 bg2">COLLEGE</td>
+                        <th class="bordered vcenter">{{ strtoupper($schools[$i] ?? '') }}</th>
+                        <th class="bordered vcenter" colspan="2">{{ strtoupper($courses[$i] ?? '') }}</th>
+                        <th class="bordered vcenter">
+                            {{ isset(explode('-', $periods[$i] ?? '')[0]) ? strtoupper(explode('-', $periods[$i])[0]) : '' }}
+                        </th>
+                        <th class="bordered vcenter">
+                            {{ isset(explode('-', $periods[$i] ?? '')[1]) ? strtoupper(explode('-', $periods[$i])[1]) : '' }}
+                        </th>
+                        <th class="bordered vcenter">{{ strtoupper($levels[$i] ?? '') }}</th>
+                        <th class="bordered vcenter">{{ strtoupper($grads[$i] ?? '') }}</th>
+                        <th class="bordered vcenter">{{ strtoupper($honors[$i] ?? '') }}</th>
+                    </tr>
+                    @endfor
+                @endif
+                           
                 <tr>
                     <td class="bordered pl1 bg2">GRADUATE STUDIES</td>
                     <th class="bordered vcenter">{{ strtoupper($datas['educBg']->grad_school) }}</th>
