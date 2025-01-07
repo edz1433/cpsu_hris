@@ -199,7 +199,9 @@
                 const selectedLeaveType = this.value;
 
                 if (selectedLeaveType == '1' || selectedLeaveType == '8') {
-                    flatpickrInstance.set('minDate', today); // Disable previous dates
+                    // flatpickrInstance.set('minDate', today); // Disable previous dates
+                    // flatpickrInstance.clear(); // Clear previous selection
+                    flatpickrInstance.set('minDate', null); // Allow previous dates
                     flatpickrInstance.clear(); // Clear previous selection
                 } else if (selectedLeaveType == '3') {
                     flatpickrInstance.set('minDate', null); // Allow previous dates
