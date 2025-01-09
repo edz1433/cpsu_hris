@@ -80,13 +80,13 @@
         .table1 td, 
         .table1 th {
             height: 18px !important;
-            padding: 2px;
+            padding: 1px;
         }
 
         .table2 td, 
         .table2 th{
             height: 21px !important;
-            padding: 2px;
+            padding: 1px;
         }
 
         .address-column{
@@ -158,6 +158,10 @@
             text-align: center;
         }
 
+        .text-right{
+            text-align: right;
+        }
+
         .font{
             font-size: 16px;
         }
@@ -182,6 +186,55 @@
                         <b>2. </b>The duration should include start and finish dates, if known, month in abbreviated form,<br> &nbsp;&nbsp;&nbsp;&nbsp;if known, and year in full. For the current position, use the word Present, &nbsp;e.g., &nbsp;   1998-
                         &nbsp;&nbsp;&nbsp;&nbsp;Present. Work experience should be listed from most recent first. <br>
                     </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table1" style="margin-top: -1px;">
+            <tbody>
+                <tr>
+                    <td class="font1 text-right" width="36">•</td>
+                    <td class="font1" colspan="2"><b>Duration:</b></td>
+                </tr>
+                <tr>
+                    <td class="font1 text-right" width="36">•</td>
+                    <td class="font1" colspan="2"><b>Position:</b></td>
+                </tr>
+                <tr>
+                    <td class="font1 text-right" width="36">•</td>
+                    <td class="font1" colspan="2"><b>Name of Office/Unit:</b></td>
+                </tr>
+                <tr>
+                    <td class="font1 text-right" width="36">•</td>
+                    <td class="font1" colspan="2"><b>Immediate Supervisor:</b></td>
+                </tr>
+                <tr>
+                    <td class="font1 text-right" width="36">•</td>
+                    <td class="font1" colspan="2"><b>Name of Agency/Organization and Location:</b> </td>
+                </tr>
+                <tr>
+                    <td class="font1 text-right" width="36"></td>
+                    <td class="font1 text-right" width="5.6"></td>
+                    <td class="font1"><b></b></td>
+                </tr>
+                <tr>
+                    <td class="font1 text-right" width="36"></td>
+                    <td class="font1 text-right" width="5.6">•</td>
+                    <td class="font1"><b>List of Accomplishments and Contributions (if any)</b></td>
+                </tr>
+                <tr>
+                    <td class="font1 text-right" width="36"></td>
+                    <td class="font1 text-right" width="5.6"></td>
+                    <td class="font1" style="padding-left: 10px;"><b>•</b></td>
+                </tr>
+                <tr>
+                    <td class="font1 text-right" width="36"></td>
+                    <td class="font1 text-right" width="5.6">•</td>
+                    <td class="font1"><b>Summary of Actual Duties</b></td>
+                </tr>
+                <tr>
+                    <td class="font1 text-right" width="36"></td>
+                    <td class="font1 text-right" width="5.6"></td>
+                    <td class="font1" style="padding-left: 10px;"><b>•</b></td>
                 </tr>
             </tbody>
         </table>

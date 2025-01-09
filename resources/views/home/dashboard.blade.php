@@ -109,7 +109,7 @@
 
                           <div class="col-lg-3 col-6">
                             <!-- small box -->
-                            <a href="{{ route('readPending', 4) }}">
+                            <a href="{{ route('readPending', 5) }}">
                               <div class="small-box pl-1 pt-2 bg-white">
                                   <div class="inner">
                                       <h6 class="text-muted">Learning & Development</h6>
@@ -124,7 +124,7 @@
 
                           <div class="col-lg-3 col-6">
                             <!-- small box -->
-                            <a href="{{ route('readPending', 5) }}">
+                            <a href="{{ route('readPending', 4) }}">
                               <div class="small-box pl-1 pt-2 bg-white">
                                   <div class="inner">
                                       <h6 class="text-muted">Voluntary works</h6>

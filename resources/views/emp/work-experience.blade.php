@@ -104,7 +104,7 @@
                                         
                                         <div class="col-md-3">
                                             <label class="badge badge-secondary text-wrap lbel">Attachment</label>
-                                            <input type="file" name="attachment" class="form-control form-control-sm" accept="application/pdf" placeholder="N/A">
+                                            <input type="file" name="attachment" class="form-control form-control-sm" accept="application/pdf" placeholder="N/A" required>
                                         </div>
 
                                         @php

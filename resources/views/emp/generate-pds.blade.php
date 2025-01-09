@@ -647,7 +647,7 @@
                         <th class="bordered">{{ strtoupper($experience->department) }}</th>
                         <th class="bordered">{{ $experience->salary }}</th>
                         <th class="bordered">{{ strtoupper($experience->sg_grade) }}</th>
-                        <th class="bordered">{{ strtoupper($experience->status) }}</th>
+                        <th class="bordered">{{ strtoupper($experience->stat_app) }}</th>
                         <th class="bordered">{{ strtoupper($experience->service) }}</th>
                     </tr>
                 @endforeach
