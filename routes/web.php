@@ -150,7 +150,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     //pds
     Route::prefix('pds')->group(function() {
         Route::get('/', [PdsController::class, 'empPDS'])->name('empPDS');  
-        Route::get('/generatepds/{id?}', [PdsController::class, 'generatepds'])->name('generatepds');
+        Route::get('/generate/{id?}', [PdsController::class, 'generatepds'])->name('generatepds');
+        Route::get('/attachment/{id?}', [PdsController::class, 'genpdsAtthachment'])->name('genpdsAtthachment');
         
         //personal Info
         Route::get('personal-info/{id}', [EmployeeController::class, 'PDS'])->name('PDS');   

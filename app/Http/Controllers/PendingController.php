@@ -51,12 +51,12 @@ class PendingController extends Controller
                 break;
     
             case '4':
-                $empids = LearningDev::where('status', 0)
+                $empids = VoluntaryWork::where('status', 0)
                     ->pluck('empid')->unique()->values()->toArray();
                 break;
     
             case '5':
-                $empids = VoluntaryWork::where('status', 0)
+                $empids = LearningDev::where('status', 0)
                     ->pluck('empid')->unique()->values()->toArray();
                 break;
                 

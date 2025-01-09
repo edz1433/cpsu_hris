@@ -197,4 +197,29 @@ class PdsController extends Controller
 
         return $pdf->stream();
     }
+
+    public function genpdsAtthachment($id = null){
+        $guard = $this->getGuard();
+        $empid = ($id) ? $id : auth()->guard($guard)->user()->id;
+        $employee = Employee::find($empid);
+        $workexperience = WorkExperience::where('empid', $employee->emp_ID)->where('status', '!=', 0)->get();
+
+        $customPaper = array(0, 0, 612, 970);
+        $pdf = \PDF::loadView('emp.gen-pds-attachment', compact('workexperience'))->setPaper($customPaper, 'portrait');
+
+        $pdf->setOption('margin-top', 0);
+        $pdf->setOption('margin-right', 0);
+        $pdf->setOption('margin-bottom', 0);
+        $pdf->setOption('margin-left', 0);
+
+        $pdf->setCallbacks([
+            'before_render' => function ($domPdf) {
+                $domPdf->getCanvas()->page_text(10, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, array(0, 0, 0));
+            },
+        ]);
+
+        $pdf->render();
+
+        return $pdf->stream();;
+    }
 }

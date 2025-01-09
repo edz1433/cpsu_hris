@@ -80,9 +80,11 @@ class WorkExperienceController extends Controller
             'salary' => 'nullable',
             'stat_app' => 'nullable',
             'service' => 'required',
-            'attachment' => 'required|file|mimes:pdf',
+            'attachment' => 'nullable|file|mimes:pdf',
+            'supervisor' => 'array|nullable', // Validate as an array for accomplishments
+            'actual_summary' => 'nullable|string',
         ]);
-        
+    
         $attachmentPath = null;
     
         if ($request->hasFile('attachment')) {
@@ -92,8 +94,12 @@ class WorkExperienceController extends Controller
             $randomNumber = rand(10000, 99999);
             $newFileName = $originalName . '-' . $randomNumber . '.' . $extension;
     
-            $attachmentPath = $attachment->storeAs('Workexperience', $newFileName, 'public');
+            $attachmentPath = $attachment->storeAs('WorkExperience', $newFileName, 'public');
         }
+    
+        // Prepare the list of accomplishments as a semicolon-separated string
+        $listAccom = $request->input('supervisor', []); // Default to an empty array if not provided
+        $listAccomString = implode(';', array_map('trim', $listAccom)); // Join values with semicolon
     
         $workexperience = WorkExperience::create([
             'empid' => $request->input('empid'),
@@ -106,8 +112,10 @@ class WorkExperienceController extends Controller
             'stat_app' => $request->input('stat_app'),
             'service' => $request->input('service'),
             'attachment' => $attachmentPath,
+            'list_accom' => $listAccomString,
+            'actual_summary' => $request->input('actual_summary'),
         ]);
-
+    
         Notification::create([
             'empid' => $request->input('empid'),
             'lapp_id' => $workexperience->id,
@@ -117,7 +125,7 @@ class WorkExperienceController extends Controller
         ]);
     
         return redirect()->back()->with('success', 'Added successfully!');
-    }    
+    }      
 
     public function workexperienceEdit($id, $eid)
     {
@@ -139,16 +147,18 @@ class WorkExperienceController extends Controller
             'department' => 'required',
             'sg_grade' => 'nullable',
             'salary' => 'nullable',
-            'status' => 'nullable',
+            'stat_app' => 'nullable',
             'service' => 'required',
             'attachment' => 'nullable|file|mimes:pdf',
+            'actual_summary' => 'nullable|string',
+            'supervisor.*' => 'nullable|string',
         ]);
-    
+
         $salary = $request->input('salary');
         if (!is_null($salary)) {
             $salary = str_replace(',', '', $salary);
         }
-    
+
         $workexperience = WorkExperience::findOrFail($id);
 
         $attachmentPath = $workexperience->attachment;
@@ -159,12 +169,16 @@ class WorkExperienceController extends Controller
             $randomNumber = rand(10000, 99999);
             $newFileName = $randomNumber . '_' . $originalName . '.' . $extension;
             $attachmentPath = $attachment->storeAs('WorkExperience', $newFileName, 'public');
-    
+
             if ($workexperience->attachment && \Storage::disk('public')->exists($workexperience->attachment)) {
                 \Storage::disk('public')->delete($workexperience->attachment);
             }
         }
-    
+
+        // Process List of Accomplishments
+        $listAccomplishments = $request->input('supervisor', []);
+        $formattedAccomplishments = implode(';', array_map('trim', $listAccomplishments));
+
         $workexperience->update([
             'inc_date1' => $request->input('inc_date1'),
             'inc_date2' => $request->input('inc_date2'),
@@ -172,14 +186,15 @@ class WorkExperienceController extends Controller
             'department' => $request->input('department'),
             'sg_grade' => $request->input('sg_grade'),
             'salary' => $salary,
-            'status' => $request->input('status'),
+            'stat_app' => $request->input('stat_app'),
             'service' => $request->input('service'),
             'attachment' => $attachmentPath,
-            'status' => 0,
+            'list_accom' => $formattedAccomplishments,
+            'actual_summary' => $request->input('actual_summary'),
         ]);
-    
-        return redirect()->back()->with('success', 'Updated successfully!');
-    }    
+
+        return redirect()->back()->with('success', 'Work Experience updated successfully!');
+    }   
 
     public function expApprove($id){
         $workexperience = WorkExperience::find($id);

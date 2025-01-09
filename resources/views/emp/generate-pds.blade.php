@@ -211,7 +211,7 @@
                     <td class="pl1 bg2">MIDDLE NAME</td>
                     <th colspan="8" class="bordered pl1 tl">{{ strtoupper($datas['employee']->mname) }}</th>
                 </tr>
-                <tr>
+                <tr> 
                     <td class="bordered pl2 bg2">3. DATE OF BIRTH &nbsp;&nbsp;&nbsp;&nbsp;(mm/dd/yyyy)</td>
                     <th class="bordered pl2" colspan="2" width="1000">{{ \Carbon\Carbon::parse($datas['employee']->bdate)->format('m/d/Y') }}</th>
                     <td class="bordered pl2 text-align-top-left bg2" rowspan="3" colspan="2" width="740">16. CITIZENSHIP <p style="text-align: center;">if holder of dual citizenship, </p> <p style="text-align: center; margin-top: -5px;">please indicate the details.</p> </td>
@@ -1094,7 +1094,7 @@
                             </div>
                             <div class="bg2" style="height: 17.7px">
                                 Person Administering Oath
-                            </div>
+                            </div> 
                         </div>                        
                     </td>   
                 </tr> 

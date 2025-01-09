@@ -35,14 +35,16 @@
                 <div class="card-body">
                     <div id="accordion">
                         <div class="card card-muted">
-                          <div class="card-header">
-                            <h4 class="card-title w-100">
-                              <a class="d-block w-100 collapsed text-success1" data-toggle="collapse" href="#collapseOne" aria-expanded="false">
-                                <b>FORM</b> 
-                              </a>
-                            </h4>
-                          </div>
-                          <div id="collapseOne" class="collapse show" data-parent="#accordion" style="">
+                            <div class="card-header">
+                                <h4 class="card-title w-100">
+                                    <a class="d-block w-100 collapsed text-success1" data-toggle="collapse" href="#collapseOne" aria-expanded="false">
+                                        <b>FORM</b>
+                                    </a>
+                                </h4>
+                                <i class="fas fa-arrow-left toggle-icon" style="cursor: pointer; float: right; margin-top: -15px;" data-toggle="collapse" data-target="#collapseOne"></i>                   
+                            </div>
+                            <div id="collapseOne" class="collapse {{ (count($workexperience) > 0 && !isset($workexperienceedit)) ? '' : 'show' }}" data-parent="#accordion">
+                             
                             <div class="card-body bg-form">
                                 <form class="form-horizontal" action="{{ isset($workexperienceedit) ? route('workexperienceUpdate', $workexperienceedit->id) : route('workexperienceCreate') }}" method="POST" enctype="multipart/form-data">
                                     @csrf
@@ -61,7 +63,12 @@
                                             </div>
                                         </div>
                                         
-                                        <div class="col-md-6">
+                                        <div class="col-md-2">       
+                                            <label class="badge badge-secondary text-wrap lbel">Immediate Supervisor</label>
+                                            <input type="text" name="supervisor" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($workexperienceedit) ? $workexperienceedit->supervisor : '' }}" autocomplete="off">
+                                        </div>
+
+                                        <div class="col-md-4">
                                             <label class="badge badge-secondary text-wrap text-center lbel">Position Title (Write in full/Do not abbreviate)</label>
                                             <input type="text" name="position" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($workexperienceedit) ? $workexperienceedit->position : '' }}" autocomplete="off" required>
                                         </div>
@@ -97,7 +104,34 @@
                                         
                                         <div class="col-md-3">
                                             <label class="badge badge-secondary text-wrap lbel">Attachment</label>
-                                            <input type="file" name="attachment" class="form-control form-control-sm" accept="application/pdf" placeholder="N/A" {{ isset($workexperienceedit) ? '' : 'required' }}>
+                                            <input type="file" name="attachment" class="form-control form-control-sm" accept="application/pdf" placeholder="N/A">
+                                        </div>
+
+                                        @php
+                                            $listaccom = isset($workexperienceedit->list_accom) ? explode(';', $workexperienceedit->list_accom) : [];
+                                        @endphp
+                                        
+                                        <div class="col-md-6">       
+                                            <label class="badge badge-secondary text-wrap lbel w-100">List of Accomplishments and Contributions (if any)</label>
+                                            
+                                            @for ($i = 0; $i < 8; $i++)
+                                                <input type="text" name="supervisor[{{ $i }}]" class="form-control form-control-sm mb-1" 
+                                                    placeholder="N/A" 
+                                                    value="{{ isset($listaccom[$i]) ? trim($listaccom[$i]) : '' }}" 
+                                                    autocomplete="off">
+                                            @endfor
+                                        </div>
+
+                                        <div class="col-md-6">       
+                                            <label class="badge badge-secondary text-wrap lbel w-100">List of Accomplishments and Contributions (if any)</label>
+                                            <textarea 
+                                                name="actual_summary" 
+                                                id="actual_summary" 
+                                                class="form-control form-control-sm mb-1" 
+                                                style="text-align: left; white-space: pre-wrap;" 
+                                                rows="13">{{ isset($workexperienceedit) ? str_replace(['<br>', '<br/>', '<br />'], "\n", $workexperienceedit->actual_summary) : '' }}
+                                            </textarea>
+                                        
                                         </div>
                                         
                                         <div class="col-md-12 mt-2">
@@ -290,5 +324,20 @@
 
         document.getElementById('remarks').focus();
     }
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggleIcon = document.querySelector('.toggle-icon');
+
+        toggleIcon.addEventListener('click', () => {
+            if (toggleIcon.classList.contains('fa-arrow-left')) {
+                toggleIcon.classList.remove('fa-arrow-left');
+                toggleIcon.classList.add('fa-arrow-down');
+            } else {
+                toggleIcon.classList.remove('fa-arrow-down');
+                toggleIcon.classList.add('fa-arrow-left');
+            }
+        });
+    });
 </script>
 @endsection

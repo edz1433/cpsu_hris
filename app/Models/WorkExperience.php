@@ -21,6 +21,9 @@ class WorkExperience extends Model
         'stat_app',
         'status',
         'service',
+        'supervisor',
+        'list_accom',
+        'actual_summary',
         'remarks',
     ];
 }
