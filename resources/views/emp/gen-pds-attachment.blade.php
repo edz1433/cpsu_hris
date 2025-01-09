@@ -224,7 +224,7 @@
                 <tr>
                     <td class="font1 text-right" width="36"></td>
                     <td class="font1 text-right" width="5.6"></td>
-                    <td class="font1" style="padding-left: 10px;"><b>•</b></td>
+                    <td class="font1" style="padding-left: 24px;"><b>•</b></td>
                 </tr>
                 <tr>
                     <td class="font1 text-right" width="36"></td>
@@ -234,7 +234,7 @@
                 <tr>
                     <td class="font1 text-right" width="36"></td>
                     <td class="font1 text-right" width="5.6"></td>
-                    <td class="font1" style="padding-left: 10px;"><b>•</b></td>
+                    <td class="font1" style="padding-left: 24px;"><b>•</b></td>
                 </tr>
             </tbody>
         </table>
