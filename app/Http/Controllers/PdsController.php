@@ -143,9 +143,15 @@ class PdsController extends Controller
         $familyBg = FamilyBg::where('empid', $employee->emp_ID)->first();
         $educBg = EducBg::where('empid', $employee->emp_ID)->first();
         $eligibility = Eligibility::where('empid', $employee->emp_ID)->where('status', '!=', 0)->get();
-        $workexperience = WorkExperience::where('empid', $employee->emp_ID)->where('status', '!=', 0)->get();
-        $voluntaryworks = VoluntaryWork::where('empid', $employee->emp_ID)->where('status', '!=', 0)->get();
-        $learningdev = LearningDev::where('empid', $employee->emp_ID)->where('status', '!=', 0)->get();
+        $workexperience = WorkExperience::where('empid', $employee->emp_ID)
+        ->where('status', '!=', 0)->orderByDesc('inc_date1')->orderByDesc('inc_date2')->get();
+
+        $voluntaryworks = VoluntaryWork::where('empid', $employee->emp_ID)->where('status', '!=', 0)
+        ->where('status', '!=', 0)->orderByDesc('inc_date1')->orderByDesc('inc_date2')->get();
+        
+        $learningdev = LearningDev::where('empid', $employee->emp_ID)->where('status', '!=', 0)
+        ->where('status', '!=', 0)->orderByDesc('inc_date1')->orderByDesc('inc_date2')->get();
+            
         $otherinfo = OtherInfo::where('empid', $employee->emp_ID)->first();
         $infoquestion = InfoQuestion::where('empid', $employee->emp_ID)->first();
         $references = PdsReference::where('empid', $employee->emp_ID)->first();
