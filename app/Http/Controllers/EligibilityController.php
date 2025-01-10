@@ -83,7 +83,7 @@ class EligibilityController extends Controller
     {
         $request->validate([
             'careereligible' => 'nullable',
-            'rating' => 'required',
+            'rating' => 'nullable',
             'date_exam' => 'required',
             'place_exam' => 'required',
             'number' => 'required',
@@ -127,7 +127,7 @@ class EligibilityController extends Controller
     {
         $request->validate([
             'careereligible' => 'required',
-            'rating' => 'required',
+            'rating' => 'nullable',
             'date_exam' => 'required',
             'place_exam' => 'required',
             'number' => 'required',

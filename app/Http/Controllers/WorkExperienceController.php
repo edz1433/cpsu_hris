@@ -154,10 +154,10 @@ class WorkExperienceController extends Controller
             'supervisor.*' => 'nullable|string',
         ]);
 
-        $salary = $request->input('salary');
-        if (!is_null($salary)) {
-            $salary = str_replace(',', '', $salary);
-        }
+        // $salary = $request->input('salary');
+        // if (!is_null($salary)) {
+        //     $salary = str_replace(',', '', $salary);
+        // }
 
         $workexperience = WorkExperience::findOrFail($id);
 
@@ -185,7 +185,7 @@ class WorkExperienceController extends Controller
             'position' => $request->input('position'),
             'department' => $request->input('department'),
             'sg_grade' => $request->input('sg_grade'),
-            'salary' => $salary,
+            'salary' => $request->input('salary'),
             'stat_app' => $request->input('stat_app'),
             'service' => $request->input('service'),
             'attachment' => $attachmentPath,

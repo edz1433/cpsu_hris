@@ -84,7 +84,7 @@
 
                                         <div class="col-md-2">
                                             <label class="badge badge-secondary text-wrap lbel">Attachment</label>
-                                            <input type="file" name="attachment" class="form-control form-control-sm" accept="application/pdf" placeholder="N/A" {{ isset($eligibilityedit) ? '' : 'required' }}>
+                                            <input type="file" name="attachment" class="form-control form-control-sm" accept="application/pdf" placeholder="N/A">
                                         </div>
                                         
                                         <div class="col-md-12 mt-2">
@@ -147,7 +147,7 @@
                                     </tr>
                                     <tr class="eligibility-row row-{{ $eli->id }}">
                                         <th class="align-middle">RATING (If Applicable)</th> 
-                                        <td class="align-middle">{{ $eli->rating }}</td>
+                                        <td class="align-middle">{{ ($eli->rating != NULL) ? $eli->rating : 'N/A' }}</td>
                                     </tr>
                                     <tr class="eligibility-row row-{{ $eli->id }}">
                                         <th class="align-middle">Date of Examiniation / Conferment</th>

@@ -593,7 +593,7 @@
                 @foreach($datas['eligibility'] as $eligble)
                     <tr>
                         <th class="bordered tl">{{ strtoupper($eligble->careereligible  ) }}</th>
-                        <th class="bordered">{{ $eligble->rating }}</th>
+                        <th class="bordered">{{ ($eligble->rating != NULL) ? $eligble->rating : 'N/A' }}</th>
                         <th class="bordered">{{ ($eligble->date_exam) ? \Carbon\Carbon::parse($eligble->date_exam)->format('m/d/Y') : '' }}</th>
                         <th class="bordered">{{ strtoupper($eligble->place_exam) }}</th>
                         <th class="bordered">{{ $eligble->number }}</th>
