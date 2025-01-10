@@ -224,12 +224,14 @@
                                     <tr class="workexperience-row row-{{ $work->id }}">
                                         <th class="align-middle">Attachment</th>
                                         <td class="align-middle">
-                                            <a href="#" class="text-info" data-toggle="modal" data-target="#pdfModal" 
-                                            data-label="{{ $work->careereligible }}" 
-                                            data-pdf="{{ asset('storage/' . $work->attachment) }}" onclick="showPdfModal(this)">
-                                                <i class="fas fa-eye fa-xs"></i> <b>Preview</b>
-                                            </a>
-                                        </td>
+                                            @if(!empty($work->attachment))
+                                                <a href="#" class="text-info" data-toggle="modal" data-target="#pdfModal" 
+                                                   data-label="{{ $work->careereligible }}" 
+                                                   data-pdf="{{ asset('storage/' . $work->attachment) }}" onclick="showPdfModal(this)">
+                                                    <i class="fas fa-eye fa-xs"></i> <b>Preview</b>
+                                                </a>
+                                            @endif
+                                        </td>                                        
                                     </tr>
                                     <tr class="workexperience-row row-{{ $work->id }}">
                                         <th class="align-middle">Status</th>
