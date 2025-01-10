@@ -77,7 +77,7 @@ class VoluntaryWorkController extends Controller
             'inc_date2' => 'required',
             'num_hours' => 'nullable',
             'position' => 'required',
-            'attachment' => 'required|file|mimes:pdf',
+            'attachment' => 'nullable|file|mimes:pdf',
         ]);
     
         $attachmentPath = null;

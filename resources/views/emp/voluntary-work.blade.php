@@ -77,7 +77,7 @@
 
                                             <div class="col-md-4">
                                                 <label class="badge badge-secondary text-wrap lbel">Attachment</label>
-                                                <input type="file" name="attachment" class="form-control form-control-sm" accept="application/pdf" placeholder="N/A" {{ isset($workexperienceedit) ? '' : 'required' }}>
+                                                <input type="file" name="attachment" class="form-control form-control-sm" accept="application/pdf" placeholder="N/A">
                                             </div>
                                     
                                             <div class="col-md-12 mt-2">
@@ -158,11 +158,15 @@
                                         <tr class="workexperience-row row-{{ $vwork->id }}">
                                             <th class="align-middle">Attachment</th>
                                             <td class="align-middle">
+                                                @if(!empty($vwork->attachment))
                                                 <a href="#" class="text-info" data-toggle="modal" data-target="#pdfModal" 
                                                 data-label="{{ $vwork->careereligible }}" 
                                                 data-pdf="{{ asset('storage/' . $vwork->attachment) }}" onclick="showPdfModal(this)">
                                                     <i class="fas fa-eye fa-xs"></i> <b>Preview</b>
                                                 </a>
+                                                @else
+                                                    N/A
+                                                @endif
                                             </td>
                                         </tr>
                                         <tr class="workexperience-row row-{{ $vwork->id }}">
