@@ -26,7 +26,7 @@
                                 @if(isset($memorg[$index]))
                                     <div class="form-row mt-3 lbel" data-index="{{ $index }}">
                                         <div class="col-md-3">
-                                            @if($loop->first)<label class="badge badge-secondary text-wrap lbel w-100">Speciall Skills and Hobbies</label>@endif
+                                            @if($loop->first)<label class="badge badge-secondary text-wrap lbel w-100">Special Skills and Hobbies</label>@endif
                                             <input type="text" value="{{ trim($name) }}" name="skills_hob[]" class="form-control form-control-sm update-child update-field-array" data-index="{{ $index }}" placeholder="N/A">
                                         </div>
                     

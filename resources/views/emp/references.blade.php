@@ -14,9 +14,9 @@
                     </h2>
                 </div>
                 @php
-                    $refname = explode(',', $references->refname);
-                    $refadd = explode(',', $references->refadd);
-                    $reftelno = explode(',', $references->reftelno);
+                    $refname = explode(';', $references->refname);
+                    $refadd = explode(';', $references->refadd);
+                    $reftelno = explode(';', $references->reftelno);
                 @endphp
                 <div class="card-body">
                     <div class="form-group mtop">

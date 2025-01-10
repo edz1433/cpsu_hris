@@ -178,9 +178,9 @@
     $refadd_string = $datas['references']->refadd;
     $reftelno_string = $datas['references']->reftelno;
 
-    $refname = explode(',', $refname_string);
-    $refadd = explode(',', $refadd_string);
-    $reftelno = explode(',', $reftelno_string);
+    $refname = explode(';', $refname_string);
+    $refadd = explode(';', $refadd_string);
+    $reftelno = explode(';', $reftelno_string);
 
     $govid_string = $datas['govids']->govid;
     $govids = explode(',', $govid_string);
