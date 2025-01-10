@@ -63,7 +63,7 @@
 <script>
     document.querySelectorAll('.input-details').forEach(input => {
         input.addEventListener('input', function() {
-            this.value = this.value.replace(/,/g, '');
+            this.value = this.value.replace(/;/g, '');
         });
     });
 </script>
