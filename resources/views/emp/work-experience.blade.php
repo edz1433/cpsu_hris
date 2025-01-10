@@ -230,6 +230,8 @@
                                                    data-pdf="{{ asset('storage/' . $work->attachment) }}" onclick="showPdfModal(this)">
                                                     <i class="fas fa-eye fa-xs"></i> <b>Preview</b>
                                                 </a>
+                                            @else
+                                                N/A
                                             @endif
                                         </td>                                        
                                     </tr>
