@@ -78,7 +78,7 @@ class LearningDevController extends Controller
             'num_hours' => 'required',
             'types' => 'required',
             'conducted' => 'required',
-            'attachment' => 'required|file|mimes:pdf', 
+            'attachment' => 'nullable|file|mimes:pdf', 
         ]);
     
         $attachmentPath = null;
