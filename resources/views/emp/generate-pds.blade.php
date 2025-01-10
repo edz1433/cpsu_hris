@@ -629,7 +629,7 @@
                     <td class="bordered f2 bg2" colspan="2">28. &nbsp;&nbsp;NCLUSIVE DATES<br><span style="margin-left: 30px;">(mm/dd/yyyy)</span></td>
                     <td class="bordered vcenter f2 bg2" rowspan="2" width="120">POSITION TITLE <br> (Write in full/Do not abbreviate)</td>
                     <td class="bordered vcenter f2 bg2" rowspan="2"  width="140">DEPARTMENT / AGENCY / OFFICE / COMPANY <br> (Write in full/Do not abbreviate)</td>
-                    <td class="bordered vcenter f2 bg2" rowspan="2" width="50">MONTHLY SALARY</td>
+                    <td class="bordered vcenter f2 bg2" rowspan="2" width="40">MONTHLY SALARY</td>
                     <td class="bordered vcenter f2 bg2" rowspan="2" width="50">SALARY/ JOB/ <br> PAY GRADE (if<br> applicable)&<br> STEP  (Format <br>"00-0")/<br> INCREMENT</td>
                     <td class="bordered vcenter f2 bg2" rowspan="2">STATUS OF <br>APPOINTMENT</td>
                     <td class="bordered vcenter f2 bg2" rowspan="2" width="25">GOV'T <br>SERVICE <br>(Y/ N)</td>
