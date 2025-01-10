@@ -187,7 +187,7 @@
 @endphp
 <body>
     <div class="div">
-        <table class="table table1" style="margin-top: -15px !important;">
+        <table class="table table1" style="margin-top: -20px !important;">
             <thead>
                 <tr>
                     <th colspan="9" class="bg1">
