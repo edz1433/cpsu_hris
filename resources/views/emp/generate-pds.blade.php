@@ -286,7 +286,7 @@
                 </tr>
                 <tr>
                     <td class="bordered pl2 bg2">7. HEIGHT (m)</td>
-                    <th class="bordered pl2" colspan="2">{{ isset($datas['employee']->height_cm) ? round($datas['employee']->height_cm / 100, 1).'cm' : '' }}</th>
+                    <th class="bordered pl2" colspan="2">{{ isset($datas['employee']->height_cm) ? round($datas['employee']->height_cm / 100, 1).'m' : '' }}</th>
                     <td class="bordered pl2" colspan="5">
                         <div class="address-column">
                             <b>{{ isset($datas['city']->name) ? strtoupper($datas['city']->name) : '' }}</b><br>City/Municipality
