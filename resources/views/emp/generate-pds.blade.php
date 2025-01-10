@@ -594,10 +594,10 @@
                     <tr>
                         <th class="bordered tl">{{ strtoupper($eligble->careereligible  ) }}</th>
                         <th class="bordered">{{ $eligble->rating }}</th>
-                        <th class="bordered">{{ $eligble->date_exam }}</th>
+                        <th class="bordered">{{ ($eligble->date_exam) ? \Carbon\Carbon::parse($eligble->date_exam)->format('m/d/Y') : '' }}</th>
                         <th class="bordered">{{ strtoupper($eligble->place_exam) }}</th>
                         <th class="bordered">{{ $eligble->number }}</th>
-                        <th class="bordered">{{ $eligble->date_valid }}</th>
+                        <th class="bordered">{{ ($eligble->date_valid) ? \Carbon\Carbon::parse($eligble->date_valid)->format('m/d/Y') : '' }}</th>
                     </tr>
                 @endforeach
 
@@ -641,13 +641,13 @@
 
                 @foreach($datas['workexperience'] as $experience)
                     <tr>
-                        <th class="bordered">{{ $experience->inc_date1 }}</th>
-                        <th class="bordered">{{ $experience->inc_date2 }}</th>
+                        <th class="bordered">{{ ($experience->inc_date1) ? \Carbon\Carbon::parse($experience->inc_date1)->format('m/d/Y') : '' }}</th>
+                        <th class="bordered">{{ ($experience->inc_date2) ? \Carbon\Carbon::parse($experience->inc_date2)->format('m/d/Y') : '' }}</th>
                         <th class="bordered">{{ strtoupper($experience->position) }}</th>
                         <th class="bordered">{{ strtoupper($experience->department) }}</th>
                         <th class="bordered">{{ $experience->salary }}</th>
                         <th class="bordered">{{ strtoupper($experience->sg_grade) }}</th>
-                        <th class="bordered">{{ strtoupper($experience->stat_app) }}</th>
+                        <th class="bordered">{!! nl2br(e(preg_replace('/(\s|\/|,|-)/', "$1\n", strtoupper($experience->stat_app))) ) !!}</th>                        
                         <th class="bordered">{{ strtoupper($experience->service) }}</th>
                     </tr>
                 @endforeach
@@ -703,8 +703,8 @@
                 @foreach($datas['voluntaryworks'] as $voluntary)
                     <tr>
                         <th class="bordered tl">{{ strtoupper($voluntary->org_name) }}</th>
-                        <th class="bordered">{{ $voluntary->inc_date1 }}</th>
-                        <th class="bordered">{{ $voluntary->inc_date2 }}</th>
+                        <th class="bordered">{{ ($voluntary->inc_date1) ? \Carbon\Carbon::parse($voluntary->inc_date1)->format('m/d/Y') : '' }}</th>
+                        <th class="bordered">{{ ($voluntary->inc_date2) ? \Carbon\Carbon::parse($voluntary->inc_date2)->format('m/d/Y') : '' }}</th>
                         <th class="bordered">{{ $voluntary->num_hours.' Hrs.' }}</th>
                         <th class="bordered" colspan="2">{{ strtoupper($voluntary->position) }}</th>
                     </tr>

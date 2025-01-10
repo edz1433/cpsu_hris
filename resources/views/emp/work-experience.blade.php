@@ -85,12 +85,12 @@
 
                                         <div class="col-md-3">
                                             <label class="badge badge-secondary text-wrap lbel">Monthly Salary</label>
-                                            <input type="text" name="salary" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($workexperienceedit) ? $workexperienceedit->salary : '' }}" autocomplete="off"  oninput="formatNumber(this)" onkeypress="return isNumberKey(event)" required>
+                                            <input type="text" name="salary" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($workexperienceedit) ? $workexperienceedit->salary : '' }}" autocomplete="off"  oninput="autoFormatNumber(this)" required>
                                         </div>
 
                                         <div class="col-md-3">
                                             <label class="badge badge-secondary text-wrap lbel">Status of Appointment</label>
-                                            <input type="text" name="stat_app" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($workexperienceedit) ? $workexperienceedit->status : '' }}" autocomplete="off">
+                                            <input type="text" name="stat_app" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($workexperienceedit) ? $workexperienceedit->stat_app : '' }}" autocomplete="off">
                                         </div>
 
                                         <div class="col-md-3">
@@ -104,7 +104,7 @@
                                         
                                         <div class="col-md-3">
                                             <label class="badge badge-secondary text-wrap lbel">Attachment</label>
-                                            <input type="file" name="attachment" class="form-control form-control-sm" accept="application/pdf" placeholder="N/A" required>
+                                            <input type="file" name="attachment" class="form-control form-control-sm" accept="application/pdf" placeholder="N/A">
                                         </div>
 
                                         @php
@@ -340,4 +340,10 @@
         });
     });
 </script>
+<script>
+    function autoFormatNumber(input) {
+      let value = input.value.replace(/,/g, '').replace(/\D/g, '');
+      input.value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+</script>  
 @endsection
