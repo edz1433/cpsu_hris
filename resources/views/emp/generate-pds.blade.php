@@ -438,8 +438,8 @@
                     <th class="bordered" colspan="2">{{ isset($children_bday[8]) && !empty($children_bday[8]) ? \Carbon\Carbon::parse(trim($children_bday[8]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
-                    <td class="pl2 bt bg2" width="100" style="font-size: 8.8px !important;">25. MOTHER'S MAIDEN NAME</td>
-                    <th colspan="3" class="bordered pl1 tl">{{ str_replace('ñ', 'Ñ', mb_strtoupper($datas['familyBg']->mother_maiden)) }}</th>
+                    <td class="pl2 bt bg2" width="100" style="font-size: 8.8px !important; border-right: none !important;">25. MOTHER'S MAIDEN NAME</td>
+                    <td colspan="3" class="bordered pl1 bg2" style="border-left: none !important;"></td>
                     <th colspan="3" class="bordered pl1 tl">{{ isset($children_array[9]) ? strtoupper(trim($children_array[9])) : ''; }}</th>
                     <th colspan="2" class="bordered pl1 tl">{{ isset($children_bday[9]) && !empty($children_bday[9]) ? \Carbon\Carbon::parse(trim($children_bday[9]))->format('m/d/Y') : ''; }}</th>
                 </tr>

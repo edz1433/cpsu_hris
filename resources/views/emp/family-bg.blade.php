@@ -122,10 +122,10 @@
                             </div>
                     
                             <div class="form-row mt-3"> 
-                                <div class="col-md-3">
+                                {{-- <div class="col-md-3">
                                     <label class="badge badge-secondary text-wrap lbel">Mother's Maiden Name</label>
                                     <input type="text" value="{{ $familyBg->mother_maiden }}" name="mother_maiden" data-column-id="{{ $empid }}" data-column-name="mother_maiden" class="form-control form-control-sm update-field" placeholder="N/A">
-                                </div>
+                                </div> --}}
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary text-wrap lbel">Mother's Surname</label>
                                     <input type="text" value="{{ $familyBg->mother_sname }}" name="mother_sname" data-column-id="{{ $empid }}" data-column-name="mother_sname" class="form-control form-control-sm update-field" placeholder="N/A">
