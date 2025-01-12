@@ -81,7 +81,7 @@ class PdsReferencesController extends Controller
     
         if ($references) {
             $currentValue = $references->$column;
-            $valuesArray = explode(',', $currentValue);
+            $valuesArray = explode(';', $currentValue); // Use semicolon as separator
     
             if (isset($valuesArray[$index])) {
                 $valuesArray[$index] = $value;
@@ -89,12 +89,12 @@ class PdsReferencesController extends Controller
                 $valuesArray[$index] = $value;
             }
     
-            $newValue = implode(',', $valuesArray);
+            $newValue = implode(';', $valuesArray); // Use semicolon as separator
     
             $references->$column = $newValue;
     
             if ($column === 'question' && $value == '0') {
-                $qdetailsArray = explode(',', $references->qdetails);
+                $qdetailsArray = explode(';', $references->qdetails); // Use semicolon as separator
     
                 if (isset($qdetailsArray[$index])) {
                     $qdetailsArray[$index] = '';
@@ -103,7 +103,7 @@ class PdsReferencesController extends Controller
                     $qdetailsArray[$index] = '';
                 }
     
-                $references->qdetails = implode(',', $qdetailsArray);
+                $references->qdetails = implode(';', $qdetailsArray); // Use semicolon as separator
             }
     
             $references->save();
@@ -112,5 +112,6 @@ class PdsReferencesController extends Controller
         }
     
         return response()->json(['success' => false], 404);
-    }    
+    }
+       
 }
