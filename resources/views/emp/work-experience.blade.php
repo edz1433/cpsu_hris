@@ -191,14 +191,20 @@
                                                 <button class="btn btn-danger btn-sm mb-2 workexperience_delete" value="{{ $work->id }}" title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
-                                            @elseif($guard == "employee" && $work->status == 0)
+                                            @elseif($guard == "employee")
+                                                @if($work->status == 0)
+                                                <a href="{{ route('workexperienceEdit', ['id' => $empid, 'eid' => $work->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
                                                 <button class="btn btn-danger btn-sm mb-2 workexperience_delete" value="{{ $work->id }}" title="Delete">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
+                                                @else
+                                                <a href="{{ route('workexperienceEdit', ['id' => $empid, 'eid' => $work->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
+                                                @endif
                                             @endif
-                                            <a href="{{ route('workexperienceEdit', ['id' => $empid, 'eid' => $work->id]) }}" class="btn btn-info btn-sm mb-2" title="Edit">
-                                                <i class="fas fa-pen"></i>
-                                            </a>
                                         </th>                                                                                                                            
                                     </tr>
                                     <tr class="workexperience-row row-{{ $work->id }}">
