@@ -642,7 +642,7 @@
                 @foreach($datas['workexperience'] as $experience)
                     <tr>
                         <th class="bordered">{{ ($experience->inc_date1) ? \Carbon\Carbon::parse($experience->inc_date1)->format('m/d/Y') : '' }}</th>
-                        <th class="bordered">{{ ($experience->inc_date2) ? \Carbon\Carbon::parse($experience->inc_date2)->format('m/d/Y') : '' }}</th>
+                        <th class="bordered">@if($experience->inc_date2 != null){{ ($experience->inc_date2) ? \Carbon\Carbon::parse($experience->inc_date2)->format('m/d/Y') : '' }}@else PRESENT @endif</th>
                         <th class="bordered">{{ strtoupper($experience->position) }}</th>
                         <th class="bordered">{{ strtoupper($experience->department) }}</th>
                         <th class="bordered">{{ $experience->salary }}</th>

@@ -73,7 +73,7 @@ class WorkExperienceController extends Controller
         $request->validate([
             'empid' => 'required',
             'inc_date1' => 'required',
-            'inc_date2' => 'required',
+            'inc_date2' => 'nullable',
             'position' => 'required',
             'department' => 'required',
             'sg_grade' => 'nullable',
@@ -142,7 +142,7 @@ class WorkExperienceController extends Controller
     {
         $request->validate([
             'inc_date1' => 'required',
-            'inc_date2' => 'required',
+            'inc_date2' => 'nullable',
             'position' => 'required',
             'department' => 'required',
             'sg_grade' => 'nullable',
