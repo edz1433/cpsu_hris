@@ -115,7 +115,7 @@
                                             <label class="badge badge-secondary text-wrap lbel w-100">List of Accomplishments and Contributions (if any)</label>
                                             
                                             @for ($i = 0; $i < 8; $i++)
-                                                <input type="text" name="supervisor[{{ $i }}]" class="form-control form-control-sm mb-1" 
+                                                <input type="text" name="list_accom[{{ $i }}]" class="form-control form-control-sm mb-1" 
                                                     placeholder="N/A" 
                                                     value="{{ isset($listaccom[$i]) ? trim($listaccom[$i]) : '' }}" 
                                                     autocomplete="off">

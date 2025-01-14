@@ -149,9 +149,9 @@ class WorkExperienceController extends Controller
             'salary' => 'nullable',
             'stat_app' => 'nullable',
             'service' => 'required',
+            'supervisor' => 'nullable',
             'attachment' => 'nullable|file|mimes:pdf',
             'actual_summary' => 'nullable|string',
-            'supervisor.*' => 'nullable|string',
         ]);
 
         // $salary = $request->input('salary');
@@ -176,7 +176,7 @@ class WorkExperienceController extends Controller
         }
 
         // Process List of Accomplishments
-        $listAccomplishments = $request->input('supervisor', []);
+        $listAccomplishments = $request->input('list_accom', []);
         $formattedAccomplishments = implode(';', array_map('trim', $listAccomplishments));
 
         $workexperience->update([
@@ -188,6 +188,7 @@ class WorkExperienceController extends Controller
             'salary' => $request->input('salary'),
             'stat_app' => $request->input('stat_app'),
             'service' => $request->input('service'),
+            'supervisor' => $request->input('supervisor'),
             'attachment' => $attachmentPath,
             'list_accom' => $formattedAccomplishments,
             'actual_summary' => $request->input('actual_summary'),
