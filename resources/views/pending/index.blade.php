@@ -68,45 +68,62 @@
                 <div class="card-body table-responsive p-0" style="height: 500px;">
                     <table class="table table-head-fixed text-nowrap">
                         <tbody>
-                            <thead>
+                            <thead> 
                                 <tr>
-                                    <th width="80%">FULL NAME</th>
+                                    <th width="{{ ($type == 1) ? '20%' : '80%' }}">FULL NAME</th>
+                                    @if($type == 1)
+                                    <th width="20%">STATUS</th>
+                                    <th width="20%">DAYS</th>
+                                    <th width="20%">REMARKS</th>
+                                    @endif
                                     <th width="20%" class="text-center">ACTION</th>
                                 </tr>
                             </thead>
-                            @foreach ($employees as $emp)
-                            @php
-                            switch ($type) {
-                                case '1':
-                                    $route = route('leaveStatus', $emp->id);
-                                    break;
-                        
-                                case '2':
-                                    $route = route('eligibility', $emp->id);
-                                    break;
-                        
-                                case '3':
-                                    $route = route('work-experience', $emp->id);
-                                    break;
-                                
-                                case '4':
-                                    $route = route('voluntary-work', $emp->id);
-                                    break;
-                        
-                                case '5':
-                                    $route = route('learning-dev', $emp->id);
-                                    break;
-                            }
-                            @endphp
+                            @if($type == 1)
+                                @foreach ($employees as $emp)
                                 <tr>
-                                    <td>{{ $emp->lname }}, {{ $emp->fname }} {{ $emp->suffix }} {{ isset($emp->mname) ? strtoupper(substr($emp->mname, 0, 1)).'.' : '' }}</td>
+                                    <td>{{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname` , 0, 1)).'.' : '' }}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
                                     <td class="text-center">
-                                        <a href="{{ $route }}" target="_blank" class='btn btn-info btn-sm employee_edit mr-1' style='width: 30px;' value="{{ $emp->id }}">
+                                        <a href="{{ route('leaveStatus', $emp->id) }}" target="_blank" class='btn btn-info btn-sm employee_edit mr-1' style='width: 30px;' value="{{ $emp->id }}">
                                             <i class="fas fa-exclamation-circle" style="font-size: 0.75rem;"></i>  
                                         </a>
                                     </td>
                                 </tr>
-                            @endforeach
+                                @endforeach
+                            @else
+                                @foreach ($employees as $emp)
+                                    @php
+                                    switch ($type) {
+                                        case '2':
+                                            $route = route('eligibility', $emp->id);
+                                            break;
+                                
+                                        case '3':
+                                            $route = route('work-experience', $emp->id);
+                                            break;
+                                        
+                                        case '4':
+                                            $route = route('voluntary-work', $emp->id);
+                                            break;
+                                
+                                        case '5':
+                                            $route = route('learning-dev', $emp->id);
+                                            break;
+                                    }
+                                    @endphp
+                                    <tr>
+                                        <td>{{ $emp->lname }}, {{ $emp->fname }} {{ $emp->suffix }} {{ isset($emp->mname) ? strtoupper(substr($emp->mname, 0, 1)).'.' : '' }}</td>
+                                        <td class="text-center">
+                                            <a href="{{ $route }}" target="_blank" class='btn btn-info btn-sm employee_edit mr-1' style='width: 30px;' value="{{ $emp->id }}">
+                                                <i class="fas fa-exclamation-circle" style="font-size: 0.75rem;"></i>  
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @endif
                         </tbody>
                     </table>
                 </div>

@@ -32,13 +32,37 @@ class PendingController extends Controller
         $learDevCount = LearningDev::where('status', 0)->count();
         $volWorkCount = VoluntaryWork::where('status', 0)->count();
 
+        $employees = [];
+        
         switch ($type) {
             case '1':
-                $empids = LeaveApplication::where('emp_esign', '!=', 1)
-                    ->where('history', 1)->where('status', 1)->get()
-                    ->pluck('empid')->unique()->values()
-                    ->toArray();
-                break;
+                $employees = LeaveApplication::join('employees as emp', 'emp.emp_ID', '=', 'leave_applications.empid')
+                    ->join('employees as hr', 'hr.id', '=', 'leave_applications.hr')
+                    ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
+                    ->join('employees as sucpres', 'sucpres.id', '=', 'leave_applications.president')
+                    ->select(
+                        'emp.emp_ID as empid', // Include this to use in pluck
+                        'emp.id as employid',
+                        'emp.lname as employee_lname',
+                        'emp.fname as employee_fname',
+                        'emp.mname as employee_mname',
+                        'emp.suffix as employee_suffix',
+                        'hr.lname as hr_lname',
+                        'hr.fname as hr_fname',
+                        'hr.mname as hr_mname',
+                        'hr.suffix as hr_suffix',
+                        'sup.lname as supervisor_lname',
+                        'sup.fname as supervisor_fname',
+                        'sup.mname as supervisor_mname',
+                        'sup.suffix as supervisor_suffix',
+                        'sucpres.lname as sucpres_lname',
+                        'sucpres.fname as sucpres_fname',
+                        'sucpres.mname as sucpres_mname',
+                        'sucpres.suffix as sucpres_suffix',
+                    )
+                    ->where('history', '!=', 2)
+                    ->get();
+                break;            
     
             case '2':
                 $empids = Eligibility::where('status', 0)
@@ -64,8 +88,9 @@ class PendingController extends Controller
                 return redirect()->route('');
         }
 
-        $employees = [];
-        $employees = Employee::whereIn('emp_ID', $empids)->get();
+        if($type != 1){
+            $employees = Employee::whereIn('emp_ID', $empids)->get();
+        }
 
         return view('pending.index', compact('guard', 'type', 'employees', 'eliCount', 'workexpCount', 'learDevCount', 'volWorkCount', 'leaveappCount'));
     }

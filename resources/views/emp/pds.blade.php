@@ -22,12 +22,10 @@
                                     <label class="badge badge-secondary lbel">Date Hired</label>
                                     <input type="date" value="{{ $employee->date_hired }}" name="date_hired" data-column-id="{{ $empid }}" data-column-name="date_hired" name="date_hired" class="form-control form-control-sm update-field" id="date_hired">
                                 </div>
-                                @if($guard !== "employee")
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Item / Plantilla No.</label>
                                     <input type="text" value="{{ $employee->item_no }}" name="item_no" data-column-id="{{ $empid }}" data-column-name="item_no" name="item_no" class="form-control form-control-sm update-field" id="item_no" placeholder="N/A">
                                 </div>
-                                @endif
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Last Name</label><br>
                                     <input type="text" value="{{ $employee->lname }}" name="lname" data-column-id="{{ $empid }}" data-column-name="lname" class="form-control form-control-sm update-field" placeholder="N/A" required>
