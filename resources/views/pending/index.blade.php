@@ -302,7 +302,7 @@
 
                                     <td class="text-center">
                                         <!-- Action Button -->
-                                        <a href="{{ route('leaveStatus', $emp->id) }}" 
+                                        <a href="{{ route('leaveStatus', $emp->employid) }}" 
                                         target="_blank" 
                                         class="btn btn-{{ (in_array($emp->emp_esign, [0, 1])) ? 'info' : 'success' }} btn-sm" 
                                         style="width: 30px;" 
