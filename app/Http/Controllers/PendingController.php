@@ -37,32 +37,34 @@ class PendingController extends Controller
         switch ($type) {
             case '1':
                 $employees = LeaveApplication::join('employees as emp', 'emp.emp_ID', '=', 'leave_applications.empid')
-                    ->join('employees as hr', 'hr.id', '=', 'leave_applications.hr')
-                    ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
-                    ->join('employees as sucpres', 'sucpres.id', '=', 'leave_applications.president')
-                    ->select(
-                        'leave_applications.*',
-                        'emp.emp_ID as empid',
-                        'emp.id as employid',
-                        'emp.lname as employee_lname',
-                        'emp.fname as employee_fname',
-                        'emp.mname as employee_mname',
-                        'emp.suffix as employee_suffix',
-                        'hr.lname as hr_lname',
-                        'hr.fname as hr_fname',
-                        'hr.mname as hr_mname',
-                        'hr.suffix as hr_suffix',
-                        'sup.lname as supervisor_lname',
-                        'sup.fname as supervisor_fname',
-                        'sup.mname as supervisor_mname',
-                        'sup.suffix as supervisor_suffix',
-                        'sucpres.lname as sucpres_lname',
-                        'sucpres.fname as sucpres_fname',
-                        'sucpres.mname as sucpres_mname',
-                        'sucpres.suffix as sucpres_suffix',
-                    )
-                    ->where('history', '!=', 2)
-                    ->get();
+                ->join('employees as hr', 'hr.id', '=', 'leave_applications.hr')
+                ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
+                ->join('employees as sucpres', 'sucpres.id', '=', 'leave_applications.president')
+                ->select(
+                    'leave_applications.*',
+                    'emp.emp_ID as empid',
+                    'emp.id as employid',
+                    'emp.lname as employee_lname',
+                    'emp.fname as employee_fname',
+                    'emp.mname as employee_mname',
+                    'emp.suffix as employee_suffix',
+                    'hr.lname as hr_lname',
+                    'hr.fname as hr_fname',
+                    'hr.mname as hr_mname',
+                    'hr.suffix as hr_suffix',
+                    'sup.lname as supervisor_lname',
+                    'sup.fname as supervisor_fname',
+                    'sup.mname as supervisor_mname',
+                    'sup.suffix as supervisor_suffix',
+                    'sucpres.lname as sucpres_lname',
+                    'sucpres.fname as sucpres_fname',
+                    'sucpres.mname as sucpres_mname',
+                    'sucpres.suffix as sucpres_suffix',
+                )
+                ->where('history', '!=', 2)
+                ->orderByRaw('CASE WHEN leave_applications.emp_esign IN (0, 1) THEN 1 ELSE 0 END DESC')
+                ->orderBy('leave_applications.status', 'ASC')
+                ->get();
                 break;            
     
             case '2':
