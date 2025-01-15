@@ -1,6 +1,19 @@
 @extends('layouts.master')
 
 @section('body')
+<style>
+        .circle {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+        }
+    
+</style>
 <section class="content">
 <div class="container-fluid">
     <div class="row">
@@ -72,8 +85,8 @@
                                 <tr>
                                     <th width="{{ ($type == 1) ? '20%' : '80%' }}">FULL NAME</th>
                                     @if($type == 1)
-                                    <th width="20%">STATUS</th>
-                                    <th width="20%">DAYS</th>
+                                    <th width="40%">STATUS</th>
+                                    <th width="10%">DAYS</th>
                                     <th width="20%">REMARKS</th>
                                     @endif
                                     <th width="20%" class="text-center">ACTION</th>
@@ -83,12 +96,95 @@
                                 @foreach ($employees as $emp)
                                 <tr>
                                     <td>{{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname, 0, 1)).'.' : '' }}</td>
+                                    
+                                    <td>
+                                        @if($emp->status == 1)
+                                            <div class="d-flex flex-wrap align-items-center">
+                                                <!-- Employee E-sign Status -->
+                                                <div class="mr-1">
+                                                    @if($emp->emp_esign == 0 || $emp->emp_esign == 1)
+                                                        <span class="badge bg-danger">
+                                                            <i class="fas fa-times"></i> 
+                                                        </span>
+                                                    @else
+                                                        <span class="badge bg-danger">
+                                                            <i class="fas fa-times"></i> 
+                                                        </span>
+                                                    @endif
+
+                                                </div>
+
+                                                <!-- Employee Status -->
+                                                <div class="mr-1">
+                                                    <span class="badge bg-secondary">
+                                                        <i class="fas fa-user"></i> Employee
+                                                    </span>
+                                                </div>
+
+                                                <!-- HRMO Status -->
+                                                <span class="badge bg-danger mr-1">
+                                                    <i class="fas fa-times"></i> 
+                                                </span>
+                                                <div class="mr-1">
+                                                    <span class="badge bg-secondary">
+                                                        <i class="fas fa-user-tie"></i> HRMO
+                                                    </span>
+                                                </div>
+
+                                                <!-- Immediate Supervisor Status -->
+                                                <span class="badge bg-danger mr-1">
+                                                    <i class="fas fa-times"></i> 
+                                                </span>
+                                                <div class="mr-1">
+                                                    <span class="badge bg-secondary">
+                                                        <i class="fas fa-user-check"></i> Supervisor
+                                                    </span>
+                                                </div>
+
+                                                <!-- SUC President Status -->
+                                                <span class="badge bg-danger mr-1">
+                                                    <i class="fas fa-times"></i> 
+                                                </span>
+                                                <div>
+                                                    <span class="badge bg-secondary">
+                                                        <i class="fas fa-user-shield"></i> SUC President
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        @elseif($emp->status == 2)
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-info-circle"></i> Status 2
+                                            </span>
+                                        @elseif($emp->status == 3)
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-exclamation-triangle"></i> Status 3
+                                            </span>
+                                        @endif
+                                    </td>
+
                                     <td></td>
-                                    <td></td>
-                                    <td></td>
+
+                                    <td>
+                                        <!-- History Badge -->
+                                        @if($emp->history == 1)
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-spinner fa-spin"></i> Ongoing...
+                                            </span>
+                                        @else
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check-circle"></i> Complete
+                                            </span>
+                                        @endif
+                                    </td>
+
                                     <td class="text-center">
-                                        <a href="{{ route('leaveStatus', $emp->id) }}" target="_blank" class='btn btn-info btn-sm employee_edit mr-1' style='width: 30px;' value="{{ $emp->id }}">
-                                            <i class="fas fa-exclamation-circle" style="font-size: 0.75rem;"></i>  
+                                        <!-- Action Button -->
+                                        <a href="{{ route('leaveStatus', $emp->id) }}" 
+                                        target="_blank" 
+                                        class="btn btn-info btn-sm" 
+                                        style="width: 30px;" 
+                                        value="{{ $emp->id }}">
+                                            <i class="fas fa-exclamation-circle"></i>
                                         </a>
                                     </td>
                                 </tr>

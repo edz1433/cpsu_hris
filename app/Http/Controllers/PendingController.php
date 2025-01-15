@@ -41,7 +41,8 @@ class PendingController extends Controller
                     ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
                     ->join('employees as sucpres', 'sucpres.id', '=', 'leave_applications.president')
                     ->select(
-                        'emp.emp_ID as empid', // Include this to use in pluck
+                        'leave_applications.*',
+                        'emp.emp_ID as empid',
                         'emp.id as employid',
                         'emp.lname as employee_lname',
                         'emp.fname as employee_fname',
@@ -60,7 +61,6 @@ class PendingController extends Controller
                         'sucpres.mname as sucpres_mname',
                         'sucpres.suffix as sucpres_suffix',
                     )
-                    ->where('history', '!=', 2)
                     ->get();
                 break;            
     

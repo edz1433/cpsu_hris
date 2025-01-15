@@ -81,7 +81,7 @@ class WorkExperienceController extends Controller
             'stat_app' => 'nullable',
             'service' => 'required',
             'attachment' => 'nullable|file|mimes:pdf',
-            'supervisor' => 'array|nullable', // Validate as an array for accomplishments
+            'supervisor' => 'nullable', // Validate as an array for accomplishments
             'actual_summary' => 'nullable|string',
         ]);
     
@@ -98,7 +98,7 @@ class WorkExperienceController extends Controller
         }
     
         // Prepare the list of accomplishments as a semicolon-separated string
-        $listAccom = $request->input('supervisor', []); // Default to an empty array if not provided
+        $listAccom = $request->input('list_accom', []); // Default to an empty array if not provided
         $listAccomString = implode(';', array_map('trim', $listAccom)); // Join values with semicolon
     
         $workexperience = WorkExperience::create([
