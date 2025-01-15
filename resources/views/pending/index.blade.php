@@ -162,7 +162,7 @@
                                         @endif
                                     </td>
 
-                                    <td></td>
+                                    <td>{{ \Carbon\Carbon::parse($emp->date_filing)->diffForHumans() }}</td>
 
                                     <td>
                                         <!-- History Badge -->
