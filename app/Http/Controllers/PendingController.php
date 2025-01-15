@@ -62,7 +62,7 @@ class PendingController extends Controller
                     'sucpres.suffix as sucpres_suffix',
                 )
                 ->where('history', '!=', 2)
-                ->orderByRaw('CASE WHEN leave_applications.emp_esign IN (0, 1) THEN 1 ELSE 0 END DESC')
+                ->orderByRaw('CASE WHEN emp.emp_esign = 0 THEN 1 ELSE 0 END DESC')
                 ->orderByRaw('CASE 
                                  WHEN leave_applications.status = 2 THEN 1 
                                  WHEN leave_applications.status = 1 THEN 2 
