@@ -82,7 +82,7 @@
                             @if($type == 1)
                                 @foreach ($employees as $emp)
                                 <tr>
-                                    <td>{{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname` , 0, 1)).'.' : '' }}</td>
+                                    <td>{{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname, 0, 1)).'.' : '' }}</td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
