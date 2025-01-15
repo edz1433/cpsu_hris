@@ -61,6 +61,7 @@ class PendingController extends Controller
                         'sucpres.mname as sucpres_mname',
                         'sucpres.suffix as sucpres_suffix',
                     )
+                    ->where('history', '!=', 2)
                     ->get();
                 break;            
     
