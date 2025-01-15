@@ -59,13 +59,18 @@ class PendingController extends Controller
                     'sucpres.lname as sucpres_lname',
                     'sucpres.fname as sucpres_fname',
                     'sucpres.mname as sucpres_mname',
-                    'sucpres.suffix as sucpres_suffix'
+                    'sucpres.suffix as sucpres_suffix',
                 )
                 ->where('history', '!=', 2)
-                ->orderBy('leave_applications.created_at', 'ASC') // First order by created_at
-                ->orderByRaw('CASE WHEN leave_applications.emp_esign = 0 THEN 0 ELSE 1 END ASC') // Next, emp_esign with 0 first
-                ->orderByRaw('FIELD(leave_applications.status, 1, 2, 3, 4) ASC') // Finally, status in the specific order
-                ->get();            
+                ->orderByRaw('CASE WHEN emp.emp_esign IN (0, 1) THEN 1 ELSE 0 END DESC')
+                ->orderByRaw('CASE 
+                                 WHEN leave_applications.status = 2 THEN 1 
+                                 WHEN leave_applications.status = 1 THEN 2 
+                                 WHEN leave_applications.status = 3 THEN 3 
+                                 WHEN leave_applications.status = 4 THEN 4 
+                              END ASC')
+                ->get();
+                       
                 break;            
     
             case '2':
