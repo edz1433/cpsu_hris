@@ -269,6 +269,11 @@
                                 </div>
 
                                 <div class="col-md-3">
+                                    <label class="badge badge-secondary lbel">Agency Employee No.</label><br>
+                                    <input type="text" name="agency_no" id="agency_no" value="{{ $employee->agency_no }}" data-column-id="{{ $empid }}" data-column-name="agency_no" class="form-control form-control-sm update-field" placeholder="N/A">
+                                </div>
+
+                                <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Telephone Number</label><br>
                                     <input type="text" name="telephone" id="telephone" value="{{ $employee->telephone }}" data-column-id="{{ $empid }}" data-column-name="telephone" class="form-control form-control-sm update-field" placeholder="N/A">
                                 </div>
