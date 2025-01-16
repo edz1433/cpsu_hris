@@ -846,7 +846,7 @@
                             <input type="checkbox" class="checkbox1" style="margin-bottom: -8px;" {{ (isset($otherinfo_question[0]) && $otherinfo_question[0] == 1) ? 'checked' : ''}}><span>YES</span><br>
                             <input type="checkbox" class="checkbox1" style="margin-bottom: -8px;" {{ (isset($otherinfo_question[1]) && $otherinfo_question[1] == 1) ? 'checked' : ''}}><span>YES</span><br>
                             <div style="margin-left: 5px; margin-top: 5px;">If YES, give details:</div>
-                            <div style="margin-left: 5px; font-size: 12px !important; margin-top: {{ ($otherinfo_question[1] == 1) ? '5px;' : '17px;'}} width: 238px; display: inline-block; border-bottom: 1px solid black;">{{ (isset($otherinfo_question[1]) && $otherinfo_question[1] == 1) ? $otherinfo_questiondetail[1] : ''}}</div>
+                            <div style="margin-left: 5px; font-size: 8px !important; margin-top: {{ ($otherinfo_question[1] == 1) ? '5px;' : '17px;'}} width: 238px; display: inline-block; border-bottom: 1px solid black;">{{ (isset($otherinfo_question[1]) && $otherinfo_question[1] == 1) ? $otherinfo_questiondetail[1] : ''}}</div>
                         </div>
                         <div style="float: right; margin-right: 17px; margin-top: 31px;">
                             <input type="checkbox" class="checkbox1" style="margin-bottom: -8px; margin-left: -130px;" {{ (isset($otherinfo_question[0]) && $otherinfo_question[0] == 0) ? 'checked' : ''}}><span>NO</span><br>
@@ -862,7 +862,7 @@
                         <div style="float: left;">
                             <input type="checkbox" class="checkbox1" style="margin-bottom: -8px;" {{ (isset($otherinfo_question[2]) && $otherinfo_question[2] == 1) ? 'checked' : ''}}><span>YES</span><br>
                             <div style="margin-left: 5px; margin-top: 5px;">If YES, give details:</div>
-                            <div style="margin-left: 5px; font-size: 12px !important; margin-top: {{ ($otherinfo_question[2] == 1) ? '5px;' : '17px;'}} width: 238px; display: inline-block; border-bottom: 1px solid black;">{{ (isset($otherinfo_question[2]) && $otherinfo_question[2] == 1) ? $otherinfo_questiondetail[2] : ''}}</div>
+                            <div style="margin-left: 5px; font-size: 8px !important; margin-top: {{ ($otherinfo_question[2] == 1) ? '5px;' : '17px;'}} width: 238px; display: inline-block; border-bottom: 1px solid black;">{{ (isset($otherinfo_question[2]) && $otherinfo_question[2] == 1) ? $otherinfo_questiondetail[2] : ''}}</div>
                         </div>
                         <div style="float: right; margin-right: 17px;">
                             <input type="checkbox" class="checkbox1" style="margin-bottom: -8px; margin-left: -130px;" {{ (isset($otherinfo_question[2]) && $otherinfo_question[2] == 0) ? 'checked' : ''}}><span>NO</span><br>
@@ -893,7 +893,7 @@
                         <div style="float: left;">
                             <input type="checkbox" class="checkbox1" style="margin-bottom: -8px;" {{ (isset($otherinfo_question[4]) && $otherinfo_question[4] == 1) ? 'checked' : ''}}><span>YES</span><br>
                             <div style="margin-left: 5px; margin-top: 5px;">If YES, give details:</div>
-                            <div style="margin-left: 5px; font-size: 12px !important; margin-top: {{ ($otherinfo_question[4] == 1) ? '5px;' : '17px;'}} width: 238px; display: inline-block; border-bottom: 1px solid black;">{{ (isset($otherinfo_question[4]) && $otherinfo_question[4] == 1) ? $otherinfo_questiondetail[4] : ''}}</div>
+                            <div style="margin-left: 5px; font-size: 8px !important; margin-top: {{ ($otherinfo_question[4] == 1) ? '5px;' : '17px;'}} width: 238px; display: inline-block; border-bottom: 1px solid black;">{{ (isset($otherinfo_question[4]) && $otherinfo_question[4] == 1) ? $otherinfo_questiondetail[4] : ''}}</div>
                         </div>
                         <div style="float: right; margin-right: 17px;">
                             <input type="checkbox" class="checkbox1" style="margin-bottom: -8px; margin-left: -130px;" {{ (isset($otherinfo_question[4]) && $otherinfo_question[4] == 0) ? 'checked' : ''}}><span>NO</span><br>
@@ -908,7 +908,7 @@
                         <div style="float: left;">
                             <input type="checkbox" class="checkbox1" style="margin-bottom: -8px;" {{ (isset($otherinfo_question[5]) && $otherinfo_question[5] == 1) ? 'checked' : ''}}><span>YES</span><br>
                             <div style="margin-left: 5px; margin-top: 5px;">If YES, give details:</div>
-                            <div style="margin-left: 5px; font-size: 12px !important; margin-top: {{ ($otherinfo_question[5] == 1) ? '5px;' : '17px;'}} width: 238px; display: inline-block; border-bottom: 1px solid black;">{{ (isset($otherinfo_question[5]) && $otherinfo_question[5] == 1) ? $otherinfo_questiondetail[5] : ''}}</div>
+                            <div style="margin-left: 5px; font-size: 8px !important; margin-top: {{ ($otherinfo_question[5] == 1) ? '5px;' : '17px;'}} width: 238px; display: inline-block; border-bottom: 1px solid black;">{{ (isset($otherinfo_question[5]) && $otherinfo_question[5] == 1) ? $otherinfo_questiondetail[5] : ''}}</div>
                         </div>
                         <div style="float: right; margin-right: 17px;">
                             <input type="checkbox" class="checkbox1" style="margin-bottom: -8px; margin-left: -130px;" {{ (isset($otherinfo_question[5]) && $otherinfo_question[5] == 0) ? 'checked' : ''}}><span>NO</span><br>
