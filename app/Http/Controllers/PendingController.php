@@ -59,8 +59,7 @@ class PendingController extends Controller
                     'sucpres.fname as sucpres_fname',
                     'sucpres.mname as sucpres_mname',
                     'sucpres.suffix as sucpres_suffix',
-                )
-                ->where('history', '!=', 2);
+                );
         
                 // Add a filter for $cat
                 if ($cat !== null && in_array($cat, [1, 0.1, 0.2])) {
@@ -74,9 +73,11 @@ class PendingController extends Controller
                         $employees = $employees->where('leave_applications.emp_esign', '=', 2);
                     }
                     $employees = $employees->where('leave_applications.status', '=', 1);
+                    $employees = $employees->where('leave_applications.history', 1);
                 }
                 if ($cat !== null && in_array($cat, [2, 3])) {
                     $employees = $employees->where('leave_applications.status', '=', $cat);
+                    $employees = $employees->where('leave_applications.history', 1);
                 }
                 if ($cat == 4) {
                     $employees = $employees->where('leave_applications.history', 2);
