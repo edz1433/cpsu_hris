@@ -74,10 +74,10 @@
                         <select class="form-control form-control-sm" style="width: 20%;" onchange="redirectToPendingLeave(this)">
                             <option value="0" {{ ($cat == 0) ? 'selected' : '' }}>All</option>
                             <option value="0.1" {{ ($cat == 0.1) ? 'selected' : '' }}>Waiting...</option>
-                            <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>Employee</option>
-                            <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>HRMO</option>
-                            <option value="3" {{ ($cat == 3) ? 'selected' : '' }}>Supervisor</option>
-                            <option value="4" {{ ($cat == 4) ? 'selected' : '' }}>SUCPRES</option>
+                            <option value="1.2" {{ ($cat == 0.2) ? 'selected' : '' }}>Employee</option>
+                            <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>HRMO</option>
+                            <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>Supervisor</option>
+                            <option value="4" {{ ($cat == 3) ? 'selected' : '' }}>SUCPRES</option>
                         </select>
                     </div>
                     @endif
