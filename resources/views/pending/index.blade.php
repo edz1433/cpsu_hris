@@ -65,29 +65,44 @@
         </div>
         <div class="col-lg-9">
             <div class="card">
-                <div class="card-header" style="background-color: #3B8682 !important;">
-                    <h3 class="card-title"></h3>
-                    <div class="card-tools">
-                        <div class="input-group input-group-sm" style="width: 100%; margin-right:;">
-                            <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
-                            <div class="input-group-append">
-                                <button type="submit" class="btn btn-default">
+            <div class="card-header" style="background-color: #3B8682 !important;">
+                <h3 class="card-title"></h3>
+                <div class="card-tools d-flex justify-content-between align-items-center w-100">
+                    <!-- Dropdown list on the left -->
+                    @if($type == 1)
+                    <div class="p-1" style="flex: 1;">
+                        <select class="form-control select2" style="width: 20%;" onchange="redirectToPendingLeave(this)">
+                            <option value="0" {{ ($cat == 0) ? 'selected' : '' }}>All</option>
+                            <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>Employee</option>
+                            <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>HRMO</option>
+                            <option value="3" {{ ($cat == 3) ? 'selected' : '' }}>Supervisor</option>
+                            <option value="4" {{ ($cat == 4) ? 'selected' : '' }}>SUCPRES</option>
+                        </select>
+                    </div>
+                    @endif
+                    <!-- Search input on the right -->
+                    <div class="input-group input-group-sm" style="width: 20%; flex: 0 0 auto; margin-left: 1rem;">
+                        <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-default">
                                 <i class="fas fa-search"></i>
-                                </button>
-                            </div>
-                        </div>    
+                            </button>
+                        </div>
                     </div>
                 </div>
+            </div>
+
                 <div class="card-body table-responsive p-0" style="height: 500px;">
                     <table class="table table-head-fixed text-nowrap">
                         <tbody>
                             <thead> 
                                 <tr>
-                                    <th width="{{ ($type == 1) ? '20%' : '80%' }}">FULL NAME</th>
                                     @if($type == 1)
-                                    <th width="40%">STATUS</th>
+                                    <th width="70%">SIGNATORIES STATUS</th>
                                     <th width="15%">DURATION</th>
                                     <th width="15%">REMARKS</th>
+                                    @else
+                                    <th width="80%">FULL NAME</th>
                                     @endif
                                     <th width="20%" class="text-center">ACTION</th>
                                 </tr>
@@ -95,8 +110,11 @@
                             @if($type == 1)
                                 @foreach ($employees as $emp)
                                 <tr>
-                                    <td>{{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname, 0, 1)).'.' : '' }}</td>
-                                    
+                                    @if($type != 1)
+                                    <td>
+                                        {{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname, 0, 1)).'.' : '' }}
+                                    </td>
+                                    @endif
                                     <td>
                                         @if($emp->status == 1)
                                             <div class="d-flex flex-wrap align-items-center">
@@ -110,7 +128,7 @@
                                                 <!-- Employee Status -->
                                                 <div class="mr-1">
                                                     <span class="badge bg-secondary">
-                                                        <i class="fas fa-user"></i> Employee
+                                                        <i class="fas fa-user"></i> {{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
 
@@ -120,7 +138,7 @@
                                                 </span>
                                                 <div class="mr-1">
                                                     <span class="badge bg-secondary">
-                                                        <i class="fas fa-user-tie"></i> HRMO
+                                                        <i class="fas fa-user-tie"></i> {{ $emp->hr_lname }}, {{ $emp->hr_fname }} {{ $emp->hr_suffix }} {{ isset($emp->hr_mname) ? strtoupper(substr($emp->hr_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
 
@@ -130,7 +148,7 @@
                                                 </span>
                                                 <div class="mr-1">
                                                     <span class="badge bg-secondary">
-                                                        <i class="fas fa-user-check"></i> Supervisor
+                                                        <i class="fas fa-user-check"></i> {{ $emp->supervisor_lname }}, {{ $emp->supervisor_fname }} {{ $emp->supervisor_suffix }} {{ isset($emp->supervisor_mname) ? strtoupper(substr($emp->supervisor_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
 
@@ -140,7 +158,7 @@
                                                 </span>
                                                 <div>
                                                     <span class="badge bg-secondary">
-                                                        <i class="fas fa-user-shield"></i> SUC President
+                                                        <i class="fas fa-user-shield"></i> {{ $emp->sucpres_lname }}, {{ $emp->sucpres_fname }} {{ $emp->sucpres_suffix }} {{ isset($emp->sucpres_mname) ? strtoupper(substr($emp->sucpres_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -156,7 +174,7 @@
                                                 <!-- Employee Status -->
                                                 <div class="mr-1">
                                                     <span class="badge bg-secondary">
-                                                        <i class="fas fa-user"></i> Employee
+                                                        <i class="fas fa-user"></i> {{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
 
@@ -166,7 +184,7 @@
                                                 </span>
                                                 <div class="mr-1">
                                                     <span class="badge bg-secondary">
-                                                        <i class="fas fa-user-tie"></i> HRMO
+                                                        <i class="fas fa-user-tie"></i> {{ $emp->hr_lname }}, {{ $emp->hr_fname }} {{ $emp->hr_suffix }} {{ isset($emp->hr_mname) ? strtoupper(substr($emp->hr_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
 
@@ -176,7 +194,7 @@
                                                 </span>
                                                 <div class="mr-1">
                                                     <span class="badge bg-secondary">
-                                                        <i class="fas fa-user-check"></i> Supervisor
+                                                        <i class="fas fa-user-check"></i> {{ $emp->supervisor_lname }}, {{ $emp->supervisor_fname }} {{ $emp->supervisor_suffix }} {{ isset($emp->supervisor_mname) ? strtoupper(substr($emp->supervisor_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
 
@@ -186,7 +204,7 @@
                                                 </span>
                                                 <div>
                                                     <span class="badge bg-secondary">
-                                                        <i class="fas fa-user-shield"></i> SUC President
+                                                        <i class="fas fa-user-shield"></i> {{ $emp->sucpres_lname }}, {{ $emp->sucpres_fname }} {{ $emp->sucpres_suffix }} {{ isset($emp->sucpres_mname) ? strtoupper(substr($emp->sucpres_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -202,7 +220,7 @@
                                                 <!-- Employee Status -->
                                                 <div class="mr-1">
                                                     <span class="badge bg-secondary">
-                                                        <i class="fas fa-user"></i> Employee
+                                                        <i class="fas fa-user"></i> {{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
 
@@ -212,7 +230,7 @@
                                                 </span>
                                                 <div class="mr-1">
                                                     <span class="badge bg-secondary">
-                                                        <i class="fas fa-user-tie"></i> HRMO
+                                                        <i class="fas fa-user-tie"></i> {{ $emp->hr_lname }}, {{ $emp->hr_fname }} {{ $emp->hr_suffix }} {{ isset($emp->hr_mname) ? strtoupper(substr($emp->hr_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
 
@@ -222,7 +240,7 @@
                                                 </span>
                                                 <div class="mr-1">
                                                     <span class="badge bg-secondary">
-                                                        <i class="fas fa-user-check"></i> Supervisor
+                                                        <i class="fas fa-user-check"></i> {{ $emp->supervisor_lname }}, {{ $emp->supervisor_fname }} {{ $emp->supervisor_suffix }} {{ isset($emp->supervisor_mname) ? strtoupper(substr($emp->supervisor_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
 
@@ -248,7 +266,7 @@
                                                 <!-- Employee Status -->
                                                 <div class="mr-1">
                                                     <span class="badge bg-secondary">
-                                                        <i class="fas fa-user"></i> Employee
+                                                        <i class="fas fa-user"></i> {{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
 
@@ -258,7 +276,7 @@
                                                 </span>
                                                 <div class="mr-1">
                                                     <span class="badge bg-secondary">
-                                                        <i class="fas fa-user-tie"></i> HRMO
+                                                        <i class="fas fa-user-tie"></i> {{ $emp->hr_lname }}, {{ $emp->hr_fname }} {{ $emp->hr_suffix }} {{ isset($emp->hr_mname) ? strtoupper(substr($emp->hr_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
 
@@ -268,7 +286,7 @@
                                                 </span>
                                                 <div class="mr-1">
                                                     <span class="badge bg-secondary">
-                                                        <i class="fas fa-user-check"></i> Supervisor
+                                                        <i class="fas fa-user-check"></i> {{ $emp->supervisor_lname }}, {{ $emp->supervisor_fname }} {{ $emp->supervisor_suffix }} {{ isset($emp->supervisor_mname) ? strtoupper(substr($emp->supervisor_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
 
@@ -305,7 +323,7 @@
                                         <a href="{{ route('leaveStatus', $emp->employid) }}" 
                                         target="_blank" 
                                         class="btn btn-{{ (in_array($emp->emp_esign, [1, 2])) ? 'success' : 'info' }} btn-sm" 
-                                        style="width: 30px;" 
+                                        style="width: 30px; padding: 0px !important;" 
                                         value="{{ $emp->id }}">
                                             <i class="fas fa-exclamation-circle"></i>
                                         </a>
@@ -366,5 +384,19 @@
             });
         });
     });
+</script>
+<script>
+    const pendingRouteBase = "{{ route('readPending', ['type' => 1, 'cat' => ':cat']) }}";
+</script>
+<script>
+    function redirectToPendingLeave(selectElement) {
+        const selectedCategory = selectElement.value; // Get the selected value
+
+        // Replace the placeholder in the route with the selected category
+        const url = pendingRouteBase.replace(':cat', selectedCategory);
+
+        // Redirect to the constructed URL
+        window.location.href = url;
+    }
 </script>
 @endsection

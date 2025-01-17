@@ -144,7 +144,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
 
     Route::prefix('pending')->group(function(){
-        Route::get('/{type}', [PendingController::class, 'readPending'])->name('readPending');
+        Route::get('/{type}/{cat?}', [PendingController::class, 'readPending'])->name('readPending');
     });
     
     //pds

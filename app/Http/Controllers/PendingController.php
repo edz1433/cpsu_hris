@@ -23,7 +23,7 @@ class PendingController extends Controller
         }
     }
 
-    public function readPending($type) {
+    public function readPending($type, $cat = null) {
         $guard = $this->getGuard();
 
         $leaveappCount = LeaveApplication::where('emp_esign', '!=', 1)->where('history', 1)->where('status', 1)->count('empid');
@@ -61,15 +61,22 @@ class PendingController extends Controller
                     'sucpres.mname as sucpres_mname',
                     'sucpres.suffix as sucpres_suffix',
                 )
-                ->where('history', '!=', 2)
-                ->orderByRaw('CASE WHEN leave_applications.emp_esign = 0 THEN 1 ELSE 0 END DESC')
-                ->orderByRaw('CASE 
-                                 WHEN leave_applications.status = 2 THEN 1 
-                                 WHEN leave_applications.status = 1 THEN 2 
-                                 WHEN leave_applications.status = 3 THEN 3 
-                                 WHEN leave_applications.status = 4 THEN 4 
-                              END ASC')
-                ->get();
+                ->where('history', '!=', 2);
+        
+                // Add a filter for $cat
+                if ($cat !== null && $cat != 0) {
+                    $employees = $employees->where('leave_applications.status', '=', $cat);
+                }
+            
+                $employees = $employees
+                    ->orderByRaw('CASE WHEN leave_applications.emp_esign = 0 THEN 1 ELSE 0 END DESC')
+                    ->orderByRaw('CASE 
+                                    WHEN leave_applications.status = 2 THEN 1 
+                                    WHEN leave_applications.status = 1 THEN 2 
+                                    WHEN leave_applications.status = 3 THEN 3 
+                                    WHEN leave_applications.status = 4 THEN 4 
+                                END ASC')
+                    ->get();
                        
                 break;            
     
@@ -101,7 +108,7 @@ class PendingController extends Controller
             $employees = Employee::whereIn('emp_ID', $empids)->get();
         }
 
-        return view('pending.index', compact('guard', 'type', 'employees', 'eliCount', 'workexpCount', 'learDevCount', 'volWorkCount', 'leaveappCount'));
+        return view('pending.index', compact('guard', 'cat', 'type', 'employees', 'eliCount', 'workexpCount', 'learDevCount', 'volWorkCount', 'leaveappCount'));
     }
 
 }
