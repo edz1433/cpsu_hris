@@ -214,7 +214,7 @@
                                     <label class="badge badge-secondary lbel">Height (cm)</label><br>
                                     <input type="text" name="height_cm" id="height_cm" value="{{ $employee->height_cm }}" data-column-id="{{ $empid }}" data-column-name="height_cm" class="form-control form-control-sm update-field" placeholder="N/A">
                                 </div>
-                            
+                                
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Height (ft)</label><br>
                                     <input type="text" name="height_ft" id="height_ft" value="{{ $employee->height_ft }}" data-column-id="{{ $empid }}" data-column-name="height_ft" class="form-control form-control-sm update-field" placeholder="N/A">
