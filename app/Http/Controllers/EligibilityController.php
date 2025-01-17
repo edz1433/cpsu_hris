@@ -132,7 +132,7 @@ class EligibilityController extends Controller
             'place_exam' => 'required',
             'number' => 'required',
             'date_valid' => 'nullable',
-            'attachment' => 'required|file|mimes:pdf',
+            'attachment' => 'nullable|file|mimes:pdf',
         ]);
 
         $eligibility = Eligibility::findOrFail($id);
