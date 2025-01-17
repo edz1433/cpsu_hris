@@ -78,6 +78,9 @@ class PendingController extends Controller
                 if ($cat !== null && in_array($cat, [2, 3])) {
                     $employees = $employees->where('leave_applications.status', '=', $cat);
                 }
+                if ($cat == 4) {
+                    $employees = $employees->where('leave_applications.history', 2);
+                }
             
                 $employees = $employees
                     ->orderByRaw('CASE WHEN leave_applications.emp_esign = 0 THEN 1 ELSE 0 END DESC')
