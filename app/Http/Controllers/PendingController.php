@@ -64,7 +64,7 @@ class PendingController extends Controller
                 ->where('history', '!=', 2);
         
                 // Add a filter for $cat
-                if ($cat !== null && $cat != 0) {
+                if ($cat !== null && $cat > 0) {
                     $employees = $employees->where('leave_applications.status', '=', $cat);
                 }
             

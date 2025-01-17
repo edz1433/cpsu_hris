@@ -70,9 +70,10 @@
                 <div class="card-tools d-flex justify-content-between align-items-center w-100">
                     <!-- Dropdown list on the left -->
                     @if($type == 1)
-                    <div class="p-1" style="flex: 1;">
-                        <select class="form-control select2" style="width: 20%;" onchange="redirectToPendingLeave(this)">
+                    <div class="p-1" style="flex: 1; margin-left: -12px;">
+                        <select class="form-control form-control-sm" style="width: 20%;" onchange="redirectToPendingLeave(this)">
                             <option value="0" {{ ($cat == 0) ? 'selected' : '' }}>All</option>
+                            <option value="0.1" {{ ($cat == 0.1) ? 'selected' : '' }}>Waiting...</option>
                             <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>Employee</option>
                             <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>HRMO</option>
                             <option value="3" {{ ($cat == 3) ? 'selected' : '' }}>Supervisor</option>
