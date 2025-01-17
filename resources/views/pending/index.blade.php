@@ -78,6 +78,7 @@
                             <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>HRMO</option>
                             <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>Supervisor</option>
                             <option value="3" {{ ($cat == 3) ? 'selected' : '' }}>SUCPRES</option>
+                            <option value="4" {{ ($cat == 4) ? 'selected' : '' }}>APPROVED</option>
                         </select>
                     </div>
                     @endif
