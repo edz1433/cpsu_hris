@@ -335,9 +335,11 @@ class EmployeeController extends Controller
         ]);
     }    
 
-    public function employeeUpdate(Request $request){
+    public function employeeUpdate(Request $request)
+    {
         $employee = Employee::findOrFail($request->id);
-        $column =  $request->column;
+        $column = $request->column;
+    
         if ($column == 'bdate') {
             $bdate = Carbon::parse($request->value);
             $age = $bdate->age;
@@ -346,27 +348,60 @@ class EmployeeController extends Controller
                 'age' => $age
             ]);
         } 
-        if ($column == 'citizenship' && $request->value == 1) {
+        elseif ($column == 'citizenship' && $request->value == 1) {
             $employee->update([
                 $column => $request->value,
                 'c_category' => '',
                 'country' => '',
             ]);
-        }
-        if($column == 'org_email'){
+        } 
+        elseif ($column == 'org_email') {
             $employee->update([
                 $column => $request->value,
                 'username' => $request->value,
             ]);
-        }
+        } 
+        elseif ($column == 'height_cm' || $column == 'height_ft') {
+            if ($column == 'height_cm') {
+                // Convert cm to feet and inches
+                $heightInFeet = $request->value / 30.48; // 1 cm = 0.0328084 ft
+                $feet = floor($heightInFeet);
+                $inches = round(($heightInFeet - $feet) * 12);
+                $height_ft = "{$feet}'{$inches}\"";
+    
+                $employee->update([
+                    $column => $request->value,
+                    'height_ft' => $height_ft
+                ]);
+            } elseif ($column == 'height_ft') {
+                // Validate and sanitize input
+                $heightFt = str_replace([' ', '’'], ["", "'"], $request->value); // Replace invalid characters and remove spaces
+    
+                // Match the format using regex
+                if (preg_match('/^(\d+)\'(\d+)"$/', $heightFt, $matches)) {
+                    $feet = (int) $matches[1];
+                    $inches = (int) $matches[2];
+    
+                    // Convert to cm
+                    $height_cm = round(($feet * 30.48) + ($inches * 2.54)); // 1 foot = 30.48 cm, 1 inch = 2.54 cm
+    
+                    $employee->update([
+                        $column => $heightFt,
+                        'height_cm' => $height_cm
+                    ]);
+                } else {
+                    return response()->json(['success' => false, 'message' => 'Invalid height format. Use the format 5\'7".']);
+                }
+            }
+        } 
         else {
             $columnsToCapitalize = ['lname', 'fname', 'mname'];
-        
+    
             $employee->update([
                 $column => in_array($column, $columnsToCapitalize) ? strtoupper($request->value) : $request->value
             ]);
         }
-
+    
         return response()->json(['success' => true]);
     }
 
