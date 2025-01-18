@@ -69,7 +69,7 @@ class PendingController extends Controller
                     if($cat == 0.2){
                         $employees = $employees->where('leave_applications.emp_esign', '=', 1);
                     }
-                    if($cat == 1){
+                    if($cat == 1.2){
                         $employees = $employees->where('leave_applications.emp_esign', '=', 2);
                     }
                     $employees = $employees->where('leave_applications.status', '=', 1);
