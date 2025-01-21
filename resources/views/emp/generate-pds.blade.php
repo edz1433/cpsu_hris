@@ -1055,7 +1055,7 @@
                                 <p>ID/License/Passport No.: <span>{{ (isset($govids[1])) ? $govids[1] : ''}}</span></p>
                             </div>
                             <div style="height: 25px; border-bottom: 1px solid black; padding: 2px;">
-                                <p>ID/License/Passport No.: <span>{{ (isset($govids[2])) ? $govids[2] : ''}}</span></p>
+                                <p>Date/Place of Issuance: <span>{{ (isset($govids[2])) ? $govids[2] : ''}}</span></p>
                             </div>
                         </div>
                         <div style="border: 1px solid black; width: 251px; height: 120px; margin: 6px -2px 6px 7px; float: right;">
