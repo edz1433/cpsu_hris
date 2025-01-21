@@ -2,17 +2,21 @@
 
 @section('body')
 <style>
-        .circle {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background-color: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 10px;
-        }
-    
+    .circle {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: #f0f0f0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 10px;
+    }
+    .span-fix {
+        display: inline-block;
+        width: 125px;
+        text-align: left;
+    }
 </style>
 <section class="content">
 <div class="container-fluid">
@@ -130,7 +134,7 @@
 
                                                 <!-- Employee Status -->
                                                 <div class="mr-1">
-                                                    <span class="badge bg-secondary">
+                                                    <span class="badge bg-secondary span-fix">
                                                         <i class="fas fa-user"></i> {{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
@@ -140,7 +144,7 @@
                                                     <i class="fas fa-times"></i> 
                                                 </span>
                                                 <div class="mr-1">
-                                                    <span class="badge bg-secondary">
+                                                    <span class="badge bg-secondary span-fix">
                                                         <i class="fas fa-user-tie"></i> {{ $emp->hr_lname }}, {{ $emp->hr_fname }} {{ $emp->hr_suffix }} {{ isset($emp->hr_mname) ? strtoupper(substr($emp->hr_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
@@ -150,7 +154,7 @@
                                                     <i class="fas fa-times"></i> 
                                                 </span>
                                                 <div class="mr-1">
-                                                    <span class="badge bg-secondary">
+                                                    <span class="badge bg-secondary span-fix">
                                                         <i class="fas fa-user-check"></i> {{ $emp->supervisor_lname }}, {{ $emp->supervisor_fname }} {{ $emp->supervisor_suffix }} {{ isset($emp->supervisor_mname) ? strtoupper(substr($emp->supervisor_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
@@ -160,7 +164,7 @@
                                                     <i class="fas fa-times"></i> 
                                                 </span>
                                                 <div>
-                                                    <span class="badge bg-secondary">
+                                                    <span class="badge bg-secondary span-fix">
                                                         <i class="fas fa-user-shield"></i> {{ $emp->sucpres_lname }}, {{ $emp->sucpres_fname }} {{ $emp->sucpres_suffix }} {{ isset($emp->sucpres_mname) ? strtoupper(substr($emp->sucpres_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
@@ -176,7 +180,7 @@
 
                                                 <!-- Employee Status -->
                                                 <div class="mr-1">
-                                                    <span class="badge bg-secondary">
+                                                    <span class="badge bg-secondary span-fix">
                                                         <i class="fas fa-user"></i> {{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
@@ -186,7 +190,7 @@
                                                     <i class="fas fa-{{ ($emp->status == 2) ? 'check' : 'times' }}"></i> 
                                                 </span>
                                                 <div class="mr-1">
-                                                    <span class="badge bg-secondary">
+                                                    <span class="badge bg-secondary span-fix">
                                                         <i class="fas fa-user-tie"></i> {{ $emp->hr_lname }}, {{ $emp->hr_fname }} {{ $emp->hr_suffix }} {{ isset($emp->hr_mname) ? strtoupper(substr($emp->hr_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
@@ -196,7 +200,7 @@
                                                     <i class="fas fa-times"></i> 
                                                 </span>
                                                 <div class="mr-1">
-                                                    <span class="badge bg-secondary">
+                                                    <span class="badge bg-secondary span-fix">
                                                         <i class="fas fa-user-check"></i> {{ $emp->supervisor_lname }}, {{ $emp->supervisor_fname }} {{ $emp->supervisor_suffix }} {{ isset($emp->supervisor_mname) ? strtoupper(substr($emp->supervisor_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
@@ -206,7 +210,7 @@
                                                     <i class="fas fa-times"></i> 
                                                 </span>
                                                 <div>
-                                                    <span class="badge bg-secondary">
+                                                    <span class="badge bg-secondary span-fix">
                                                         <i class="fas fa-user-shield"></i> {{ $emp->sucpres_lname }}, {{ $emp->sucpres_fname }} {{ $emp->sucpres_suffix }} {{ isset($emp->sucpres_mname) ? strtoupper(substr($emp->sucpres_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
@@ -222,7 +226,7 @@
 
                                                 <!-- Employee Status -->
                                                 <div class="mr-1">
-                                                    <span class="badge bg-secondary">
+                                                    <span class="badge bg-secondary span-fix">
                                                         <i class="fas fa-user"></i> {{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
@@ -232,7 +236,7 @@
                                                     <i class="fas fa-check"></i> 
                                                 </span>
                                                 <div class="mr-1">
-                                                    <span class="badge bg-secondary">
+                                                    <span class="badge bg-secondary span-fix">
                                                         <i class="fas fa-user-tie"></i> {{ $emp->hr_lname }}, {{ $emp->hr_fname }} {{ $emp->hr_suffix }} {{ isset($emp->hr_mname) ? strtoupper(substr($emp->hr_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
@@ -242,7 +246,7 @@
                                                     <i class="fas fa-{{ ($emp->status == 3) ? 'check' : 'times' }}"></i> 
                                                 </span>
                                                 <div class="mr-1">
-                                                    <span class="badge bg-secondary">
+                                                    <span class="badge bg-secondary span-fix">
                                                         <i class="fas fa-user-check"></i> {{ $emp->supervisor_lname }}, {{ $emp->supervisor_fname }} {{ $emp->supervisor_suffix }} {{ isset($emp->supervisor_mname) ? strtoupper(substr($emp->supervisor_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
@@ -252,8 +256,8 @@
                                                     <i class="fas fa-times"></i> 
                                                 </span>
                                                 <div>
-                                                    <span class="badge bg-secondary">
-                                                        <i class="fas fa-user-shield"></i> SUC President
+                                                    <span class="badge bg-secondary span-fix">
+                                                        <i class="fas fa-user-shield"></i> {{ $emp->sucpres_lname }}, {{ $emp->sucpres_fname }} {{ $emp->sucpres_suffix }} {{ isset($emp->sucpres_mname) ? strtoupper(substr($emp->sucpres_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -268,7 +272,7 @@
 
                                                 <!-- Employee Status -->
                                                 <div class="mr-1">
-                                                    <span class="badge bg-secondary">
+                                                    <span class="badge bg-secondary span-fix">
                                                         <i class="fas fa-user"></i> {{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
@@ -278,7 +282,7 @@
                                                     <i class="fas fa-check"></i> 
                                                 </span>
                                                 <div class="mr-1">
-                                                    <span class="badge bg-secondary">
+                                                    <span class="badge bg-secondary span-fix">
                                                         <i class="fas fa-user-tie"></i> {{ $emp->hr_lname }}, {{ $emp->hr_fname }} {{ $emp->hr_suffix }} {{ isset($emp->hr_mname) ? strtoupper(substr($emp->hr_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
@@ -288,7 +292,7 @@
                                                     <i class="fas fa-check"></i> 
                                                 </span>
                                                 <div class="mr-1">
-                                                    <span class="badge bg-secondary">
+                                                    <span class="badge bg-secondary span-fix">
                                                         <i class="fas fa-user-check"></i> {{ $emp->supervisor_lname }}, {{ $emp->supervisor_fname }} {{ $emp->supervisor_suffix }} {{ isset($emp->supervisor_mname) ? strtoupper(substr($emp->supervisor_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
@@ -298,8 +302,8 @@
                                                     <i class="fas fa-{{ ($emp->status == 4) ? 'check' : 'times' }}"></i> 
                                                 </span>
                                                 <div>
-                                                    <span class="badge bg-secondary">
-                                                        <i class="fas fa-user-shield"></i> SUC President
+                                                    <span class="badge bg-secondary span-fix">
+                                                        <i class="fas fa-user-shield"></i> {{ $emp->sucpres_lname }}, {{ $emp->sucpres_fname }} {{ $emp->sucpres_suffix }} {{ isset($emp->sucpres_mname) ? strtoupper(substr($emp->sucpres_mname, 0, 1)).'.' : '' }}
                                                     </span>
                                                 </div>
                                             </div>
