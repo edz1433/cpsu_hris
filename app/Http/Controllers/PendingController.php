@@ -25,7 +25,7 @@ class PendingController extends Controller
     public function readPending($type, $cat = null) {
         $guard = $this->getGuard();
 
-        $leaveappCount = LeaveApplication::where('emp_esign', '!=', 1)->where('history', 1)->where('status', 1)->count('empid');
+        $leaveappCount = LeaveApplication::where('emp_esign', '=', 0)->where('history', 1)->where('status', 1)->count('empid');
         $eliCount = Eligibility::where('status', 0)->count();
         $workexpCount = WorkExperience::where('status', 0)->count();
         $learDevCount = LearningDev::where('status', 0)->count();
