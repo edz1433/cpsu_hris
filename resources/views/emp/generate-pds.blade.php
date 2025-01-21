@@ -359,7 +359,7 @@
                 </tr>
                 <tr>
                     <td class="bordered pl2 bg2">14. AGENCY EMPLOYEE NO.</td>
-                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->agency_no }}</th>
+                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->emp_ID }}</th>
                     <td class="bordered pl2 bg2">21. E-MAIL ADDRESS (if any)</td>
                     <th class="bordered pl2" colspan="5">{{ $datas['employee']->org_email }}</th>
                 </tr>

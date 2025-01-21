@@ -22,7 +22,7 @@
                                     <label class="badge badge-secondary lbel">Date Hired</label>
                                     <input type="date" value="{{ $employee->date_hired }}" name="date_hired" data-column-id="{{ $empid }}" data-column-name="date_hired" name="date_hired" class="form-control form-control-sm update-field" id="date_hired">
                                 </div>
-                                @if($employee->emp_status == 1)
+                                @if($guard == "web")
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Item / Plantilla No.</label>
                                     <input type="text" value="{{ $employee->item_no }}" name="item_no" data-column-id="{{ $empid }}" data-column-name="item_no" name="item_no" class="form-control form-control-sm update-field" id="item_no" placeholder="N/A">
@@ -268,11 +268,6 @@
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">TIN</label><br>
                                     <input type="text" name="tin" id="tin" value="{{ $employee->tin }}" data-column-id="{{ $empid }}" data-column-name="tin" class="form-control form-control-sm update-field" placeholder="N/A">
-                                </div>
-
-                                <div class="col-md-3">
-                                    <label class="badge badge-secondary lbel">Agency Employee No.</label><br>
-                                    <input type="text" name="agency_no" id="agency_no" value="{{ $employee->agency_no }}" data-column-id="{{ $empid }}" data-column-name="agency_no" class="form-control form-control-sm update-field" placeholder="N/A">
                                 </div>
 
                                 <div class="col-md-3">
