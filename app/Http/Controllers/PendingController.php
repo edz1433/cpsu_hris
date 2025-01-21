@@ -75,21 +75,21 @@ class PendingController extends Controller
                     $employees = $employees->where('leave_applications.status', '=', 1);
                     $employees = $employees->where('leave_applications.history', 1);
                 }
-                if ($cat !== null && in_array($cat, [2, 3])) {
+                elseif ($cat !== null && in_array($cat, [2, 3])) {
                     $employees = $employees->where('leave_applications.status', '=', $cat);
                     $employees = $employees->where('leave_applications.history', 1);
                 }
-                if ($cat == 4) {
-                    $employees = $employees->where('leave_applications.history', 2);
-                    $employees = $employees->where('leave_applications.remarks_stat', 0);
+                elseif ($cat == 4) {
+                    $employees = $employees->where('leave_applications.status', '=', $cat);
+                    $employees = $employees->where('leave_applications.history', '=', 2);
                 }
-                if ($cat == 5) {
+                elseif ($cat == 5) {
                     $employees = $employees->where('leave_applications.history', 2);
                     $employees = $employees->where('leave_applications.remarks_stat', '!=', 0);
                 }else{
                     $employees = $employees->where('leave_applications.history', '!=', 2);
                 }
-            
+                
                 $employees = $employees
                     ->orderByRaw('CASE WHEN leave_applications.emp_esign = 0 THEN 1 ELSE 0 END DESC')
                     ->orderByRaw('CASE 
