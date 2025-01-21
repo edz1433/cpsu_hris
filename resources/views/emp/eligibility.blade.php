@@ -50,50 +50,56 @@
                                         <input type="hidden" name="id" value="{{ $eligibilityedit->id }}">
                                     @endif
                                     <input type="hidden" name="empid" value="{{ $employee->emp_ID }}">
-                                    
+                                
                                     <div class="form-row lbel mtop">
                                         <div class="col-md-6">
                                             <label class="badge badge-secondary text-wrap text-center lbel">CAREER SERVICE/ RA 1080 (BOARD/ BAR) UNDER SPECIAL LAWS/ CES/ CSEE BARANGAY ELI.</label>
-                                            <input type="text" name="careereligible" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($eligibilityedit) ? $eligibilityedit->careereligible : '' }}" autocomplete="off">
+                                            <input type="text" name="careereligible" class="form-control form-control-sm" placeholder="N/A" 
+                                                value="{{ old('careereligible', isset($eligibilityedit) ? $eligibilityedit->careereligible : '') }}" autocomplete="off">
                                         </div>
-                                        
+                                
                                         <div class="col-md-3">
                                             <label class="badge badge-secondary text-wrap lbel">RATING (If Applicable)</label>
-                                            <input type="number" name="rating" step="0.01" min="0" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($eligibilityedit) ? $eligibilityedit->rating : '' }}" autocomplete="off">
+                                            <input type="number" name="rating" step="0.01" min="0" class="form-control form-control-sm" placeholder="N/A" 
+                                                value="{{ old('rating', isset($eligibilityedit) ? $eligibilityedit->rating : '') }}" autocomplete="off">
                                         </div>
-                                        
+                                
                                         <div class="col-md-3">
                                             <label class="badge badge-secondary text-wrap lbel">Date of Examination / Conferment</label>
-                                            <input type="date" name="date_exam" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($eligibilityedit) ? $eligibilityedit->date_exam : '' }}" autocomplete="off">
+                                            <input type="date" name="date_exam" class="form-control form-control-sm" placeholder="N/A" 
+                                                value="{{ old('date_exam', isset($eligibilityedit) ? $eligibilityedit->date_exam : '') }}" autocomplete="off">
                                         </div>
                                 
                                         <div class="col-md-6">
                                             <label class="badge badge-secondary text-wrap lbel">Place of Examination / Conferment</label>
-                                            <input type="text" name="place_exam" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($eligibilityedit) ? $eligibilityedit->place_exam : '' }}" autocomplete="off">
+                                            <input type="text" name="place_exam" class="form-control form-control-sm" placeholder="N/A" 
+                                                value="{{ old('place_exam', isset($eligibilityedit) ? $eligibilityedit->place_exam : '') }}" autocomplete="off">
                                         </div>
                                 
                                         <div class="col-md-2">
                                             <label class="badge badge-secondary text-wrap lbel">Number</label>
-                                            <input type="number" name="number" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($eligibilityedit) ? $eligibilityedit->number : '' }}" autocomplete="off">
+                                            <input type="number" name="number" class="form-control form-control-sm" placeholder="N/A" 
+                                                value="{{ old('number', isset($eligibilityedit) ? $eligibilityedit->number : '') }}" autocomplete="off">
                                         </div>
                                 
                                         <div class="col-md-2">
                                             <label class="badge badge-secondary text-wrap lbel">Date of Validity</label>
-                                            <input type="date" name="date_valid" class="form-control form-control-sm" placeholder="N/A" value="{{ isset($eligibilityedit) ? $eligibilityedit->date_valid : '' }}" oninput="validateDateRange(this)" autocomplete="off">
+                                            <input type="date" name="date_valid" class="form-control form-control-sm" placeholder="N/A" 
+                                                value="{{ old('date_valid', isset($eligibilityedit) ? $eligibilityedit->date_valid : '') }}" oninput="validateDateRange(this)" autocomplete="off">
                                         </div>
-
+                                
                                         <div class="col-md-2">
                                             <label class="badge badge-secondary text-wrap lbel">Attachment</label>
                                             <input type="file" name="attachment" class="form-control form-control-sm" accept="application/pdf" placeholder="N/A">
                                         </div>
-                                        
+                                
                                         <div class="col-md-12 mt-2">
                                             <button type="submit" name="btn-submit" class="btn btn-success btn-sm mt-1 float-right">
                                                 <i class="fas fa-save"></i> {{ isset($eligibilityedit) ? 'Update' : 'Submit' }}
                                             </button>
                                         </div>
                                     </div>
-                                </form>                                
+                                </form>                                                             
                             </div>
                           </div>
                         </div>
@@ -163,7 +169,7 @@
                                     </tr>
                                     <tr class="eligibility-row row-{{ $eli->id }}">
                                         <th class="align-middle">Date of Validity</th>
-                                        <td class="align-middle">{{ $eli->date_valid }}</td>
+                                        <td class="align-middle">{{ ($eli->date_valid == NULL) ? 'N/A' : $eli->date_valid }}</td>
                                     </tr>
                                     <tr class="eligibility-row row-{{ $eli->id }}">
                                         <th class="align-middle">Attachment</th>

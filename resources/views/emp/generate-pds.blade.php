@@ -597,7 +597,7 @@
                         <th class="bordered">{{ ($eligble->date_exam) ? \Carbon\Carbon::parse($eligble->date_exam)->format('m/d/Y') : '' }}</th>
                         <th class="bordered">{{ strtoupper($eligble->place_exam) }}</th>
                         <th class="bordered">{{ $eligble->number }}</th>
-                        <th class="bordered">{{ ($eligble->date_valid) ? \Carbon\Carbon::parse($eligble->date_valid)->format('m/d/Y') : '' }}</th>
+                        <th class="bordered">{{ ($eligble->date_valid) ? \Carbon\Carbon::parse($eligble->date_valid)->format('m/d/Y') : 'N/A' }}</th>
                     </tr>
                 @endforeach
 
