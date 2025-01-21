@@ -34,6 +34,11 @@
                                 <label class="badge badge-secondary text-wrap lbel">Period of attendance</label>
                                 <input type="text" value="{{ $educBg->elem_period }}" name="elem_period" data-column-id="{{ $empid }}" class="form-control form-control-sm update-field" placeholder="ex: 2021-2024" oninput="validateDateRange(this)" onkeyup="restrictInput(this)">
                             </div>
+
+                            <div class="col-md-4">
+                                <label class="badge badge-secondary text-wrap lbel">Highest Level / Units Earned (if not graduated)</label>
+                                <input type="text" value="{{ $educBg->elem_level }}" name="elem_level" data-column-id="{{ $empid }}" class="form-control form-control-sm update-field" placeholder="N/A">
+                            </div>
                             
                             <div class="col-md-2">
                                 <label class="badge badge-secondary text-wrap lbel">Year Graduated</label>
@@ -65,6 +70,11 @@
                             <div class="col-md-2">
                                 <label class="badge badge-secondary text-wrap lbel">Period of attendance</label>
                                 <input type="text" value="{{ $educBg->sec_period }}" name="sec_period" data-column-id="{{ $empid }}" class="form-control form-control-sm update-field" placeholder="ex: 2021 - 2024" oninput="validateDateRange(this)" onkeyup="restrictInput(this)">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="badge badge-secondary text-wrap lbel">Highest Level / Units Earned (if not graduated)</label>
+                                <input type="text" value="{{ $educBg->sec_level }}" name="sec_level" data-column-id="{{ $empid }}" class="form-control form-control-sm update-field" placeholder="N/A">
                             </div>
                             
                             <div class="col-md-2">
