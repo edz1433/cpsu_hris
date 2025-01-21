@@ -80,8 +80,8 @@ class PendingController extends Controller
                     $employees = $employees->where('leave_applications.history', 1);
                 }
                 if ($cat == 4) {
-                    $employees = $employees->where('leave_applications.history', 1);
-                    $employees = $employees->where('leave_applications.remarks_stat', '=', 0);
+                    $employees = $employees->where('leave_applications.history', 2);
+                    $employees = $employees->where('leave_applications.remarks_stat', 0);
                 }
                 if ($cat == 5) {
                     $employees = $employees->where('leave_applications.history', 2);
