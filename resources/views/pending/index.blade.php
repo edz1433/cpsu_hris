@@ -319,9 +319,15 @@
                                                 <i class="fas fa-spinner fa-spin"></i> Ongoing...
                                             </span>
                                         @else
-                                            <span class="badge bg-success">
-                                                <i class="fas fa-check-circle"></i> Complete
-                                            </span>
+                                            @if($emp->remarks_stat == 0)
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check-circle"></i> Complete
+                                                </span>
+                                            @else
+                                                <span class="badge bg-danger">
+                                                    <i class="fas fa-check-circle"></i> Disapproved
+                                                </span>
+                                            @endif
                                         @endif
                                     </td>
 
