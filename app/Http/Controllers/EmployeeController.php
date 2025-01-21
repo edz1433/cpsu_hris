@@ -393,7 +393,26 @@ class EmployeeController extends Controller
                     return response()->json(['success' => false, 'message' => 'Invalid height format. Use the format 5\'7".']);
                 }
             }
-        } 
+        }
+        elseif ($column == 'weight_kg' || $column == 'weight_lb') {
+            if ($column == 'weight_kg') {
+                // Convert kg to pounds
+                $weight_lb = round($request->value * 2.20462, 2); // 1 kg = 2.20462 lbs
+        
+                $employee->update([
+                    $column => $request->value,
+                    'weight_lb' => $weight_lb
+                ]);
+            } elseif ($column == 'weight_lb') {
+                // Convert lb to kg
+                $weight_kg = round($request->value / 2.20462, 2); // 1 lb = 0.453592 kg
+        
+                $employee->update([
+                    $column => $request->value,
+                    'weight_kg' => $weight_kg
+                ]);
+            }
+        }
         else {
             $columnsToCapitalize = ['lname', 'fname', 'mname'];
     
