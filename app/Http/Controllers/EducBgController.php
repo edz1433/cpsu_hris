@@ -190,6 +190,128 @@ class EducBgController extends Controller
         ]);
     
         return response()->json(['success' => true]);
+    }  
+    
+    public function graduateStudiesUpdate(Request $request)
+    {
+        $request->validate([
+            'empid' => 'required',
+            'grad_schools' => 'array',
+            'grad_courses' => 'array',
+            'grad_periods' => 'array',
+            'grad_levels' => 'array',
+            'grad_years' => 'array',
+            'grad_honors' => 'array',
+            'grad_schools.*' => 'nullable|string|max:255',
+            'grad_courses.*' => 'nullable|string|max:255',
+            'grad_periods.*' => 'nullable|string|max:255',
+            'grad_levels.*' => 'nullable|string|max:255',
+            'grad_years.*' => 'nullable|date_format:Y-m',
+            'grad_honors.*' => 'nullable|string|max:255',
+        ]);
+    
+        $empid = $request->input('empid');
+        $educBg = EducBg::where('empid', $empid)->first();
+    
+        if (!$educBg) {
+            return response()->json(['success' => false, 'message' => 'Graduate studies record not found.']);
+        }
+    
+        // Retrieve input arrays, default to empty arrays if not provided
+        $gradSchools = $request->input('grad_schools', []);
+        $gradCourses = $request->input('grad_courses', []);
+        $gradPeriods = $request->input('grad_periods', []);
+        $gradLevels = $request->input('grad_levels', []);
+        $gradYears = $request->input('grad_years', []);
+        $gradHonors = $request->input('grad_honors', []);
+    
+        // Check that all arrays are of the same length
+        if (count($gradSchools) !== count($gradCourses) || 
+            count($gradSchools) !== count($gradPeriods) || 
+            count($gradSchools) !== count($gradLevels) || 
+            count($gradSchools) !== count($gradYears) || 
+            count($gradSchools) !== count($gradHonors)) {
+            return response()->json(['success' => false, 'message' => 'Mismatch between array lengths.']);
+        }
+    
+        // Pad arrays to match lengths if necessary
+        $maxLength = max(count($gradSchools), count($gradCourses), count($gradPeriods), count($gradLevels), count($gradYears), count($gradHonors));
+    
+        $gradSchools = array_pad($gradSchools, $maxLength, '');
+        $gradCourses = array_pad($gradCourses, $maxLength, '');
+        $gradPeriods = array_pad($gradPeriods, $maxLength, '');
+        $gradLevels = array_pad($gradLevels, $maxLength, '');
+        $gradYears = array_pad($gradYears, $maxLength, '');
+        $gradHonors = array_pad($gradHonors, $maxLength, '');
+    
+        // Update the graduate studies fields by imploding arrays
+        $educBg->update([
+            'grad_school' => implode(',', $gradSchools),
+            'grad_course' => implode(',', $gradCourses),
+            'grad_period' => implode(',', $gradPeriods),
+            'grad_level' => implode(',', $gradLevels),
+            'grad_grad' => implode(',', $gradYears),
+            'grad_honor' => implode(',', $gradHonors),
+        ]);
+    
+        return response()->json(['success' => true, 'message' => 'Graduate studies updated successfully.']);
     }    
+
+    public function educBgUpdateGraduateArray(Request $request)
+    {
+        $request->validate([
+            'empid' => 'required',
+            'grad_schools' => 'array', // Remove required to allow empty arrays
+            'grad_courses' => 'array',
+            'grad_periods' => 'array',
+            'grad_levels' => 'array',
+            'grad_years' => 'array',
+            'grad_honors' => 'array',
+            'grad_schools.*' => 'nullable|string|max:255',
+            'grad_courses.*' => 'nullable|string|max:255',
+            'grad_periods.*' => 'nullable|string|max:255',
+            'grad_levels.*' => 'nullable|string|max:255',
+            'grad_years.*' => 'nullable|date_format:Y-m',
+            'grad_honors.*' => 'nullable|string|max:255',
+        ]);
+    
+        $empid = $request->input('empid');
+        $employee = Employee::find($empid);
+        $educBg = EducBg::where('empid', $employee->emp_ID)->first();
+    
+        if (!$educBg) {
+            return response()->json(['success' => false, 'message' => 'Education background record not found.']);
+        }
+    
+        // Retrieve input arrays, default to empty arrays if not provided
+        $gradSchools = $request->input('grad_schools', []);
+        $gradCourses = $request->input('grad_courses', []);
+        $gradPeriods = $request->input('grad_periods', []);
+        $gradLevels = $request->input('grad_levels', []);
+        $gradYears = $request->input('grad_years', []);
+        $gradHonors = $request->input('grad_honors', []);
+    
+        // Pad arrays to match lengths
+        $maxLength = max(count($gradSchools), count($gradCourses), count($gradPeriods), count($gradLevels), count($gradYears), count($gradHonors));
+    
+        $gradSchools = array_pad($gradSchools, $maxLength, '');
+        $gradCourses = array_pad($gradCourses, $maxLength, '');
+        $gradPeriods = array_pad($gradPeriods, $maxLength, '');
+        $gradLevels = array_pad($gradLevels, $maxLength, '');
+        $gradYears = array_pad($gradYears, $maxLength, '');
+        $gradHonors = array_pad($gradHonors, $maxLength, '');
+    
+        // Update the record with imploded array values
+        $educBg->update([
+            'grad_school' => implode(',', $gradSchools),
+            'grad_course' => implode(',', $gradCourses),
+            'grad_period' => implode(',', $gradPeriods),
+            'grad_level' => implode(',', $gradLevels),
+            'grad_grad' => implode(',', $gradYears),
+            'grad_honor' => implode(',', $gradHonors),
+        ]);
+    
+        return response()->json(['success' => true]);
+    }
     
 }

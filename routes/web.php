@@ -167,7 +167,10 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/update-educ-child', [EducBgController::class, 'updateEducChild'])->name('updateEducChild');
         Route::post('/educbg-update', [EducBgController::class, 'educBgUpdate'])->name('educBgUpdate');
         Route::post('/educbg-update-array', [EducBgController::class, 'educBgUpdateArray'])->name('educBgUpdateArray');
-        
+
+        Route::post('/graduate-studies-update', [EducBgController::class, 'graduateStudiesUpdate'])->name('graduateStudiesUpdate');
+        Route::post('/educbg-update-graduate-array', [EducBgController::class, 'educBgUpdateGraduateArray'])->name('educBgUpdateGraduateArray');
+
         //Eligibility
         Route::get('/eligibility/{id?}', [EligibilityController::class, 'eligibility'])->name('eligibility');
         Route::post('/eligibility-create', [EligibilityController::class, 'eligibilityCreate'])->name('eligibilityCreate');
