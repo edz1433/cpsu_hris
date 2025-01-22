@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\Dtr;
 use App\Models\Fdevice;
 use App\Models\OfficialTime;
+use App\Models\Setting;
 use Carbon\Carbon; 
 use PDF;
 
@@ -24,13 +25,33 @@ class DtrController extends Controller
     public function dtrRead()
     {
         $guard = $this->getGuard();
-        if(auth()->guard($guard)->user()->role == "employee"){
-            $empid = auth()->guard($guard)->user()->emp_ID;
-            $employeeall = Employee::where('emp_ID', $empid)->first();
-        }else{
+        $acctstat = 0;
+        if (auth()->guard($guard)->user()->role == "employee") {
+            $setting = Setting::first();
+        
+            if ($setting) {
+                $accntlist = explode(',', $setting->dtr_acct);
+                $empid = auth()->guard($guard)->user()->emp_ID;
+        
+                $emp = Employee::where('emp_ID', $empid)->first();
+        
+                if (in_array($emp->id, $accntlist)) {
+                    $employeeall = Employee::where('camp_id', $emp->camp_id)->get();
+                    $acctstat = 1;
+                } else {
+                    $employeeall = Employee::where('emp_ID', $empid)->get();
+                    $acctstat = 0;
+                }
+            } else {
+                $employeeall = collect();
+                $acctstat = 0;
+            }
+        } else {
             $employeeall = Employee::all();
-        }
-        return view('dtr.dtr', compact('guard', 'employeeall'));
+            $acctstat = 1;
+        }    
+
+        return view('dtr.dtr', compact('guard', 'employeeall', 'acctstat'));
     }
 
     public function dtrSearch(Request $request)
@@ -53,13 +74,14 @@ class DtrController extends Controller
         $period = $request->input('period');
         $date = $request->input('date');
         $overtime = $request->input('overtime');
+        $acctstat = $request->input('acctstat');
 
         $dtr = Dtr::where('emp_ID', $employ)
                 ->whereYear('date', substr($date, 0, 4)) 
                 ->whereMonth('date', substr($date, 5, 2))
                 ->get();
 
-        return view('dtr.dtr', compact('guard', 'dtr', 'employeeall', 'employee', 'period', 'date', 'overtime'));
+        return view('dtr.dtr', compact('guard', 'dtr', 'employeeall', 'employee', 'period', 'date', 'overtime', 'acctstat'));
     }
 
     public function dtrPdf(Request $request)

@@ -14,6 +14,7 @@ class Setting extends Model
         'suc_pres',
         'vpaa',
         'vpaf',
+        'dtr_acct',
         'maintenance',
     ];
 }
