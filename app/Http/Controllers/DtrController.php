@@ -158,8 +158,31 @@ class DtrController extends Controller
     {
         $guard = $this->getGuard();
         
-        $employeeall = null;
-        $employeeall = Employee::all();
+        $acctstat = 0;
+        if (auth()->guard($guard)->user()->role == "employee") {
+            $setting = Setting::first();
+        
+            if ($setting) {
+                $accntlist = explode(',', $setting->dtr_acct);
+                $empid = auth()->guard($guard)->user()->emp_ID;
+        
+                $emp = Employee::where('emp_ID', $empid)->first();
+        
+                if (in_array($emp->id, $accntlist)) {
+                    $employeeall = Employee::where('camp_id', $emp->camp_id)->get();
+                    $acctstat = 1;
+                } else {
+                    $employeeall = Employee::where('emp_ID', $empid)->get();
+                    $acctstat = 0;
+                }
+            } else {
+                $employeeall = collect();
+                $acctstat = 0;
+            }
+        } else {
+            $employeeall = Employee::all();
+            $acctstat = 1;
+        }    
   
         $data = null;
     
@@ -177,7 +200,7 @@ class DtrController extends Controller
             ];
         }
     
-        return view('dtr.log', compact('guard', 'employeeall', 'data'));
+        return view('dtr.log', compact('guard', 'employeeall', 'data', 'acctstat'));
     }
     
     public function logDtrView($employeeId, $dateFrom = null, $dateTo = null, $overtime = null)

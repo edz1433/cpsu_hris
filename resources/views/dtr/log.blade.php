@@ -42,7 +42,25 @@
                                             @endif
                                         </select>                                    
                                     </div>
+                                @else
+                                    @if($acctstat == 1)
+                                    <div class="col-md-3 col-sm-12">
+                                        <label class="badge badge-secondary lbel">Employee Name</label><br>
+                                        <select class="form-control form-control-sm select2" name="employee" id="employee" required>
+                                            <option disabled selected>Select</option>
+                                                @foreach($employeeall as $emp)
+                                                    <option value="{{ $emp->emp_ID }}" @if(isset($employee) && $employee && $emp->emp_ID == $employee->emp_ID) selected @endif>
+                                                        {{ $emp->lname }}
+                                                        {{ $emp->prefix }}
+                                                        {{ $emp->fname }}
+                                                        {{ isset($emp->mname) ?substr($emp->mname, 0, 1).'.' : '' }}
+                                                    </option>
+                                                @endforeach
+                                        </select>                                    
+                                    </div>
+                                    @endif
                                 @endif
+                                <input type="text" name="acctstat" value="{{ $acctstat }}" hidden>
                                 <div class="col-md-3 col-sm-6">
                                     <label class="badge badge-secondary lbel">From</label>
                                     <input type="date" name="date_from" class="form-control form-control-sm" id="inc_date1" value="{{ ($data != null) ? $data['dateFrom'] : '' }}" required>
