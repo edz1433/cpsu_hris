@@ -17,7 +17,7 @@ class Employee extends Authenticatable
     protected $fillable = [
         'fname', 'mname', 'lname', 'position', 'profile', 'area_id', 'camp_id', 'emp_ID', 'emp_status', 'emp_dept', 'item_no',
         'username', 'verification_code', 'password', 'role', 'date_hired', 'prefix', 'title_prefix', 'suffix', 'bdate', 'age',
-        'b_place', 'sex', 'civil_status', 'height_cm', 'height_ft', 'weight_kg', 'weight_lb', 'b_type',
+        'b_place', 'sex', 'civil_status', 'height_cm', 'height_m', 'weight_kg', 'weight_lb', 'b_type',
         'gsis', 'pagibig', 'philhealth', 'sss', 'tin', 'citizenship', 'c_category', 'country', 'telephone', 'mobile',
         'org_email', 'add_block', 'add_street', 'add_village', 'add_brgy', 'add_city', 'supervisor',
         'add_region', 'add_prov', 'add_zcode', 'padd_block', 'padd_street', 'padd_village', 'padd_brgy',

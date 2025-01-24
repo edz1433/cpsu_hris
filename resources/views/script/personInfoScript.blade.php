@@ -332,33 +332,40 @@
 </script>
 @endif
 <script>
-    // Convert height from centimeters to feet and inches
-    function convertHeight() {
+    // Convert height from centimeters to meters
+    function convertHeightCmToM() {
         var cm = parseFloat(document.getElementById('height_cm').value);
         if (!isNaN(cm)) {
-            var totalInches = cm / 2.54;
-            var feet = Math.floor(totalInches / 12);
-            var inches = Math.round(totalInches % 12); // Round inches to nearest whole number
-            var formattedHeight = feet + "'" + inches + '"';
-            document.getElementById('height_ft').value = formattedHeight;
+            var meters = cm / 100; // Convert cm to m
+            document.getElementById('height_m').value = meters.toFixed(2); // Round to 2 decimal places
         } else {
-            document.getElementById('height_ft').value = '';
+            document.getElementById('height_m').value = '';
         }
     }
 
-    // Convert height from feet and inches to centimeters
-    function convertHeightToFtIn() {
-        var heightFt = document.getElementById('height_ft').value;
-        if (heightFt) {
-            var feet = parseFloat(heightFt.split("'")[0]);
-            var inches = parseFloat(heightFt.split("'")[1].replace('"', ''));
-            var totalInches = feet * 12 + inches;
-            var cm = totalInches * 2.54;
-            document.getElementById('height_cm').value = Math.round(cm); // Round cm to nearest whole number
+    // Convert height from meters to centimeters
+    function convertHeightMToCm() {
+        var meters = parseFloat(document.getElementById('height_m').value);
+        if (!isNaN(meters)) {
+            var cm = meters * 100; // Convert m to cm
+            document.getElementById('height_cm').value = Math.round(cm); // Round to nearest whole number
         } else {
             document.getElementById('height_cm').value = '';
         }
     }
+
+    // Event listener for height in centimeters
+    document.getElementById('height_cm').addEventListener('input', function () {
+        convertHeightCmToM();
+    });
+
+    // Event listener for height in meters
+    document.getElementById('height_m').addEventListener('input', function () {
+        convertHeightMToCm();
+    });
+
+    // Initial conversion on page load
+    convertHeightCmToM();
 
     // Convert weight from kilograms to pounds
     function convertWeightKgToLb() {
@@ -382,16 +389,6 @@
         }
     }
 
-    // Event listener for height in centimeters
-    document.getElementById('height_cm').addEventListener('input', function() {
-        convertHeight();
-    });
-
-    // Event listener for height in feet and inches
-    document.getElementById('height_ft').addEventListener('input', function() {
-        convertHeightToFtIn();
-    });
-
     // Event listener for weight in kilograms
     document.getElementById('weight_kg').addEventListener('input', function() {
         convertWeightKgToLb();
@@ -402,8 +399,6 @@
         convertWeightLbToKg();
     });
 
-    // Initial conversion on page load
-    convertHeight();
 </script>
 <script>
     document.getElementById('mobile').addEventListener('input', function (e) {
