@@ -398,7 +398,6 @@
     document.getElementById('weight_lb').addEventListener('input', function() {
         convertWeightLbToKg();
     });
-
 </script>
 <script>
     document.getElementById('mobile').addEventListener('input', function (e) {
