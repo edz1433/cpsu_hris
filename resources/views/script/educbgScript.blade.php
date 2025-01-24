@@ -91,7 +91,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="badge badge-secondary text-wrap lbel">Year Graduated</label>
-                        <input type="month" name="coll_grad[]" class="form-control form-control-sm update-child" placeholder="N/A">
+                        <input type="number" name="coll_grad[]" class="form-control form-control-sm update-child" placeholder="N/A">
                     </div>
                     <div class="col-md-4">
                         <label class="badge badge-secondary text-wrap lbel">Honors Received</label>
@@ -190,7 +190,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="badge badge-secondary text-wrap lbel">Year Graduated</label>
-                        <input type="month" name="grad_grad[]" class="form-control form-control-sm update-grad" placeholder="N/A">
+                        <input type="number" name="grad_grad[]" class="form-control form-control-sm update-grad" placeholder="N/A">
                     </div>
                     <div class="col-md-4">
                         <label class="badge badge-secondary text-wrap lbel">Honors Received</label>

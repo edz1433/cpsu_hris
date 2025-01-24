@@ -42,7 +42,7 @@
                             
                             <div class="col-md-2">
                                 <label class="badge badge-secondary text-wrap lbel">Year Graduated</label>
-                                <input type="month" value="{{ $educBg->elem_grad }}" name="elem_grad" data-column-id="{{ $empid }}" class="form-control form-control-sm update-field" placeholder="N/A">
+                                <input type="number" value="{{ $educBg->elem_grad }}" name="elem_grad" data-column-id="{{ $empid }}" class="form-control form-control-sm update-field" placeholder="N/A">
                             </div>
 
                             <div class="col-md-4">
@@ -79,7 +79,7 @@
                             
                             <div class="col-md-2">
                                 <label class="badge badge-secondary text-wrap lbel">Year Graduated</label>
-                                <input type="month" value="{{ $educBg->sec_grad }}" name="sec_grad" data-column-id="{{ $empid }}" class="form-control form-control-sm update-field" placeholder="N/A">
+                                <input type="number" value="{{ $educBg->sec_grad }}" name="sec_grad" data-column-id="{{ $empid }}" class="form-control form-control-sm update-field" placeholder="N/A">
                             </div>
 
                             <div class="col-md-4">
@@ -121,7 +121,7 @@
 
                             <div class="col-md-4">
                                 <label class="badge badge-secondary text-wrap lbel">Year Graduated</label>
-                                <input type="month" value="{{ $educBg->voc_grad }}" name="voc_grad" data-column-id="{{ $empid }}" class="form-control form-control-sm update-field" placeholder="N/A">
+                                <input type="number" value="{{ $educBg->voc_grad }}" name="voc_grad" data-column-id="{{ $empid }}" class="form-control form-control-sm update-field" placeholder="N/A">
                             </div>
 
                             <div class="col-md-4">
@@ -148,7 +148,7 @@
                         $courses = explode(',', $educBg->coll_course);
                         $periods = explode(',', $educBg->coll_period);
                         $levels = explode(',', $educBg->coll_level);
-                        $gradYears = explode(',', $educBg->coll_grad);
+                        $years = explode(',', $educBg->coll_grad);
                         $honors = explode(',', $educBg->coll_honor);
 
                         $gradSchools = explode(',', $educBg->grad_school);
@@ -197,7 +197,7 @@
                     
                                     <div class="col-md-4">
                                         <label class="badge badge-secondary text-wrap lbel">Year Graduated</label>
-                                        <input type="month" value="{{ trim($gradYears[$index] ?? '') }}" name="coll_grad[]" class="form-control form-control-sm update-child" placeholder="N/A" data-index="{{ $index }}">
+                                        <input type="number" value="{{ trim($years[$index] ?? '') }}" name="coll_grad[]" class="form-control form-control-sm update-child" placeholder="N/A" data-index="{{ $index }}">
                                     </div>
                     
                                     <div class="col-md-4">
@@ -255,7 +255,7 @@
                     
                                     <div class="col-md-4">
                                         <label class="badge badge-secondary text-wrap lbel">Year Graduated</label>
-                                        <input type="month" value="{{ trim($gradYears[$index] ?? '') }}" name="grad_grad[]" class="form-control form-control-sm update-grad" placeholder="N/A" data-index="{{ $index }}">
+                                        <input type="number" value="{{ trim($gradYears[$index] ?? '') }}" name="grad_grad[]" class="form-control form-control-sm update-grad" placeholder="N/A" data-index="{{ $index }}">
                                     </div>
                     
                                     <div class="col-md-4">

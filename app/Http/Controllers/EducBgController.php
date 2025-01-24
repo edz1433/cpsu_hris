@@ -82,7 +82,7 @@ class EducBgController extends Controller
             'degrees.*' => 'nullable|string|max:255',
             'periods.*' => 'nullable|string|max:255',
             'levels.*' => 'nullable|string|max:255',
-            'years.*' => 'nullable|date_format:Y-m',
+            'years.*' => 'nullable',
             'honors.*' => 'nullable|string|max:255',
         ]);
     
@@ -149,7 +149,7 @@ class EducBgController extends Controller
             'degrees.*' => 'nullable|string|max:255',
             'periods.*' => 'nullable|string|max:255',
             'levels.*' => 'nullable|string|max:255',
-            'years.*' => 'nullable|date_format:Y-m',
+            'years.*' => 'nullable|string|max:255',
             'honors.*' => 'nullable|string|max:255',
         ]);
     
@@ -206,7 +206,7 @@ class EducBgController extends Controller
             'grad_courses.*' => 'nullable|string|max:255',
             'grad_periods.*' => 'nullable|string|max:255',
             'grad_levels.*' => 'nullable|string|max:255',
-            'grad_years.*' => 'nullable|date_format:Y-m',
+            'grad_years.*' => 'nullable',
             'grad_honors.*' => 'nullable|string|max:255',
         ]);
     
@@ -271,7 +271,7 @@ class EducBgController extends Controller
             'grad_courses.*' => 'nullable|string|max:255',
             'grad_periods.*' => 'nullable|string|max:255',
             'grad_levels.*' => 'nullable|string|max:255',
-            'grad_years.*' => 'nullable|date_format:Y-m',
+            'grad_years.*' => 'nullable',
             'grad_honors.*' => 'nullable|string|max:255',
         ]);
     
