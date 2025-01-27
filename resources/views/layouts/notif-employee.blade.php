@@ -22,11 +22,15 @@
 
     if ($employee) {
         $notifications1 = $notifications1
-            ->where('empid', $employee->emp_ID) // Filter by employee ID
+            ->where('notifempid', $employee->emp_ID) // Filter by employee ID
             ->where('notifstat', 0) // Filter by notification status
             ->sortByDesc('notif_created_at'); // Sort by descending creation date
+
+        $notificationsCount1 = $notificationsCount1->where('empid', $employee->emp_ID)->count();
+           
     } else {
         $notifications1 = collect();
+        $notificationsCount1 = 0;
     }
 @endphp
 <li class="nav-item dropdown">

@@ -21,8 +21,7 @@ class Controller extends BaseController
         ->count();
         
         $notificationsCount1 = Notification::where('notifications.utype', '=', 'employee')
-        ->where('notifications.status', 0)
-        ->count();
+        ->where('notifications.status', 0)->get(); 
 
         $notifications = Notification::query()
         ->select(
@@ -104,6 +103,7 @@ class Controller extends BaseController
         $notifications1 = Notification::query()
         ->select(
             'notifications.*',
+            'notifications.empid as notifempid',
             'notifications.status as notifstat',
             'notifications.created_at as notif_created_at'
         )
