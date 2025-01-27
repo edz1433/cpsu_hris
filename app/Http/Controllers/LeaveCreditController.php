@@ -69,7 +69,7 @@ class LeaveCreditController extends Controller
                 ->where('date', $request->date)
                 ->get();
     
-            LeaveCredit::create([
+            $leavecredit = LeaveCredit::create([
                 'empid' => $employee->emp_ID,
                 'days' => $request->days,
                 'earn_sl' => $request->sl,
@@ -78,6 +78,15 @@ class LeaveCreditController extends Controller
                 'date' => $request->date ?? $currentDate,
                 'add_by' => $authid,
                 'stat' => $request->days ? 1 : 0,
+            ]);
+
+            Notification::create([
+                'empid' => $employee->emp_ID,
+                'lapp_id' => $leavecredit->id,
+                'category' => 1,
+                'utype' => 'employee',
+                'module' => 'leavecreditadd',
+                'status' => 1,
             ]);
         } else {
             return redirect()->back()->with('error', 'Employee not found.');
@@ -120,7 +129,8 @@ class LeaveCreditController extends Controller
             'lapp_id' => $leavecredit->id,
             'category' => 1,
             'utype' => 'employee',
-            'module' => 'leavecredit',
+            'module' => 'leavecreditadd',
+            'status' => 1,
         ]);
     
         return redirect()->back()->with('success', 'Save successfully.');

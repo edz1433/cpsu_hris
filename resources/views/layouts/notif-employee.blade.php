@@ -1,5 +1,5 @@
 <!-- Search Form -->
-<li class="nav-item">
+{{-- <li class="nav-item">
     <a class="nav-link" data-widget="navbar-search" href="#" role="button">
         <i class="fas fa-search text-success1"></i>
     </a>
@@ -15,7 +15,7 @@
             </div>
         </form>
     </div>
-</li>
+</li> --}}
 
 <li class="nav-item dropdown">
     <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
