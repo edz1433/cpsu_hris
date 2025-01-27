@@ -71,7 +71,7 @@
                 @if($guard == "web")
                     @include('layouts.notif-admin')
                 @else
-                    {{-- @include('layouts.notif-employee') --}}
+                    @include('layouts.notif-employee')
                 @endif
                 
                 <!-- User Dropdown -->

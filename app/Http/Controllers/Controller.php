@@ -19,7 +19,7 @@ class Controller extends BaseController
         $notificationsCount = Notification::where('notifications.utype', '=', 'hr')
         ->where('notifications.status', 0)
         ->count();
-
+        
         $notificationsCount1 = Notification::where('notifications.utype', '=', 'employee')
         ->where('notifications.status', 0)
         ->count();
@@ -108,6 +108,7 @@ class Controller extends BaseController
             'notifications.created_at as notif_created_at'
         )
         ->where('notifications.utype', '=', 'employee')
+  
         
         // Join for "leave" module
         ->leftJoin('leave_applications', function ($join) {

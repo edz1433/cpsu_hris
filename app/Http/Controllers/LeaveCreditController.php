@@ -86,7 +86,7 @@ class LeaveCreditController extends Controller
                 'category' => 1,
                 'utype' => 'employee',
                 'module' => 'leavecreditadd',
-                'status' => 1,
+                'status' => 0,
             ]);
         } else {
             return redirect()->back()->with('error', 'Employee not found.');
