@@ -86,7 +86,7 @@ class EligibilityController extends Controller
             'rating' => 'nullable',
             'date_exam' => 'required',
             'place_exam' => 'required',
-            'number' => 'required',
+            'number' => 'nullable',
             'date_valid' => 'nullable',
             'attachment' => 'required|file|mimes:pdf',
         ]);
@@ -130,7 +130,7 @@ class EligibilityController extends Controller
             'rating' => 'nullable',
             'date_exam' => 'required',
             'place_exam' => 'required',
-            'number' => 'required',
+            'number' => 'nullable',
             'date_valid' => 'nullable',
             'attachment' => 'nullable|file|mimes:pdf',
         ]);
