@@ -204,10 +204,19 @@ class WorkExperienceController extends Controller
             $workexperience->status = 1;
             $workexperience->save();
 
+            Notification::create([
+                'empid' => $workexperience->empid,
+                'lapp_id' => $id,
+                'category' => 2,
+                'utype' => 'employee',
+                'module' => 'pds',
+            ]);
+
             return response()->json([
                 'status' => 200,
                 'message' => "Approved Successfully",
             ]);
+
         } else {
             return response()->json([
                 'status' => 404,

@@ -101,43 +101,51 @@
                     @case('pds')
                         @switch($notif->category)
                             @case(1)
-                                    @php
-                                        $remarks = "has submitted new eligibility.";
-                                        $profile = $notif->pds_emp_eligi_profile;
-                                        $fullname = $notif->pds_emp_eligi_fullname;
-                                    @endphp
+                            @case(1.1)
+                                @php
+                                    $action = ($notif->category == 1) ? 'approved' : 'declined';
+                                    $remarks = "Your submitted eligibility, <b>$notif->eligibilities_careereligible</b> has been $action by HR.";
+                                    $profile = $notif->pds_emp_eligi_profile;
+                                    $route = route('eligibility');
+                                @endphp
                                 @break
                             @case(2)
-                                    @php
-                                        $remarks = "has submitted new work experience.";
-                                        $profile = $notif->pds_emp_workexp_profile;
-                                        $fullname = $notif->pds_emp_workexp_fullname;
+                            @case(2.1)
+                                @php
+                                    $action = ($notif->category == 2) ? 'approved' : 'declined';
+                                    $remarks = "Your submitted work experience at <b>$notif->work_experiences_department</b> has been $action by HR.";
+                                    $profile = $notif->pds_emp_workexp_profile;
+                                    $route = route('work-experience');
                                     @endphp
                                 @break
                             @case(3)
-                                    @php
-                                        $remarks = "has submitted new voluntary works.";
-                                        $profile = $notif->pds_emp_volworks_profile;
-                                        $fullname = $notif->pds_emp_volworks_fullname;
+                            @case(3.1)
+                                @php
+                                    $action = ($notif->category == 3) ? 'approved' : 'declined';
+                                    $remarks = "Your submitted new voluntary works at <b>$notif->voluntary_works_org_name</b> has been $action by HR.";
+                                    $profile = $notif->pds_emp_volworks_profile;
+                                    $route = route('voluntary-work');
                                     @endphp
                                 @break
                             @case(4)
-                                    @php
-                                        $remarks = "has submitted new Learning and Development.";
-                                        $profile = $notif->pds_emp_learndev_profile;
-                                        $fullname = $notif->pds_emp_learndev_fullname;
+                            @case(4.1)
+                                @php
+                                    $action = ($notif->category == 3) ? 'approved' : 'declined';
+                                    $remarks = "Your submitted new Learning and Development at <b>$notif->learning_devs_learning_dev</b> has been $action by HR.";
+                                    $profile = $notif->pds_emp_learndev_profile;
+                                    $route = route('learning-dev');
                                     @endphp
                                 @break
                             @break
                         @endswitch
             
-                        <a href="{{ route('eligibility', $notif->pds_emp_eligi_id) }}" class="dropdown-item d-flex align-items-center">
+                        <a href="{{ $route }}" onclick="notif('')" class="dropdown-item d-flex align-items-center">
                             <div class="mr-3">
                                 <img src="{{ asset('Profile/Employee/'.$profile) }}" class="img-circle" alt="User Image" width="40" height="40">
                             </div>
                             <div>
                                 <p class="mb-0">
-                                    <strong>{{ ucwords(strtolower($fullname)) }}</strong> {{ $remarks }}
+                                    {!! $remarks !!}
                                 </p>
                                 <span class="{{ $notif->notifstat == 0 ? 'text-primary font-weight-bold' : 'text-muted' }} text-sm">
                                     {{ $timeDifference }}

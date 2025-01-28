@@ -213,6 +213,14 @@ class EligibilityController extends Controller
             $eligible->status = 1;
             $eligible->save();
 
+            Notification::create([
+                'empid' => $eligible->empid,
+                'lapp_id' => $id,
+                'category' => 1,
+                'utype' => 'employee',
+                'module' => 'pds',
+            ]);
+            
             return response()->json([
                 'status' => 200,
                 'message' => "Approved Successfully",

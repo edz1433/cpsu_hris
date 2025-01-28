@@ -20,8 +20,10 @@ class Controller extends BaseController
         ->where('notifications.status', 0)
         ->count();
         
-        $notificationsCount1 = Notification::where('notifications.utype', '=', 'employee')
-        ->where('notifications.status', 0)->get(); 
+        $notificationsCount1 = Notification::where('notifications.utype', 'employee')
+        ->whereNotIn('notifications.module', ['leavecredit', 'leavecreditadd'])
+        ->where('notifications.status', 0)
+        ->get();    
 
         $notifications = Notification::query()
         ->select(
@@ -166,14 +168,14 @@ class Controller extends BaseController
             $join->on('pds_emp_learndev.emp_ID', '=', 'learning_devs.empid')
                     ->where('notifications.category', '=', 4)
                     ->where('notifications.module', '=', 'pds');
-        })  
+        }) 
         
         ->addSelect(
             'leave_applications.*', 'leave_emp.*', 'leave_emp.id as leave_emp_id', 'leave_emp.profile as leave_emp_profile', \DB::raw("CONCAT(leave_emp.fname, ' ', leave_emp.lname) as leave_emp_fullname"),
-            'pds_emp_eligi.*', 'pds_emp_eligi.id as pds_emp_eligi_id', 'pds_emp_eligi.profile as pds_emp_eligi_profile', \DB::raw("CONCAT(pds_emp_eligi.fname, ' ', pds_emp_eligi.lname) as pds_emp_eligi_fullname"),
-            'pds_emp_workexp.*', 'pds_emp_workexp.id as pds_emp_workexp_id', 'pds_emp_workexp.profile as pds_emp_workexp_profile', \DB::raw("CONCAT(pds_emp_workexp.fname, ' ', pds_emp_workexp.lname) as pds_emp_workexp_fullname"),
-            'pds_emp_volworks.*', 'pds_emp_volworks.id as pds_emp_volworks_id', 'pds_emp_volworks.profile as pds_emp_volworks_profile', \DB::raw("CONCAT(pds_emp_volworks.fname, ' ', pds_emp_volworks.lname) as pds_emp_volworks_fullname"),
-            'pds_emp_learndev.*', 'pds_emp_learndev.id as pds_emp_learndev_id', 'pds_emp_learndev.profile as pds_emp_learndev_profile', \DB::raw("CONCAT(pds_emp_learndev.fname, ' ', pds_emp_learndev.lname) as pds_emp_learndev_fullname")
+            'pds_emp_eligi.*', 'pds_emp_eligi.id as pds_emp_eligi_id', 'eligibilities.careereligible as eligibilities_careereligible', 'pds_emp_eligi.profile as pds_emp_eligi_profile', \DB::raw("CONCAT(pds_emp_eligi.fname, ' ', pds_emp_eligi.lname) as pds_emp_eligi_fullname"),
+            'pds_emp_workexp.*', 'pds_emp_workexp.id as pds_emp_workexp_id', 'work_experiences.department as work_experiences_department', 'pds_emp_workexp.profile as pds_emp_workexp_profile', \DB::raw("CONCAT(pds_emp_workexp.fname, ' ', pds_emp_workexp.lname) as pds_emp_workexp_fullname"),
+            'pds_emp_volworks.*', 'pds_emp_volworks.id as pds_emp_volworks_id', 'voluntary_works.org_name as voluntary_works_org_name', 'pds_emp_volworks.profile as pds_emp_volworks_profile', \DB::raw("CONCAT(pds_emp_volworks.fname, ' ', pds_emp_volworks.lname) as pds_emp_volworks_fullname"),
+            'pds_emp_learndev.*', 'pds_emp_learndev.id as pds_emp_learndev_id', 'learning_devs.learning_dev as learning_devs_learning_dev', 'pds_emp_learndev.profile as pds_emp_learndev_profile', \DB::raw("CONCAT(pds_emp_learndev.fname, ' ', pds_emp_learndev.lname) as pds_emp_learndev_fullname")
         )
             
         ->orderBy('notifications.created_at', 'desc')
