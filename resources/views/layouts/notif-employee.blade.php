@@ -60,7 +60,7 @@
                     14 => 'Others'
                 ];
             @endphp
-            
+        
             @foreach ($notifications1 as $notif)
                 @php 
                     $timeDifference = $notif->notif_created_at 
@@ -83,7 +83,7 @@
                                 @endphp
                             @break
                         @endswitch
-                        <a href="{{ route('leaveStatus') }}" class="dropdown-item d-flex align-items-center">
+                        <a href="{{ route('leaveStatus', $notif->leave_emp_id) }}" class="dropdown-item d-flex align-items-center">
                             <div class="mr-3">
                                 <img src="{{ asset('Profile/human-resource.png') }}" class="img-circle" alt="User Image" width="40" height="40">
                             </div>
@@ -131,7 +131,7 @@
                             @break
                         @endswitch
             
-                        <a href="{{ route('eligibility') }}" class="dropdown-item d-flex align-items-center">
+                        <a href="{{ route('eligibility', $notif->pds_emp_eligi_id) }}" class="dropdown-item d-flex align-items-center">
                             <div class="mr-3">
                                 <img src="{{ asset('Profile/Employee/'.$profile) }}" class="img-circle" alt="User Image" width="40" height="40">
                             </div>
