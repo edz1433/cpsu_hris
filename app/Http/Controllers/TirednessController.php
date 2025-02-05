@@ -45,6 +45,7 @@ class TirednessController extends Controller
     
     public function pdfTirednes($employeeId, $month)
     {
+        $year = explode('-', $month)[0];
         $guard = $this->getGuard();
     
         $monthNumber = date('m', strtotime($month));
@@ -157,7 +158,7 @@ class TirednessController extends Controller
             $form = 'tiredeness.tiredeness-pdf1';
         }
     
-        $pdf = PDF::loadView($form, compact('dtrRecords', 'monthNumber', 'officialtimes'))->setPaper('Legal', 'portrait');
+        $pdf = PDF::loadView($form, compact('dtrRecords', 'monthNumber', 'officialtimes', 'year'))->setPaper('Legal', 'portrait');
         
         return $pdf->stream();
     }

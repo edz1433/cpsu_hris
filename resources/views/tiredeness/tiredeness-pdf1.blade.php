@@ -137,8 +137,7 @@
                 
                 @for($i = 1; $i <= 31; $i++)
                     @php
-                        $currentYear = \Carbon\Carbon::now()->year;
-                        $currentDate = \Carbon\Carbon::parse("$currentYear-$monthNumber-$i");
+                        $currentDate = \Carbon\Carbon::parse("$year-$monthNumber-$i");
                         $dayOfWeek = $currentDate->format('l');
                         $rowData = $dtrRecords->firstWhere('date', '=', $currentDate->format('Y-m-d'));
                 
