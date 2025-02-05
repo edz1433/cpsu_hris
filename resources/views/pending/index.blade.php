@@ -333,6 +333,12 @@
 
                                     <td class="text-center">
                                         <!-- Action Button -->
+                                        <a href="#" data-id="{{ $emp->id }}" data-toggle="modal" data-target="#pdfModal" 
+                                            id="preview{{ $emp->id }}"
+                                            class="btn btn-danger btn-sm" 
+                                            style="width: 30px; padding: 0px !important;" >
+                                            <i class="fas fa-file-pdf" style="font-size: 0.75rem;"></i>
+                                        </a>
                                         <a href="{{ route('leaveStatus', $emp->employid) }}" 
                                         target="_blank" 
                                         class="btn btn-{{ (in_array($emp->emp_esign, [1, 2])) ? 'success' : 'info' }} btn-sm" 
@@ -377,6 +383,15 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <iframe id="pdfIframe" src="" width="100%" height="600px" style="border:none;"></iframe>
             </div>
         </div>
     </div>

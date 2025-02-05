@@ -78,6 +78,9 @@
                                             <span class="time time-{{ $leaves->id }}">{{ (isset($leaves->date_filing)) ? \Carbon\Carbon::parse($leaves->date_filing)->format('F j, Y h:i A') : '' }}</span>
                                             <h3 class="timeline-header"><a href="#">Leave Application</a></h3>
                                             <div class="timeline-body">
+                                                <button type="button" class="btn btn-danger btn-round btn-sm" style="float: right;" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                </button>
                                                 <span class="badge badge-success"><b>#{{ $leaves->transnum }}</b></span><br> 
                                                 <span><b>TYPE OF LEAVE TO AVAILED OF :</b> {{ $leaveTypes[$leaves->leave_type] }}</span><br>
                                                 <span><b>DETAILS OF LEAVE :</b> {{ $leavedetails[$leaves->leave_purpose] ?? null }} @if($leaves->leave_detail) ({{ $leaves->leave_detail }}) @endif</span><br>
@@ -92,9 +95,6 @@
                                                     <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
                                                             @if($leaves->emp_esign == 0)
-                                                                <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
-                                                                    <i class="fas fa-file-pdf"></i> View
-                                                                </button>
                                                                 <button class="btn btn-info btn-sm day-wpay" data-id="{{ $leaves->id }}" data-max="{{ $leaves->days }}"><i class="fas fa-circle-info"></i></button>
                                                             @endif
                                                         </div>
@@ -106,9 +106,6 @@
                                                             <div class="float-right mb-4">
                                                                 <button type="button" class="btn btn-warning btn-sm cancelLeave" value="{{ $leaves->id }}" ><i class="fas fa-times"></i> Cancel</button>
                                                                 
-                                                                <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
-                                                                    <i class="fas fa-file-pdf"></i> View
-                                                                </button>
 
                                                                 <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="0" data-max="{{ $leaves->days }}"><i class="fas fa-upload"></i> Upload</button>
                                                             </div>
@@ -253,14 +250,11 @@
                                                 
                                                 <span><b>DAYS WITH PAY :</b> <span id="days-wpay{{ $leaves->id }}">{{ ($leaves->emp_esign !== 0) ? $leaves->days - $leaves->day_wpay : '' }}</span></span><br>
                                                 <span><b>DAYS WITHOUT PAY:</b> <span id="days-withoutpay{{ $leaves->id }}">{{ ($leaves->emp_esign !== 0) ? $leaves->day_wpay : '' }}<span> </span>
-                            
+                                                
                                                 @if($guard == "web")
                                                     <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
                                                             @if($leaves->emp_esign == 0)
-                                                                <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
-                                                                    <i class="fas fa-file-pdf"></i> View
-                                                                </button>
                                                                 <button class="btn btn-info btn-sm day-wpay" data-id="{{ $leaves->id }}" data-max="{{ $leaves->days }}"><i class="fas fa-circle-info"></i></button>
                                                             @endif
                                                         </div>
@@ -270,11 +264,6 @@
                                                     <div class="timeline-footer" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
                                                         @if($leaves->emp_esign == 1)
                                                             <div class="float-right">
-                                                                
-                                                                <button type="button" class="btn btn-danger btn-sm" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
-                                                                    <i class="fas fa-file-pdf"></i> View
-                                                                </button>
-
                                                                 <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="0" data-max="{{ $leaves->days }}"><i class="fas fa-upload"></i> Upload</button>
                                                             </div>
                                                         @endif
