@@ -206,7 +206,7 @@
 @if(request()->is('leaves/*') || request()->is('leaves') || request()->is('leave*') || request()->is('leave/history') || request()->is('leave/history*'))
     @include('script.leaveCreditScript')
 @endif
-@if(request()->is('pending/1'))
+@if(request()->is('pending/*'))
     @include('script.pendingScript')
 @endif
 @if(request()->is('pds/signature/*') || request()->is('pds/signature'))
