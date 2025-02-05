@@ -154,7 +154,7 @@ class TirednessController extends Controller
                 ->whereMonth('date', $monthNumber)->get();
 
             $officialtimes = OfficialTime::where('empid', '=', $employeeId)->first();
-
+            
             $form = 'tiredeness.tiredeness-pdf1';
         }
     

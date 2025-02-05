@@ -130,7 +130,7 @@
                                         <div class="timeline-item">
                                             <span class="time time-hr{{ $leaves->id }}">{{ (!empty($leaves->hr_sdate)) ? \Carbon\Carbon::parse($leaves->hr_sdate)->format('F j, Y h:i A') : '' }}</span>
                                             <h3 class="timeline-header border-0">
-                                                <a href="#">{{ strtoupper($setting->hr_lname) }}, {{ strtoupper($setting->hr_fname) }} {{ isset($setting->hr_suffix) ? strtoupper($setting->hr_suffix).'.' : '' }} {{ isset($setting->hr_mname) ? strtoupper(substr($setting->hr_mname, 0, 1)) . '.' : ''}}</a><br>
+                                                <a href="#">{{ strtoupper($leavesapp['0']->hr_lname) }}, {{ strtoupper($leavesapp['0']->hr_fname) }} {{ isset($leavesapp['0']->hr_suffix) ? strtoupper($leavesapp['0']->hr_suffix).'.' : '' }} {{ isset($setting->hr_mname) ? strtoupper(substr($setting->hr_mname, 0, 1)) . '.' : ''}}</a><br>
                                                 <span><i>Head, HRMO</i></span>
                                                 @if($leaves->remarks_stat == 1)<br> 
                                                 <div class="callout callout-danger" style="margin: 8px 0px 0px 0px !important; padding: 10px !important;">
@@ -283,11 +283,11 @@
                                         <div class="timeline-item">
                                             <span class="time time-hr{{ $leaves->id }}">{{ (!empty($leaves->hr_sdate)) ? \Carbon\Carbon::parse($leaves->hr_sdate)->format('F j, Y h:i A') : '' }}</span>
                                             <h3 class="timeline-header border-0">
-                                                <a href="#">{{ strtoupper($setting->hr_lname) }}, {{ strtoupper($setting->hr_fname) }} {{ isset($setting->hr_suffix) ? strtoupper($setting->hr_suffix).'.' : '' }} {{ isset($setting->hr_mname) ? strtoupper(substr($setting->hr_mname, 0, 1)) . '.' : ''}}</a><br>
+                                                <a href="#">{{ strtoupper($leavesapphead['0']->hr_lname) }}, {{ strtoupper($leavesapphead['0']->hr_fname) }} {{ isset($leavesapphead['0']->hr_suffix) ? strtoupper($leavesapphead['0']->hr_suffix).'.' : '' }} {{ isset($setting->hr_mname) ? strtoupper(substr($setting->hr_mname, 0, 1)) . '.' : ''}}</a><br>
                                                 <span><i>Head, HRMO</i></span>
                                                 @if($leaves->remarks_stat == 1)<br>
-                                                <div class="callout callout-danger" style="margin: 8px 0px 0px 0px !important; padding: 10px !important;">
-                                                    <p>{{ $leaves->remarks_details }}</p>
+                                                    <div class="callout callout-danger" style="margin: 8px 0px 0px 0px !important; padding: 10px !important;">
+                                                        <p>{{ $leaves->remarks_details }}</p>
                                                     </div>
                                                 @endif
                                                 <div id="status-remarks-hrmo{{ $leaves->id }}"></div>

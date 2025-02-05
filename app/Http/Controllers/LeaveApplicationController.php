@@ -126,17 +126,24 @@ class LeaveApplicationController extends Controller
         $leavesapp = LeaveApplication::where('empid', $employee->emp_ID)
         ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
         ->join('employees as emp', 'emp.emp_ID', '=', 'leave_applications.empid')
+        ->join('employees as hr', 'hr.id', '=', 'leave_applications.hr')
         ->select(
             'leave_applications.*', 
             'emp.id as employid',
             'sup.lname as supervisor_lname', 
             'sup.fname as supervisor_fname', 
             'sup.mname as supervisor_mname', 
-            'sup.suffix as supervisor_suffix'
+            'sup.suffix as supervisor_suffix',
+            'hr.lname as hr_lname', 
+            'hr.fname as hr_fname', 
+            'hr.mname as hr_mname', 
+            'hr.suffix as hr_suffix',
         )
         ->orderBy('leave_applications.id', 'desc')
         ->where('leave_applications.history', 1)
         ->get();
+
+        // dd($leavesapp);
 
         $setting = Setting::join('employees as hr', 'hr.id', '=', 'settings.hr')
         ->join('employees as sucpres', 'sucpres.id', '=', 'settings.suc_pres')
@@ -154,8 +161,9 @@ class LeaveApplicationController extends Controller
         ->first();
 
         $leavesapphead = LeaveApplication::join('employees as emp', 'emp.emp_ID', '=', 'leave_applications.empid')
-            ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor');
-        
+            ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
+            ->join('employees as hr', 'hr.id', '=', 'leave_applications.hr');
+
         if ($setting->suc_pres !== auth()->guard($guard)->user()->id) {
             $leavesapphead->where('leave_applications.supervisor', auth()->guard($guard)->user()->id);
         }else{
@@ -164,6 +172,10 @@ class LeaveApplicationController extends Controller
 
         $leavesapphead = $leavesapphead->select(
             'leave_applications.*',
+            'hr.lname as hr_lname', 
+            'hr.fname as hr_fname', 
+            'hr.mname as hr_mname', 
+            'hr.suffix as hr_suffix',
             'emp.id as employid', 
             'emp.lname as employee_lname', 
             'emp.fname as employee_fname', 
