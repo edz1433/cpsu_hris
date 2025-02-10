@@ -33,7 +33,7 @@
         $notificationsCount1 = 0;
     }
 @endphp
-@dd($notifications1);
+
 <li class="nav-item dropdown">
     <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
         <i class="fas fa-bell text-success1"></i>
