@@ -16,6 +16,7 @@
         </form>
     </div>
 </li> --}}
+
 @php
     $id = auth()->guard($guard)->user()->id; // Get the authenticated user's ID
     $employee = \App\Models\Employee::find($id); // Fetch the employee record using the ID
@@ -33,6 +34,10 @@
         $notificationsCount1 = 0;
     }
 @endphp
+
+<script>
+    console.log(@json($notifications1));
+</script>
 
 <li class="nav-item dropdown">
     <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
