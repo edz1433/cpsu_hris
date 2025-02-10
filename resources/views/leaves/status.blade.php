@@ -354,6 +354,12 @@
                                                         </div>
                                                     </div>
                                                 @endif
+                                            @else
+                                                <div class="timeline-footer mb-4" id="action-button1{{ $leaves->id }}">
+                                                    <div class="float-right">
+                                                        <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
+                                                    </div>
+                                                </div>
                                             @endif
                                         </div>
                                     </div>   
