@@ -16,12 +16,14 @@
         </form>
     </div>
 </li> --}}
-<script>
-    console.log(@json($notifications1));
-</script>
+
 @php
     $id = auth()->guard($guard)->user()->id; // Get the authenticated user's ID
     $employee = \App\Models\Employee::find($id); // Fetch the employee record using the ID
+
+    // Ensure notifications1 is a collection
+    $notifications1 = collect($notifications1); 
+    $notificationsCount1 = collect($notificationsCount1);
 
     if ($employee) {
         $notifications1 = $notifications1
@@ -30,14 +32,15 @@
             ->sortByDesc('notif_created_at'); // Sort by descending creation date
             
         $notificationsCount1 = $notificationsCount1->where('empid', $employee->emp_ID)->count();
-           
     } else {
-        $notifications1 = collect();
-        $notificationsCount1 = 0;
+        $notifications1 = collect(); // Empty collection
+        $notificationsCount1 = 0; // Default count
     }
 @endphp
 
-
+<script>
+    console.log(@json($notifications1->values()->toArray())); // Ensure a pure array output
+</script>
 
 <li class="nav-item dropdown">
     <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
