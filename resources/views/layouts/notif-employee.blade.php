@@ -88,7 +88,7 @@
                             @break
                                 @case(2)
                                 @php
-                                    $remarks = "Your application for " . strtolower($leaveTypes[$notif->leave_type] ?? '') . " has been approved.";
+                                    $remarks = "Your application for " . strtolower($leaveTypes[$notif->leave_type] ?? '') . " (Application No: #{$notif->transnum}) has been approved.";
                                 @endphp
                             @break
                         @endswitch
