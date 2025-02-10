@@ -104,20 +104,23 @@
                                                     <div class="timeline-footer" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
                                                         @if($leaves->emp_esign == 1)
                                                             <div class="float-right mb-4">
-                                                                <button type="button" class="btn btn-warning btn-sm cancelLeave" value="{{ $leaves->id }}" ><i class="fas fa-times"></i> Cancel</button>
+                                                                {{-- <button type="button" class="btn btn-warning btn-sm cancelLeave" value="{{ $leaves->id }}" ><i class="fas fa-times"></i> Cancel</button> --}}
                                                                 
 
                                                                 <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="0" data-max="{{ $leaves->days }}"><i class="fas fa-upload"></i> Upload</button>
                                                             </div>
                                                         @elseif($leaves->emp_esign == 0 && $leaves->hr_sign == null)
-                                                            <div class="float-right">
+                                                            {{-- <div class="float-right">
                                                                 <button type="button" class="btn btn-warning btn-sm cancelLeave" value="{{ $leaves->id }}" ><i class="fas fa-times"></i> Cancel</button>
-                                                            </div>
+                                                            </div> --}}
                                                         @endif
                                                     </div>
                                                     @if($leaves->emp_esign == 2 && $leaves->status == 1)
                                                         <button class="btn btn-primary btn-sm undo-leave text-black float-right" data-id="{{ $leaves->id }}" data-to="1"><i class="fas fa-undo"></i> Undo</button>
                                                     @endif
+                                                @endif
+                                                @if($guard == "web")
+                                                    <button type="button" class="btn btn-warning btn-sm cancelLeave" value="{{ $leaves->id }}" ><i class="fas fa-times"></i> Cancel</button>
                                                 @endif
                                                 <br>
                                             </div>
