@@ -138,8 +138,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
     
     Route::prefix('tardiness')->group(function(){
-        Route::get('/', [TirednessController::class, 'readTiredness'])->name('readTiredness');
-        Route::post('/', [TirednessController::class, 'readTiredness'])->name('tirednessSearch');
+        Route::get('/data', [TirednessController::class, 'readTiredness'])->name('readTiredness');
+        Route::post('/data', [TirednessController::class, 'readTiredness'])->name('tirednessSearch');
         Route::get('/pdf/{employeeId}/{month}', [TirednessController::class, 'pdfTirednes'])->name('pdfTirednes');
     });
 

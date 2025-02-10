@@ -330,7 +330,7 @@ class LeaveApplicationController extends Controller
             if ($leaveApplication->gen_app && Storage::exists('public/' . $leaveApplication->gen_app)) {
                 Storage::delete('public/' . $leaveApplication->gen_app);
             }
-        
+            
             $storagePath = 'public/Leaveapplication';
             
             // Generate a new random filename
