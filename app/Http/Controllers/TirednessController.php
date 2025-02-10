@@ -154,10 +154,10 @@ class TirednessController extends Controller
                 ->whereMonth('date', $monthNumber)->get();
 
             $officialtimes = OfficialTime::where('empid', '=', $employeeId)->first();
-            
+
             $form = 'tiredeness.tiredeness-pdf1';
         }
-    
+        
         $pdf = PDF::loadView($form, compact('dtrRecords', 'monthNumber', 'officialtimes', 'year'))->setPaper('Legal', 'portrait');
         
         return $pdf->stream();

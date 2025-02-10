@@ -130,7 +130,7 @@ class LeaveApplicationController extends Controller
         ->select(
             'leave_applications.*', 
             'emp.id as employid',
-            'sup.lname as supervisor_lname',
+            'sup.lname as supervisor_lname', 
             'sup.fname as supervisor_fname', 
             'sup.mname as supervisor_mname', 
             'sup.suffix as supervisor_suffix',
@@ -138,7 +138,7 @@ class LeaveApplicationController extends Controller
             'hr.fname as hr_fname', 
             'hr.mname as hr_mname', 
             'hr.suffix as hr_suffix',
-            'hr.id as hr_id'
+            'hr.id as '
         )
         ->orderBy('leave_applications.id', 'desc')
         ->where('leave_applications.history', 1)
@@ -190,7 +190,7 @@ class LeaveApplicationController extends Controller
         ->orderBy('leave_applications.id', 'desc')
         ->where('leave_applications.history', 1)
         ->get();
-        
+
         // dd($leavesapphead);
         if($guard == 'web'){
             $leavesapphead = [];

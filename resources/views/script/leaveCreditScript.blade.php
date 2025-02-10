@@ -451,6 +451,53 @@
     });
 </script>
 <script>
+    $('.undo-leave').on('click', function(){
+        var id = $(this).data('id');
+        var to = $(this).data('to');
+
+        var undoUrl = "{{ route('leaveUndo') }}";
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to undo leave application?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, undo it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: undoUrl,
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        to: to,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        Swal.fire(
+                            'Undo!',
+                            'Leave has been successfully undone.',
+                            'success'
+                        );
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire(
+                            'Error!',
+                            'An error occurred while undo the leave.',
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
+    });
+</script>
+<script>
     $('.day-wpay').on('click', function() {
         var id = $(this).data('id');
         var max = $(this).data('max');
