@@ -326,23 +326,25 @@ class LeaveApplicationController extends Controller
         }
     
         if ($request->hasFile('file')) {
-            $originalPath = $leaveApplication->gen_app;
-            $filenameArray = explode('/', $originalPath);
-            $filename = end($filenameArray);
-
-            if (Storage::exists($originalPath)) {
-                Storage::delete($originalPath);
+            // Delete the old file if it exists
+            if ($leaveApplication->gen_app && Storage::exists('public/' . $leaveApplication->gen_app)) {
+                Storage::delete('public/' . $leaveApplication->gen_app);
             }
-            
+        
             $storagePath = 'public/Leaveapplication';
-
-            $file = $request->file('file');
-            $newFilePath = $file->storeAs($storagePath, $filename);
-
+            
+            // Generate a new random filename
+            $randomNumber = mt_rand(100000, 999999);
+            $fileName = $randomNumber . '_leave_application_' . $leaveApplication->id . '.pdf';
+        
+            // Store the new file
+            $newFilePath = $request->file('file')->storeAs($storagePath, $fileName);
+        
+            // Save the new filename in the database
             $leaveApplication->gen_app = str_replace('public/', '', $newFilePath);
             $leaveApplication->save();
         }
-
+        
         $leave = [
             1 => 'vl',
             2 => 'vl',
