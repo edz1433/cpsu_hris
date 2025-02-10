@@ -197,6 +197,13 @@
                                                     </div>
                                                 @endif
                                             @endif
+                                            @if($leaves->supervisor == $leaves->president)
+                                                <div class="timeline-footer mb-4" id="action-button1{{ $leaves->id }}">
+                                                    <div class="float-right">
+                                                        <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
+                                                    </div>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>     
                         
@@ -354,14 +361,6 @@
                                                             <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="2"><i class="fas fa-undo"></i> Return</button>
                                                             <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
                                                             <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="2"><i class="fas fa-ban"></i> Disapprove</button>
-                                                        </div>
-                                                    </div>
-                                                @endif
-                                            @else
-                                                @if($leaves->supervisor == $leaves->president)
-                                                    <div class="timeline-footer mb-4" id="action-button1{{ $leaves->id }}">
-                                                        <div class="float-right">
-                                                            <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
                                                         </div>
                                                     </div>
                                                 @endif
