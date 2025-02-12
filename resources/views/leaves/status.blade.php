@@ -197,7 +197,8 @@
                                                     </div>
                                                 @endif
                                             @endif
-                                            @if($guard == "web" && $leaves->supervisor == $leaves->president && $leaves->status == 2)
+                                            {{-- @if($guard == "web" && $leaves->supervisor == $leaves->president && $leaves->status == 2) --}}
+                                            @if($guard == "web" && $leaves->status == 2)
                                                 <div class="timeline-footer mb-4" id="action-button1{{ $leaves->id }}">
                                                     <div class="float-right">
                                                         <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>

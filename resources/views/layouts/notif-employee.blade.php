@@ -38,10 +38,6 @@
     }
 @endphp
 
-<script>
-    console.log(@json($notifications1->values()->toArray())); // Ensure a pure array output
-</script>
-
 <li class="nav-item dropdown">
     <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
         <i class="fas fa-bell text-success1"></i>
