@@ -26,32 +26,7 @@
             <div class="card card-info card-outline">
                 <div class="card-header">
                     @include("leaves.top-menu")
-                </div>
-                @if($guard == "web")
-                <div class="col-12">
-                    <form 
-                        action="{{ route('leaveReport') }}" 
-                        method="POST" 
-                        class="input-group mt-3 w-50" 
-                        target="_blank"
-                        style="float: right; margin-right: 12px;"
-                        >
-                        @csrf
-                        <input 
-                            type="text" 
-                            id="date_range" 
-                            name="date"
-                            placeholder="SELECT DATE" 
-                            class="form-control form-control-sm" 
-                        >
-                        <div class="input-group-append">
-                            <button type="submit" class="btn btn-danger btn-sm">
-                                <i class="fas fa-file-pdf"></i>
-                            </button>
-                        </div>
-                    </form>
-                </div>  
-                @endif             
+                </div>           
                 <div class="card-body">
                     <div class="tab-content">
                         <table class="table table-collapsed table-hover" id="example1">

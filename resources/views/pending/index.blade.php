@@ -86,20 +86,41 @@
                             <option value="5" {{ ($cat == 5) ? 'selected' : '' }}>DISAPPROVED</option>
                         </select>
                     </div>
-                    @endif
+                    <form 
+                        action="{{ route('leaveReport') }}" method="POST" class="input-group w-50" 
+                        target="_blank" style="float: right;">
+                        @csrf
+                        <input type="text" id="date_range" name="date" placeholder="SELECT DATE"class="form-control form-control-sm">
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="fas fa-file-pdf"></i>
+                            </button>
+                        </div>
+                    </form>
+                    @else
                     <!-- Search input on the right -->
-                    <div class="input-group input-group-sm" style="width: 20%; flex: 0 0 auto; margin-left: 1rem;">
-                        <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
+                    <div class="input-group input-group-sm" style="width: 20%; flex: 0 0 auto; margin-left: auto;">
+                        <input type="text" name="table_search" class="form-control" placeholder="Search">
                         <div class="input-group-append">
                             <button type="submit" class="btn btn-default">
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
-
                 <div class="card-body table-responsive p-0" style="height: 500px;">
+                    @if($type == 1)
+                    <div class="input-group input-group-sm m-2" style="width: 20%; flex: 0 0 auto; margin-left: 1rem; float: right;">
+                        <input type="text" name="table_search" class="form-control float-right" placeholder="Search" autocomplete="off">
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-default">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div> 
+                    @endif
                     <table class="table table-head-fixed text-nowrap">
                         <tbody>
                             <thead> 

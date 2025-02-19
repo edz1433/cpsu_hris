@@ -879,7 +879,7 @@ class LeaveApplicationController extends Controller
             $applications = LeaveApplication::whereBetween('date_filing', [$startDateObj, $endDateObj])
                                              ->join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
                                              // ->where('history', 2)
-                                             ->whereIn('leave_applications.status', [3,4])
+                                             ->whereIn('leave_applications.status', [3])
                                              ->where('leave_applications.remarks_stat', 0)
                                              ->orderBy('date_filing', 'asc')
                                              ->select('leave_applications.*', 
@@ -897,7 +897,7 @@ class LeaveApplicationController extends Controller
             $applications = LeaveApplication::join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
                                             ->whereDate('leave_applications.date_filing', '=', $filingdateObj->toDateString())
                                             // ->where('history', 2)
-                                            ->whereIn('leave_applications.status', [3,4])
+                                            ->whereIn('leave_applications.status', [3])
                                             ->where('leave_applications.remarks_stat', 0)
                                             ->orderBy('leave_applications.date_filing', 'asc')
                                             ->select(
@@ -910,7 +910,7 @@ class LeaveApplicationController extends Controller
                                             ->get();
         }
         
-        $customPaper = array(0, 0, 612, 936);
+        $customPaper = array(0, 0, 612, 1008);
         $pdf = \PDF::loadView('leaves.leave-report', compact('applications', 'formattedDateRange', 'setting'))->setPaper($customPaper, 'portrait');
 
         $pdf->setOption('margin-top', 0);

@@ -30,3 +30,21 @@
         });
     });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+
+        // Initialize the flatpickr instance
+        const flatpickrInstance = flatpickr("#date_range", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            minDate: null, // Allow previous dates
+            onChange: function(selectedDates) {
+            calculateWeekdays(selectedDates);
+            }
+        });
+
+    });
+
+</script>

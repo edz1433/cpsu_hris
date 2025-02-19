@@ -14,6 +14,9 @@
             font-family: DejaVu Sans, sans-serif;
             line-height: 1.5;
             margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         header {
@@ -27,18 +30,10 @@
 
         footer {
             position: fixed;
-            bottom: 
-            @if (count($applications) <= 8)
-                400px;
-            @elseif (count($applications) > 8 && count($applications) < 15)
-                200px;
-            @else
-                150px;
-            @endif;
-            /* Adjust to fit within @page bottom margin */
+            bottom: 155px; /* Adjusted from 0 to 30px */
             left: 0;
             right: 0;
-            height: 100px;
+            height: 70px; /* Adjusted height */
             font-size: 12px;
         }
 
@@ -52,6 +47,7 @@
         }
 
         .content {
+            flex: 1;
             margin-top: 20px;
         }
 
@@ -63,6 +59,7 @@
 
         table, th, td {
             border: 1px solid black;
+            height: 15px; /* Adjust the height as needed */
         }
 
         th, td {
@@ -130,6 +127,8 @@
             <p class="f2"><b>{{ strtoupper($setting->sucpres_fname) }} {{ isset($setting->sucpres_mname) ? substr($setting->sucpres_mname, 0, 1) : '' }} {{ strtoupper($setting->sucpres_lname) }}, Ph.D</b><br>
             President</p>
         </div>
+        <br>
+        <img src="{{ asset('Uploads/transmittal-footer.png') }}" alt="Header Image" width="100%">
     </footer>
 
     <!-- Main Content -->
@@ -147,33 +146,37 @@
         <p class="f2">Sir:</p>
         <p class="f2">The following are applications for leave from the HRIS as of {{ $formattedDateRange }} for approval.</p>
 
+        @php
+            $chunks = array_chunk($applications->toArray(), 30);
+        @endphp
+
         @foreach ($chunks as $chunk)
             <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>NAME</th>
-                            <th>TYPE OF LEAVE</th>
-                            <th>INCLUSIVE DATES</th>
-                            <th>APPROVED (✓)</th>
-                            <th>DISAPPROVED (✓)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($chunk as $row)
-                            <tr>
-                                <td>
-                                    {{ $row['lname'] }}, {{ $row['fname'] }} {{ $row['suffix'] }}
-                                    {{ isset($row['mname']) ? strtoupper(substr($row['mname'], 0, 1)).'.' : '' }}
-                                </td>
-                                <td class="text-center">{{ $leaveTypes[$row['leave_type']] }}</td>
-                                <td class="text-center">{{ Carbon::parse($row['date_filing'])->format('F j, Y') }}</td>
-                                <td class="text-center">{{ ($row['remarks_stat'] <= 0) ? '✓' : '' }}</td>
-                                <td class="text-center">{{ ($row['remarks_stat'] > 0) ? '✓' : '' }}</td>  
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <table>
+                <thead>
+                <tr>
+                    <th>NAME</th>
+                    <th>TYPE OF LEAVE</th>
+                    <th>INCLUSIVE DATES</th>
+                    <th>APPROVED (✓)</th>
+                    <th>DISAPPROVED (✓)</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach ($chunk as $row)
+                    <tr>
+                    <td>
+                        {{ $row['lname'] }}, {{ $row['fname'] }} {{ $row['suffix'] }}
+                        {{ isset($row['mname']) ? strtoupper(substr($row['mname'], 0, 1)).'.' : '' }}
+                    </td>
+                    <td class="text-center">{{ $leaveTypes[$row['leave_type']] }}</td>
+                    <td class="text-center">{{ Carbon::parse($row['date_filing'])->format('F j, Y') }}</td>
+                    <td class="text-center">{{ ($row['remarks_stat'] <= 0) ? '✓' : '' }}</td>
+                    <td class="text-center">{{ ($row['remarks_stat'] > 0) ? '✓' : '' }}</td>  
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
             </div>
         @endforeach
     </div>
