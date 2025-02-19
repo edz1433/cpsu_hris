@@ -153,29 +153,29 @@
         @foreach ($chunks as $chunk)
             <div class="table-container">
             <table>
-                <thead>
+            <thead>
+            <tr>
+                <th>NAME</th>
+                <th>TYPE OF LEAVE</th>
+                <th>INCLUSIVE DATES</th>
+                <th>APPROVED (✓)</th>
+                <th>DISAPPROVED (✓)</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach ($chunk as $row)
                 <tr>
-                    <th>NAME</th>
-                    <th>TYPE OF LEAVE</th>
-                    <th>INCLUSIVE DATES</th>
-                    <th>APPROVED (✓)</th>
-                    <th>DISAPPROVED (✓)</th>
+                <td>
+                {{ $row['lname'] }}, {{ $row['fname'] }} {{ $row['suffix'] }}
+                {{ isset($row['mname']) ? strtoupper(substr($row['mname'], 0, 1)).'.' : '' }}
+                </td>
+                <td class="text-center">{{ $leaveTypes[$row['leave_type']] }}</td>
+                <td class="text-center">{{ Carbon::parse($row['date_filing'])->format('F j, Y') }}</td>
+                <td class="text-center">{{ ($row['remarks_stat'] <= 0) ? '✓' : '' }}</td>
+                <td class="text-center">{{ ($row['remarks_stat'] > 0) ? '✓' : '' }}</td>  
                 </tr>
-                </thead>
-                <tbody>
-                @foreach ($chunk as $row)
-                    <tr>
-                    <td>
-                        {{ $row['lname'] }}, {{ $row['fname'] }} {{ $row['suffix'] }}
-                        {{ isset($row['mname']) ? strtoupper(substr($row['mname'], 0, 1)).'.' : '' }}
-                    </td>
-                    <td class="text-center">{{ $leaveTypes[$row['leave_type']] }}</td>
-                    <td class="text-center">{{ Carbon::parse($row['date_filing'])->format('F j, Y') }}</td>
-                    <td class="text-center">{{ ($row['remarks_stat'] <= 0) ? '✓' : '' }}</td>
-                    <td class="text-center">{{ ($row['remarks_stat'] > 0) ? '✓' : '' }}</td>  
-                    </tr>
-                @endforeach
-                </tbody>
+            @endforeach
+            </tbody>
             </table>
             </div>
         @endforeach
