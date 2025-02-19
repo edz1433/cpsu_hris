@@ -97,19 +97,19 @@
 <body>
     @php 
         $leaveTypes = [
-            1 => 'Vacation Leave',
-            2 => 'Mandatory/Forced Leave',
-            3 => 'Sick Leave',
-            4 => 'Maternity Leave',
-            5 => 'Paternity Leave',
-            6 => 'Special Privilege Leave',
-            7 => 'Solo Parent Leave',
-            8 => 'Study Leave',
-            9 => '10-Day VAWC Leave',
-            10 => 'Rehabilitation Privilege',
-            11 => 'Special Leave Benefits for Women',
-            12 => 'Special Emergency (Calamity) Leave',
-            13 => 'Adoption Leave',
+            1 => 'VL', // Vacation Leave
+            2 => 'MFL', // Mandatory/Forced Leave
+            3 => 'SL', // Sick Leave
+            4 => 'ML', // Maternity Leave
+            5 => 'PL', // Paternity Leave
+            6 => 'SPL', // Special Privilege Leave
+            7 => 'SPL', // Solo Parent Leave
+            8 => 'StL', // Study Leave
+            9 => 'VAWC', // 10-Day VAWC Leave
+            10 => 'RP', // Rehabilitation Privilege
+            11 => 'SLBW', // Special Leave Benefits for Women
+            12 => 'SEL', // Special Emergency (Calamity) Leave
+            13 => 'AL', // Adoption Leave
             14 => 'Others'
         ];
     @endphp
