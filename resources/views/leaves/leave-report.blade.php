@@ -30,7 +30,7 @@
 
         footer {
             position: fixed;
-            bottom: 155px; /* Adjusted from 0 to 30px */
+            bottom: 160px; /* Adjusted from 0 to 30px */
             left: 0;
             right: 0;
             height: 70px; /* Adjusted height */
