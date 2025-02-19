@@ -260,7 +260,7 @@
                     </div>
                     <div style="margin-top: -2.10%">
                     <span style="font-size: 7px;  margin-top: -2.35%; float: right; margin-right: 10px;">
-                        <em>Total earned  and balances is for reconcillation.</em>
+                        <em>Total earned  and balances is for reconciliation.</em>
                      </span>
                     </div>
                     <div style="margin-top: 2.45%">
@@ -376,7 +376,7 @@
     <div class="back-page">
         <img src="{{ asset('Uploads/leave-back-page.jpg') }}" style="width: 120%; margin-left: -10%; margin-top: -10%;">
         <span style="color:rgb(59, 59, 59); font-size: 9.3px; margin-top: -75px; position: absolute; z-index: 999; top: 88%; left: 5%; width: 90%; font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
-            *For leave of absence for thirty(30) calendar days or more and terminal leave, application shall be accompanied by a <u>clearance from money, property and work-related accountabilities</u> (pursuant to CSC Memorandom Circular No. 2, s. 1985)
+            *For leave of absence for thirty (30) calendar days or more and terminal leave, application shall be accompanied by a <u> clearance from money, property and work-related accountabilities</u> (pursuant to CSC Memorandum Circular No. 2, s. 1985)
         </span>
         <span style="font-size: 9px; text-align: center; margin-left: 26%; margin-top: -110px;">Doc Control Code: CPSU-F-HRMO-15 REV-01 Effective Date: 08/31/2022 Page No. <b>2</b> of <b>2</b></span>
     </div>
