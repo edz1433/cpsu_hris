@@ -147,7 +147,7 @@
         <p class="f2">The following are applications for leave from the HRIS as of {{ $formattedDateRange }} for approval.</p>
 
         @php
-            $chunks = array_chunk($applications->toArray(), 20);
+            $chunks = array_chunk($applications->toArray(), 18);
         @endphp
 
         @foreach ($chunks as $chunk)
