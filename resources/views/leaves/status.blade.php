@@ -78,9 +78,11 @@
                                             <span class="time time-{{ $leaves->id }}">{{ (isset($leaves->date_filing)) ? \Carbon\Carbon::parse($leaves->date_filing)->format('F j, Y h:i A') : '' }}</span>
                                             <h3 class="timeline-header"><a href="#">Leave Application</a></h3>
                                             <div class="timeline-body">
-                                                <button type="button" class="btn btn-danger btn-round btn-sm" style="float: right;" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
-                                                    <i class="fas fa-file-pdf"></i>
-                                                </button>
+                                                @if($leaves->emp_esign == 1)
+                                                    <button type="button" class="btn btn-danger btn-round btn-sm" style="float: right;" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
+                                                        <i class="fas fa-file-pdf"></i>
+                                                    </button>
+                                                @endif
                                                 <span class="badge badge-success"><b>#{{ $leaves->transnum }}</b></span><br> 
                                                 <span><b>TYPE OF LEAVE TO AVAILED OF :</b> {{ $leaveTypes[$leaves->leave_type] }}</span><br>
                                                 <span><b>DETAILS OF LEAVE :</b> {{ $leavedetails[$leaves->leave_purpose] ?? null }} @if($leaves->leave_detail) ({{ $leaves->leave_detail }}) @endif</span><br>

@@ -386,7 +386,7 @@ class LeaveApplicationController extends Controller
         
         if($request->by == 1){
             $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
-            $leaveApplication->sup_sdate = Carbon::now();
+            $leaveApplication->hr_sdate = Carbon::now();
 
             Notification::create([
                 'empid' => $leaveApplication->empid,
@@ -402,7 +402,7 @@ class LeaveApplicationController extends Controller
 
         if($request->by == 2){
             $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
-            $leaveApplication->hr_sdate = Carbon::now();
+            $leaveApplication->sup_sdate= Carbon::now();
 
             $daysdeduct = ($leaveApplication->days ?? 0) - ($leaveApplication->day_wpay ?? 0);
 
