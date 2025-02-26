@@ -9,6 +9,18 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginAuthController extends Controller
 {
+
+    public function getLoginAdmin()
+    {
+        if (Auth::guard('web')->check()) {
+            return redirect()->route('dashboard');
+        }elseif(Auth::guard('employee')->check()){
+            return redirect()->route('drive');
+        }
+
+        return view('landing-page');
+    }
+
     public function getLogin()
     {
         if (Auth::guard('web')->check()) {
