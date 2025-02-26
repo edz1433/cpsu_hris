@@ -53,7 +53,7 @@ Route::get('/', function () {
 });
 
 //login
-Route::get('/login/a/d/m/i/n',[LoginAuthController::class,'getLoginAdmin'])->name('getLoginAdmin');
+// Route::get('/login/a/d/m/i/n',[LoginAuthController::class,'getLoginAdmin'])->name('getLoginAdmin');
 Route::get('/login',[LoginAuthController::class,'getLogin'])->name('getLogin')->middleware([NoCacheMiddleware::class]);
 Route::post('/login',[LoginAuthController::class,'postLogin'])->name('postLogin');
 // Route::get('/update-pass', [EmployeeController::class, 'updateEmployeePasswords']);
