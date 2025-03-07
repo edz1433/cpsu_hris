@@ -327,6 +327,32 @@ class DtrController extends Controller
     
         return $pdf->stream();
     }
-      
-    
+
+    public function storeDtr(Request $request)
+    {
+        $data = $request->json()->all();
+
+        if (!is_array($data)) {
+            return response()->json(['error' => 'Invalid JSON format'], 400);
+        }
+
+        foreach ($data as $item) {
+            if (!isset($item['emp_ID']) || !isset($item['date'])) {
+                return response()->json(['error' => 'Missing required fields'], 400);
+            }
+
+            Dtr::create([
+                'device_id_in' => $item['device_id_in'] ?? null,
+                'device_id_out' => $item['device_id_out'] ?? null,
+                'device_id_over' => $item['device_id_over'] ?? null,
+                'emp_ID' => $item['emp_ID'],
+                'time_in' => $item['time_in'] ?? null,
+                'time_out' => $item['time_out'] ?? null,
+                'time_over' => $item['time_over'] ?? null,
+                'date' => $item['date'],
+            ]);
+        }
+
+        return response()->json(['message' => 'DTR records stored successfully'], 201);
+    }
 }
