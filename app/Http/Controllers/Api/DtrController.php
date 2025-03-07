@@ -104,7 +104,7 @@ class DtrController extends Controller
             return 1;
         }
     
-        return response()->json(['error' => 'No records were inserted'], 500);
+        // return response()->json(['error' => 'No records were inserted'], 500);
     }
     
 }
