@@ -100,6 +100,8 @@ class DtrController extends Controller
                     })
                     ->delete();
             }
+
+            return 1;
         }
     
         return response()->json(['error' => 'No records were inserted'], 500);
