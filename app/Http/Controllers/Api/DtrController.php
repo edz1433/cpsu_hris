@@ -67,7 +67,7 @@ class DtrController extends Controller
         // Dispatch the merging process to a queue
         Bus::dispatch(function () use ($dates) {
             try {
-                DB::statement("SET SESSION group_concat_max_len = 102400");
+                DB::statement("SET SESSION group_concat_max_len = 204800");
     
                 foreach (array_keys($dates) as $date) {
                     $mergedData = Dtr::select(
