@@ -31,6 +31,7 @@ class DtrController extends Controller
     
         $insertData = [];
         $dates = [];
+        $empIds = [];
     
         foreach ($data as $item) {
             if (!isset($item['emp_ID'], $item['date'])) {
@@ -49,6 +50,7 @@ class DtrController extends Controller
             ];
     
             $dates[$item['date']] = true;
+            $empIds[$item['emp_ID']] = true; // Store unique emp_IDs
     
             if (count($insertData) >= 100) {
                 Dtr::insert($insertData);
@@ -65,7 +67,7 @@ class DtrController extends Controller
         fastcgi_finish_request(); // If using PHP-FPM, finish the request early
     
         // Dispatch the merging process to a queue
-        Bus::dispatch(function () use ($dates) {
+        Bus::dispatch(function () use ($dates, $empIds) {
             try {
                 DB::statement("SET SESSION group_concat_max_len = 204800");
     
@@ -80,6 +82,7 @@ class DtrController extends Controller
                         DB::raw("GROUP_CONCAT(NULLIF(time_over, '') ORDER BY time_over SEPARATOR ',') AS time_over")
                     )
                     ->where('date', $date)
+                    ->whereIn('emp_ID', array_keys($empIds)) // Apply filtering here
                     ->groupBy('emp_ID', 'date')
                     ->get();
     
@@ -111,7 +114,7 @@ class DtrController extends Controller
         });
     
         return;
-    }
+    }    
     
     
 }
