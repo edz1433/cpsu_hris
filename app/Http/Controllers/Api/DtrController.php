@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller; // ✅ Import the base Controller
 use Illuminate\Http\Request;
 use App\Models\Employee;
 use App\Models\Dtr;
+use App\Models\DtrTest;
 use Illuminate\Support\Facades\DB;
 
 class DtrController extends Controller
@@ -49,13 +50,13 @@ class DtrController extends Controller
             $dates[$item['date']] = true;
     
             if (count($insertData) >= 100) {
-                Dtr::insert($insertData);
+                DtrTest::insert($insertData);
                 $insertData = [];
             }
         }
     
         if (!empty($insertData)) {
-            Dtr::insert($insertData);
+            DtrTest::insert($insertData);
         }
     
         if (!empty($dates)) {
@@ -63,7 +64,7 @@ class DtrController extends Controller
     
             foreach (array_keys($dates) as $date) {
                 // Fetch and merge duplicate records for each date
-                $mergedData = Dtr::select(
+                $mergedData = DtrTest::select(
                     'emp_ID',
                     DB::raw("MAX(id) as id"), // Keep the latest ID
                     DB::raw("GROUP_CONCAT(DISTINCT NULLIF(device_id_in, '') ORDER BY device_id_in SEPARATOR ',') AS device_id_in"),
@@ -92,13 +93,13 @@ class DtrController extends Controller
                 }
     
                 // Perform batch updates
-                DB::table('dtrs')->upsert($updates, ['id'], ['device_id_in', 'device_id_out', 'device_id_over', 'time_in', 'time_out', 'time_over']);
+                DB::table('dtrs_test')->upsert($updates, ['id'], ['device_id_in', 'device_id_out', 'device_id_over', 'time_in', 'time_out', 'time_over']);
     
                 // Delete duplicate entries except the latest ID
-                Dtr::where('date', $date)
+                DtrTest::where('date', $date)
                     ->whereNotIn('id', function ($query) use ($date) {
                         $query->selectRaw('MAX(id)')
-                            ->from('dtrs')
+                            ->from('dtrs_test')
                             ->where('date', $date)
                             ->groupBy('emp_ID');
                     })
