@@ -64,22 +64,22 @@ class DtrController extends Controller
     
             $dateList = array_keys($dates);
     
-            // Fetch all merged data for given dates
+            // Fetch merged data for all dates
             $mergedData = DtrTest::select(
                 'emp_ID',
+                'date',
                 DB::raw("MAX(id) as id"),
-                DB::raw("MAX(device_id_in) AS device_id_in"),
-                DB::raw("MAX(device_id_out) AS device_id_out"),
-                DB::raw("MAX(device_id_over) AS device_id_over"),
-                DB::raw("MAX(time_in) AS time_in"),
-                DB::raw("MAX(time_out) AS time_out"),
-                DB::raw("MAX(time_over) AS time_over")
+                DB::raw("GROUP_CONCAT(NULLIF(device_id_in, '') ORDER BY device_id_in SEPARATOR ',') AS device_id_in"),
+                DB::raw("GROUP_CONCAT(NULLIF(device_id_out, '') ORDER BY device_id_out SEPARATOR ',') AS device_id_out"),
+                DB::raw("GROUP_CONCAT(NULLIF(device_id_over, '') ORDER BY device_id_over SEPARATOR ',') AS device_id_over"),
+                DB::raw("GROUP_CONCAT(NULLIF(time_in, '') ORDER BY time_in SEPARATOR ',') AS time_in"),
+                DB::raw("GROUP_CONCAT(NULLIF(time_out, '') ORDER BY time_out SEPARATOR ',') AS time_out"),
+                DB::raw("GROUP_CONCAT(NULLIF(time_over, '') ORDER BY time_over SEPARATOR ',') AS time_over")
             )
             ->whereIn('date', $dateList)
             ->groupBy('emp_ID', 'date')
             ->get();
     
-            // Perform batch updates
             $updates = [];
             foreach ($mergedData as $data) {
                 $updates[] = [
@@ -93,10 +93,10 @@ class DtrController extends Controller
                 ];
             }
     
-            // Batch update instead of individual queries
+            // Batch update
             DB::table('dtrs_test')->upsert($updates, ['id'], ['device_id_in', 'device_id_out', 'device_id_over', 'time_in', 'time_out', 'time_over']);
     
-            // Delete duplicates in a single query
+            // Delete duplicates (only keep latest per emp_ID, date)
             DB::table('dtrs_test')
                 ->whereIn('date', $dateList)
                 ->whereNotIn('id', function ($query) use ($dateList) {
@@ -107,10 +107,11 @@ class DtrController extends Controller
                 })
                 ->delete();
         }
+        
+        DB::statement("SET GLOBAL max_connect_errors = 1000000;");
     
         return response()->json(['message' => 'DTR Sync Complete']);
     }
-    
     
     
 }
