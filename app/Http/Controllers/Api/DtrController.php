@@ -50,13 +50,13 @@ class DtrController extends Controller
             $dates[$item['date']] = true;
     
             if (count($insertData) >= 100) {
-                DtrTest::insert($insertData);
+                Dtr::insert($insertData);
                 $insertData = [];
             }
         }
     
         if (!empty($insertData)) {
-            DtrTest::insert($insertData);
+            Dtr::insert($insertData);
         }
     
         if (!empty($dates)) {
@@ -65,7 +65,7 @@ class DtrController extends Controller
             $dateList = array_keys($dates);
     
             // Fetch merged data for all dates
-            $mergedData = DtrTest::select(
+            $mergedData = Dtr::select(
                 'emp_ID',
                 'date',
                 DB::raw("MAX(id) as id"),
@@ -94,20 +94,20 @@ class DtrController extends Controller
             }
     
             // Batch update
-            DB::table('dtrs_test')->upsert($updates, ['id'], ['device_id_in', 'device_id_out', 'device_id_over', 'time_in', 'time_out', 'time_over']);
+            DB::table('dtrs')->upsert($updates, ['id'], ['device_id_in', 'device_id_out', 'device_id_over', 'time_in', 'time_out', 'time_over']);
     
             // Delete duplicates (only keep latest per emp_ID, date)
-            DB::table('dtrs_test')
+            DB::table('dtrs')
                 ->whereIn('date', $dateList)
                 ->whereNotIn('id', function ($query) use ($dateList) {
                     $query->selectRaw('MAX(id)')
-                        ->from('dtrs_test')
+                        ->from('dtrs')
                         ->whereIn('date', $dateList)
                         ->groupBy('emp_ID', 'date');
                 })
                 ->delete();
         }
-        
+
         DB::statement("SET GLOBAL max_connect_errors = 1000000;");
     
         return response()->json(['message' => 'DTR Sync Complete']);
