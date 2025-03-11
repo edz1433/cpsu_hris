@@ -60,6 +60,8 @@ class DtrController extends Controller
         }
     
         if (!empty($dates)) {
+            DB::statement("SET SESSION group_concat_max_len = 4294967295");
+            
             foreach (array_keys($dates) as $date) {
                 // Fetch and merge duplicate records for each date
                 $mergedData = DtrTest::select(
