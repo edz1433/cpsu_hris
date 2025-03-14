@@ -132,18 +132,23 @@
                     <th colspan="2" class="font1 center">OVERTIME</th>
                 </tr>
             </thead>
-            <tbody>	
+            <tbody>    
             @if ($period == 1)
-                {{-- Display days 1-15 --}}
                 @for ($day = 1; $day <= 15; $day++)
+                    @php
+                        $overtime = isset($time_arrays[$day]['overtime']) ? $time_arrays[$day]['overtime'] : [];
+                        sort($overtime); // Sort from lowest to highest
+                        $firstTime = isset($overtime[0]) ? substr($overtime[0], 0, strrpos($overtime[0], ':')) : '';
+                        $lastTime = isset($overtime[count($overtime) - 1]) ? substr($overtime[count($overtime) - 1], 0, strrpos($overtime[count($overtime) - 1], ':')) : '';
+                    @endphp
                     <tr>
                         <th class="font center" width="15">{{ $day }}</th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
-                        <th class="font1 center">@if (count($time_arrays[$day]['overtime']) == 2){{ substr(reset($time_arrays[$day]['overtime']), 0, strrpos(reset($time_arrays[$day]['overtime']), ':')) }}@endif</th>
-                        <th class="font1 center">@if (count($time_arrays[$day]['overtime']) == 2){{ substr(end($time_arrays[$day]['overtime']), 0, strrpos(end($time_arrays[$day]['overtime']), ':')) }}@endif</th>
+                        <th class="font1 center">{{ $firstTime }}</th>
+                        <th class="font1 center">{{ $lastTime }}</th>
                     </tr>
                 @endfor
                 @for ($day = 16; $day <= 31; $day++)
@@ -170,31 +175,43 @@
                     </tr>
                 @endfor
                 @for ($day = 16; $day <= 31; $day++)
+                    @php
+                        $overtime = isset($time_arrays[$day]['overtime']) ? $time_arrays[$day]['overtime'] : [];
+                        sort($overtime);
+                        $firstTime = isset($overtime[0]) ? substr($overtime[0], 0, strrpos($overtime[0], ':')) : '';
+                        $lastTime = isset($overtime[count($overtime) - 1]) ? substr($overtime[count($overtime) - 1], 0, strrpos($overtime[count($overtime) - 1], ':')) : '';
+                    @endphp
                     <tr>
                         <th class="font center" width="15">{{ $day }}</th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
-                        <th class="font1 center">@if (count($time_arrays[$day]['overtime']) == 2){{ substr(reset($time_arrays[$day]['overtime']), 0, strrpos(reset($time_arrays[$day]['overtime']), ':')) }}@endif</th>
-                        <th class="font1 center">@if (count($time_arrays[$day]['overtime']) == 2){{ substr(end($time_arrays[$day]['overtime']), 0, strrpos(end($time_arrays[$day]['overtime']), ':')) }}@endif</th>
+                        <th class="font1 center">{{ $firstTime }}</th>
+                        <th class="font1 center">{{ $lastTime }}</th>
                     </tr>
                 @endfor
             @elseif ($period == 3)
                 @foreach ($time_arrays as $day => $times)
+                    @php
+                        $overtime = isset($times['overtime']) ? $times['overtime'] : [];
+                        sort($overtime);
+                        $firstTime = isset($overtime[0]) ? substr($overtime[0], 0, strrpos($overtime[0], ':')) : '';
+                        $lastTime = isset($overtime[count($overtime) - 1]) ? substr($overtime[count($overtime) - 1], 0, strrpos($overtime[count($overtime) - 1], ':')) : '';
+                    @endphp
                     <tr>
                         <th class="font center" width="15">{{ $day }}</th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
                         <th class="font1 center"></th>
-                        <th class="font1 center">@if (count($times['overtime']) == 2){{ substr(reset($times['overtime']), 0, strrpos(reset($times['overtime']), ':')) }}@endif</th>
-                        <th class="font1 center">@if (count($times['overtime']) == 2){{ substr(end($times['overtime']), 0, strrpos(end($times['overtime']), ':')) }}@endif</th>
+                        <th class="font1 center">{{ $firstTime }}</th>
+                        <th class="font1 center">{{ $lastTime }}</th>
                     </tr>
                 @endforeach
             @endif
             </tbody>
-        </table>        
+        </table>            
         <p style="font-size: 10px; text-align: left;">
             <b style="margin-left: 25px;">CERTIFY</b> on my honor that the above is a true and correct of hours of worked performed, record of which was made daily at of arrival and departure from office:
         </p> 
@@ -243,67 +260,84 @@
                     <th colspan="2" class="font1 center">OVERTIME</th>
                 </tr>
             </thead>
-            <tbody>	
-                @if ($period == 1)
-                    {{-- Display days 1-15 --}}
-                    @for ($day = 1; $day <= 15; $day++)
-                        <tr>
-                            <th class="font center" width="15">{{ $day }}</th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center">@if (count($time_arrays[$day]['overtime']) == 2){{ substr(reset($time_arrays[$day]['overtime']), 0, strrpos(reset($time_arrays[$day]['overtime']), ':')) }}@endif</th>
-                            <th class="font1 center">@if (count($time_arrays[$day]['overtime']) == 2){{ substr(end($time_arrays[$day]['overtime']), 0, strrpos(end($time_arrays[$day]['overtime']), ':')) }}@endif</th>
-                        </tr>
-                    @endfor
-                    @for ($day = 16; $day <= 31; $day++)
-                        <tr>
-                            <th class="font center" width="15">{{ $day }}</th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                        </tr>
-                    @endfor
-                @elseif ($period == 2)
-                    @for ($day = 1; $day <= 15; $day++)
-                        <tr>
-                            <th class="font center" width="15">{{ $day }}</th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                        </tr>
-                    @endfor
-                    @for ($day = 16; $day <= 31; $day++)
-                        <tr>
-                            <th class="font center" width="15">{{ $day }}</th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center">@if (count($time_arrays[$day]['overtime']) == 2){{ substr(reset($time_arrays[$day]['overtime']), 0, strrpos(reset($time_arrays[$day]['overtime']), ':')) }}@endif</th>
-                            <th class="font1 center">@if (count($time_arrays[$day]['overtime']) == 2){{ substr(end($time_arrays[$day]['overtime']), 0, strrpos(end($time_arrays[$day]['overtime']), ':')) }}@endif</th>
-                        </tr>
-                    @endfor
-                @elseif ($period == 3)
-                    @foreach ($time_arrays as $day => $times)
-                        <tr>
-                            <th class="font center" width="15">{{ $day }}</th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center"></th>
-                            <th class="font1 center">@if (count($times['overtime']) == 2){{ substr(reset($times['overtime']), 0, strrpos(reset($times['overtime']), ':')) }}@endif</th>
-                            <th class="font1 center">@if (count($times['overtime']) == 2){{ substr(end($times['overtime']), 0, strrpos(end($times['overtime']), ':')) }}@endif</th>
-                        </tr>
-                    @endforeach
-                @endif
+            <tbody>    
+            @if ($period == 1)
+                @for ($day = 1; $day <= 15; $day++)
+                    @php
+                        $overtime = isset($time_arrays[$day]['overtime']) ? $time_arrays[$day]['overtime'] : [];
+                        sort($overtime); // Sort from lowest to highest
+                        $firstTime = isset($overtime[0]) ? substr($overtime[0], 0, strrpos($overtime[0], ':')) : '';
+                        $lastTime = isset($overtime[count($overtime) - 1]) ? substr($overtime[count($overtime) - 1], 0, strrpos($overtime[count($overtime) - 1], ':')) : '';
+                    @endphp
+                    <tr>
+                        <th class="font center" width="15">{{ $day }}</th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center">{{ $firstTime }}</th>
+                        <th class="font1 center">{{ $lastTime }}</th>
+                    </tr>
+                @endfor
+                @for ($day = 16; $day <= 31; $day++)
+                    <tr>
+                        <th class="font center" width="15">{{ $day }}</th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                    </tr>
+                @endfor
+            @elseif ($period == 2)
+                @for ($day = 1; $day <= 15; $day++)
+                    <tr>
+                        <th class="font center" width="15">{{ $day }}</th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                    </tr>
+                @endfor
+                @for ($day = 16; $day <= 31; $day++)
+                    @php
+                        $overtime = isset($time_arrays[$day]['overtime']) ? $time_arrays[$day]['overtime'] : [];
+                        sort($overtime);
+                        $firstTime = isset($overtime[0]) ? substr($overtime[0], 0, strrpos($overtime[0], ':')) : '';
+                        $lastTime = isset($overtime[count($overtime) - 1]) ? substr($overtime[count($overtime) - 1], 0, strrpos($overtime[count($overtime) - 1], ':')) : '';
+                    @endphp
+                    <tr>
+                        <th class="font center" width="15">{{ $day }}</th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center">{{ $firstTime }}</th>
+                        <th class="font1 center">{{ $lastTime }}</th>
+                    </tr>
+                @endfor
+            @elseif ($period == 3)
+                @foreach ($time_arrays as $day => $times)
+                    @php
+                        $overtime = isset($times['overtime']) ? $times['overtime'] : [];
+                        sort($overtime);
+                        $firstTime = isset($overtime[0]) ? substr($overtime[0], 0, strrpos($overtime[0], ':')) : '';
+                        $lastTime = isset($overtime[count($overtime) - 1]) ? substr($overtime[count($overtime) - 1], 0, strrpos($overtime[count($overtime) - 1], ':')) : '';
+                    @endphp
+                    <tr>
+                        <th class="font center" width="15">{{ $day }}</th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center"></th>
+                        <th class="font1 center">{{ $firstTime }}</th>
+                        <th class="font1 center">{{ $lastTime }}</th>
+                    </tr>
+                @endforeach
+            @endif
             </tbody>
         </table>
         <p style="font-size: 10px; text-align: left;">

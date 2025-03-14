@@ -15,6 +15,17 @@ class DpipopController extends Controller
         
         return response()->json(['formdata' => $formdata]);
     }
+
+    public function createOpcr(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required',
+            'folder_id' => 'required|exists:docu_folders,id',
+            'mfo.*' => 'required|string',
+            'percent.*' => 'required|integer|min:0|max:100',
+        ]);
+
+    }
     
     public function createpr(Request $request)
     {
