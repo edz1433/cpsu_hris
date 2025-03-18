@@ -17,7 +17,7 @@ class CalendarController extends Controller
             return 'employee';
         }
     }
-
+    
     public function eventRead() 
     {
         $userId = Auth::id();
@@ -28,7 +28,7 @@ class CalendarController extends Controller
                     ->get();
         return view('calendar.eventList', compact('event'));
     }
- 
+    
     public function eventShow() 
     {
         $events = Event::all();
