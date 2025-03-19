@@ -595,6 +595,24 @@ class LeaveApplicationController extends Controller
                 break;
             case 3:
                 $leaveApplication->status = 2;
+
+                $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
+                $employee->vl = $employee->vl ?? 0;
+                $employee->sl = $employee->sl ?? 0;
+                
+                if (in_array($leaveApplication->leave_type, [1, 2])){
+                    $employee->vl += $leaveApplication->less_vl;
+                }if($leaveApplication->leave_type == 3){
+                    $employee->vl += $leaveApplication->less_vl;
+                    $employee->sl += $leaveApplication->less_sl;
+                }if($leaveApplication->leave_type == 6){
+                    $employee->special_pl += ($leaveApplication->days - $leaveApplication->day_wpay);
+                }if($leaveApplication->leave_type == 14){
+                    $employee->servcred_leave += ($leaveApplication->days - $leaveApplication->day_wpay);
+                }
+                
+                $employee->save();
+
                 break;
             default:
                 return response()->json([
