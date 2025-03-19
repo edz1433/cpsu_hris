@@ -4,3 +4,4 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\DtrController;
 
 Route::post('/dtrs', [DtrController::class, 'syncDtr'])->name('api.syncDtr');
+Route::post('/dtrs-batch', [DtrController::class, 'syncDtrBatch'])->name('api.syncDtrBatch');
