@@ -78,7 +78,7 @@ class DtrController extends Controller
             )
             ->whereIn('date', $dateList)
             ->groupBy('emp_ID', 'date')
-            ->get();            
+            ->get();                    
     
             $updates = [];
             foreach ($mergedData as $data) {
