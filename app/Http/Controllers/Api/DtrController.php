@@ -69,31 +69,27 @@ class DtrController extends Controller
                 'emp_ID',
                 'date',
                 DB::raw("MAX(id) as id"),
-                DB::raw("GROUP_CONCAT(DISTINCT device_id_in ORDER BY time_in SEPARATOR ',') AS device_id_in"),
-                DB::raw("GROUP_CONCAT(DISTINCT device_id_out ORDER BY time_out SEPARATOR ',') AS device_id_out"),
-                DB::raw("GROUP_CONCAT(DISTINCT device_id_over ORDER BY time_over SEPARATOR ',') AS device_id_over"),
-                DB::raw("GROUP_CONCAT(DISTINCT time_in ORDER BY time_in SEPARATOR ',') AS time_in"),
-                DB::raw("GROUP_CONCAT(DISTINCT time_out ORDER BY time_out SEPARATOR ',') AS time_out"),
-                DB::raw("GROUP_CONCAT(DISTINCT time_over ORDER BY time_over SEPARATOR ',') AS time_over")
+                DB::raw("GROUP_CONCAT(NULLIF(device_id_in, '') ORDER BY device_id_in SEPARATOR ',') AS device_id_in"),
+                DB::raw("GROUP_CONCAT(NULLIF(device_id_out, '') ORDER BY device_id_out SEPARATOR ',') AS device_id_out"),
+                DB::raw("GROUP_CONCAT(NULLIF(device_id_over, '') ORDER BY device_id_over SEPARATOR ',') AS device_id_over"),
+                DB::raw("GROUP_CONCAT(NULLIF(time_in, '') ORDER BY time_in SEPARATOR ',') AS time_in"),
+                DB::raw("GROUP_CONCAT(NULLIF(time_out, '') ORDER BY time_out SEPARATOR ',') AS time_out"),
+                DB::raw("GROUP_CONCAT(NULLIF(time_over, '') ORDER BY time_over SEPARATOR ',') AS time_over")
             )
             ->whereIn('date', $dateList)
             ->groupBy('emp_ID', 'date')
-            ->get();                    
+            ->get();
     
             $updates = [];
             foreach ($mergedData as $data) {
-                $filteredTimeIn = $this->removeDuplicatesWithDeviceIds($data->time_in, $data->device_id_in);
-                $filteredTimeOut = $this->removeDuplicatesWithDeviceIds($data->time_out, $data->device_id_out);
-                $filteredTimeOver = $this->removeDuplicatesWithDeviceIds($data->time_over, $data->device_id_over);
-
                 $updates[] = [
                     'id' => $data->id,
-                    'device_id_in' => $filteredTimeIn['device_ids'] ?: null,
-                    'device_id_out' => $filteredTimeOut['device_ids'] ?: null,
-                    'device_id_over' => $filteredTimeOver['device_ids'] ?: null,
-                    'time_in' => $filteredTimeIn['times'] ?: null,
-                    'time_out' => $filteredTimeOut['times'] ?: null,
-                    'time_over' => $filteredTimeOver['times'] ?: null,
+                    'device_id_in' => $data->device_id_in ?: null,
+                    'device_id_out' => $data->device_id_out ?: null,
+                    'device_id_over' => $data->device_id_over ?: null,
+                    'time_in' => $data->time_in ?: null,
+                    'time_out' => $data->time_out ?: null,
+                    'time_over' => $data->time_over ?: null,
                 ];
             }
     
@@ -116,6 +112,7 @@ class DtrController extends Controller
     
         return response()->json(['message' => 'DTR Sync Complete']);
     }
+    
 
     private function removeDuplicatesWithDeviceIds($times, $deviceIds)
     {
