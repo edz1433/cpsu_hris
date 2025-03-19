@@ -595,7 +595,7 @@ class LeaveApplicationController extends Controller
                 break;
             case 3:
                 $leaveApplication->status = 2;
-
+                
                 $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
                 $employee->vl = $employee->vl ?? 0;
                 $employee->sl = $employee->sl ?? 0;
