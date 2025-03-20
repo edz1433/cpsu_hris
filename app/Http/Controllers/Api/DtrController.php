@@ -147,13 +147,13 @@
             $dates[$item['date']] = true;
     
             if (count($insertData) >= 100) {
-                DtrTest::insert($insertData);
+                Dtr::insert($insertData);
                 $insertData = [];
             }
         }
     
         if (!empty($insertData)) {
-            DtrTest::insert($insertData);
+            Dtr::insert($insertData);
         }
     
         if (!empty($dates)) {
@@ -161,7 +161,7 @@
     
             $dateList = array_keys($dates);
     
-            $mergedData = DtrTest::select(
+            $mergedData = Dtr::select(
                 'emp_ID',
                 'date',
                 DB::raw("MAX(id) as id"),
@@ -193,13 +193,13 @@
                 ];
             }
     
-            DB::table('dtrs_test')->upsert($updates, ['id'], ['device_id_in', 'device_id_out', 'device_id_over', 'time_in', 'time_out', 'time_over']);
+            DB::table('dtrs')->upsert($updates, ['id'], ['device_id_in', 'device_id_out', 'device_id_over', 'time_in', 'time_out', 'time_over']);
     
-            DB::table('dtrs_test')
+            DB::table('dtrs')
                 ->whereIn('date', $dateList)
                 ->whereNotIn('id', function ($query) use ($dateList) {
                     $query->selectRaw('MAX(id)')
-                        ->from('dtrs_test')
+                        ->from('dtrs')
                         ->whereIn('date', $dateList)
                         ->groupBy('emp_ID', 'date');
                 })
