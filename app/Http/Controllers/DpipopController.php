@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Dpipop;
 use App\Models\Employee;
 use App\Models\PrData;
+use App\Models\Opcr;
+use App\Models\Setting;
 
 class DpipopController extends Controller
 {
@@ -25,9 +27,25 @@ class DpipopController extends Controller
             'percent.*' => 'required|integer|min:0|max:100',
         ]);
 
+        $setting = Setting::first();
+        $folderId = $request->input('folder_id');
+        
+        $data = [];
+        foreach ($request->input('mfo') as $index => $mfo) {
+            $data[] = [
+                'user_id' => $setting->suc_pres,
+                'folder_id' => $folderId,
+                'mfo' => $mfo,
+                'percent' => $request->input('percent')[$index],
+            ];
+        }
+        
+        Opcr::insert($data);
+        
+        return redirect()->back()->with('success', 'Data saved successfully!');
     }
     
-    public function createpr(Request $request)
+    public function createpr_(Request $request)
     {
         $request->validate([
             'user_id' => 'required',

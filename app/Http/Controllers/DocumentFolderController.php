@@ -173,7 +173,7 @@ class DocumentFolderController extends Controller
             'folderName' => 'required|string|max:255',
             'office_access' => 'required|array',
         ]);
-    
+        
         $folderName = $request->input('folderName');
         $folderPath = public_path($folder->folder_path . '/' . $folderName);
     

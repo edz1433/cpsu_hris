@@ -6,7 +6,7 @@
         @if($guard == 'web' && (request()->is('spms') || request()->is('spms/*'))) 
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#createFolderModal">Create Folder</a>
         @endif
-        @if($guard == 'employee' && request()->is('spms/*')) 
+        @if(request()->is('spms/*')) 
             @if($folder->folder_category == 'subfolder')
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#uploadFileModal">Create PR</a>
             @endif

@@ -198,7 +198,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-12">
-                        <form id="uploadForm" method="POST" action="{{ request()->is('spms/*') ? route('createpr') : '' }}" enctype="multipart/form-data">
+                        <form id="uploadForm" method="POST" action="{{ request()->is('spms/*') ? route('createOpcr') : '' }}" enctype="multipart/form-data">
                             @csrf
                             <div class="form-row" id="newrow">
                                 <div class="form-group col-md-10 row0">

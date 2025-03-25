@@ -100,7 +100,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     //DPIPOP
     
     Route::prefix('pr-form')->group(function() {
-        Route::post('/', [DpipopController::class, 'createpr'])->name('createpr');
+        Route::post('/', [DpipopController::class, 'createOpcr'])->name('createOpcr');
         Route::post('/get-formdata', [DpipopController::class, 'getFormData'])->name('getFormData');
     });
 
