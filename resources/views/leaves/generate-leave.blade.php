@@ -260,7 +260,7 @@
                     </div>
                     <div style="margin-top: -2.10%">
                     <span style="font-size: 7px;  margin-top: -2.35%; float: right; margin-right: 10px;">
-                        <em>Total earned  and balances is for reconciliation.</em>
+                        <em>Total earned  and balances are for reconciliation.</em>
                      </span>
                     </div>
                     <div style="margin-top: 2.45%">

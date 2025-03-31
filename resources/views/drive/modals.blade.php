@@ -186,11 +186,11 @@
     </div>
 </div>
 
-<div class="modal fade" id="uploadFileModal" tabindex="-1" role="dialog" aria-labelledby="uploadFileModalLabel" aria-hidden="true">
+<div class="modal fade" id="createOpcrModal" tabindex="-1" role="dialog" aria-labelledby="createOpcrModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h6 class="modal-title text-success1" id="uploadFileModalLabel"><b>PERFORMANCE REVIEW</b></h6>
+                <h6 class="modal-title text-success1" id="createOpcrModalLabel"><b>PERFORMANCE REVIEW</b></h6>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -198,9 +198,18 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-12">
-                        <form id="uploadForm" method="POST" action="{{ request()->is('spms/*') ? route('createOpcr') : '' }}" enctype="multipart/form-data">
+                        <form id="uploadForm" method="POST" action="{{ request()->is('spms/*') ? route('create-opcr') : '' }}" enctype="multipart/form-data">
                             @csrf
                             <div class="form-row" id="newrow">
+                                <div class="form-group col-md-12 row0" style="margin-bottom: -5px;">
+                                    <label for="mfo" class="text-success1">DATE</label>
+                                </div>
+                                <div class="form-group col-md-6 row0">
+                                     <input type="month" name="first_month" class="form-control form-control-sm">
+                                </div>
+                                <div class="form-group col-md-6 row0">
+                                    <input type="month" name="second_month" class="form-control form-control-sm">
+                               </div>
                                 <div class="form-group col-md-10 row0">
                                     <label for="mfo" class="text-success1">MFO</label>
                                     <input type="hidden" name="user_id" class="form-control form-control-sm" value="{{ auth()->guard($guard)->user()->id }}" required>
@@ -209,19 +218,19 @@
                                 </div>
                                 <div class="form-group col-md-2 row0">
                                     <label for="percent" class="text-success1">Percent</label>
-                                    <input type="number" name="percent[]" class="form-control form-control-sm text-center" id="percent" value="5" autocomplete="off" placeholder="percent" required>
+                                    <input type="number" name="percent[]" class="form-control form-control-sm text-center" id="percent" value="60" autocomplete="off" placeholder="percent" required>
                                 </div>
                                 <div class="form-group col-md-10 row1">
                                     <input type="text" name="mfo[]" class="form-control form-control-sm" id="mfo" value="STRATEGIC FUNCTIONS" placeholder="Enter MFO" autocomplete="off" required readonly>
                                 </div>
                                 <div class="form-group col-md-2 row1">
-                                    <input type="number" name="percent[]" class="form-control form-control-sm text-center" id="percent" value="10" autocomplete="off" placeholder="percent" required>
+                                    <input type="number" name="percent[]" class="form-control form-control-sm text-center" id="percent" value="20" autocomplete="off" placeholder="percent" required>
                                 </div>
                                 <div class="form-group col-md-10 row2">
                                     <input type="text" name="mfo[]" class="form-control form-control-sm" id="mfo" value="SUPPORT FUNCTIONS" placeholder="Enter MFO" autocomplete="off" required readonly>
                                 </div>
                                 <div class="form-group col-md-2 row2">
-                                    <input type="number" name="percent[]" class="form-control form-control-sm text-center" id="percent" value="85" autocomplete="off" placeholder="percent" required>
+                                    <input type="number" name="percent[]" class="form-control form-control-sm text-center" id="percent" value="20" autocomplete="off" placeholder="percent" required>
                                 </div>
                                 {{-- <div class="form-group col-md-1 row2">
                                     <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteRow('row2')"><i class="fas fa-times"></i></button>
@@ -241,7 +250,6 @@
         </div>
     </div>
 </div>
-
 
 <div class="modal fade" id="editFilerModal" tabindex="-1" role="dialog" aria-labelledby="createFolderModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">

@@ -67,12 +67,14 @@
             </a>
         </li>
 
+        @if(auth()->guard($guard)->user()->role == "Administrator" || auth()->guard($guard)->user()->role == "HR Administrator")
         <li class="nav-item">
             <a href="{{ route('drive') }}" class="nav-link text-success1 {{ request()->is('spms') || request()->is('spms/*') || request()->is('drive-account') ? 'active' : '' }}">
                 <i class="pt-1 nav-icon fas fa-folder"></i>
                 <p>SPMS</p>
             </a>
         </li>
+        @endif
 
         <li class="nav-item">
             <a href="#" class="nav-link text-success1 {{ request()->is('events') ? 'active' : '' }}">

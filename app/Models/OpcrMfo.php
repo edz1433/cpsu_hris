@@ -5,9 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Opcr extends Model
+class OpcrMfo extends Model
 {
     use HasFactory;
-
-    protected $fillable = ['user_id', 'folder_id', 'pr_number', 'mfo', 'percent', 'first_month', 'second_month'];
+    protected $fillable = [
+        'opcr_id', 'mfo', 'percent', 'count'
+    ];
 }

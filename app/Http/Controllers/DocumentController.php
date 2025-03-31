@@ -7,6 +7,9 @@ use App\Models\DocuFolder;
 use App\Models\Document;
 use App\Models\Dpipop;
 use App\Models\PrData;
+use App\Models\Opcr;
+use App\Models\OpcrMfo;
+use App\Models\OpcrMfoData;
 
 class DocumentController extends Controller
 {
@@ -100,17 +103,21 @@ class DocumentController extends Controller
 
     }
 
-    public function perRating($empid = null, $folderId){
+    public function perRating($empid = null, $prnumber){
         $guard = $this->getGuard();
+        $empid = decrypt($empid);
+        $prnumber = decrypt($prnumber);
         $empid = ($empid) ? $empid : auth()->guard($guard)->user()->id;
+        
+        $prs = Opcr::where('user_id', $empid)->where('pr_number', $prnumber)->get();
 
-        $prs = Dpipop::where('user_id', $empid)->where('folder_id', $folderId)->get();
+        $cores = $prs->isNotEmpty() ? OpcrMfo::where("opcr_id", $prs[0]->id)->get() : collect();
+        $strats = $prs->count() > 1 ? OpcrMfo::where("opcr_id", $prs[1]->id)->get() : collect();
+        $supports = $prs->count() > 2 ? OpcrMfo::where("opcr_id", $prs[2]->id)->get() : collect();
 
-        $cores = PrData::where("pr_id", $prs[0]->id)->get();
-        $strats = PrData::where("pr_id", $prs[1]->id)->get();
-        $supports = PrData::where("pr_id", $prs[2]->id)->get();
+        $opcrmfodatas = OpcrMfoData::all();
 
-        return view("drive.pr", compact('guard', 'prs', 'cores', 'strats', 'supports'));
+        return view("drive.pr", compact('guard', 'opcrmfodatas', 'prs', 'cores', 'strats', 'supports'));
     }
     
     public function deleteFile($id)

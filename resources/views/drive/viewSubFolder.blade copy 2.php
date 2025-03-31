@@ -67,7 +67,7 @@
                     <h3 class="card-title"></h3>
                     <div class="card-tools">
                         <div class="input-group input-group-sm" style="width: 150px;">
-                            <input type="text" name="table_search" autocomplete="off" class="form-control float-right" placeholder="Search">
+                            <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
                             <div class="input-group-append">
                                 <button type="submit" class="btn btn-default">
                                 <i class="fas fa-search"></i>
@@ -79,20 +79,16 @@
                 <div class="card-body table-responsive p-0" style="height: 400px;">
                     <table class="table table-head-fixed text-nowrap">
                         <tbody>
-                            @foreach ($opcrs as $key => $mfoItems)
+                            @foreach ($dpipops as $userId => $mfoItems)
                                 @php
-                                    $employee = $mfoItems->first(); // Get first item in the group
+                                    $employee = $mfoItems->first();
                                     $fullName = Str::upper("{$employee->fname} {$employee->mname} {$employee->lname}");
-                                    $firstMonth = \Carbon\Carbon::parse($employee->first_month)->format('F Y');
-                                    $secondMonth = \Carbon\Carbon::parse($employee->second_month)->format('F Y');
-                                    $monthof = $firstMonth.' - '.$secondMonth;
                                 @endphp
-                                <tr onclick="showForm('{{ encrypt($employee->empid) }}', '{{ encrypt($employee->pr_number) }}')">
+                                <tr onclick="showForm('{{ $employee->empid }}', '{{ $folder->id }}')">
                                     <td width="40">  
                                         <img src="{{ asset('Profile/Employee/'.$employee->profile) }}" alt="User Image" class="profile-image">
                                     </td>
                                     <td><b>{{ $fullName }}</b></td>
-                                    <td><b>{{ strtoupper($monthof) }}</b></td>
                                     @foreach ($mfoItems as $item)
                                         <td>
                                             <b>{{ $item->mfo }} (<span class="text-danger">{{ $item->percent }}%</span>)</b>
@@ -124,12 +120,12 @@
     });
 </script>
 <script>
-    function showForm(empid, prnumber) {
+    function showForm(empid, folderId) {
         // Open the generated URL in a new tab
         window.open(
-            "{{ route('per-rating', ['empid' => ':empid', 'prnumber' => ':prnumber']) }}"
+            "{{ route('per-rating', ['empid' => ':empid', 'folderId' => ':folderId']) }}"
                 .replace(":empid", empid)
-                .replace(":prnumber", prnumber),
+                .replace(":folderId", folderId),
             "_blank"
         );
     }

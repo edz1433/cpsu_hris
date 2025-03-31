@@ -9,6 +9,7 @@ use App\Models\Document;
 use App\Models\Employee;
 use App\Models\Office;
 use App\Models\Dpipop;
+use App\Models\Opcr;
 use Illuminate\Support\Facades\Route;
 
 class DocumentFolderController extends Controller
@@ -101,13 +102,22 @@ class DocumentFolderController extends Controller
     {
         $guard = $this->getGuard();
 
-        $dpipops = Dpipop::join('employees', 'dpipops.user_id', '=', 'employees.id')
+        $opcrs = Opcr::join('employees', 'opcrs.user_id', '=', 'employees.id')
         ->where('folder_id', $id)
-        ->select('dpipops.user_id', 'dpipops.pr_number', 'dpipops.mfo', 'dpipops.percent', 'employees.fname', 'employees.lname', 'employees.mname', 'employees.profile', 'employees.id as empid')
+        ->select(
+            'opcrs.user_id', 'opcrs.pr_number', 'opcrs.mfo', 'opcrs.percent', 
+            'opcrs.first_month', 'opcrs.second_month', 
+            'employees.fname', 'employees.lname', 
+            'employees.mname', 'employees.profile', 
+            'employees.id as empid'
+        )
         ->get()
-        ->groupBy(['pr_number']);
+        ->groupBy(function ($item) {
+            return $item->user_id . '-' . $item->first_month . '-' . $item->second_month;
+        });
     
-        $topUser = Dpipop::select('user_id')
+    
+        $topUser = Opcr::select('user_id')
             ->selectRaw('COUNT(*) as count')
             ->groupBy('user_id')
             ->orderBy('count', 'desc')
@@ -117,7 +127,7 @@ class DocumentFolderController extends Controller
         $rowCount = 0;
         if ($topUser) {
             $userId = $topUser->user_id;
-            $rowCount = Dpipop::where('user_id', $userId)->count();
+            $rowCount = Opcr::where('user_id', $userId)->count();
         }
 
         $folder = DocuFolder::find($id);
@@ -163,7 +173,7 @@ class DocumentFolderController extends Controller
             }  
         }
         
-        return view('drive.viewSubFolder', compact('folder', 'subfolder', 'id', 'connFolders', 'documents', 'dpipops', 'rowCount', 'guard', 'uid', 'folderPath', 'office', 'offices'));
+        return view('drive.viewSubFolder', compact('folder', 'subfolder', 'id', 'connFolders', 'documents', 'opcrs', 'rowCount', 'guard', 'uid', 'folderPath', 'office', 'offices'));
     }
     
     public function createSubFolder(Request $request, $id)

@@ -32,6 +32,7 @@ use App\Http\Controllers\LeaveCreditController;
 use App\Http\Controllers\LeaveApplicationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PendingController;
+use App\Http\Controllers\OpcrController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -81,8 +82,13 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/update-file', [DocumentController::class, 'updateFile'])->name('document-update');
         Route::get('/delete-file/{id}', [DocumentController::class, 'deleteFile'])->name('delete-file');
 
+        // opcr mfo's
+        Route::post('/create-opcr', [OpcrController::class, 'createOpcr'])->name('create-opcr');
+        Route::post('/create-opcr-mfo', [OpcrController::class, 'createOpcrMfo'])->name('create-opcr-mfo');
+        Route::post('/create-opcr-mfo-data', [OpcrController::class, 'createOpcrMfoData'])->name('create-opcr-mfo-data');
+
         //performance rating
-        Route::get('/pr/{empid?}/{folderId}', [DocumentController::class, 'perRating'])->name('per-rating');
+        Route::get('/pr/{empid?}/{prnumber}', [DocumentController::class, 'perRating'])->name('per-rating');
     });
     
     // Drive Account
@@ -100,7 +106,6 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     //DPIPOP
     
     Route::prefix('pr-form')->group(function() {
-        Route::post('/', [DpipopController::class, 'createOpcr'])->name('createOpcr');
         Route::post('/get-formdata', [DpipopController::class, 'getFormData'])->name('getFormData');
     });
 

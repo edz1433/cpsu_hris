@@ -7,8 +7,8 @@
         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#createFolderModal">Create Folder</a>
         @endif
         @if(request()->is('spms/*')) 
-            @if($folder->folder_category == 'subfolder')
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#uploadFileModal">Create PR</a>
+            @if($folder->folder_category !== 'subfolder')
+            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#createOpcrModal">Create OPCR</a>
             @endif
         @endif       
     </div>
