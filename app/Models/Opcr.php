@@ -9,5 +9,5 @@ class Opcr extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'folder_id', 'pr_number', 'mfo', 'percent', 'first_month', 'second_month'];
+    protected $fillable = ['user_id', 'folder_id', 'pr_number', 'mfo', 'percent', 'year'];
 }

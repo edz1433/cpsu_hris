@@ -88,7 +88,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/create-opcr-mfo-data', [OpcrController::class, 'createOpcrMfoData'])->name('create-opcr-mfo-data');
 
         //performance rating
-        Route::get('/pr/{empid?}/{prnumber}', [DocumentController::class, 'perRating'])->name('per-rating');
+        Route::get('/pr/{cat}/{empid?}/{prnumber}', [DocumentController::class, 'perRating'])->name('per-rating');
     });
     
     // Drive Account

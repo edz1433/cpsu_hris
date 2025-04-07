@@ -103,7 +103,7 @@ class DocumentController extends Controller
 
     }
 
-    public function perRating($empid = null, $prnumber){
+    public function perRating($cat, $empid, $prnumber){
         $guard = $this->getGuard();
         $empid = decrypt($empid);
         $prnumber = decrypt($prnumber);

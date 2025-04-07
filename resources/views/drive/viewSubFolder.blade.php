@@ -83,16 +83,14 @@
                                 @php
                                     $employee = $mfoItems->first(); // Get first item in the group
                                     $fullName = Str::upper("{$employee->fname} {$employee->mname} {$employee->lname}");
-                                    $firstMonth = \Carbon\Carbon::parse($employee->first_month)->format('F Y');
-                                    $secondMonth = \Carbon\Carbon::parse($employee->second_month)->format('F Y');
-                                    $monthof = $firstMonth.' - '.$secondMonth;
+                                    $year = $employee->year;
                                 @endphp
                                 <tr onclick="showForm('{{ encrypt($employee->empid) }}', '{{ encrypt($employee->pr_number) }}')">
                                     <td width="40">  
                                         <img src="{{ asset('Profile/Employee/'.$employee->profile) }}" alt="User Image" class="profile-image">
                                     </td>
                                     <td><b>{{ $fullName }}</b></td>
-                                    <td><b>{{ strtoupper($monthof) }}</b></td>
+                                    <td><b>{{ 'OPCR FOR '.strtoupper($year) }}</b></td>
                                     @foreach ($mfoItems as $item)
                                         <td>
                                             <b>{{ $item->mfo }} (<span class="text-danger">{{ $item->percent }}%</span>)</b>
@@ -100,7 +98,7 @@
                                     @endforeach
                                 </tr>
                             @endforeach
-                        </tbody>
+                        </tbody>                        
                     </table>
                 </div>
             </div>  
@@ -127,7 +125,8 @@
     function showForm(empid, prnumber) {
         // Open the generated URL in a new tab
         window.open(
-            "{{ route('per-rating', ['empid' => ':empid', 'prnumber' => ':prnumber']) }}"
+            "{{ route('per-rating', ['cat' => ':cat', 'empid' => ':empid', 'prnumber' => ':prnumber']) }}"
+                .replace(":cat", 1)
                 .replace(":empid", empid)
                 .replace(":prnumber", prnumber),
             "_blank"

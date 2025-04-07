@@ -8,9 +8,30 @@
         padding-left: 5px;
         text-align: center; /* Center align the text */
     }
+    .employee-card {
+        background-color: #ffffff;
+        background-image: url('{{ asset('images/qr-bg.png') }}');
+        background-size: cover;
+        background-position: center;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 270px;
+        height: 350px;
+        padding: 20px;
+        text-align: center;
+        font-family: 'Arial', sans-serif;
+        font-size: 14px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 2px solid #e0e0e0;
+    }
+
+    .qr-code {
+        padding: 2px 5px 2px 2px; /* top right bottom left */
+        margin-left: 4px;
+    }
 </style>
 <div class="container-fluid">
-    <div class="row">
+    <div class="row">        
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
@@ -55,10 +76,12 @@
                                         
                                         $years = $interval->y;
                                         $months = $interval->m;
+
+                                        $fullName = "{$emp->lname}, {$emp->fname} {$emp->suffix} " . (isset($emp->mname) ? strtoupper(substr($emp->mname, 0, 1)) . '.' : '');
                                     @endphp
                                         <tr id="tr-{{ $emp->id }}">
                                             <td>{{ $cnt++ }}</td>
-                                            <td><b>{{ $emp->lname }}, {{ $emp->fname }} {{ $emp->suffix }} {{ isset($emp->mname) ? strtoupper(substr($emp->mname, 0, 1)).'.' : '' }}</b><br><i>{{ $emp->position}}</i> </td>
+                                            <td><b>{{ $fullName }}</b><br><i>{{ $emp->position}}</i> </td>
                                             <td>{{ $emp->emp_ID}}</td>
                                             <td>{{ $emp->campus_abbr}}</td>
                                             <td>
@@ -81,6 +104,10 @@
                                             </td>
                                             <td>
                                                 <div class='d-flex align-items-center'>
+                                                    <a href="#" title="Leave Credits" class="btn btn-secondary btn-xs mr-1" onclick="openQRModal('{{ $emp->emp_ID }}')"
+                                                        data-toggle="modal" data-target="#qrModal" style="width: 30px; background-color: rgba(108, 117, 125, 0.3); color: white;" value="{{ $emp->id }}">
+                                                        <i class="fas fa-qrcode text-primary" style="opacity: 8;"></i>
+                                                    </a>
                                                     @if($emp->emp_status == 1)
                                                     <a href="{{ route('leavesRead', $emp->id) }}" title="Leave Credits" class='btn btn-success btn-xs employee_edit mr-1' style='width: 30px;' value="{{ $emp->id }}">
                                                         <i class="fas fa-calendar-check"></i>
@@ -112,6 +139,7 @@
         </div>
     </div>
 </div>
+
 <div class="modal fade" id="officialTime">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">    
@@ -248,6 +276,51 @@
     </div>
 </div>
 <script>
-    
+    function openQRModal(empid, fullname, position) {
+        // Clear previous QR code if it exists
+        document.getElementById('qrcode').innerHTML = "";
+
+        // Create a new QR code with the value EMP0001
+        new QRCode(document.getElementById("qrcode"), {
+            text: "EMP0001",
+            width: 205,
+            height: 205,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+    }
 </script>
+<script>
+    // Wait for the DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('downloadBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // Ensure the element exists
+            const employeeCard = document.getElementById("employeeCard");
+            if (!employeeCard) {
+                console.error("Element not found: employeeCard");
+                return;
+            }
+
+            // Use html2canvas to capture the element
+            html2canvas(employeeCard, {
+                useCORS: true,  // Allow CORS for external content if needed
+            }).then(function(canvas) {
+                // Convert the canvas to an image
+                var img = canvas.toDataURL("image/png");
+
+                // Create a temporary download link
+                var link = document.createElement('a');
+                link.href = img;
+                link.download = 'employee_card.png'; // Set the filename for the downloaded image
+                link.click();
+            }).catch(function(error) {
+                console.error("Error generating image:", error);
+            });
+        });
+    });
+</script>
+
 @endsection

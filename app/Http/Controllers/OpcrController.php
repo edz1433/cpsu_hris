@@ -36,12 +36,9 @@ class OpcrController extends Controller
         $data = [];
         $prNumber = Opcr::max('pr_number') ? str_pad(Opcr::max('pr_number') + 1, 4, '0', STR_PAD_LEFT) : '0001';
 
-        $exists = Opcr::where('first_month', $request->first_month)
-            ->where('second_month', $request->second_month)
-            ->exists();
+        $exists = Opcr::where('year', $request->year)->exists();
         
         if ($exists) {
-            // Record already exists
             return redirect()->back()->with('error1', 'OPCR Already Exists!');
         }
 
@@ -52,8 +49,7 @@ class OpcrController extends Controller
             'pr_number' => $prNumber,
             'mfo' => $mfo,
             'percent' => $request->input('percent')[$index],
-            'first_month' => $request->first_month,
-            'second_month' => $request->second_month,
+            'year' => $request->year,
             ];
         }
         
@@ -109,6 +105,8 @@ class OpcrController extends Controller
             'quality' => 'nullable|string',
             'efficiency' => 'nullable|string',
             'timeliness' => 'nullable|string',
+            'category' => 'required',
+            'opcr_by' => 'required',
         ]);
 
         $opcrId = $request->input('opcr_mfo_id');
@@ -126,6 +124,8 @@ class OpcrController extends Controller
                 'quality' => $request->input('quality'),
                 'efficiency' => $request->input('efficiency'),
                 'timeliness' => $request->input('timeliness'),
+                'category' => $request->input('category'),
+                'opcr_by' => $request->input('opcr_by'),
             ]);
         } else {
             // Create new record
@@ -139,6 +139,8 @@ class OpcrController extends Controller
                 'quality' => $request->input('quality'),
                 'efficiency' => $request->input('efficiency'),
                 'timeliness' => $request->input('timeliness'),
+                'category' => $request->input('category'),
+                'opcr_by' => $request->input('opcr_by'),
             ]);
         }
 

@@ -40,7 +40,22 @@
         </div>
     </div>
 </div>
-<button type="submit" class="btn btn-info btn-sm mb-1 float-right" data-toggle="modal" data-target="#modal-rating" style="margin-right: 30px;"><i class="fas fa-star"></i> rating</button>
+<div class="d-flex justify-content-end align-items-center gap-2 mb-3">
+    <div class="input-group" style="width: auto;">
+        <select class="form-control form-control-sm">
+            <option value="1">All</option>
+            <option value="2">1st Quarter</option>
+            <option value="3">2nd Quarter</option>
+        </select>
+        <div class="input-group-append" style="margin-right: 5px;">
+            <span class="input-group-text"><i class="fas fa-filter"></i></span>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modal-rating">
+        <i class="fas fa-star"></i> Rating
+    </button>
+</div>
+
 <table id="table-form">
     <thead>
         <tr>

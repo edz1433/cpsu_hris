@@ -1,6 +1,35 @@
+<style>
+    .employee-card {
+        background-color: #ffffff;
+        background-image: url('{{ asset('images/qr-bg.png') }}');
+        background-size: cover;
+        background-position: center;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 270px;
+        height: 350px;
+        padding: 20px;
+        text-align: center;
+        font-family: 'Arial', sans-serif;
+        font-size: 14px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 2px solid #e0e0e0;
+    }
+
+    .qr-code {
+        padding: 3px 5px 2px 2px; /* top right bottom left */
+        margin-left: 8px;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+</style>
+
 <div class="col-lg-3">
     <div class="card card-info card-outline">
         <div class="card-body box-profile">
+            <a href="#" onclick="openQRModal()"><i class="fas fa-qrcode text-primary" data-toggle="modal" data-target="#qrModal" style="font-size: 25px;"></i></a>
             <div class="text-center position-relative">
                 <div class="profile-image-container">
                     @php
@@ -50,7 +79,7 @@
 
     <div class="card card-info">
         <div class="card-header" style="padding: 6px !important;">
-            <i class="fas fa-id-card"></i><b> PERSONAL DATA SHEET</b>
+            <i class="fas fa-id-card"></i><b> PERSONAL DATA SHEET</b> 
         </div>
         <div class="card-footer p-0">
             <ul class="nav flex-column">
@@ -161,3 +190,93 @@
         </div>
     </div>
 </div>
+<!-- Modal -->
+<div class="modal fade" id="qrModal" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <!-- Download Button -->
+                <a href="#" id="downloadBtn"
+                    class="btn btn-danger rounded-circle d-flex align-items-center justify-content-center"
+                    style="width: 30px; height: 30px; position: absolute; top: 10px; right: 10px; z-index: 999;">
+                    <i class="fas fa-download"></i>
+                </a>
+                <div class="employee-card-content">
+                    <!-- Employee Card with QR Code -->
+                    <div class="employee-card" id="employeeCard">
+                        <div class="qr-code" id="qrcode">
+                            <!-- QR Code will be generated here -->
+                        </div>
+
+                        <div class="details mt-3" style="text-align: center; background-color: rgba(230, 198, 198, 0.342); color: #fff; padding-top: 5px; padding-bottom: 5px;">
+                            <h5 style="margin: 0; font-weight: bold; font-size: 1.2rem;">
+                                {{ ucwords(strtoupper(str_replace('Ñ', 'ñ', $employee->fname))) }}
+                                {{ ucwords(strtoupper(str_replace('Ñ', 'ñ', $employee->lname))) }}
+                                {{ ucwords(strtoupper(str_replace('Ñ', 'ñ', $employee->suffix))) }}
+                            </h5>
+                            <p style="margin: 4px 0; font-style: italic;">MIS STAFF</p>
+                            <p style="margin: 0; font-weight: bold;">MAIN CAMPUS</p>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openQRModal() {
+        // Clear previous QR codes if they exist
+        const qrElements = ['qrcode', 'qrcode1'];
+        qrElements.forEach(elementId => {
+            const qrElement = document.getElementById(elementId);
+            if (qrElement) {
+                qrElement.innerHTML = "";  // Clear the content of the QR code div
+            }
+        });
+
+        // Create a new QR code with the value of the employee's ID for each element
+        const employeeId = "{{ $employee->emp_ID }}";
+        qrElements.forEach(elementId => {
+            const qrElement = document.getElementById(elementId);
+            if (qrElement) {
+                new QRCode(qrElement, {
+                    text: employeeId,
+                    width: 205,
+                    height: 205,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            }
+        });
+    }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+<script>
+    document.getElementById('downloadBtn').addEventListener('click', function() {
+        // Ensure that the qr-card1 is visible before rendering
+        $('.qr-card1').removeClass('hidden');
+
+        // Capture the content of the div with html2canvas
+        html2canvas(document.querySelector('.employee-card-content'), {
+            logging: true, // Logs information for debugging
+            useCORS: true, // Ensure cross-origin resources are included
+            backgroundColor: true, // Allow background color to be transparent (can be omitted if you want a white background)
+            allowTaint: true, // Ensures that the tainted canvas can be used for rendering
+            onrendered: function(canvas) {
+                // Create a temporary link to trigger the download
+                var link = document.createElement('a');
+                link.download = '{{ $employee->emp_ID }}.png'; // Set the file name
+                link.href = canvas.toDataURL('image/png'); // Convert canvas to image
+                link.click(); // Trigger download
+
+                // Hide the qr-card1 div again after download
+                $('.qr-card1').addClass('hidden');
+            }
+        });
+    });
+</script>
+
+

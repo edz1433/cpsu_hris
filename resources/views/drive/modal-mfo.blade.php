@@ -55,6 +55,18 @@
                             @csrf
                             <input type="hidden" name="opcr_mfo_id" id="opcr-mfo-id">
                             <div class="form-row align-items-center">
+                                <div class="form-group col-md-6">
+                                    <select type="text" class="form-control" name="category">
+                                        <option value="1">1ST QUARTER</option>
+                                        <option value="2">2ND QUARTER</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <select type="text" class="form-control" name="opcr_by">
+                                        <option value="1">VPAA</option>
+                                        <option value="2">VPAF</option>
+                                    </select>
+                                </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">MFO / PAP's</label>
                                     <textarea name="mfo" rows="3" class="form-control form-control-sm"></textarea>

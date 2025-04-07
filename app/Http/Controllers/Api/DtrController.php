@@ -19,6 +19,11 @@
             return 'employee';
         }
     }
+
+    public function eventMonitoring(Request $request)
+    {
+        
+    }
     
     public function syncDtr_(Request $request)
     {

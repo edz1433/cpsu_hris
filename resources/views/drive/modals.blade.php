@@ -202,14 +202,11 @@
                             @csrf
                             <div class="form-row" id="newrow">
                                 <div class="form-group col-md-12 row0" style="margin-bottom: -5px;">
-                                    <label for="mfo" class="text-success1">DATE</label>
+                                    <label for="mfo" class="text-success1">YEAR</label>
                                 </div>
-                                <div class="form-group col-md-6 row0">
-                                     <input type="month" name="first_month" class="form-control form-control-sm">
-                                </div>
-                                <div class="form-group col-md-6 row0">
-                                    <input type="month" name="second_month" class="form-control form-control-sm">
-                               </div>
+                                <div class="form-group col-md-12 row0">
+                                    <input type="number" name="year" class="form-control form-control-sm text-center text-success1" style="font-size: 18px !important; font-weight: 900;" value="{{ date('Y') }}" min="2024" max="2050" step="1" placeholder="YYYY">
+                                </div>                                
                                 <div class="form-group col-md-10 row0">
                                     <label for="mfo" class="text-success1">MFO</label>
                                     <input type="hidden" name="user_id" class="form-control form-control-sm" value="{{ auth()->guard($guard)->user()->id }}" required>

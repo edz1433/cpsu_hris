@@ -105,17 +105,15 @@ class DocumentFolderController extends Controller
         $opcrs = Opcr::join('employees', 'opcrs.user_id', '=', 'employees.id')
         ->where('folder_id', $id)
         ->select(
-            'opcrs.user_id', 'opcrs.pr_number', 'opcrs.mfo', 'opcrs.percent', 
-            'opcrs.first_month', 'opcrs.second_month', 
+            'opcrs.user_id', 'opcrs.pr_number', 'opcrs.mfo', 'opcrs.percent', 'opcrs.year',
             'employees.fname', 'employees.lname', 
             'employees.mname', 'employees.profile', 
             'employees.id as empid'
         )
-        ->get()
+        ->get() 
         ->groupBy(function ($item) {
-            return $item->user_id . '-' . $item->first_month . '-' . $item->second_month;
+            return $item->user_id . '-' . $item->year;
         });
-    
     
         $topUser = Opcr::select('user_id')
             ->selectRaw('COUNT(*) as count')
