@@ -253,7 +253,6 @@
         });
     }
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
 <script>
     document.getElementById('downloadBtn').addEventListener('click', function() {
         // Ensure that the qr-card1 is visible before rendering
