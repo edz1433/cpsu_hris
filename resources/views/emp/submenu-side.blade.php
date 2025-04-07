@@ -255,15 +255,18 @@
 </script>
 <script>
     document.getElementById('downloadBtn').addEventListener('click', function() {
+        // Set the background image dynamically
+        document.querySelector('.employee-card').style.backgroundImage = 'url("{{ asset('images/qr-bg.png') }}")';
+
         // Ensure that the qr-card1 is visible before rendering
         $('.qr-card1').removeClass('hidden');
 
         // Capture the content of the div with html2canvas
-        html2canvas(document.querySelector('.employee-card-content'), {
-            logging: true, // Logs information for debugging
-            useCORS: true, // Ensure cross-origin resources are included
-            backgroundColor: true, // Allow background color to be transparent (can be omitted if you want a white background)
-            allowTaint: true, // Ensures that the tainted canvas can be used for rendering
+        html2canvas(document.querySelector('.employee-card'), {
+            logging: true,
+            useCORS: true,
+            backgroundColor: null, // Retain the background set dynamically
+            allowTaint: true,
             onrendered: function(canvas) {
                 // Create a temporary link to trigger the download
                 var link = document.createElement('a');
@@ -277,5 +280,7 @@
         });
     });
 </script>
+
+
 
 
