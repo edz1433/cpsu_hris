@@ -95,18 +95,52 @@ class EventController extends Controller
 
         return view("events.report", compact('guard', 'events', 'campus', 'status'));
     }
+
+    public function searchReport(Request $request){
+        $request->validate([
+            'eventid' => 'required',
+            'campusid' => 'required',
+            'statusid' => 'required',
+        ]);
+
+        $guard = $this->getGuard();
+        $events = Event::all();
+        $campus = Campus::all();
+        $status = Status::all();
+
+        $eventid = $request->input('eventid');
+        $campusid = $request->input('campusid');
+        $statusid = $request->input('statusid');
+
+        return view("events.report", compact('guard', 'events', 'campus', 'status', 'eventid', 'campusid', 'statusid'));
+    }
     
-    public function reportGenrate(){
+    public function reportGenrate(Request $request)
+    {
+        $eventid = $request->eventid;
+        $campusid = $request->campusid;
+        $statusid = $request->statusid;
+
+        // dd($eventid, $campusid, $statusid);
+    
         $events = EventLog::join('employees', 'event_logs.empid', '=', 'employees.emp_ID')
             ->join('campuses', 'employees.camp_id', '=', 'campuses.id')
-            ->where('event_logs.event_id', 1)
+            ->when($eventid, function ($query) use ($eventid) {
+                return $query->where('event_logs.event_id', $eventid);
+            })
+            ->when($campusid != 0, function ($query) use ($campusid) {
+                return $query->where('employees.camp_id', $campusid);
+            })
+            ->when($statusid != 0, function ($query) use ($statusid) {
+                return $query->where('employees.emp_status', $statusid);
+            })
             ->orderBy('event_logs.updated_at', 'desc')
             ->select(
                 'employees.fname',
                 'employees.lname',
                 'employees.suffix',
-                'employees.position', 
-                'employees.emp_status', 
+                'employees.position',
+                'employees.emp_status',
                 'campuses.campus_name',
                 'event_logs.updated_at',
                 'event_logs.in',
@@ -117,6 +151,7 @@ class EventController extends Controller
         $chunkedEvents = $events->chunk(35);
     
         $customPaper = [0, 0, 612, 792];
+    
         $pdf = \PDF::loadView('events.report-generate', compact('chunkedEvents'))
             ->setPaper($customPaper, 'portrait')
             ->setOptions([
@@ -133,7 +168,6 @@ class EventController extends Controller
             ]);
     
         return $pdf->stream();
-    }
-    
+    }    
 
 }

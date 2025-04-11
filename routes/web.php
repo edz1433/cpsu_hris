@@ -315,7 +315,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/create', [EventController::class, 'eventCreate'])->name('eventCreate');
         Route::get('/event-show', [EventController::class, 'eventShow'])->name('eventShow');
         Route::get('/reports', [EventController::class, 'showReport'])->name('showReport');
-        Route::get('/reports-generate', [EventController::class, 'reportGenrate'])->name('reportGenrate');
+        Route::post('/reports', [EventController::class, 'searchReport'])->name('searchReport');
+        Route::get('/reports-generate/{eventid}/{campusid}/{statusid}', [EventController::class, 'reportGenrate'])->name('reportGenrate');
     });
     
     Route::get('/leave/disapprove', [LeaveApplicationController::class, 'leaveDisapprove']);
