@@ -99,7 +99,7 @@ class EventController extends Controller
     public function reportGenrate(){
         $events = EventLog::join('employees', 'event_logs.empid', '=', 'employees.emp_ID')
             ->join('campuses', 'employees.camp_id', '=', 'campuses.id')
-            ->where('event_logs.event_id', 8)
+            ->where('event_logs.event_id', 1)
             ->orderBy('event_logs.updated_at', 'desc')
             ->select(
                 'employees.fname',
