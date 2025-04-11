@@ -32,13 +32,180 @@
 <!-- ChartJS -->
 <script src="{{ asset('template/plugins/chart.js/Chart.min.js') }}"></script>
 
+<!-- jQuery UI -->
+<script src="template/plugins/jquery-ui/jquery-ui.min.js"></script>
+
 <!-- fullCalendar 2.2.5 -->
 <script src="{{ asset('template/plugins/moment/moment.min.js') }}"></script>
-<script src="{{ asset('template/plugins/fullcalendar/fullcalendar.js') }}"></script>
+<script src="{{ asset('template/plugins/fullcalendar/main.js') }}"></script>
+
 
 {{-- @include('script.dashboardChart') --}}
 {{-- Notification --}}
+<script>
+  function showColor(element) {
+    var color = element.getAttribute('data-color');
 
+    document.getElementById('bg_color').value = color;
+
+    document.getElementById('submit-bg').className = 'btn ' + color + ' btn-sm';
+  }
+</script>
+<script>
+  $(function () {
+    function ini_events(ele) {
+      ele.each(function () {
+        var eventObject = {
+          title: $.trim($(this).text())
+        }
+
+        $(this).data('eventObject', eventObject)
+
+        $(this).draggable({
+          zIndex: 1070,
+          revert: true,
+          revertDuration: 0
+        })
+      })
+    }
+
+    ini_events($('#external-events div.external-event'))
+
+    var Calendar = FullCalendar.Calendar;
+    var Draggable = FullCalendar.Draggable;
+
+    var containerEl = document.getElementById('external-events');
+    var checkbox = document.getElementById('drop-remove');
+    var calendarEl = document.getElementById('calendar');
+
+    new Draggable(containerEl, {
+      itemSelector: '.external-event',
+      eventData: function (eventEl) {
+        return {
+          title: eventEl.innerText,
+          backgroundColor: window.getComputedStyle(eventEl, null).getPropertyValue('background-color'),
+          borderColor: window.getComputedStyle(eventEl, null).getPropertyValue('background-color'),
+          textColor: window.getComputedStyle(eventEl, null).getPropertyValue('color'),
+        };
+      }
+    });
+
+    var calendar = new Calendar(calendarEl, {
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      },
+      themeSystem: 'bootstrap',
+
+      events: function (fetchInfo, successCallback, failureCallback) {
+        fetch("{{ route('eventShow') }}")
+          .then(response => response.json())
+          .then(data => {
+            const events = data.map(event => {
+              const startDate = new Date(event.start);
+              const hours = startDate.getHours();
+              const minutes = startDate.getMinutes().toString().padStart(2, '0');
+              const ampm = hours >= 12 ? 'PM' : 'AM';
+              const hour12 = hours % 12 || 12;
+              const timeFormatted = `${hour12}:${minutes} ${ampm} `;
+              
+              const isSingle = !event.end;
+
+              return {
+                title: event.title,
+                timeLabel: isSingle ? timeFormatted : null,
+                start: event.start,
+                end: event.end || null,
+                allDay: false,
+                backgroundColor: '#0073b7',
+                borderColor: '#0073b7',
+              };
+            });
+            successCallback(events);
+          })
+          .catch(error => {
+            console.error('Error loading events:', error);
+            failureCallback(error);
+          });
+      },
+
+      eventContent: function (arg) {
+        const event = arg.event;
+        const time = event.extendedProps.timeLabel;
+        const title = event.title;
+        const eventColor = event.backgroundColor || '#0073b7';  // Default to blue if no color is set
+
+        let html = '';
+
+        // Add the blue dot at the start of the title
+        html += `<span class="fc-event-dot" style="width: 10px; height: 10px; background-color: ${eventColor}; border-radius: 50%; margin-right: 5px;"></span>`;
+
+        if (time) {
+          html += `<div class="fc-time-label">${time}</div>`;
+        }
+        html += `<div class="fc-event-title">${title}</div>`;
+
+        return { html };
+      },
+
+      editable: true,
+      droppable: true,
+      drop: function (info) {
+        if (checkbox.checked) {
+          info.draggedEl.parentNode.removeChild(info.draggedEl);
+        }
+
+        // Handle the drop event
+        const eventObject = $(info.draggedEl).data('eventObject');
+        
+        // Add the dropped event to the calendar
+        calendar.addEvent({
+          title: eventObject.title,
+          start: info.date,
+          backgroundColor: eventObject.backgroundColor,
+          borderColor: eventObject.borderColor,
+          textColor: eventObject.textColor,
+        });
+      }
+    });
+
+    calendar.render();
+
+    var currColor = '#3c8dbc';
+
+    $('#color-chooser > li > a').click(function (e) {
+      e.preventDefault()
+      currColor = $(this).css('color')
+      $('#add-new-event').css({
+        'background-color': currColor,
+        'border-color': currColor
+      })
+    })
+
+    $('#add-new-event').click(function (e) {
+      e.preventDefault()
+      var val = $('#new-event').val()
+      if (val.length == 0) {
+        return
+      }
+
+      var event = $('<div />')
+      event.css({
+        'background-color': currColor,
+        'border-color': currColor,
+        'color': '#fff'
+      }).addClass('external-event')
+      event.text(val)
+      $('#external-events').prepend(event)
+
+      ini_events(event)
+      $('#new-event').val('')
+    })
+  })
+</script>
+  
+  
 <script>
     document.addEventListener('contextmenu', function (e) {
         e.preventDefault();
@@ -131,136 +298,6 @@
     };
 </script>
 
-<script>
-    $(document).ready(function() {
-
-        var calendar = $('#calendar').fullCalendar({
-
-            header: {
-
-                left: 'prev,next today',
-
-                center: 'title',
-
-                right: 'month,agendaWeek,agendaDay'
-
-            },
-
-            selectable: true,
-
-            selectHelper: true,
-
-            select: function(start, end, allDay) {
-
-                var defaultStartTime = moment('08:00:00', 'HH:mm:ss');
-
-                var defaultEndTime = moment('17:00:00', 'HH:mm:ss');
-
-                start.set({
-
-                    'hour': defaultStartTime.hour(),
-
-                    'minute': defaultStartTime.minute(),
-
-                    'second': defaultStartTime.second()
-
-                });
-
-                end.set({
-
-                    'hour': defaultEndTime.hour(),
-
-                    'minute': defaultEndTime.minute(),
-
-                    'second': defaultEndTime.second()
-
-                });
-
-                var adjustedEndDate = moment(end).subtract(1, 'day');
-
-                $('#eventTitle').val('');
-
-                $('#eventStartTime').val(start.format('YYYY-MM-DD HH:mm:ss'));
-
-                $('#eventEndTime').val(adjustedEndDate.format('YYYY-MM-DD HH:mm:ss'));
-
-                $('#eventModal').modal('show');
-
-            },
-
-            events: function(start, end, timezone, callback) {
-
-                $.ajax({
-
-                    url: '{{ route('eventShow') }}',
-
-                    method: 'GET',
-
-                    dataType: 'json',
-
-                    success: function(events) {
-
-                        callback(events);
-
-                    },
-
-                    error: function(xhr, status, error) {
-
-                        console.error("Error fetching events: " + error);
-
-                    }
-
-                });
-
-            },
-
-            themeSystem: 'bootstrap',
-
-            selectable: true,
-
-            selectHelper: true,
-
-            navLinks: false,
-
-            displayEventTime: true,
-
-            editable: false,
-
-            eventClick: function(calEvent, jsEvent, view) {
-
-                var startTime = calEvent.start.format('h:mm A');
-
-                var endTime = calEvent.end.format('h:mm A');
-
-                Swal.fire({
-
-                    title: calEvent.title,
-
-                    html: `
-
-                        Start from: ${moment(calEvent.start).format("MMM. D, YYYY, h:mm a")}<br>
-
-                        Ends on: ${moment(calEvent.end).format("MMM. D, YYYY, h:mm a")}`,
-
-                    icon: "success",
-
-                    confirmButtonText: "OK",
-
-                });
-
-            },
-
-        });
-
-        setInterval(function() {
-
-            calendar.fullCalendar('refetchEvents');
-
-        }, 5000);
-
-    });
-
-</script>
 <script>
     $(document).ready(function() {
         let rowCount = 3;

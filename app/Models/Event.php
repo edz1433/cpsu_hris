@@ -13,9 +13,14 @@ class Event extends Model
  
     protected $fillable = [
         'title',
+        'venue',
         'start',
         'end',
         'user_id',
+        'campus_id',
+        'emp_status',
+        'bg_color',
         'remember_token',
+        'event_stat',
     ];
 }

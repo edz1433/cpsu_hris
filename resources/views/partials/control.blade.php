@@ -77,7 +77,7 @@
         @endif
 
         <li class="nav-item">
-            <a href="#" class="nav-link text-success1 {{ request()->is('events') ? 'active' : '' }}">
+            <a href="{{ route('eventIndex') }}" class="nav-link text-success1 {{ request()->is('event*') ? 'active' : '' }}">
                 <i class="pt-1 nav-icon fas fa-calendar"></i>
                 <p>Events</p>
             </a>

@@ -10,7 +10,7 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{{ asset('template/plugins/fontawesome-free-v6/css/all.min.css') }}">
     <!-- fullCalendar -->
-    <link rel="stylesheet" href="{{ asset('template/plugins/fullcalendar/fullcalendar.css') }}">
+    <link rel="stylesheet" href="{{ asset('template/plugins/fullcalendar/main.css') }}">
     <!-- icheck bootstrap -->
     <link rel="stylesheet" href="{{ asset('template/plugins/icheck-bootstrap/icheck-bootstrap.min.css') }}">
     <!-- Theme style -->
@@ -55,6 +55,10 @@
     .nav-item.dropdown .dropdown-menu.notifications{
         width: 500px !important; /* Or whatever width you prefer */
         max-width: none !important; /* Ensure it doesn't get constrained by max-width */
+    }
+    .btn-success1 {
+        background-color: #28a745 !important;
+        border-color: #28a745 !important;
     }
     </style>
 </head>

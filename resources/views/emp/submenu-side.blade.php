@@ -7,7 +7,7 @@
         border-radius: 15px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         width: 270px;
-        height: 350px;
+        height: 360px;
         padding: 20px;
         text-align: center;
         font-family: 'Arial', sans-serif;
@@ -17,13 +17,10 @@
     }
 
     .qr-code {
-        padding: 3px 5px 2px 2px; /* top right bottom left */
+        padding: 9px 5px 2px 4px; /* top right bottom left */
         margin-left: 8px;
     }
 
-    .hidden {
-        display: none !important;
-    }
 </style>
 
 <div class="col-lg-3">
@@ -201,21 +198,22 @@
                     style="width: 30px; height: 30px; position: absolute; top: 10px; right: 10px; z-index: 999;">
                     <i class="fas fa-download"></i>
                 </a>
+
+                <!-- Employee Card with QR Code -->
                 <div class="employee-card-content">
-                    <!-- Employee Card with QR Code -->
                     <div class="employee-card" id="employeeCard">
                         <div class="qr-code" id="qrcode">
                             <!-- QR Code will be generated here -->
                         </div>
 
-                        <div class="details mt-3" style="text-align: center; background-color: rgba(230, 198, 198, 0.342); color: #fff; padding-top: 5px; padding-bottom: 5px;">
+                        <div class="details mt-3" style="text-align: center; border-radius: 5px; background-color: rgba(97, 91, 91, 0.342); color: #fff; padding-top: 5px; padding-bottom: 5px;">
                             <h5 style="margin: 0; font-weight: bold; font-size: 1.2rem;">
                                 {{ ucwords(strtoupper(str_replace('Ñ', 'ñ', $employee->fname))) }}
                                 {{ ucwords(strtoupper(str_replace('Ñ', 'ñ', $employee->lname))) }}
                                 {{ ucwords(strtoupper(str_replace('Ñ', 'ñ', $employee->suffix))) }}
                             </h5>
-                            <p style="margin: 4px 0; font-style: italic;">MIS STAFF</p>
-                            <p style="margin: 0; font-weight: bold;">MAIN CAMPUS</p>
+                            <p style="margin: 4px 0; font-style: italic;">{{ ($employee->emp_status == 1) ? $employee->position : 'OFFICE STAFF'  }}</p>
+                            {{-- <p style="margin: 0; font-weight: bold;">MAIN CAMPUS</p> --}}
                         </div>
                         
                     </div>
@@ -255,32 +253,15 @@
 </script>
 <script>
     document.getElementById('downloadBtn').addEventListener('click', function() {
-        // Set the background image dynamically
-        document.querySelector('.employee-card').style.backgroundImage = 'url("{{ asset('images/qr-bg.png') }}")';
-
-        // Ensure that the qr-card1 is visible before rendering
-        $('.qr-card1').removeClass('hidden');
-
-        // Capture the content of the div with html2canvas
-        html2canvas(document.querySelector('.employee-card'), {
-            logging: true,
-            useCORS: true,
-            backgroundColor: null, // Retain the background set dynamically
-            allowTaint: true,
-            onrendered: function(canvas) {
-                // Create a temporary link to trigger the download
-                var link = document.createElement('a');
-                link.download = '{{ $employee->emp_ID }}.png'; // Set the file name
-                link.href = canvas.toDataURL('image/png'); // Convert canvas to image
-                link.click(); // Trigger download
-
-                // Hide the qr-card1 div again after download
-                $('.qr-card1').addClass('hidden');
-            }
+        const target = document.querySelector('.employee-card-content');
+        html2canvas(target, {
+            backgroundColor: null, // Allows the actual CSS background of the element to show
+            useCORS: true
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = '{{ $employee->emp_ID }}.png';
+            link.href = canvas.toDataURL();
+            link.click();
         });
     });
 </script>
-
-
-
-

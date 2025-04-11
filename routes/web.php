@@ -32,6 +32,7 @@ use App\Http\Controllers\LeaveCreditController;
 use App\Http\Controllers\LeaveApplicationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PendingController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\OpcrController;
 /*
 |--------------------------------------------------------------------------
@@ -260,9 +261,9 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
 
     // Calendar
     Route::prefix('events')->group(function() {
-        Route::get('/', [CalendarController::class, 'eventRead'])->name('eventRead');
+        Route::get('/list', [CalendarController::class, 'eventRead'])->name('eventRead');
         Route::get('/show', [CalendarController::class, 'eventShow'])->name('eventShow');
-        Route::post('/create', [CalendarController::class, 'eventCreate'])->name('eventCreate');
+        // Route::post('/create', [CalendarController::class, 'eventCreate'])->name('eventCreate');
         Route::get('/edit/{id}', [CalendarController::class, 'eventEdit'])->name('eventEdit');
         Route::post('/update', [CalendarController::class, 'eventUpdate'])->name('eventUpdate');
         Route::get('/delete/{id}', [CalendarController::class, 'eventDelete'])->name('eventDelete');
@@ -306,6 +307,15 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/get-pdf-path', [LeaveApplicationController::class, 'getPdfPath'])->name('getPdfPath');
         
         Route::post('/leaves-report', [LeaveApplicationController::class, 'leaveReport'])->name('leaveReport');
+    });
+
+    // events
+    Route::prefix('event')->group(function() {
+        Route::get('/', [EventController::class, 'eventIndex'])->name('eventIndex');
+        Route::post('/create', [EventController::class, 'eventCreate'])->name('eventCreate');
+        Route::get('/event-show', [EventController::class, 'eventShow'])->name('eventShow');
+        Route::get('/reports', [EventController::class, 'showReport'])->name('showReport');
+        Route::get('/reports-generate', [EventController::class, 'reportGenrate'])->name('reportGenrate');
     });
     
     Route::get('/leave/disapprove', [LeaveApplicationController::class, 'leaveDisapprove']);
