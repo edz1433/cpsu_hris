@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\DtrController;
 use App\Http\Controllers\Api\EventController;
 
-
 Route::post('/dtrs', [DtrController::class, 'syncDtr'])->name('api.syncDtr');
 Route::post('/dtrs-batch', [DtrController::class, 'syncDtrBatch'])->name('api.syncDtrBatch');
 Route::get('/event-list/{passcode}', [EventController::class, 'eventList'])->name('api.eventList');

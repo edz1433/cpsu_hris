@@ -33,12 +33,10 @@ class EventController extends Controller
     public function eventLogin($passcode, $eventid, $empid)
     {
         if($passcode == '$2a$12$mWBPFC966rwEZ6V2DxtTsex4ZqvG7.fTiJ52WDHMRM6dG56wO2n0O'){   
-            $empid = $request->input('empid');
-            $eventid = $request->input('eventid');
 
             $employee = Employee::where('emp_ID', $empid)->first();
-            $fullname = strtoupper($employee->lname) . ', ' . strtoupper($employee->fname) . ' ' . $suffix;
-
+            $fullname = strtoupper($employee->lname) . ', ' . strtoupper($employee->fname) . ' ' . strtoupper($employee->suffix);
+            
             $log = EventLog::where('event_id', $eventid)
                         ->where('empid', $empid)
                         ->first();
@@ -62,10 +60,9 @@ class EventController extends Controller
         }
     }
     
-    public function eventLogs($passcode, $eventid)
+    public function eventLogs($passcode, $eventId)
     {
         if($passcode == '$2a$12$mWBPFC966rwEZ6V2DxtTsex4ZqvG7.fTiJ52WDHMRM6dG56wO2n0O'){   
-            $eventId = $request->input('event_id');
 
             $eventlogs = EventLog::join('employees', function($join) {
                 $join->on(DB::raw('BINARY event_logs.empid'), '=', DB::raw('BINARY employees.emp_ID'));

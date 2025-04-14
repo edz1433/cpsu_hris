@@ -53,7 +53,6 @@
                     <div class="col-md-3 col-sm-12">
                         <label class="badge badge-secondary lbel">Employee Status</label><br>
                         <select class="form-control form-control-sm select2 update-field" name="statusid" required>
-                            <option value="" @if(empty($statusid)) selected @endif>select</option>
                             <option value="0" @if(isset($statusid) && $statusid == 0) selected @endif>All</option>
                             @foreach ($status as $st)
                                 <option value="{{ $st->id }}" @if(isset($statusid) && $statusid == $st->id) selected @endif>

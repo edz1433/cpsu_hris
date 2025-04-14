@@ -111,39 +111,20 @@ class OpcrController extends Controller
 
         $opcrId = $request->input('opcr_mfo_id');
 
-        $existingMfo = OpcrMfoData::where('opcr_mfo_id', $opcrId)->first();
-
-        if ($existingMfo) {
-            // Update existing record
-            $existingMfo->update([
-                'mfo' => $request->input('mfo'),
-                'target' => $request->input('target'),
-                'in_support' => $request->input('in_support'),
-                'report_sup' => $request->input('report_sup'),
-                'div_account' => $request->input('div_account'),
-                'quality' => $request->input('quality'),
-                'efficiency' => $request->input('efficiency'),
-                'timeliness' => $request->input('timeliness'),
-                'category' => $request->input('category'),
-                'opcr_by' => $request->input('opcr_by'),
-            ]);
-        } else {
-            // Create new record
-            OpcrMfoData::create([
-                'opcr_mfo_id' => $opcrId,
-                'mfo' => $request->input('mfo'),
-                'target' => $request->input('target'),
-                'in_support' => $request->input('in_support'),
-                'report_sup' => $request->input('report_sup'),
-                'div_account' => $request->input('div_account'),
-                'quality' => $request->input('quality'),
-                'efficiency' => $request->input('efficiency'),
-                'timeliness' => $request->input('timeliness'),
-                'category' => $request->input('category'),
-                'opcr_by' => $request->input('opcr_by'),
-            ]);
-        }
-
+        OpcrMfoData::create([
+            'opcr_mfo_id' => $opcrId,
+            'mfo' => $request->input('mfo'),
+            'target' => $request->input('target'),
+            'in_support' => $request->input('in_support'),
+            'report_sup' => $request->input('report_sup'),
+            'div_account' => $request->input('div_account'),
+            'quality' => $request->input('quality'),
+            'efficiency' => $request->input('efficiency'),
+            'timeliness' => $request->input('timeliness'),
+            'category' => $request->input('category'),
+            'opcr_by' => $request->input('opcr_by'),
+        ]);
+        
         return redirect()->back()->with('success', 'MFO data saved successfully!');
     }
 

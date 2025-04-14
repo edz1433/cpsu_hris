@@ -20,6 +20,7 @@ class Event extends Model
         'campus_id',
         'emp_status',
         'bg_color',
+        'org_dept',
         'remember_token',
         'event_stat',
     ];

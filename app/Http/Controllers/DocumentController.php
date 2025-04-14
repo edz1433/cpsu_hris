@@ -105,11 +105,11 @@ class DocumentController extends Controller
 
     public function perRating($cat, $empid, $prnumber){
         $guard = $this->getGuard();
-        $empid = decrypt($empid);
-        $prnumber = decrypt($prnumber);
-        $empid = ($empid) ? $empid : auth()->guard($guard)->user()->id;
+        $dempid = decrypt($empid);
+        $dprnumber = decrypt($prnumber);
+        $dempid = ($empid) ? $dempid : auth()->guard($guard)->user()->id;
         
-        $prs = Opcr::where('user_id', $empid)->where('pr_number', $prnumber)->get();
+        $prs = Opcr::where('user_id', $dempid)->where('pr_number', $dprnumber)->get();
 
         $cores = $prs->isNotEmpty() ? OpcrMfo::where("opcr_id", $prs[0]->id)->get() : collect();
         $strats = $prs->count() > 1 ? OpcrMfo::where("opcr_id", $prs[1]->id)->get() : collect();
@@ -117,7 +117,7 @@ class DocumentController extends Controller
 
         $opcrmfodatas = OpcrMfoData::all();
 
-        return view("drive.pr", compact('guard', 'opcrmfodatas', 'prs', 'cores', 'strats', 'supports'));
+        return view("drive.pr", compact('guard', 'opcrmfodatas', 'prs', 'cores', 'strats', 'supports', 'cat', 'empid', 'prnumber'));
     }
     
     public function deleteFile($id)

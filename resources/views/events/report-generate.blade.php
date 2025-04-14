@@ -26,7 +26,7 @@
     }
 
     th, td {
-      border: 1px solid #ddd;
+      border: 1px solid #000000;
       padding: 2px;
       text-align: left;
     }
@@ -69,10 +69,10 @@
     <table>
       <tr>
         <td class="bnone" colspan="6" style="padding: 0; border: none; text-align: left;">
-          <b>Event</b> <span style="border-bottom: 1px solid #000; display: inline-block; width: 95%;"></span><br>
-          <b>Date:</b> <span style="border-bottom: 1px solid #000; display: inline-block; width: 30%;"></span>
-          <b>Venue:</b> <span style="border-bottom: 1px solid #000; display: inline-block; width: 58.8%;"></span>
-          <b>Organizing Department/s:</b> <span style="border-bottom: 1px solid #000; display: inline-block; width: 79%;"></span><br><br>
+          <b>Event:</b> <span style="border-bottom: 1px solid #000; display: inline-block; width: 94.3%; margin-bottom: -4px;">{{ strtoupper($eventsdatas->title) }}</span><br>
+          <b>Date:</b> <span style="border-bottom: 1px solid #000; display: inline-block; width: 30%; margin-bottom: -4px;">{{ strtoupper(\Carbon\Carbon::parse($eventsdatas->start)->format('F d, Y')) }}</span>
+          <b>Venue:</b> <span style="border-bottom: 1px solid #000; display: inline-block; width: 58.8%; margin-bottom: -4px;">{{ strtoupper($eventsdatas->venue) }}</span>
+          <b>Organizing Department/s:</b> <span style="border-bottom: 1px solid #000; display: inline-block; width: 79%; margin-bottom: -4px;">{{ strtoupper($eventsdatas->org_dept) }}</span><br><br>
         </td>        
       </tr>
     </table>
@@ -102,8 +102,8 @@
           <tr>
             <td class="text-center">{{ $loop->iteration }}</td>
             <td width="140">{{ strtoupper($event->lname).' '.strtoupper($event->fname).' '. strtoupper($event->suffix) }}</td>
-            <td width="130" class="text-left pl-2">{{ ($event->emp_status == 1) ? $event->position : 'OFFICE STAFF'}}</td>
-            <td class="text-center">{{ $event->campus_name }}</td>
+            <td width="130" class="text-left pl-2">{{ ($event->emp_status == 1) ? strtoupper($event->position) : 'OFFICE STAFF'}}</td>
+            <td class="text-center">{{ strtoupper($event->campus_name) }}</td>
             
             <td class="text-center">
               @if($event->in)
