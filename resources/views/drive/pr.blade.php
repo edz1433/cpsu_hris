@@ -148,7 +148,7 @@
             @endphp
         
             @foreach($filteredOpcrMfoDatas as $opcrmfodata)
-            <tr>
+            <tr onclick="showOpcrMfoData({{ $opcrmfodata->id }})" style="cursor: pointer;">
                 <td class="text-left align-top">{{ $opcrmfodata->mfo }}</td>
                 <td class="text-left pl-1">{{ $opcrmfodata->target }}</td>
                 <td class="text-center"></td>
@@ -229,7 +229,7 @@
         
             {{-- @php dd($opcrmfodatas); @endphp --}}
             @foreach($filteredopcrmfodatas as $opcrmfodata)
-                <tr>
+                <tr onclick="showOpcrMfoData({{ $opcrmfodata->id }})" style="cursor: pointer;">
                     <td class="text-left align-top">{{ $opcrmfodata->mfo }}</td>
                     <td class="text-left pl-1">{{ $opcrmfodata->target }}</td>
                     <td class="text-center"></td>
@@ -306,7 +306,7 @@
             @endphp
         
             @foreach($filteredopcrmfodatas as $opcrmfodata)
-                <tr>
+                <tr onclick="showOpcrMfoData({{ $opcrmfodata->id }})" style="cursor: pointer;">
                     <td class="text-left align-top">{{ $opcrmfodata->mfo }}</td>
                     <td class="text-left pl-1">{{ $opcrmfodata->target }}</td>
                     <td class="text-center"></td>
@@ -344,5 +344,64 @@
 
         window.location.href = url;
     });
+</script>
+<script>
+    function showOpcrMfoData(id) {
+        Swal.fire({
+            title: 'Choose an action',
+            icon: 'question',
+            showCancelButton: false,
+            showDenyButton: true,
+            confirmButtonText: 'Edit',
+            denyButtonText: 'Delete',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                editOpcrData(id);
+            } else if (result.isDenied) {
+                confirmDeleteOpcrData(id);
+            }
+        });
+    }
+
+    function editOpcrData(id) {
+        // Set hidden input value
+        document.getElementById('opcrdata_id').value = id;
+
+        // Show the modal
+        $('#opcrMfoData').modal('show');
+    }
+
+    function confirmDeleteOpcrData(id) {
+        Swal.fire({
+            title: 'Delete this entry?',
+            text: 'This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it',
+            cancelButtonText: 'Back'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteOpcrData(id);
+            }
+        });
+    }
+
+    function deleteOpcrData(id) {
+        fetch(`/opcrmfodata/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            Swal.fire('Deleted!', 'The entry has been removed.', 'success')
+                .then(() => location.reload());
+        })
+        .catch(error => {
+            Swal.fire('Error', 'Something went wrong.', 'error');
+        });
+    }
 </script>
 @endsection

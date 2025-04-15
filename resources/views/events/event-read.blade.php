@@ -52,18 +52,13 @@
               <div class="form-group">
                   <label for="Emmployee Status">Employee Status</label><br>
                   <select class="form-control form-control-sm select2 update-field" style="width: 100%;" name="emp_status" required>
-                      <option disabled selected> select </option>
+                      <option value=""> select </option>
                       <option value="0">All</option>
                       @foreach ($status as $st)
                           <option value="{{ $st->id }}" data-column-name="emp_status">{{ $st->status_name }}</option>
                       @endforeach
                   </select>                                    
               </div> 
-
-              <div class="form-group">
-                <label for="eventStartTime">Organizing Department/s</label>
-                <input type="datetime-local" class="form-control form-control-sm" id="eventorgDepartment" name="org_dept" required>
-              </div>
               
               <div class="form-group">
                 <label for="eventStartTime">Start Time</label>

@@ -33,12 +33,11 @@
 <script src="{{ asset('template/plugins/chart.js/Chart.min.js') }}"></script>
 
 <!-- jQuery UI -->
-<script src="template/plugins/jquery-ui/jquery-ui.min.js"></script>
+<script src="{{ asset('template/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
 
 <!-- fullCalendar 2.2.5 -->
 <script src="{{ asset('template/plugins/moment/moment.min.js') }}"></script>
 <script src="{{ asset('template/plugins/fullcalendar/main.js') }}"></script>
-
 
 {{-- @include('script.dashboardChart') --}}
 {{-- Notification --}}

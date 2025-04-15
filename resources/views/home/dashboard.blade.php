@@ -141,7 +141,9 @@
                     <div class="col-12">
                         <div class="card  p-0">
                             <div class="card-body" style="background-color: #e9ecef;">
-                                <!-- THE CALENDAR -->
+                                <div id="external-events">
+  
+                                </div>
                                 <div id="calendar" class="bg-white"></div>
                             </div>
                         </div>

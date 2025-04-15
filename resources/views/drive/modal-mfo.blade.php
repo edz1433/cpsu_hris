@@ -53,7 +53,8 @@
                     <div class="col-12">
                         <form id="uploadForm" method="POST" action="{{ request()->is('spms/*') ? route('create-opcr-mfo-data') : '' }}" enctype="multipart/form-data">
                             @csrf
-                            <input type="hidden" name="opcr_mfo_id" id="opcr-mfo-id">
+                            <input type="" name="opcr_mfo_id" id="opcr-mfo-id">
+                            <input type="" name="opcrdata_id" id="opcrdata_id">
                             <div class="form-row align-items-center">
                                 <div class="form-group col-md-6">
                                     <label class="text-success1">QUARTER</label>
@@ -112,6 +113,25 @@
                     
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="opcrModal" tabindex="-1" aria-labelledby="opcrModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="opcrModalLabel">OPCR Entry Options</h5>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body text-center">
+            <input type="hidden" id="opcr_id">
+
+            <p>What do you want to do?</p>
+
+            <button class="btn btn-primary btn-block mb-2" onclick="editOpcrData()">Edit</button>
+            <button class="btn btn-danger btn-block" onclick="deleteOpcrData()">Delete</button>
+        </div>
         </div>
     </div>
 </div>
