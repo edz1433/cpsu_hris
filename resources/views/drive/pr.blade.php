@@ -139,7 +139,7 @@
             <td class="text-center">{{ $core->a ?? '' }}</td>
             <td class="text-center">{{ $core->remarks ?? '' }}</td>
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
-            <td class="b-none text-center"> <i class="fas fa-plus text-secondary pl-1" data-toggle="modal" data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></td>
+            <td class="b-none text-center"> <i class="fas fa-plus text-secondary pl-1" data-toggle="modal" id="mfo-data" data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></td>
         </tr>
             @php
                 $filteredOpcrMfoDatas = in_array($cat, [1, 2])
@@ -148,7 +148,7 @@
             @endphp
         
             @foreach($filteredOpcrMfoDatas as $opcrmfodata)
-            <tr onclick="showOpcrMfoData({{ $opcrmfodata->id }})" style="cursor: pointer;">
+            <tr onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }})" style="cursor: pointer;">
                 <td class="text-left align-top">{{ $opcrmfodata->mfo }}</td>
                 <td class="text-left pl-1">{{ $opcrmfodata->target }}</td>
                 <td class="text-center"></td>
@@ -220,7 +220,7 @@
             <td class="text-center">{{ $strat->a ?? '' }}</td>
             <td class="text-center">{{ $strat->remarks ?? '' }}</td>
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
-            <td class="b-none text-center"> <i class="fas fa-plus text-secondary pl-1" data-toggle="modal" data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i></td>
+            <td class="b-none text-center"> <i class="fas fa-plus text-secondary pl-1" data-toggle="modal" id="mfo-data" data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i></td>
             @php
                 $filteredopcrmfodatas = in_array($cat, [1, 2])
                     ? $opcrmfodatas->where('opcr_mfo_id', $strat->id)->where('category', $cat)
@@ -229,7 +229,7 @@
         
             {{-- @php dd($opcrmfodatas); @endphp --}}
             @foreach($filteredopcrmfodatas as $opcrmfodata)
-                <tr onclick="showOpcrMfoData({{ $opcrmfodata->id }})" style="cursor: pointer;">
+                <tr onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->opcr_mfo_id }})" style="cursor: pointer;">
                     <td class="text-left align-top">{{ $opcrmfodata->mfo }}</td>
                     <td class="text-left pl-1">{{ $opcrmfodata->target }}</td>
                     <td class="text-center"></td>
@@ -298,7 +298,7 @@
             <td class="text-center">{{ $supp->a ?? '' }}</td>
             <td class="text-center">{{ $supp->remarks ?? '' }}</td>
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
-            <td class="b-none text-center"> <i class="fas fa-plus text-secondary pl-1" data-toggle="modal" data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i></td>
+            <td class="b-none text-center"> <i class="fas fa-plus text-secondary pl-1" data-toggle="modal" id="mfo-data" data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i></td>
             @php
                 $filteredopcrmfodatas = in_array($cat, [1, 2])
                     ? $opcrmfodatas->where('opcr_mfo_id', $supp->id)->where('category', $cat)
@@ -306,7 +306,7 @@
             @endphp
         
             @foreach($filteredopcrmfodatas as $opcrmfodata)
-                <tr onclick="showOpcrMfoData({{ $opcrmfodata->id }})" style="cursor: pointer;">
+                <tr onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }})" style="cursor: pointer;">
                     <td class="text-left align-top">{{ $opcrmfodata->mfo }}</td>
                     <td class="text-left pl-1">{{ $opcrmfodata->target }}</td>
                     <td class="text-center"></td>
@@ -346,7 +346,7 @@
     });
 </script>
 <script>
-    function showOpcrMfoData(id) {
+    function showOpcrMfoData(id, mfoid) {
         Swal.fire({
             title: 'Choose an action',
             icon: 'question',
@@ -358,6 +358,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 editOpcrData(id);
+                $('#opcr-mfo-id').val(mfoid);
             } else if (result.isDenied) {
                 confirmDeleteOpcrData(id);
             }
@@ -403,5 +404,9 @@
             Swal.fire('Error', 'Something went wrong.', 'error');
         });
     }
+
+    $('#mfo-data').on('click', function (event) {
+        $('#opcrdata_id').val(0);
+    });
 </script>
 @endsection

@@ -84,9 +84,8 @@ class EventController extends Controller
         }
 
         \DB::commit();
-
+        
         return redirect()->back()->with('success', 'Event stored successfully!');
-
     }
 
     public function showReport(){

@@ -53,8 +53,8 @@
                     <div class="col-12">
                         <form id="uploadForm" method="POST" action="{{ request()->is('spms/*') ? route('create-opcr-mfo-data') : '' }}" enctype="multipart/form-data">
                             @csrf
-                            <input type="" name="opcr_mfo_id" id="opcr-mfo-id">
-                            <input type="" name="opcrdata_id" id="opcrdata_id">
+                            <input type="hidden" name="opcr_mfo_id" id="opcr-mfo-id">
+                            <input type="hidden" name="opcrdata_id" id="opcrdata_id">
                             <div class="form-row align-items-center">
                                 <div class="form-group col-md-6">
                                     <label class="text-success1">QUARTER</label>
@@ -256,11 +256,6 @@
 
         attachInputListeners();
 
-        $('#opcrMfoData').on('show.bs.modal', function (event) {
-            const button = $(event.relatedTarget);
-            const mfoid = button.data('mfoid');
-            $('#opcr-mfo-id').val(mfoid);
-        });
     });
 
 

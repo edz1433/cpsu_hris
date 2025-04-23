@@ -338,6 +338,7 @@ class EmployeeController extends Controller
     public function employeeUpdate(Request $request)
     {
         $employee = Employee::findOrFail($request->id);
+        $payrollemp = PayrollEmployee::where('emp_ID', $employee->emp_ID)->first();
         $column = $request->column;
     
         if ($column == 'bdate') {
@@ -399,6 +400,10 @@ class EmployeeController extends Controller
                 ]);
             }
         }
+        elseif ($column == 'emp_salary') {
+            $value = filter_var($request->value, FILTER_VALIDATE_FLOAT);
+            $payrollemp->update(['emp_salary' => round($value, 2)]);
+        }
         else {
             $columnsToCapitalize = ['lname', 'fname', 'mname'];
     
@@ -414,6 +419,7 @@ class EmployeeController extends Controller
         $guard = $this->getGuard();
         $empid = $id; 
         $employee = Employee::find($empid);
+        $payrollemp = PayrollEmployee::where('emp_ID', $employee->emp_ID)->first();
         $columnstatus = $this->columnStat($employee->emp_ID);
         $devices = Device::all();
 
@@ -436,7 +442,7 @@ class EmployeeController extends Controller
         $quali = Qualification::all();
         $camp = (auth()->user()->campus_id == 1) ? Campus::all() : Campus::where('id', auth()->user()->campus_id)->get();
 
-        return view("emp.pds", compact('employee', 'supervisor', 'guard', 'devices', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid', 'columnstatus'));
+        return view("emp.pds", compact('employee', 'payrollemp', 'supervisor', 'guard', 'devices', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid', 'columnstatus'));
     }
 
     public function genEmp(){

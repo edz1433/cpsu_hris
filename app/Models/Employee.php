@@ -15,7 +15,7 @@ class Employee extends Authenticatable
     protected $table = 'employees';
     
     protected $fillable = [
-        'fname', 'mname', 'lname', 'position', 'profile', 'area_id', 'camp_id', 'emp_ID', 'emp_status', 'emp_dept', 'item_no',
+        'fname', 'mname', 'lname', 'position', 'profile', 'area_id', 'camp_id', 'emp_ID', 'android_id', 'emp_status', 'emp_dept', 'item_no',
         'username', 'verification_code', 'password', 'role', 'date_hired', 'prefix', 'title_prefix', 'suffix', 'bdate', 'age',
         'b_place', 'sex', 'civil_status', 'height_cm', 'height_m', 'weight_kg', 'weight_lb', 'b_type',
         'gsis', 'pagibig', 'philhealth', 'sss', 'tin', 'citizenship', 'c_category', 'country', 'telephone', 'mobile',
