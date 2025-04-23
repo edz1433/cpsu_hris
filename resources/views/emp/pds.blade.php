@@ -177,7 +177,7 @@
                                 @endif
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Position</label><br>
-                                    <input type="text" value="{{ $employee->position }}" name="position" data-column-id="{{ $empid }}" data-column-name="position" id="position" name="position" id="position" class="form-control form-control-sm" placeholder="N/A">
+                                    <input type="text" value="{{ $employee->position }}" name="position" data-column-id="{{ $empid }}" data-column-name="position" id="position" name="position" id="position" class="form-control form-control-sm update-field" placeholder="N/A">
                                 </div>
 
                                 <div class="col-md-3">
@@ -284,7 +284,7 @@
                                     <label class="badge badge-secondary lbel">Mobile Number</label><br>
                                     <input type="text" name="mobile" id="mobile" value="{{ $employee->mobile }}" data-column-id="{{ $empid }}" data-column-name="mobile" class="form-control form-control-sm update-field" placeholder="N/A">
                                 </div>
-                                
+
                                 @if($guard == "web")
                                     <div class="col-md-3">
                                         <label class="badge badge-secondary lbel">Salary</label><br>

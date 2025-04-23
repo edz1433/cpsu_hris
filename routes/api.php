@@ -11,8 +11,8 @@ Route::get('/event-login/{passcode}/{eventid}/{empid}', [EventController::class,
 Route::get('/event-logs/{passcode}/{eventid}', [EventController::class, 'eventLogs'])->name('api.eventLogs');
 
 Route::prefix('app')->group(function() {
-    Route::post('/dtrlogs', [DtrController::class, 'appdtrLogs'])->name('appdtrLogs');
-    Route::post('/authcheck', [DtrController::class, 'appdtrauthCheck'])->name('appdtrauthcheck');
-    Route::post('/authlogin', [DtrController::class, 'appdtrauthLogin'])->name('appdtrauthLogin');
+    Route::get('/dtrlogs', [DtrController::class, 'appdtrLogs'])->name('appdtrLogs');
+    Route::get('/authcheck', [DtrController::class, 'appdtrauthCheck'])->name('appdtrauthcheck');
+    Route::get('/authlogin', [DtrController::class, 'appdtrauthLogin'])->name('appdtrauthLogin');
     Route::get('/check-coordinates', [DtrController::class, 'checkCoordinates'])->name('checkCoordinates');
 });
