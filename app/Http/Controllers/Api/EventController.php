@@ -42,36 +42,35 @@ class EventController extends Controller
     {
         if($passcode == '$2a$12$mWBPFC966rwEZ6V2DxtTsex4ZqvG7.fTiJ52WDHMRM6dG56wO2n0O'){   
             $empid = $this->shortDecrypt($encryptedempid);
-            
-            $employee = Employee::where('emp_ID', $empid)->first();
-            $fullname = strtoupper($employee->lname) . ', ' . strtoupper($employee->fname) . ' ' . strtoupper($employee->suffix);
-            
-            $log = EventLog::where('event_id', '=', $eventid)
-                        ->where('empid', '=', $empid)
-                        ->first();
-        
-            if (!$log) {
-                return response()->json(['message' => 'Log not found.'], 500);
-            }
-        
-            if ($log && is_null($log->in)) {
-                $log->in = Carbon::now();
-                $log->save();
-        
-                return response()->json([
-                    'fullname' => $fullname . ' in'
-                ]);
-            } 
-            elseif($log && !is_null($log->in)) {
-                $log->out = Carbon::now();
-                $log->save();
 
+            if($empid !== false){
+                $employee = Employee::where('emp_ID', $empid)->first();
+                $fullname = strtoupper($employee->lname) . ', ' . strtoupper($employee->fname) . ' ' . strtoupper($employee->suffix);
+                
+                $log = EventLog::where('event_id', $eventid)
+                            ->where('empid', $empid)
+                            ->first();
+            
+                if (!$log) {
+                    return response()->json(['message' => 'Log not found.'], 404);
+                }
+            
+                if (is_null($log->in)) {
+                    $log->in = Carbon::now();
+                } 
+                else {
+                    $log->out = Carbon::now();
+                }
+            
+                $log->save();
+            
                 return response()->json([
-                    'fullname' => $fullname . ' out'
+                    'fullname' => $fullname
                 ]);
             }
-        
-
+            else {
+                return response()->json(['message' => 'Invalid employee ID.'], 400);
+            }
         }
     }
     
