@@ -52,7 +52,7 @@ class EventController extends Controller
                             ->first();
             
                 if (!$log) {
-                    return response()->json(['message' => 'Employee not registered for this event.'], 404);
+                    return 'Employee not registered for this event.';
                 }
             
                 if ($log && is_null($log->in)) {
@@ -71,7 +71,7 @@ class EventController extends Controller
                 }
             }
             else {
-                return response()->json(['message' => 'Invalid employee ID.'], 404);
+                return 'Invalid employee ID.';
             }
         }
     }
