@@ -61,19 +61,23 @@ class EventController extends Controller
             }
         
             if (is_null($log->in)) {
-                $log->in = Carbon::now();
+                $log->in = Carbon::now(); 
+                $log->save();
+                return response()->json([
+                    'fullname' => $fullname
+                ]);
             } 
             else {
-                $log->out = Carbon::now();
+                $log->out = Carbon::now();         
+                $log->save();
+                return response()->json([
+                    'fullname' => $fullname
+                ]);
             }
         
-            $log->save();
-        
-            return response()->json([
-                'fullname' => $fullname
-            ]);
         }
-    }    
+    }
+    
     
     public function eventLogs($passcode, $eventId)
     {
