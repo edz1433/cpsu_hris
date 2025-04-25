@@ -58,16 +58,12 @@ class EventController extends Controller
                 if ($log && is_null($log->in)) {
                     $log->in = Carbon::now();
                     $log->save();
-                    return response()->json([
-                        'fullname' => $fullname
-                    ]);
+                    return $fullname;
                 } 
                 elseif($log && !is_null($log->in)) {
                     $log->out = Carbon::now();
                     $log->save();
-                    return response()->json([
-                        'fullname' => $fullname
-                    ]);
+                    return $fullname;
                 }
             }
             else {
