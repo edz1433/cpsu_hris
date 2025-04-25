@@ -232,7 +232,6 @@
     
     $shortEncrypted = shortEncrypt($employee->emp_ID);
 @endphp
-
 <script>
     function openQRModal() {
         const qrElements = ['qrcode', 'qrcode1'];
