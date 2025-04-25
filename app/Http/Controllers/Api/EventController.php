@@ -69,7 +69,7 @@ class EventController extends Controller
                 ]);
             }
             else {
-                return response()->json(['message' => 'Invalid employee ID.'], 400);
+                return response()->json(['message' => 'Invalid employee ID.'], 404);
             }
         }
     }
