@@ -52,7 +52,7 @@ class EventController extends Controller
                             ->first();
             
                 if (!$log) {
-                    return response()->json(['message' => 'Log not found.'], 404);
+                    return response()->json(['message' => 'Employee not registered for this event.'], 404);
                 }
             
                 if (is_null($log->in)) {
