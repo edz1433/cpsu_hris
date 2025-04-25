@@ -78,7 +78,7 @@
                                     <label class="badge badge-secondary lbel">Birth Date</label>
                                     <input type="date" value="{{ $employee->bdate }}" name="bdate" data-column-id="{{ $empid }}" data-column-name="bdate" name="bdate" class="form-control form-control-sm update-field" id="bday" onchange="calculateAge()">
                                 </div>
-
+                                
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Age</label>
                                     <input type="text" value="{{ $employee->age }}" name="age" class="form-control form-control-sm" id="age" readonly>

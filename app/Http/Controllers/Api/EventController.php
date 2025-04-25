@@ -30,9 +30,18 @@ class EventController extends Controller
         }
     }
 
-    public function eventLogin($passcode, $eventid, $empid)
+    function shortDecrypt($encrypted)
+    {
+        $key = 'fA7xB93kL0pTzWmQ';
+        $cipher = 'AES-128-ECB';
+        $encrypted = strtr($encrypted, '-_', '+/');
+        return openssl_decrypt(base64_decode($encrypted), $cipher, $key, 0);
+    }
+
+    public function eventLogin($passcode, $eventid, $encryptedempid)
     {
         if($passcode == '$2a$12$mWBPFC966rwEZ6V2DxtTsex4ZqvG7.fTiJ52WDHMRM6dG56wO2n0O'){   
+            $empid = $this->shortDecrypt($encryptedempid);
 
             $employee = Employee::where('emp_ID', $empid)->first();
             $fullname = strtoupper($employee->lname) . ', ' . strtoupper($employee->fname) . ' ' . strtoupper($employee->suffix);

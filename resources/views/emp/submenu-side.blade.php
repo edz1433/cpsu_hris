@@ -222,25 +222,28 @@
         </div>
     </div>
 </div>
+@php
+    function shortEncrypt($string)
+    {
+        $key = 'fA7xB93kL0pTzWmQ';
+        $cipher = 'AES-128-ECB';
+        return rtrim(strtr(base64_encode(openssl_encrypt($string, $cipher, $key, 0)), '+/', '-_'), '=');
+    }
+    
+    $shortEncrypted = shortEncrypt($employee->emp_ID);
+@endphp
 
 <script>
     function openQRModal() {
-        // Clear previous QR codes if they exist
         const qrElements = ['qrcode', 'qrcode1'];
-        qrElements.forEach(elementId => {
-            const qrElement = document.getElementById(elementId);
-            if (qrElement) {
-                qrElement.innerHTML = "";  // Clear the content of the QR code div
-            }
-        });
+        const token = "{{ $shortEncrypted }}";
 
-        // Create a new QR code with the value of the employee's ID for each element
-        const employeeId = "{{ $employee->emp_ID }}";
         qrElements.forEach(elementId => {
             const qrElement = document.getElementById(elementId);
             if (qrElement) {
+                qrElement.innerHTML = "";
                 new QRCode(qrElement, {
-                    text: employeeId,
+                    text: token,
                     width: 205,
                     height: 205,
                     colorDark: "#000000",
@@ -251,11 +254,12 @@
         });
     }
 </script>
+
 <script>
     document.getElementById('downloadBtn').addEventListener('click', function() {
         const target = document.querySelector('.employee-card-content');
         html2canvas(target, {
-            backgroundColor: null, // Allows the actual CSS background of the element to show
+            backgroundColor: null,
             useCORS: true
         }).then(canvas => {
             const link = document.createElement('a');

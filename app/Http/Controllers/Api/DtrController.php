@@ -416,7 +416,7 @@
             return response()->json(['error' => 'Employee not found.'], 404);
         }
         
-        if ($employee->android_id === null) {
+        if (empty($employee->android_id)) {
             $employee->android_id = $androidid;
             $employee->save();
             // return response()->json(['message' => 'Android ID linked successfully.']);
