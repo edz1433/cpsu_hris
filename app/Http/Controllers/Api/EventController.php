@@ -52,22 +52,22 @@ class EventController extends Controller
                             ->first();
             
                 if (!$log) {
-                    return 'Employee not registered for this event.';
+                    return response()->json(['message' => 'Employee not registered for this event.'], 404);
                 }
             
                 if ($log && is_null($log->in)) {
                     $log->in = Carbon::now();
                     $log->save();
-                    return $fullname;
+                    return response()->json(['message' => $fullname], 200);
                 } 
                 elseif($log && !is_null($log->in)) {
                     $log->out = Carbon::now();
                     $log->save();
-                    return $fullname;
+                    return response()->json(['message' => $fullname], 200);
                 }
             }
             else {
-                return 'Invalid employee ID.';
+                return response()->json(['message' => 'Invalid employee ID.'], 404);
             }
         }
     }
