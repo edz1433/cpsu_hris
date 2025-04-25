@@ -58,17 +58,13 @@ class EventController extends Controller
                 $log->in = Carbon::now();
                 $log->save();
         
-                return response()->json([
-                    'fullname' => $fullname
-                ]);
+                return response()->json(['message' => 'Log not found.'], 404);
             } 
             else {
                 $log->out = Carbon::now();
                 $log->save();
         
-                return response()->json([
-                    'fullname' => $fullname
-                ]);
+                return response()->json(['message' => 'Log not found.'], 404);
             }
         
 
