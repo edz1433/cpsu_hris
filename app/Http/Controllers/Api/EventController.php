@@ -55,18 +55,22 @@ class EventController extends Controller
                     return response()->json(['message' => 'Employee not registered for this event.'], 404);
                 }
             
-                if (is_null($log->in)) {
+                if ($log && is_null($log->in)) {
                     $log->in = Carbon::now();
+                    $log->save();
+                    return response()->json([
+                        'fullname' => $fullname
+                    ]);
                 } 
-                else {
+                elseif($log && !is_null($log->in)) {
                     $log->out = Carbon::now();
+                    $log->save();
+                    return response()->json([
+                        'fullname' => $fullname
+                    ]);
                 }
             
-                $log->save();
-            
-                return response()->json([
-                    'fullname' => $fullname
-                ]);
+        
             }
             else {
                 return response()->json(['message' => 'Invalid employee ID.'], 404);
