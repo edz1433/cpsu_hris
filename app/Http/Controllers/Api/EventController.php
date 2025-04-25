@@ -69,8 +69,6 @@ class EventController extends Controller
                         'fullname' => $fullname
                     ]);
                 }
-            
-        
             }
             else {
                 return response()->json(['message' => 'Invalid employee ID.'], 404);
