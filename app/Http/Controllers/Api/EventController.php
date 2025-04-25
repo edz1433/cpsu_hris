@@ -40,35 +40,40 @@ class EventController extends Controller
 
     public function eventLogin($passcode, $eventid, $encryptedempid)
     {
-        if($passcode == '$2a$12$mWBPFC966rwEZ6V2DxtTsex4ZqvG7.fTiJ52WDHMRM6dG56wO2n0O'){   
+        if ($passcode == '$2a$12$mWBPFC966rwEZ6V2DxtTsex4ZqvG7.fTiJ52WDHMRM6dG56wO2n0O') {
             $empid = $this->shortDecrypt($encryptedempid);
 
-            if($empid !== false){
+            if ($empid !== false) {
                 $employee = Employee::where('emp_ID', $empid)->first();
+
+                if (!$employee) {
+                    return response()->json(['message' => 'Employee not found.'], 404);
+                }
+
                 $fullname = strtoupper($employee->lname) . ', ' . strtoupper($employee->fname) . ' ' . strtoupper($employee->suffix);
-                
+
                 $log = EventLog::where('event_id', $eventid)
                             ->where('empid', $empid)
                             ->first();
-            
+
                 if (!$log) {
                     return response()->json(['message' => 'Employee not registered for this event.'], 404);
                 }
-            
-                if ($log && is_null($log->in)) {
+
+                if (is_null($log->in)) {
                     $log->in = Carbon::now();
                     $log->save();
                     return response()->json(['message' => $fullname], 200);
-                } 
-                elseif($log && !is_null($log->in)) {
+                } elseif (!is_null($log->in)) {
                     $log->out = Carbon::now();
                     $log->save();
                     return response()->json(['message' => $fullname], 200);
                 }
+            } else {
+                return response()->json(['message' => 'Invalid employee ID.'], 400);
             }
-            else {
-                return response()->json(['message' => 'Invalid employee ID.'], 404);
-            }
+        } else {
+            return response()->json(['message' => 'Unauthorized access.'], 401);
         }
     }
     
