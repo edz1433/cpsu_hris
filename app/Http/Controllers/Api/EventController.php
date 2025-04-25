@@ -40,16 +40,10 @@ class EventController extends Controller
 
     public function eventLogin($passcode, $eventid, $encryptedempid)
     {
-        if ($passcode == '$2a$12$mWBPFC966rwEZ6V2DxtTsex4ZqvG7.fTiJ52WDHMRM6dG56wO2n0O') {   
+        if($passcode == '$2a$12$mWBPFC966rwEZ6V2DxtTsex4ZqvG7.fTiJ52WDHMRM6dG56wO2n0O'){   
             $empid = $this->shortDecrypt($encryptedempid);
             
-            // Check if employee exists before accessing their details
             $employee = Employee::where('emp_ID', $empid)->first();
-            
-            if (!$employee) {
-                return response()->json(['message' => 'Employee not found.'], 404);
-            }
-    
             $fullname = strtoupper($employee->lname) . ', ' . strtoupper($employee->fname) . ' ' . strtoupper($employee->suffix);
             
             $log = EventLog::where('event_id', $eventid)
@@ -61,23 +55,19 @@ class EventController extends Controller
             }
         
             if (is_null($log->in)) {
-                $log->in = Carbon::now(); 
-                $log->save();
-                return response()->json([
-                    'fullname' => $fullname
-                ]);
+                $log->in = Carbon::now();
             } 
             else {
-                $log->out = Carbon::now();         
-                $log->save();
-                return response()->json([
-                    'fullname' => $fullname
-                ]);
+                $log->out = Carbon::now();
             }
         
+            $log->save();
+        
+            return response()->json([
+                'fullname' => $empid
+            ]);
         }
     }
-    
     
     public function eventLogs($passcode, $eventId)
     {
