@@ -46,12 +46,12 @@ class EventController extends Controller
             $employee = Employee::where('emp_ID', $empid)->first();
             $fullname = strtoupper($employee->lname) . ', ' . strtoupper($employee->fname) . ' ' . strtoupper($employee->suffix);
             
-            $log = EventLog::where('event_id', $eventid)
-                        ->where('empid', $empid)
+            $log = EventLog::where('event_id', '=', $eventid)
+                        ->where('empid', '=', $empid)
                         ->first();
         
             if (!$log) {
-                return response()->json(['message' => 'Log not found.'], 500);
+                return response()->json(['message' => 'Log not found.'], 404);
             }
         
             if (is_null($log->in)) {
