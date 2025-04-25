@@ -64,7 +64,7 @@ class EventController extends Controller
             $log->save();
         
             return response()->json([
-                'fullname' => $encryptedempid
+                'fullname' => $fullname
             ]);
         }
     }
