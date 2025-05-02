@@ -87,6 +87,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/create-opcr', [OpcrController::class, 'createOpcr'])->name('create-opcr');
         Route::post('/create-opcr-mfo', [OpcrController::class, 'createOpcrMfo'])->name('create-opcr-mfo');
         Route::post('/create-opcr-mfo-data', [OpcrController::class, 'createOpcrMfoData'])->name('create-opcr-mfo-data');
+        Route::get('/opcrmfo-edit-ata/{id}', [OpcrController::class, 'opcrmfoEditData'])->name('opcrmfoEditData');
+        Route::post('/opcrmfo-delete-data/{id}', [OpcrController::class, 'opcrmfoDeleteData'])->name('opcrmfoDeleteData');
 
         //performance rating
         Route::get('/pr/{cat}/{empid?}/{prnumber}', [DocumentController::class, 'perRating'])->name('per-rating');

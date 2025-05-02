@@ -22,6 +22,14 @@ class DocumentController extends Controller
         }
     }
 
+    function shortDecrypt($encrypted)
+    {
+        $key = 'fA7xB93kL0pTzWmQ';
+        $cipher = 'AES-128-ECB';
+        $encrypted = strtr($encrypted, '-_', '+/');
+        return openssl_decrypt(base64_decode($encrypted), $cipher, $key, 0);
+    }
+
     public function storeFile(Request $request, $id)
     {
         $process = isset($request->process) ? $request->process : '';
@@ -105,8 +113,8 @@ class DocumentController extends Controller
 
     public function perRating($cat, $empid, $prnumber){
         $guard = $this->getGuard();
-        $dempid = decrypt($empid);
-        $dprnumber = decrypt($prnumber);
+        $dempid = $this->shortDecrypt($empid);
+        $dprnumber = $this->shortDecrypt($prnumber);
         $dempid = ($empid) ? $dempid : auth()->guard($guard)->user()->id;
         
         $prs = Opcr::where('user_id', $dempid)->where('pr_number', $dprnumber)->get();

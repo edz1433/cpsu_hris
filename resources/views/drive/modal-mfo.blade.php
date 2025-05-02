@@ -58,49 +58,46 @@
                             <div class="form-row align-items-center">
                                 <div class="form-group col-md-6">
                                     <label class="text-success1">QUARTER</label>
-                                    <select type="text" class="form-control" name="category">
+                                    <select type="text" class="form-control" name="category" id="category">
                                         <option value="1">1ST QUARTER</option>
                                         <option value="2">2ND QUARTER</option>
                                     </select>
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label class="text-success1">DIVISION/ INDIVIDUALS ACCOUNTABLE</label>
-                                    <select type="text" class="form-control" name="opcr_by">
-                                        <option value="1">VPAA</option>
-                                        <option value="2">VPAF</option>
-                                    </select>
+                                    <input type="text" class="form-control p-3" name="opcr_by" id="opcr_by" >
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">MFO / PAP's</label>
-                                    <textarea name="mfo" rows="3" class="form-control form-control-sm"></textarea>
+                                    <textarea name="mfo" rows="3" class="form-control form-control-sm" id="mfo"></textarea>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">TARGETS + MEASURES</label>
-                                    <textarea name="target" rows="3" class="form-control form-control-sm"></textarea>
+                                    <textarea name="target" rows="3" class="form-control form-control-sm" id="target"></textarea>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">INDIVIDUAL SUPPORT DOCUMENTS</label>
-                                    <textarea name="in_support" rows="3" class="form-control form-control-sm"></textarea>
+                                    <textarea name="in_support" rows="3" class="form-control form-control-sm" id="in_support"></textarea>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">REPORT OF SUPERVISOR / OTHER OFFICES</label>
-                                    <textarea name="report_sup" rows="3" class="form-control form-control-sm"></textarea>
+                                    <textarea name="report_sup" rows="3" class="form-control form-control-sm" id="report_sup"></textarea>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">DIVISION / INDIVIDUALS ACCOUNTABLE</label>
-                                    <textarea name="div_account" rows="3" class="form-control form-control-sm"></textarea>
+                                    <textarea name="div_account" rows="3" class="form-control form-control-sm" id="div_account"></textarea>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">QUALITY</label>
-                                    <textarea name="quality" rows="3" class="form-control form-control-sm"></textarea>
+                                    <textarea name="quality" rows="3" class="form-control form-control-sm" id="quality"></textarea>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">EFFICIENCY</label>
-                                    <textarea name="efficiency" rows="3" class="form-control form-control-sm"></textarea>
+                                    <textarea name="efficiency" rows="3" class="form-control form-control-sm" id="efficiency"></textarea>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">TIMELINESS</label>
-                                    <textarea name="timeliness" rows="3" class="form-control form-control-sm"></textarea>
+                                    <textarea name="timeliness" rows="3" class="form-control form-control-sm" id="timeliness"></textarea>
                                 </div>
                             </div>
                             <div class="form-row">
@@ -132,6 +129,19 @@
             <button class="btn btn-primary btn-block mb-2" onclick="editOpcrData()">Edit</button>
             <button class="btn btn-danger btn-block" onclick="deleteOpcrData()">Delete</button>
         </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="asign-to-dpcr" tabindex="-1" aria-labelledby="opcrModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="opcrModalLabel">Asign</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <input type="" id="opcr-mfo-data-id">
+            </div>
         </div>
     </div>
 </div>
@@ -257,7 +267,5 @@
         attachInputListeners();
 
     });
-
-
 </script>
 

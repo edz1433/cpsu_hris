@@ -54,7 +54,7 @@ class MasterController extends Controller
             $percentage = $totalEmployees > 0 ? ($count / $totalEmployees) * 100 : 0;
             return [$status => ['count' => $count, 'percentage' => $percentage]];
         });
-            
+        
         $offCount = Office::all();
     
         if (\Auth::guard('web')->check()) {

@@ -42,7 +42,7 @@ class EventController extends Controller
     {
         if ($passcode == '$2a$12$mWBPFC966rwEZ6V2DxtTsex4ZqvG7.fTiJ52WDHMRM6dG56wO2n0O') {
             $empid = $this->shortDecrypt($encryptedempid);
-
+            
             if ($empid !== false) {
                 $employee = Employee::where('emp_ID', $empid)->first();
 

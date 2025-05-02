@@ -97,6 +97,7 @@ class OpcrController extends Controller
     {
         $request->validate([
             'opcr_mfo_id' => 'required|integer',
+            'opcrdata_id' => 'required|integer',
             'mfo' => 'required|string', 
             'target' => 'nullable|string',
             'in_support' => 'nullable|string',
@@ -110,22 +111,68 @@ class OpcrController extends Controller
         ]);
 
         $opcrId = $request->input('opcr_mfo_id');
+        $opcrdataId = $request->input('opcrdata_id');
 
-        OpcrMfoData::create([
-            'opcr_mfo_id' => $opcrId,
-            'mfo' => $request->input('mfo'),
-            'target' => $request->input('target'),
-            'in_support' => $request->input('in_support'),
-            'report_sup' => $request->input('report_sup'),
-            'div_account' => $request->input('div_account'),
-            'quality' => $request->input('quality'),
-            'efficiency' => $request->input('efficiency'),
-            'timeliness' => $request->input('timeliness'),
-            'category' => $request->input('category'),
-            'opcr_by' => $request->input('opcr_by'),
-        ]);
+        if($opcrdataId == 0){
+            OpcrMfoData::create([
+                'opcr_mfo_id' => $opcrId,
+                'mfo' => $request->input('mfo'),
+                'target' => $request->input('target'),
+                'in_support' => $request->input('in_support'),
+                'report_sup' => $request->input('report_sup'),
+                'div_account' => $request->input('div_account'),
+                'quality' => $request->input('quality'),
+                'efficiency' => $request->input('efficiency'),
+                'timeliness' => $request->input('timeliness'),
+                'category' => $request->input('category'),
+                'opcr_by' => $request->input('opcr_by'),
+            ]);
+        } else {
+            $opcrData = OpcrMfoData::find($opcrdataId);
+            if ($opcrData) {
+                $opcrData->update([
+                    'mfo' => $request->input('mfo'),
+                    'target' => $request->input('target'),
+                    'in_support' => $request->input('in_support'),
+                    'report_sup' => $request->input('report_sup'),
+                    'div_account' => $request->input('div_account'),
+                    'quality' => $request->input('quality'),
+                    'efficiency' => $request->input('efficiency'),
+                    'timeliness' => $request->input('timeliness'),
+                    'category' => $request->input('category'),
+                    'opcr_by' => $request->input('opcr_by'),
+                ]);
+            }else {
+                return redirect()->back()->with('error', 'OPCR MFO Data not found!');
+            }
+        }
         
         return redirect()->back()->with('success', 'MFO data saved successfully!');
     }
 
+    public function opcrmfoEditData($id){
+        $opcrMfoData = OpcrMfoData::find($id);
+        if ($opcrMfoData) {
+            return response()->json($opcrMfoData);
+        } else {
+            return response()->json(['error' => 'OPCR MFO Data not found!'], 404);
+        }
+    }
+
+    public function opcrmfoDeleteData(Request $request, $id)
+    {
+        $entry = OpcrMfoData::find($id);
+
+        if (!$entry) {
+            return response()->json(['error' => 'OPCR MFO Data not found!'], 404);
+        }
+
+        try {
+            $entry->delete();
+            return response()->json(['success' => 'Entry deleted successfully!']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete entry.'], 500);
+        }
+    }
+    
 }

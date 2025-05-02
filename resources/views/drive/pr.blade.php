@@ -78,7 +78,7 @@
         <tr>
             <th rowspan="2" class="text-center" width="130">Q</th>
             <th rowspan="2" class="text-center" width="30"></th>
-            <th rowspan="2" class="text-center" width="130">E</th>
+            <th rowspan="2" class="text-center" width="110">E</th>
             <th rowspan="2" class="text-center" width="30"></th>
             <th rowspan="2" class="text-center" width="130">T</th>
             <th rowspan="2" class="text-center" width="30"></th>
@@ -139,8 +139,10 @@
             <td class="text-center">{{ $core->a ?? '' }}</td>
             <td class="text-center">{{ $core->remarks ?? '' }}</td>
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
-            <td class="b-none text-center"> <i class="fas fa-plus text-secondary pl-1" data-toggle="modal" id="mfo-data" data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></td>
-        </tr>
+            <td class="b-none text-center">
+                <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></i>
+            </td>
+            </tr>
             @php
                 $filteredOpcrMfoDatas = in_array($cat, [1, 2])
                     ? $opcrmfodatas->where('opcr_mfo_id', $core->id)->where('category', $cat)
@@ -148,22 +150,22 @@
             @endphp
         
             @foreach($filteredOpcrMfoDatas as $opcrmfodata)
-            <tr onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }})" style="cursor: pointer;">
-                <td class="text-left align-top">{{ $opcrmfodata->mfo }}</td>
-                <td class="text-left pl-1">{{ $opcrmfodata->target }}</td>
+            <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }})" style="cursor: pointer;">
+                <td class="text-left align-top">{!! $opcrmfodata->mfo !!}</td>
+                <td class="text-left pl-1">{!! $opcrmfodata->target !!}</td>
                 <td class="text-center"></td>
-                <td class="text-center">{{ $opcrmfodata->in_support }}</td>
+                <td class="text-center">{!! $opcrmfodata->in_support !!}</td>
                 <td class="text-center"></td>
                 <td class="text-center"></td>
-                <td class="text-center">{{ $opcrmfodata->div_account }}</td>
-                <td class="text-center">{{ $opcrmfodata->quality }}</td>
-                <td class="text-center">{{ $opcrmfodata->q_score }}</td>
-                <td class="text-center">{{ $opcrmfodata->efficiency }}</td>
-                <td class="text-center">{{ $opcrmfodata->e_score }}</td>
-                <td class="text-center">{{ $opcrmfodata->timeliness }}</td>
-                <td class="text-center">{{ $opcrmfodata->t_score }}</td>
-                <td class="text-center">{{ $opcrmfodata->average }}</td>
-                <td class="text-center">{{ $opcrmfodata->remarks }}</td>
+                <td class="text-center">{!! $opcrmfodata->div_account !!}</td>
+                <td class="text-center">{!! $opcrmfodata->quality !!}</td>
+                <td class="text-center">{!! $opcrmfodata->q_score !!}</td>
+                <td class="text-center">{!! nl2br(e($opcrmfodata->efficiency)) !!}</td>
+                <td class="text-center">{!! $opcrmfodata->e_score !!}</td>
+                <td class="text-center">{!! $opcrmfodata->timeliness !!}</td>
+                <td class="text-center">{!! $opcrmfodata->t_score !!}</td>
+                <td class="text-center">{!! $opcrmfodata->average !!}</td>
+                <td class="text-center">{!! $opcrmfodata->remarks !!}</td>
                 <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             </tr>
             @endforeach
@@ -220,8 +222,10 @@
             <td class="text-center">{{ $strat->a ?? '' }}</td>
             <td class="text-center">{{ $strat->remarks ?? '' }}</td>
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
-            <td class="b-none text-center"> <i class="fas fa-plus text-secondary pl-1" data-toggle="modal" id="mfo-data" data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i></td>
-            @php
+            <td class="b-none text-center">
+                <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i>
+            </td>
+             @php
                 $filteredopcrmfodatas = in_array($cat, [1, 2])
                     ? $opcrmfodatas->where('opcr_mfo_id', $strat->id)->where('category', $cat)
                     : $opcrmfodatas->where('opcr_mfo_id', $strat->id);
@@ -229,22 +233,22 @@
         
             {{-- @php dd($opcrmfodatas); @endphp --}}
             @foreach($filteredopcrmfodatas as $opcrmfodata)
-                <tr onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->opcr_mfo_id }})" style="cursor: pointer;">
-                    <td class="text-left align-top">{{ $opcrmfodata->mfo }}</td>
-                    <td class="text-left pl-1">{{ $opcrmfodata->target }}</td>
+                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->opcr_mfo_id }})" style="cursor: pointer;">
+                    <td class="text-left align-top">{!! $opcrmfodata->mfo !!}</td>
+                    <td class="text-left pl-1">{!! $opcrmfodata->target !!}</td>
                     <td class="text-center"></td>
-                    <td class="text-center">{{ $opcrmfodata->in_support }}</td>
+                    <td class="text-center">{!! $opcrmfodata->in_support !!}</td>
                     <td class="text-center"></td>
                     <td class="text-center"></td>
-                    <td class="text-center">{{ $opcrmfodata->div_account }}</td>
-                    <td class="text-center">{{ $opcrmfodata->quality }}</td>
-                    <td class="text-center">{{ $opcrmfodata->q_score }}</td>
-                    <td class="text-center">{{ $opcrmfodata->efficiency }}</td>
-                    <td class="text-center">{{ $opcrmfodata->e_score }}</td>
-                    <td class="text-center">{{ $opcrmfodata->timeliness }}</td>
-                    <td class="text-center">{{ $opcrmfodata->t_score }}</td>
-                    <td class="text-center">{{ $opcrmfodata->average }}</td>
-                    <td class="text-center">{{ $opcrmfodata->remarks }}</td>
+                    <td class="text-center">{!! $opcrmfodata->div_account !!}</td>
+                    <td class="text-center">{!! $opcrmfodata->quality !!}</td>
+                    <td class="text-center">{!! $opcrmfodata->q_score !!}</td>
+                    <td class="text-center">{!! $opcrmfodata->efficiency !!}</td>
+                    <td class="text-center">{!! $opcrmfodata->e_score !!}</td>
+                    <td class="text-center">{!! $opcrmfodata->timeliness !!}</td>
+                    <td class="text-center">{!! $opcrmfodata->t_score !!}</td>
+                    <td class="text-center">{!! $opcrmfodata->average !!}</td>
+                    <td class="text-center">{!! $opcrmfodata->remarks !!}</td>
                     <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
                 </tr>
             @endforeach
@@ -298,7 +302,9 @@
             <td class="text-center">{{ $supp->a ?? '' }}</td>
             <td class="text-center">{{ $supp->remarks ?? '' }}</td>
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
-            <td class="b-none text-center"> <i class="fas fa-plus text-secondary pl-1" data-toggle="modal" id="mfo-data" data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i></td>
+            <td class="b-none text-center">
+                <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i>
+            </td>
             @php
                 $filteredopcrmfodatas = in_array($cat, [1, 2])
                     ? $opcrmfodatas->where('opcr_mfo_id', $supp->id)->where('category', $cat)
@@ -306,22 +312,22 @@
             @endphp
         
             @foreach($filteredopcrmfodatas as $opcrmfodata)
-                <tr onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }})" style="cursor: pointer;">
-                    <td class="text-left align-top">{{ $opcrmfodata->mfo }}</td>
-                    <td class="text-left pl-1">{{ $opcrmfodata->target }}</td>
+                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }})" style="cursor: pointer;">
+                    <td class="text-left align-top">{!! $opcrmfodata->mfo !!}</td>
+                    <td class="text-left pl-1">{!! $opcrmfodata->target !!}</td>
                     <td class="text-center"></td>
-                    <td class="text-center">{{ $opcrmfodata->in_support }}</td>
+                    <td class="text-center">{!! $opcrmfodata->in_support !!}</td>
                     <td class="text-center"></td>
                     <td class="text-center"></td>
-                    <td class="text-center">{{ $opcrmfodata->div_account }}</td>
-                    <td class="text-center">{{ $opcrmfodata->quality }}</td>
-                    <td class="text-center">{{ $opcrmfodata->q_score }}</td>
-                    <td class="text-center">{{ $opcrmfodata->efficiency }}</td>
-                    <td class="text-center">{{ $opcrmfodata->e_score }}</td>
-                    <td class="text-center">{{ $opcrmfodata->timeliness }}</td>
-                    <td class="text-center">{{ $opcrmfodata->t_score }}</td>
-                    <td class="text-center">{{ $opcrmfodata->average }}</td>
-                    <td class="text-center">{{ $opcrmfodata->remarks }}</td>
+                    <td class="text-center">{!! $opcrmfodata->div_account !!}</td>
+                    <td class="text-center">{!! $opcrmfodata->quality !!}</td>
+                    <td class="text-center">{!! $opcrmfodata->q_score !!}</td>
+                    <td class="text-center">{!! $opcrmfodata->efficiency !!}</td>
+                    <td class="text-center">{!! $opcrmfodata->e_score !!}</td>
+                    <td class="text-center">{!! $opcrmfodata->timeliness !!}</td>
+                    <td class="text-center">{!! $opcrmfodata->t_score !!}</td>
+                    <td class="text-center">{!! $opcrmfodata->average !!}</td>
+                    <td class="text-center">{!! $opcrmfodata->remarks !!}</td>
                     <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
                 </tr>
             @endforeach
@@ -329,6 +335,7 @@
         @endforeach
     </tbody>
 </table>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     const empid = "{{ $empid ?? '' }}";
     const prnumber = "{{ $prnumber ?? '' }}";
@@ -350,17 +357,47 @@
         Swal.fire({
             title: 'Choose an action',
             icon: 'question',
-            showCancelButton: false,
+            showCancelButton: true,
             showDenyButton: true,
-            confirmButtonText: 'Edit',
-            denyButtonText: 'Delete',
-            reverseButtons: true
+            confirmButtonText: 'Asign',
+            denyButtonText: 'Edit',
+            cancelButtonText: 'Delete',
+            reverseButtons: false,
+            customClass: {
+                confirmButton: 'btn btn-primary mx-1',
+                denyButton: 'btn btn-info mx-1',
+                cancelButton: 'btn btn-danger mx-1'
+            },
+            buttonsStyling: false // Needed to apply Bootstrap styles
         }).then((result) => {
             if (result.isConfirmed) {
+                $('#opcr-mfo-data-id').val(id);
+                $('#asign-to-dpcr').modal('show');
+            } else if (result.isDenied) {
                 editOpcrData(id);
                 $('#opcr-mfo-id').val(mfoid);
-            } else if (result.isDenied) {
-                confirmDeleteOpcrData(id);
+
+                $.ajax({
+                    url: `{{ route('opcrmfoEditData', ':id') }}`.replace(':id', id),
+                    method: 'GET',
+                    success: function (data) {
+                        $('#category').val(data.category);
+                        $('#opcr_by').val(data.opcr_by);
+                        $('#mfo').val(data.mfo);
+                        $('#target').val(data.target);
+                        $('#in_support').val(data.in_support);
+                        $('#report_sup').val(data.report_sup);
+                        $('#div_account').val(data.div_account);
+                        $('#quality').val(data.quality);
+                        $('#efficiency').val(data.efficiency);
+                        $('#timeliness').val(data.timeliness);
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Unable to fetch data for editing.', 'error');
+                    }
+                });
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                confirmDeleteOpcrData(id, mfoid);
             }
         });
     }
@@ -373,7 +410,7 @@
         $('#opcrMfoData').modal('show');
     }
 
-    function confirmDeleteOpcrData(id) {
+    function confirmDeleteOpcrData(id,mfoid) {
         Swal.fire({
             title: 'Delete this entry?',
             text: 'This action cannot be undone.',
@@ -382,31 +419,56 @@
             confirmButtonText: 'Yes, delete it',
             cancelButtonText: 'Back'
         }).then((result) => {
-            if (result.isConfirmed) {
-                deleteOpcrData(id);
-            }
-        });
-    }
+            if (!result.isConfirmed) return;
 
-    function deleteOpcrData(id) {
-        fetch(`/opcrmfodata/${id}`, {
-            method: 'DELETE',
+            const url = `{{ route('opcrmfoDeleteData', ':id') }}`
+                        .replace(':id', id);
+
+            fetch(url, {
+            method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin' // Ensures cookies are sent with the request
+            })
+            .then(response => {
+            if (!response.ok) {
+                // still try to parse JSON error
+                return response.json().then(err => Promise.reject(err));
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            Swal.fire('Deleted!', 'The entry has been removed.', 'success')
-                .then(() => location.reload());
-        })
-        .catch(error => {
-            Swal.fire('Error', 'Something went wrong.', 'error');
+            return response.json();
+            })
+            .then(data => {
+                Swal.fire('Deleted!', data.success, 'success')
+                    .then(() => location.reload());
+                $(`#mfodata${id}-${mfoid}`).fadeOut(1500, function () {
+                    // Optional callback after fadeOut
+                });
+            })
+            .catch(err => {
+                const msg = err.message || err.error || 'Something went wrong.';
+                Swal.fire('Error!', msg, 'error');
+            });
         });
     }
 
-    $('#mfo-data').on('click', function (event) {
+    $(document).on('click', '.mfo-data', function (event) {
+        var mfoid = $(this).data('mfoid');
+        $('#opcr-mfo-id').val(mfoid);
         $('#opcrdata_id').val(0);
+
+        $('#opcr_by').val('');
+        $('#mfo').val('');
+        $('#target').val('');
+        $('#in_support').val('');
+        $('#report_sup').val('');
+        $('#div_account').val('');
+        $('#quality').val('');
+        $('#efficiency').val('');
+        $('#timeliness').val('');
     });
+
 </script>
 @endsection

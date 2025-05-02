@@ -50,6 +50,7 @@
     document.getElementById('submit-bg').className = 'btn ' + color + ' btn-sm';
   }
 </script>
+@if(request()->is('event*') || request()->is('dashboard'))
 <script>
   $(function () {
     function ini_events(ele) {
@@ -203,8 +204,7 @@
     })
   })
 </script>
-  
-  
+@endif
 <script>
     document.addEventListener('contextmenu', function (e) {
         e.preventDefault();

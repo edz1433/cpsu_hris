@@ -37,7 +37,7 @@
                 </div>
                 <input type="file" id="profilePictureInput" style="display: none;" accept="image/*">
             </div>
-    
+            
             <h3 class="profile-username text-center">
             {{ ucwords(strtolower(str_replace('Ñ', 'ñ', $employee->fname))) }} {{ ucwords(strtolower(str_replace('Ñ', 'ñ', $employee->lname))) }}</h3>
             <p class="text-muted text-center">{{ $employee->position }}</p>

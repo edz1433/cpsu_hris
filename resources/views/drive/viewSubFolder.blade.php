@@ -81,11 +81,18 @@
                         <tbody>
                             @foreach ($opcrs as $key => $mfoItems)
                                 @php
-                                    $employee = $mfoItems->first(); // Get first item in the group
+                                    $employee = $mfoItems->first();
                                     $fullName = Str::upper("{$employee->fname} {$employee->mname} {$employee->lname}");
                                     $year = $employee->year;
+
+                                    function shortEncrypt($string)
+                                    {
+                                        $key = 'fA7xB93kL0pTzWmQ';
+                                        $cipher = 'AES-128-ECB';
+                                        return rtrim(strtr(base64_encode(openssl_encrypt($string, $cipher, $key, 0)), '+/', '-_'), '=');
+                                    }
                                 @endphp
-                                <tr onclick="showForm('{{ encrypt($employee->empid) }}', '{{ encrypt($employee->pr_number) }}')">
+                                <tr onclick="showForm('{{ shortEncrypt($employee->empid) }}', '{{ shortEncrypt($employee->pr_number) }}')">
                                     <td width="40">  
                                         <img src="{{ asset('Profile/Employee/'.$employee->profile) }}" alt="User Image" class="profile-image">
                                     </td>

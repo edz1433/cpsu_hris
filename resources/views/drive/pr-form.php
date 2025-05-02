@@ -8,7 +8,7 @@
             @include('Drive.submenu')
         </div>
         @include('Drive.modals')
-        <div class="col-lg-10">
+        <div class="col-lg-10"> 
             <div class="card card-info card-outline">   
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">

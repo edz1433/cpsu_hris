@@ -33,42 +33,42 @@
         }
 
         .table-container {
-            background-color: rgba(255, 255, 255, 0.8); /* White with 80% opacity */
+            background-color: rgba(255, 255, 255, 0.8);
             padding: 20px;
             border-radius: 10px;
             margin-top: -15px;
         }
-    
+
         .table-custom th {
-            background-color: #d6f0f463; /* Light gray background */
+            background-color: #d6f0f463;
             font-size: 8px;
             font-weight: bold;
             padding: 3px;
             border-top: none;
             text-align: left;
         }
-    
+
         .table-custom td {
             padding: 3px;
             font-size: 8px;
-            border-color: #dee2e6; /* Match Bootstrap's default border color */
+            border-color: #dee2e6;
         }
-    
+
         .table-custom .text-success {
             color: #28a745;
             font-weight: bold;
         }
-    
+
         .table-custom .text-danger {
             color: #dc3545;
             font-weight: bold;
         }
-    
+
         .table-custom {
             border-collapse: collapse;
             width: 100%;
         }
-    
+
         .table-sm th, .table-sm td {
             padding: 0.2rem;
         }
@@ -79,7 +79,7 @@
                 margin: 0;
                 padding: 0;
             }
-            
+
             .table-container {
                 background: none;
                 padding: 0;
@@ -125,9 +125,10 @@
                     $logsGroupedByDate[$log['date']][] = $log;
                 }
             }
-            
+
             ksort($logsGroupedByDate);
         @endphp
+
         @foreach ($logsGroupedByDate as $date => $logs)
             <table class="table table-sm table-custom" style="page-break-inside: avoid;">
                 <thead>
@@ -137,31 +138,30 @@
                 </thead>
                 <tbody>
                     @foreach ($logs as $log)
-                        @if ($log['type'] == 'time_in' && isset($campuses[$log['device_in_campus']]))
+                        @php
+                            $campus_in = $campuses[$log['device_in_campus'] ?? '0'] ?? 'UNKNOWN';
+                            $campus_out = $campuses[$log['device_out_campus'] ?? '0'] ?? 'UNKNOWN';
+                            $device_in_label = $log['device_in_label'] ?? 'Unknown Label';
+                            $device_out_label = $log['device_out_label'] ?? 'Unknown Label';
+                        @endphp
+
+                        @if ($log['type'] == 'time_in' && !empty($log['time']))
                             <tr>
                                 <td>
-                                    <b>
-                                        {{ ucwords(strtolower($log['fname'])) }} 
-                                        {{ ucwords(strtolower($log['lname'])) }}
-                                        {{ !empty($log['suffix']) ? ucwords(strtolower($log['suffix'])) : '' }}
-                                    </b>
+                                    <b>{{ ucwords(strtolower($log['fname'])) }} {{ ucwords(strtolower($log['lname'])) }} {{ $log['suffix'] ? ucwords(strtolower($log['suffix'])) : '' }}</b>
                                     <span class="text-success">logged in</span> 
-                                    at {{ $campuses[$log['device_in_campus']] }}, 
-                                    {{ $log['device_in_label'] ?? 'Unknown Label' }} 
-                                    at <b class="b">{{ convertTo12HourFormat($log['time'] ?? '00:00:00') }}</b>.
+                                    at {{ $campus_in }}, 
+                                    {{ $device_in_label }} 
+                                    at <b class="b">{{ convertTo12HourFormat($log['time']) }}</b>.
                                 </td>
                             </tr>
-                        @elseif ($log['type'] == 'time_out' && !empty($log['time']) && isset($campuses[$log['device_out_campus']]))
+                        @elseif ($log['type'] == 'time_out' && !empty($log['time']))
                             <tr>
                                 <td>
-                                    <b>
-                                        {{ ucwords(strtolower($log['fname'])) }} 
-                                        {{ ucwords(strtolower($log['lname'])) }}
-                                        {{ !empty($log['suffix']) ? ucwords(strtolower($log['suffix'])) : '' }}
-                                    </b>
+                                    <b>{{ ucwords(strtolower($log['fname'])) }} {{ ucwords(strtolower($log['lname'])) }} {{ $log['suffix'] ? ucwords(strtolower($log['suffix'])) : '' }}</b>
                                     <span class="text-danger">logged out</span> 
-                                    at {{ $campuses[$log['device_out_campus']] }}, 
-                                    {{ $log['device_out_label'] ?? 'Unknown Label' }} 
+                                    at {{ $campus_out }}, 
+                                    {{ $device_out_label }} 
                                     at <b class="b">{{ convertTo12HourFormat($log['time']) }}</b>.
                                 </td>
                             </tr>
