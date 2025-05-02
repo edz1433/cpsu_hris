@@ -139,10 +139,10 @@
                 <tbody>
                     @foreach ($logs as $log)
                         @php
-                            $campus_in = $campuses[$log['device_in_campus'] ?? '0'] ?? 'UNKNOWN';
-                            $campus_out = $campuses[$log['device_out_campus'] ?? '0'] ?? 'UNKNOWN';
-                            $device_in_label = $log['device_in_label'] ?? 'Unknown Label';
-                            $device_out_label = $log['device_out_label'] ?? 'Unknown Label';
+                            $campus_in = $campuses[$log['device_in_campus'] ?? '0'] ?? 'TBD';
+                            $campus_out = $campuses[$log['device_out_campus'] ?? '0'] ?? 'TBD';
+                            $device_in_label = $log['device_in_label'] ?? 'TBD';
+                            $device_out_label = $log['device_out_label'] ?? 'TBD';
                         @endphp
 
                         @if ($log['type'] == 'time_in' && !empty($log['time']))

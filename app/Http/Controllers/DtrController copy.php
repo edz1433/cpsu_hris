@@ -183,7 +183,7 @@ class DtrController extends Controller
             $employeeall = Employee::all();
             $acctstat = 1;
         }    
-    
+  
         $data = null;
     
         if ($request->isMethod('post')) {
@@ -191,81 +191,17 @@ class DtrController extends Controller
             $dateFrom = $request->input('date_from', null);
             $dateTo = $request->input('date_to', null);
             $overtime = $request->input('overtime', null);
-    
-            $dtrRecords = Dtr::where('emp_ID', $employeeId)
-                ->when($dateFrom && $dateTo, function ($query) use ($dateFrom, $dateTo) {
-                    return $query->whereBetween('date', [$dateFrom, $dateTo]);
-                })
-                ->get();
-    
-            $devices = Fdevice::all();
-            $deviceLabels = $devices->pluck('label', 'id')->toArray();
-    
-            $processedLogs = [];
-            foreach ($dtrRecords as $record) {
-                $date = $record->date;
-    
-                // Time IN
-                $timeInArray = explode(',', $record->time_in);
-                $deviceInArray = explode(',', $record->device_id_in ?? '');
-    
-                foreach ($timeInArray as $index => $timeIn) {
-                    if (!empty($timeIn)) {
-                        $deviceInId = $deviceInArray[$index] ?? null;
-                        $processedLogs[] = [
-                            'time' => $timeIn,
-                            'type' => 'time_in',
-                            'date' => $date,
-                            'device_label' => $deviceLabels[$deviceInId] ?? 'TBD',
-                        ];
-                    }
-                }
-    
-                // Time OUT
-                $timeOutArray = explode(',', $record->time_out);
-                $deviceOutArray = explode(',', $record->device_id_out ?? '');
-    
-                foreach ($timeOutArray as $index => $timeOut) {
-                    if (!empty($timeOut)) {
-                        $deviceOutId = $deviceOutArray[$index] ?? null;
-                        $processedLogs[] = [
-                            'time' => $timeOut,
-                            'type' => 'time_out',
-                            'date' => $date,
-                            'device_label' => $deviceLabels[$deviceOutId] ?? 'TBD',
-                        ];
-                    }
-                }
-    
-                // OVERTIME
-                $overtimeArray = explode(',', $record->time_over);
-                $deviceOverArray = explode(',', $record->device_id_over ?? '');
-    
-                foreach ($overtimeArray as $index => $timeOver) {
-                    if (!empty($timeOver)) {
-                        $deviceOverId = $deviceOverArray[$index] ?? null;
-                        $processedLogs[] = [
-                            'time' => $timeOver,
-                            'type' => 'overtime',
-                            'date' => $date,
-                            'device_label' => $deviceLabels[$deviceOverId] ?? 'TBD',
-                        ];
-                    }
-                }
-            }
-    
+
             $data = [
                 "employeeId" => $employeeId,
                 "dateFrom" => $dateFrom,
                 "dateTo" => $dateTo,
                 "overtime" => $overtime,
-                "logs" => $processedLogs,
             ];
         }
     
         return view('dtr.log', compact('guard', 'employeeall', 'data', 'acctstat'));
     }
-    
     
     public function logDtrView($employeeId, $dateFrom = null, $dateTo = null, $overtime = null)
     {
@@ -321,8 +257,8 @@ class DtrController extends Controller
                             'lname' => $record->lname,
                             'fname' => $record->fname,
                             'suffix' => $record->suffix,
-                            'device_in_label' => $deviceLabels[$deviceInId] ?? 'TBD',
-                            'device_in_campus' => $deviceCampus[$deviceInId] ?? 'TBD',
+                            'device_in_label' => $deviceLabels[$deviceInId] ?? 'Unknown',
+                            'device_in_campus' => $deviceCampus[$deviceInId] ?? 'Unknown',
                         ];
                     }
         
@@ -339,8 +275,8 @@ class DtrController extends Controller
                             'lname' => $record->lname,
                             'fname' => $record->fname,
                             'suffix' => $record->suffix,
-                            'device_out_label' => $deviceLabels[$deviceOutId] ?? 'TBD',
-                            'device_out_campus' => $deviceCampus[$deviceOutId] ?? 'TBD',
+                            'device_out_label' => $deviceLabels[$deviceOutId] ?? 'Unknown',
+                            'device_out_campus' => $deviceCampus[$deviceOutId] ?? 'Unknown',
                         ];
                     }
                 }
@@ -357,8 +293,8 @@ class DtrController extends Controller
                         'lname' => $record->lname,
                         'fname' => $record->fname,
                         'suffix' => $record->suffix,
-                        'device_out_label' => $deviceLabels[$deviceOvertimeId] ?? 'TBD',
-                        'device_out_campus' => $deviceCampus[$deviceOvertimeId] ?? 'TBD',
+                        'device_out_label' => $deviceLabels[$deviceOvertimeId] ?? 'Unknown',
+                        'device_out_campus' => $deviceCampus[$deviceOvertimeId] ?? 'Unknown',
                     ];
                 }
                 

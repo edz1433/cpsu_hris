@@ -33,14 +33,14 @@
         }
 
         .table-container {
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(255, 255, 255, 0.8); /* White with 80% opacity */
             padding: 20px;
             border-radius: 10px;
             margin-top: -40px;
         }
     
         .table-custom th {
-            background-color: #d6f0f463;
+            background-color: #d6f0f463; /* Light gray background */
             font-size: 8px;
             font-weight: bold;
             padding: 3px;
@@ -51,7 +51,7 @@
         .table-custom td {
             padding: 3px;
             font-size: 8px;
-            border-color: #dee2e6;
+            border-color: #dee2e6; /* Match Bootstrap's default border color */
         }
     
         .text-success {
@@ -138,13 +138,9 @@
                 <tbody>
                     @foreach ($logs as $log)
                         @php
-                            // Safe access for device_in_campus and device_out_campus
-                            $campusIn = $campuses[$log['device_in_campus'] ?? '0'] ?? 'Unknown Campus';
-                            $campusOut = $campuses[$log['device_out_campus'] ?? '0'] ?? 'Unknown Campus';
-                            $deviceInLabel = $log['device_in_label'] ?? 'Unknown Label';
-                            $deviceOutLabel = $log['device_out_label'] ?? 'Unknown Label';
+                            $campusName = $campuses[$log['device_out_campus']] ?? 'Unknown Campus';
                         @endphp
-                        @if ($log['type'] == 'time_in' && !empty($log['time']))
+                        @if ($campusName !== 'Unknown Campus')
                             <tr>
                                 <td>
                                     <b>
@@ -152,21 +148,8 @@
                                         {{ ucwords(strtolower($log['lname'])) }}
                                         {{ !empty($log['suffix']) ? ucwords(strtolower($log['suffix'])) : '' }}
                                     </b>
-                                    <span class="text-success">logged in</span> 
-                                    at {{ $campusIn }} ({{ $deviceInLabel }}) 
-                                    at <b class="b">{{ convertTo12HourFormat($log['time']) }}</b>.
-                                </td>
-                            </tr>
-                        @elseif ($log['type'] == 'time_out' && !empty($log['time']))
-                            <tr>
-                                <td>
-                                    <b>
-                                        {{ ucwords(strtolower($log['fname'])) }} 
-                                        {{ ucwords(strtolower($log['lname'])) }}
-                                        {{ !empty($log['suffix']) ? ucwords(strtolower($log['suffix'])) : '' }}
-                                    </b>
-                                    <span class="text-danger">logged out</span> 
-                                    at {{ $campusOut }} ({{ $deviceOutLabel }}) 
+                                    <span class="text-danger">logged</span> 
+                                    at {{ $campusName }} 
                                     at <b class="b">{{ convertTo12HourFormat($log['time']) }}</b>.
                                 </td>
                             </tr>

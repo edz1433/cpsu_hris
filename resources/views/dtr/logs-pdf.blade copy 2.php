@@ -33,14 +33,14 @@
         }
 
         .table-container {
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(255, 255, 255, 0.8); /* White with 80% opacity */
             padding: 20px;
             border-radius: 10px;
-            margin-top: -40px;
+            margin-top: -15px;
         }
     
         .table-custom th {
-            background-color: #d6f0f463;
+            background-color: #d6f0f463; /* Light gray background */
             font-size: 8px;
             font-weight: bold;
             padding: 3px;
@@ -51,15 +51,15 @@
         .table-custom td {
             padding: 3px;
             font-size: 8px;
-            border-color: #dee2e6;
+            border-color: #dee2e6; /* Match Bootstrap's default border color */
         }
     
-        .text-success {
+        .table-custom .text-success {
             color: #28a745;
             font-weight: bold;
         }
     
-        .text-danger {
+        .table-custom .text-danger {
             color: #dc3545;
             font-weight: bold;
         }
@@ -95,7 +95,7 @@
         }
     </style>
 </head>
-<body>
+<body>  
     <div class="table-container">
         @php
             if (!function_exists('convertTo12HourFormat')) {
@@ -137,14 +137,7 @@
                 </thead>
                 <tbody>
                     @foreach ($logs as $log)
-                        @php
-                            // Safe access for device_in_campus and device_out_campus
-                            $campusIn = $campuses[$log['device_in_campus'] ?? '0'] ?? 'Unknown Campus';
-                            $campusOut = $campuses[$log['device_out_campus'] ?? '0'] ?? 'Unknown Campus';
-                            $deviceInLabel = $log['device_in_label'] ?? 'Unknown Label';
-                            $deviceOutLabel = $log['device_out_label'] ?? 'Unknown Label';
-                        @endphp
-                        @if ($log['type'] == 'time_in' && !empty($log['time']))
+                        @if ($log['type'] == 'time_in' && isset($campuses[$log['device_in_campus']]))
                             <tr>
                                 <td>
                                     <b>
@@ -153,11 +146,12 @@
                                         {{ !empty($log['suffix']) ? ucwords(strtolower($log['suffix'])) : '' }}
                                     </b>
                                     <span class="text-success">logged in</span> 
-                                    at {{ $campusIn }} ({{ $deviceInLabel }}) 
-                                    at <b class="b">{{ convertTo12HourFormat($log['time']) }}</b>.
+                                    at {{ $campuses[$log['device_in_campus']] }}, 
+                                    {{ $log['device_in_label'] ?? 'Unknown Label' }} 
+                                    at <b class="b">{{ convertTo12HourFormat($log['time'] ?? '00:00:00') }}</b>.
                                 </td>
                             </tr>
-                        @elseif ($log['type'] == 'time_out' && !empty($log['time']))
+                        @elseif ($log['type'] == 'time_out' && !empty($log['time']) && isset($campuses[$log['device_out_campus']]))
                             <tr>
                                 <td>
                                     <b>
@@ -166,7 +160,8 @@
                                         {{ !empty($log['suffix']) ? ucwords(strtolower($log['suffix'])) : '' }}
                                     </b>
                                     <span class="text-danger">logged out</span> 
-                                    at {{ $campusOut }} ({{ $deviceOutLabel }}) 
+                                    at {{ $campuses[$log['device_out_campus']] }}, 
+                                    {{ $log['device_out_label'] ?? 'Unknown Label' }} 
                                     at <b class="b">{{ convertTo12HourFormat($log['time']) }}</b>.
                                 </td>
                             </tr>
@@ -176,7 +171,6 @@
             </table>
             <div class="page-break"></div>
         @endforeach
-
     </div>
 </body>
 </html>
