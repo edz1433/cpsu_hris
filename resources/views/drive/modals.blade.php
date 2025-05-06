@@ -1,6 +1,6 @@
 
 <style>
-#modal-prform .modal-dialog {
+.modal-custom {
     max-width: 90%;
     height: 90%;
     margin: 30px auto;

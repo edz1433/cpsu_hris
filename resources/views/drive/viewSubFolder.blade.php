@@ -79,18 +79,19 @@
                 <div class="card-body table-responsive p-0" style="height: 400px;">
                     <table class="table table-head-fixed text-nowrap">
                         <tbody>
+                            @php
+                                function shortEncrypt($string)
+                                {
+                                    $key = 'fA7xB93kL0pTzWmQ';
+                                    $cipher = 'AES-128-ECB';
+                                    return rtrim(strtr(base64_encode(openssl_encrypt($string, $cipher, $key, 0)), '+/', '-_'), '=');
+                                }
+                            @endphp
                             @foreach ($opcrs as $key => $mfoItems)
                                 @php
                                     $employee = $mfoItems->first();
                                     $fullName = Str::upper("{$employee->fname} {$employee->mname} {$employee->lname}");
                                     $year = $employee->year;
-
-                                    function shortEncrypt($string)
-                                    {
-                                        $key = 'fA7xB93kL0pTzWmQ';
-                                        $cipher = 'AES-128-ECB';
-                                        return rtrim(strtr(base64_encode(openssl_encrypt($string, $cipher, $key, 0)), '+/', '-_'), '=');
-                                    }
                                 @endphp
                                 <tr onclick="showForm('{{ shortEncrypt($employee->empid) }}', '{{ shortEncrypt($employee->pr_number) }}')">
                                     <td width="40">  

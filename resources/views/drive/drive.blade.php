@@ -31,16 +31,16 @@
                             
                             $finalcond = $guard == 'employee' && $checkaccess && $folder->office_access != "All";
                         @endphp
-            
+                        
                         <div class="@if($finalcond) folder-items @else folder-item @endif;" id="folder-{{ $folder->id }}">
-                            <a href="{{ route('sub-folder', $folder->id) }}" style="pointer-events: @if($finalcond) none @endif;">
+                            <a href="{{ route('sub-folder', shortEncrypt($folder->id)) }}" style="pointer-events: @if($finalcond) none @endif;">
                                 <i class="folder-icon fas"></i>
                                 @if($finalcond)
                                     <i class="fas fa-lock fa-2x" style="margin-left: -25px; color: rgb(255, 255, 255); box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);"></i>
                                 @endif
                                 <span class="folder-name">{{ $folder->folder_name }}</span>
                             </a>
-                            @if($guard !== 'employee')
+                            @if($guard !== 'employee' && $folder->default_folder == 0)
                                 <div class="folder-options">
                                     <div class="dropdown">
                                         <i class="fas fa-ellipsis-v" id="folderOptionsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>

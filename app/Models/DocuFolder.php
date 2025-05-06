@@ -9,5 +9,5 @@ class DocuFolder extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['folder_name', 'connected_folder', 'folder_category', 'folder_path', 'office_access'];
+    protected $fillable = ['folder_name', 'connected_folder', 'folder_category', 'folder_path', 'office_access', 'default_folder'];
 }

@@ -23,6 +23,14 @@ class DocumentFolderController extends Controller
         }
     }
     
+    function shortDecrypt($encrypted)
+    {
+        $key = 'fA7xB93kL0pTzWmQ';
+        $cipher = 'AES-128-ECB';
+        $encrypted = strtr($encrypted, '-_', '+/');
+        return openssl_decrypt(base64_decode($encrypted), $cipher, $key, 0);
+    }   
+
     public function createFolder(Request $request)
     {
         $request->validate([
@@ -97,10 +105,11 @@ class DocumentFolderController extends Controller
             return redirect()->back()->with('success', 'Folder name is the same, no changes made.');
         }
     }
-
+    
     public function subfolder($id)
     {
         $guard = $this->getGuard();
+        $id = $this->shortDecrypt($id);
 
         $opcrs = Opcr::join('employees', 'opcrs.user_id', '=', 'employees.id')
         ->where('folder_id', $id)

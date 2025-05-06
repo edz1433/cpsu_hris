@@ -1,12 +1,12 @@
 <style>
-    #createOpcrMfoModal .modal-dialog {
+    .modal-custom {
         max-width: 40%;
         height: 40%;
         margin: 30px auto;
     }
 </style>
 <div class="modal fade" id="createOpcrMfoModal" tabindex="-1" role="dialog" aria-labelledby="createOpcrMfoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-dialog modal-custom modal-sm" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h6 class="modal-title text-success1" id="createOpcrMfoModalLabel"><b id="functions">PERFORMANCE REVIEW</b></h6>

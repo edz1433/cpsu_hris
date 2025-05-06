@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Employee;
 use App\Models\Office;
+use App\Models\Pmt;
 use App\Models\Campus;
 use App\Models\User;
 use App\Models\DocuFolder;
@@ -111,12 +112,14 @@ class MasterController extends Controller
         $guard = $this->getGuard();
         $docFolder = DocuFolder::all()->where('folder_category', 'mainfolder');
         $offices = Office::all();
+        $pmts = Pmt::all();
+        $pmts = $pmts->pluck('empid')->all();
         $office = null;
         if (\Auth::guard('employee')->check()) {
             $uid = auth()->guard('employee')->user()->id;
             $office = Office::where('office_head_id', $uid)->first();
         }
-        return view("drive.drive", compact('docFolder', 'office', 'offices', 'guard'));
+        return view("drive.drive", compact('docFolder', 'office', 'offices', 'pmts', 'guard'));
     }
 
     public function logout()

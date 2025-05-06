@@ -94,9 +94,6 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/pr/{cat}/{empid?}/{prnumber}', [DocumentController::class, 'perRating'])->name('per-rating');
     });
     
-    // Drive Account
-    Route::get('/account', [DriveAccountController::class, 'driveAccount'])->name('drive-account');
-
     // DTR
     Route::prefix('dtr')->group(function() {
         Route::get('/', [DtrController::class, 'dtrRead'])->name('dtr-read');
@@ -129,6 +126,10 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         // Route::post('/update-account', [MyAccountController::class, 'updateAccount']) ->name('updateAccount');
     });
     
+    Route::prefix('pmt')->group(function() {
+        Route::get('/', [UserController::class, 'Pmtlist'])->name('Pmtlist');
+    });
+
     // Employee
     Route::prefix('employees')->group(function() {
         Route::get('/', [EmployeeController::class, 'emp_list'])->name('emp_list');

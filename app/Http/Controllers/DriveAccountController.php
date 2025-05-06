@@ -15,10 +15,4 @@ class DriveAccountController extends Controller
             return 'employee';
         }
     }
-    
-    public function driveAccount(){
-        $guard = $this->getGuard();
-        $employees = Employee::where('username', '!=', '')->get();
-        return view("account.account", compact('guard', 'employees'));
-    }
 }
