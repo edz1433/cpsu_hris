@@ -132,15 +132,32 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="asign-to-dpcr" tabindex="-1" aria-labelledby="opcrModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm">
+<div class="modal fade" id="asign-to-dpcr" aria-labelledby="opcrModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm" style="width: 400px !important;">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="opcrModalLabel">Asign</h5>
+                <h5 class="modal-title" id="opcrModalLabel">Asign (OPCR)</h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body text-center">
-                <input type="" id="opcr-mfo-data-id">
+                <input type="hidden" id="opcr-mfo-data-id">
+                <select class="form-control form-control-sm {{ (auth()->guard($guard)->user()->role == "employee") ? '' : 'select2' }}" name="employee" id="employee"  @if(auth()->guard($guard)->user()->role == "employee") style="pointer-events: none;" @endif required>
+                    <option disabled selected>Select</option>
+                    @foreach($employees as $emp)
+                        <option value="{{ $emp->emp_ID }}" @if(isset($employee) && $employee && $emp->emp_ID == $employee->emp_ID) selected @endif>
+                            {{ $emp->lname }}
+                            {{ $emp->prefix }}
+                            {{ $emp->fname }}
+                            {{ isset($emp->mname) ?substr($emp->mname, 0, 1).'.' : '' }}
+                        </option>
+                    @endforeach
+                </select>
+
+                <div class="form-row">
+                    <div class="col-md-12 mt-2 text-right">
+                        <button class="btn btn-success btn-sm" type="submit" id="asign-to-dpcr-btn"><i class="fas fa-save"></i> Save</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

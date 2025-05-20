@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Employee;
 use App\Models\DocuFolder; 
 use App\Models\Document;
 use App\Models\Dpipop;
@@ -116,7 +117,8 @@ class DocumentController extends Controller
         $dempid = $this->shortDecrypt($empid);
         $dprnumber = $this->shortDecrypt($prnumber);
         $dempid = ($empid) ? $dempid : auth()->guard($guard)->user()->id;
-        
+        $employees = Employee::where('emp_status', 1)->get();
+
         $prs = Opcr::where('user_id', $dempid)->where('pr_number', $dprnumber)->get();
 
         $cores = $prs->isNotEmpty() ? OpcrMfo::where("opcr_id", $prs[0]->id)->get() : collect();
@@ -125,7 +127,7 @@ class DocumentController extends Controller
 
         $opcrmfodatas = OpcrMfoData::all();
 
-        return view("drive.pr", compact('guard', 'opcrmfodatas', 'prs', 'cores', 'strats', 'supports', 'cat', 'empid', 'prnumber'));
+        return view("drive.pr", compact('guard', 'opcrmfodatas', 'prs', 'cores', 'strats', 'supports', 'cat', 'empid', 'employees', 'prnumber'));
     }
     
     public function deleteFile($id)
