@@ -23,7 +23,7 @@
                     @php
                         $useroffid = ($guard == 'employee') ? (empty($office)) ? auth()->guard('employee')->user()->emp_dept : $office->id  : null;
                     @endphp
-                
+
                     @forelse ($docFolder as $folder) 
                         @php 
                             $officearray = explode(',', $folder->office_access); 
@@ -34,13 +34,17 @@
                             $finalcond = $guard == 'employee' && $checkaccess && $folder->office_access != "All";
                             $isFirstArray = $loop->first && $guard == 'employee' && !$isUserInPmts;
                             $isSecondArray = $loop->iteration == 2 && $guard == 'employee' && !$isUserOfficeHead && !$isUserInPmts;
+
+                            // Open folders 1,2,3 if user is in $pmtsmember
+                            $isOpen = false;
+                            if ($isUserInPmts && in_array($loop->iteration, [1,2,3])) {
+                                $isOpen = true;
+                            }
                         @endphp
-                        userid : {{ $userid }} <br>
-                        Debug: {{ print_r($pmtsmember, true) }}
-                        <div class="@if($finalcond || $isFirstArray || $isSecondArray) folder-items @else folder-item @endif;" id="folder-{{ $folder->id }}">
-                            <a href="{{ route('sub-folder', shortEncrypt($folder->id)) }}" style="pointer-events: @if($finalcond || $isFirstArray || $isSecondArray) none @endif;">
+                        <div class="@if(($finalcond || $isFirstArray || $isSecondArray) && !$isOpen) folder-items @else folder-item @endif;" id="folder-{{ $folder->id }}">
+                            <a href="{{ route('sub-folder', shortEncrypt($folder->id)) }}" style="pointer-events: @if(($finalcond || $isFirstArray || $isSecondArray) && !$isOpen) none @endif;">
                                 <i class="folder-icon fas"></i>
-                                @if($finalcond || $isFirstArray || $isSecondArray)
+                                @if(($finalcond || $isFirstArray || $isSecondArray) && !$isOpen)
                                     <i class="fas fa-lock fa-2x" style="margin-left: -25px; color: rgb(255, 255, 255); box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);"></i>
                                 @endif
                                 <span class="folder-name">{{ $folder->folder_name }}</span>
