@@ -28,8 +28,8 @@
                         @php 
                             $officearray = explode(',', $folder->office_access); 
                             $checkaccess = !in_array($useroffid, $officearray);
-                            $isUserInPmts = in_array($userid, $pmtsmember ?? []);
-                            $isUserOfficeHead = in_array($userid, $officeHeads ?? []);
+                            $isUserInPmts = in_array(auth()->guard($guard)->user(), $pmtsmember ?? []);
+                            $isUserOfficeHead = in_array(auth()->guard($guard)->user(), $officeHeads ?? []);
                             
                             $finalcond = $guard == 'employee' && $checkaccess && $folder->office_access != "All";
                             $isFirstArray = $loop->first && $guard == 'employee' && !$isUserInPmts;
