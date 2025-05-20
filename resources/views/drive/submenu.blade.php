@@ -1,5 +1,6 @@
 
 @php
+    $role = auth()->guard($guard)->user()->role;
     $isSpmsActive = request()->is('spms') || request()->is('spms/*');
     $isPmtActive = request()->is('spms-pmt*');
     $isPmtLogActive = request()->is('spms-logs');
