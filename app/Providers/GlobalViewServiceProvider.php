@@ -13,7 +13,7 @@ class GlobalViewServiceProvider extends ServiceProvider
     public function boot()
     {
         View::composer('*', function ($view) {
-            $guard = Auth::getDefaultDriver();
+            $guard = guard();
 
             // Check if a user is authenticated
             if ($guard && auth()->guard($guard)->check()) {
