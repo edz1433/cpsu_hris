@@ -10,6 +10,7 @@ use App\Models\Employee;
 use App\Models\Office;
 use App\Models\Dpipop;
 use App\Models\Opcr;
+use App\Models\Pmt;
 use Illuminate\Support\Facades\Route;
 
 class DocumentFolderController extends Controller
@@ -21,6 +22,13 @@ class DocumentFolderController extends Controller
         } elseif(\Auth::guard('employee')->check()) {
             return 'employee';
         }
+    }
+
+    function shortEncrypt($string)
+    {
+        $key = 'fA7xB93kL0pTzWmQ';
+        $cipher = 'AES-128-ECB';
+        return rtrim(strtr(base64_encode(openssl_encrypt($string, $cipher, $key, 0)), '+/', '-_'), '=');
     }
     
     function shortDecrypt($encrypted)
@@ -110,6 +118,14 @@ class DocumentFolderController extends Controller
     {
         $guard = $this->getGuard();
         $id = $this->shortDecrypt($id);
+        $pmtsUserIds = Pmt::pluck('empid')->toArray();
+        $officeHeads = Office::pluck('office_head_id')->toArray();
+
+        if($guard == 'employee' && !in_array(auth()->guard('employee')->user()->id, $pmtsUserIds) && $id == 1){
+            return redirect()->route('drive')->with('error', 'You do not have permission to access this page');
+        }elseif($guard == 'employee' && !in_array(auth()->guard('employee')->user()->id, $pmtsUserIds) && in_array($id, [1, 2]) && !in_array(auth()->guard('employee')->user()->id, $officeHeads)){
+            return redirect()->route('drive')->with('error', 'You do not have permission to access this page');
+        }
 
         $opcrs = Opcr::join('employees', 'opcrs.user_id', '=', 'employees.id')
         ->where('folder_id', $id)
@@ -185,6 +201,7 @@ class DocumentFolderController extends Controller
     
     public function createSubFolder(Request $request, $id)
     {
+        $id = $this->shortDecrypt($id);
         $folder = DocuFolder::find($id);
         $request->validate([
             'folderName' => 'required|string|max:255',

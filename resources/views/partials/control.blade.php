@@ -66,9 +66,9 @@
                 <p>DTR</p>
             </a>
         </li>
-
+        
         <li class="nav-item">
-            <a href="{{ $driveRoute }}" class="nav-link text-success1 {{ request()->is('spms') || request()->is('spms/*') || request()->is('drive-account') ? 'active' : '' }}">
+            <a href="{{ route('drive') }}" class="nav-link text-success1 {{ request()->is('spms*') || request()->is('drive-account') ? 'active' : '' }}">
                 <i class="pt-1 nav-icon fas fa-folder"></i>
                 <p>SPMS</p>
             </a>
@@ -89,7 +89,7 @@
                     <p>Users</p>
                 </a>
             </li>
-
+            
             <li class="nav-item">
                 <a href="" class="nav-link text-success1 {{ request()->is('settings') ? 'active' : '' }}">
                     <i class="pt-1 nav-icon fas fa-cogs"></i>

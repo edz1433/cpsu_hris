@@ -28,7 +28,7 @@ class LoginAuth
             if ($request->is('users') || $request->is('users/*') || $request->is('office') || $request->is('office/*') || $request->is('employees') || $request->is('leave/status/*') || $request->is('leave/history/*')
             || $request->is('tardiness') || $request->is('leaves') || $request->is('pending/*') || $request->is('pds/family-bg/*') || $request->is('pds/educ-bg/*') || $request->is('pds/eligibility/*') 
             || $request->is('pds/work-experience/*') || $request->is('pds/voluntary-work/*') || $request->is('pds/learning-dev/*') || $request->is('pds/other-info/*') || $request->is('pds/info-question/*') 
-            || $request->is('spms/1') || $request->is('pds/references/*') || $request->is('pds/government-id/*')) {
+            || $request->is('pds/references/*') || $request->is('pds/government-id/*')) {
                 return redirect()->route('empPDS')->with('error1', 'You do not have permission to access this page');
             }
             if ($request->is('leave') && auth()->guard('employee')->user()->emp_status != 1) {

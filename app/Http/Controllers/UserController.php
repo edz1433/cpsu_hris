@@ -141,13 +141,13 @@ class UserController extends Controller
         return redirect()->back()->with('success', 'User updated successfully.');
     }    
 
-    public function uDelete($id) {
-        $user = User::find($id);
+    public function uDelete(Request $request) {
+        $user = User::find($request->id);
     
         if (!$user) {
             return response()->json([
                 'status' => 404,
-                'message' => 'User not found',
+                'message' => 'pmt not found',
             ]);
         }
     
@@ -155,7 +155,7 @@ class UserController extends Controller
     
         return response()->json([
             'status' => 200,
-            'id' => $id,
+            'id' => $user->id,
         ]);
     }
 

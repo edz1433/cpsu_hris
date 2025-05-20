@@ -34,16 +34,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PendingController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\OpcrController;
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
+use App\Http\Controllers\PmtController;
 
 Route::get('/', function () {
     if (Auth::guard('web')->check()) {
@@ -82,16 +73,24 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/upload/{id}', [DocumentController::class, 'storeFile'])->name('document-store');
         Route::post('/update-file', [DocumentController::class, 'updateFile'])->name('document-update');
         Route::get('/delete-file/{id}', [DocumentController::class, 'deleteFile'])->name('delete-file');
-
+        
+        //performance rating
+        Route::get('/pr/{cat}/{empid?}/{prnumber}', [DocumentController::class, 'perRating'])->name('per-rating');
+        
         // opcr mfo's
         Route::post('/create-opcr', [OpcrController::class, 'createOpcr'])->name('create-opcr');
         Route::post('/create-opcr-mfo', [OpcrController::class, 'createOpcrMfo'])->name('create-opcr-mfo');
         Route::post('/create-opcr-mfo-data', [OpcrController::class, 'createOpcrMfoData'])->name('create-opcr-mfo-data');
         Route::get('/opcrmfo-edit-ata/{id}', [OpcrController::class, 'opcrmfoEditData'])->name('opcrmfoEditData');
         Route::post('/opcrmfo-delete-data/{id}', [OpcrController::class, 'opcrmfoDeleteData'])->name('opcrmfoDeleteData');
+    });
 
-        //performance rating
-        Route::get('/pr/{cat}/{empid?}/{prnumber}', [DocumentController::class, 'perRating'])->name('per-rating');
+    Route::prefix('spms-pmt')->group(function() {
+        Route::get('/', [PmtController::class, 'pmtlist'])->name('pmtlist');
+        Route::post('/create', [PmtController::class, 'pmtCreate'])->name('pmtCreate');
+        Route::get('/edit/{id}', [PmtController::class, 'pmtEdit'])->name('pmtEdit');
+        Route::post('/update', [PmtController::class, 'pmtUpdate'])->name('pmtUpdate');
+        Route::post('/delete', [PmtController::class, 'pmtDelete'])->name('pmtDelete');
     });
     
     // DTR
@@ -115,7 +114,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/create', [UserController::class, 'uCreate'])->name('uCreate');
         Route::get('/edit/{id}', [UserController::class, 'uEdit'])->name('uEdit');
         Route::post('/update', [UserController::class, 'uUpdate'])->name('uUpdate');
-        Route::get('/delete/{id}', [UserController::class, 'uDelete'])->name('uDelete');
+        Route::post('/delete', [UserController::class, 'uDelete'])->name('uDelete');
 
         Route::get('/myaccount', [UserController::class, 'myAccount'])->name('myAccount');
     });
@@ -124,10 +123,6 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     Route::prefix('/myaccount')->group(function(){
         // Route::get('/', [MyAccountController::class, 'myAccount']) ->name('myAccount');
         // Route::post('/update-account', [MyAccountController::class, 'updateAccount']) ->name('updateAccount');
-    });
-    
-    Route::prefix('pmt')->group(function() {
-        Route::get('/', [UserController::class, 'Pmtlist'])->name('Pmtlist');
     });
 
     // Employee

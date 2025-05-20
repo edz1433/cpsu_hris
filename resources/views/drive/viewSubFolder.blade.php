@@ -31,8 +31,7 @@
                         @forelse ($subfolder as $folder)
                             @php 
                                 $officearray = explode(',', $folder->office_access); 
-                                $checkaccess = !in_array($useroffid, $officearray);
-                                $finalcond = $guard == 'employee' && $checkaccess && $folder->office_access != "All";
+                                $checkaccess = $guard == 'employee' && !in_array($useroffid, $officearray) && $folder->office_access !== "All";
                             @endphp
                     
                             @if(!$finalcond)
@@ -79,19 +78,12 @@
                 <div class="card-body table-responsive p-0" style="height: 400px;">
                     <table class="table table-head-fixed text-nowrap">
                         <tbody>
-                            @php
-                                function shortEncrypt($string)
-                                {
-                                    $key = 'fA7xB93kL0pTzWmQ';
-                                    $cipher = 'AES-128-ECB';
-                                    return rtrim(strtr(base64_encode(openssl_encrypt($string, $cipher, $key, 0)), '+/', '-_'), '=');
-                                }
-                            @endphp
                             @foreach ($opcrs as $key => $mfoItems)
                                 @php
                                     $employee = $mfoItems->first();
                                     $fullName = Str::upper("{$employee->fname} {$employee->mname} {$employee->lname}");
                                     $year = $employee->year;
+                                    
                                 @endphp
                                 <tr onclick="showForm('{{ shortEncrypt($employee->empid) }}', '{{ shortEncrypt($employee->pr_number) }}')">
                                     <td width="40">  

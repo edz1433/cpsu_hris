@@ -3,9 +3,6 @@
     $(document).on('click', '.users-delete', function(e){
         var id = $(this).val();
         
-        var url = "{{ route('uDelete', ['id' => ':id']) }}";
-        url = url.replace(':id', id);
-        
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -22,24 +19,32 @@
         }).then((result) => {
             if (result.isConfirmed){
                 $.ajax({
-                    type: "GET",
-                    url: url,
+                    type: "POST",
+                    url: "{{ route('uDelete') }}",
+                    data: { id: id },
                     success: function (response) {  
-                        $("#tr-"+id).fadeOut(2000);
-                        Swal.fire({
-                        title:'Deleted!',
-                        text:'Your file has been deleted.',
-                        type:'success',
-                        icon: 'warning',
-                        showConfirmButton: false,
-                        timer: 1000
-                        })
+                        if (response.status === 200) {
+                            $("#tr-"+response.id).fadeOut(2000, function () {
+                                $(this).remove();
+                            });
+                            Swal.fire({
+                                title: 'Deleted!',
+                                text: 'Your file has been deleted.',
+                                icon: 'success',
+                                showConfirmButton: false,
+                                timer: 1000
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: response.message || 'An error occurred.',
+                                icon: 'error',
+                                showConfirmButton: true
+                            });
+                        }
                     }
                 });
             }
         })
     });
-
-    
-    
 </script>

@@ -223,20 +223,13 @@
     </div>
 </div>
 @php
-    function shortEncrypt($string)
-    {
-        $key = 'fA7xB93kL0pTzWmQ';
-        $cipher = 'AES-128-ECB';
-        return rtrim(strtr(base64_encode(openssl_encrypt($string, $cipher, $key, 0)), '+/', '-_'), '=');
-    }
-    
     $shortEncrypted = shortEncrypt($employee->emp_ID);
 @endphp
 <script>
     function openQRModal() {
         const qrElements = ['qrcode', 'qrcode1'];
         const token = "{{ $shortEncrypted }}";
-
+        
         qrElements.forEach(elementId => {
             const qrElement = document.getElementById(elementId);
             if (qrElement) {

@@ -22,24 +22,26 @@
                 <div class="card-body folder-grid">
                     @php
                         $useroffid = ($guard == 'employee') ? (empty($office)) ? auth()->guard('employee')->user()->emp_dept : $office->id  : null;
+                        function shortEncrypt($string)
+                        {
+                            $key = 'fA7xB93kL0pTzWmQ';
+                            $cipher = 'AES-128-ECB';
+                            return rtrim(strtr(base64_encode(openssl_encrypt($string, $cipher, $key, 0)), '+/', '-_'), '=');
+                        }
                     @endphp
                 
                     @forelse ($docFolder as $folder) 
                         @php 
                             $officearray = explode(',', $folder->office_access); 
                             $checkaccess = !in_array($useroffid, $officearray);
-                            $isUserInPmts = in_array($userid, $pmtsmember ?? []);
-                            $isUserOfficeHead = in_array($userid, $officeHeads ?? []);
                             
                             $finalcond = $guard == 'employee' && $checkaccess && $folder->office_access != "All";
-                            $isFirstArray = $loop->first && $guard == 'employee' && !$isUserInPmts;
-                            $isSecondArray = $loop->iteration == 2 && $guard == 'employee' && !$isUserOfficeHead && !$isUserInPmts;
                         @endphp
                         
-                        <div class="@if($finalcond || $isFirstArray || $isSecondArray) folder-items @else folder-item @endif;" id="folder-{{ $folder->id }}">
-                            <a href="{{ route('sub-folder', shortEncrypt($folder->id)) }}" style="pointer-events: @if($finalcond || $isFirstArray || $isSecondArray) none @endif;">
+                        <div class="@if($finalcond) folder-items @else folder-item @endif;" id="folder-{{ $folder->id }}">
+                            <a href="{{ route('sub-folder', shortEncrypt($folder->id)) }}" style="pointer-events: @if($finalcond) none @endif;">
                                 <i class="folder-icon fas"></i>
-                                @if($finalcond || $isFirstArray || $isSecondArray)
+                                @if($finalcond)
                                     <i class="fas fa-lock fa-2x" style="margin-left: -25px; color: rgb(255, 255, 255); box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);"></i>
                                 @endif
                                 <span class="folder-name">{{ $folder->folder_name }}</span>

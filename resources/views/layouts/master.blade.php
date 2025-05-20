@@ -62,22 +62,6 @@
     }
     </style>
 </head>
-@php
-    if (!function_exists('shortEncrypt')) {
-        function shortEncrypt($string)
-        {
-            $key = 'fA7xB93kL0pTzWmQ';
-            $cipher = 'AES-128-ECB';
-            return rtrim(strtr(base64_encode(openssl_encrypt($string, $cipher, $key, 0)), '+/', '-_'), '=');
-        }
-    }
-    
-    $role = auth()->guard($guard)->user()->role;
-    $userid = auth()->guard($guard)->user()->id;
-    $driveRoute = ($role == 'Administrator' && (route('drive') || in_array($userid, $pmts ?? []))) 
-        ? route('sub-folder', shortEncrypt(3)) 
-        : null;
-@endphp
 <body class="hold-transition sidebar-mini layout-fixed sidebar-collapse layout-navbar-fixed text-sm">
     <div class="wrapper">
         <!-- Navbar -->
