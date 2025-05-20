@@ -35,7 +35,8 @@
                             $isFirstArray = $loop->first && $guard == 'employee' && !$isUserInPmts;
                             $isSecondArray = $loop->iteration == 2 && $guard == 'employee' && !$isUserOfficeHead && !$isUserInPmts;
                         @endphp
-                        
+                        userid : {{ $userid }} <br>
+                        Debug: {{ print_r($pmtsmember, true) }}
                         <div class="@if($finalcond || $isFirstArray || $isSecondArray) folder-items @else folder-item @endif;" id="folder-{{ $folder->id }}">
                             <a href="{{ route('sub-folder', shortEncrypt($folder->id)) }}" style="pointer-events: @if($finalcond || $isFirstArray || $isSecondArray) none @endif;">
                                 <i class="folder-icon fas"></i>
