@@ -6,7 +6,6 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Models\Pmt;
 use App\Models\Office;
-use Illuminate\Support\Facades\Auth;
 
 class GlobalViewServiceProvider extends ServiceProvider
 {
