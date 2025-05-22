@@ -39,6 +39,11 @@
               </div>
 
               <div class="form-group">
+                <label for="eventTitle">Organizing Department/s</label>
+                <input type="text" class="form-control form-control-sm" id="org_dept" name="org_dept" required>
+              </div>
+
+              <div class="form-group">
                 <label for="Campus">Campus</label><br>
                 <select class="form-control form-control-sm select2 update-field" style="width: 100%;" name="campus_id" required>
                     <option disabled selected> select </option>
