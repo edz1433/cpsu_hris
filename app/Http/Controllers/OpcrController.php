@@ -174,5 +174,9 @@ class OpcrController extends Controller
             return response()->json(['error' => 'Failed to delete entry.'], 500);
         }
     }
-    
+
+    public function asignOpcr(Request $request)
+    {
+        
+    }
 }

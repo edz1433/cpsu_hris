@@ -40,7 +40,7 @@
     </ul>                     
 </div>
 
-@if($role == 'Administrator' || $role == 'HR Administrator')
+@if($role == 'Administrator' || $role == 'HR Administrator' || in_array($userid, $pmtsmember ?? []))
     <div class="card p-1">
         <h5 class="card-title" style="font-size: 17pt"></h5>
         <ul class="nav nav-pills nav-sidebar nav-compact flex-column">

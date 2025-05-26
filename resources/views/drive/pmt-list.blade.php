@@ -68,6 +68,7 @@
                                                             <option value="1" @if($current_route == 'pmtEdit' && $pmtEdit->position == 1) selected @endif>Performance Management Team</option>
                                                             <option value="2" @if($current_route == 'pmtEdit' && $pmtEdit->position == 2) selected @endif>Local PMT</option>
                                                             <option value="3" @if($current_route == 'pmtEdit' && $pmtEdit->position == 3) selected @endif>PMT Secretariat</option>
+                                                            <option value="4" @if($current_route == 'pmtEdit' && $pmtEdit->position == 4) selected @endif>Dean</option>
                                                         </select>
                                                     </div>    
                                                 </div>

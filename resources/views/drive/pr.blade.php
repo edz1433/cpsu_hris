@@ -56,6 +56,7 @@
     </button>
 </div>
 
+<div style="max-height: 500px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.25rem; padding: 10px;">
 <table id="table-form">
     <thead>
         <tr>
@@ -335,6 +336,46 @@
         @endforeach
     </tbody>
 </table>
+</div>
+<div class="row mt-2 mb-3">
+    <div class="col-md-12 text-right mt-3">
+        <i class="fas fa-cog mr-2" style="font-size: 16px;"></i>
+    </div>
+    <div class="col-md-12 text-center">
+        <div class="row">
+            <div class="col text-center">
+                <div><strong>_________________________</strong></div>
+                <div><strong>ALADINO C. MORACA, Ph.D.</strong></div>
+                <div>SUC President II</div>
+            </div>
+            <div class="col text-center">
+                <div><strong>_________________________</strong></div>
+                <div><strong>GRENNY I. JUNGCO, Ph.D.</strong></div>
+                <div>Director, Quality Assurance</div>
+            </div>
+            <div class="col text-center">
+                <div><strong>_________________________</strong></div>
+                <div><strong>MARIA CRISTINA I. CANSON-BADAJOS</strong></div>
+                <div>Director, Planning and Development</div>
+            </div>
+            <div class="col text-center">
+                <div><strong>_________________________</strong></div>
+                <div><strong>FERNANDO D. ABELLO, Ph.D.</strong></div>
+                <div>Vice President for Academic Affairs</div>
+            </div>
+            <div class="col text-center">
+                <div><strong>_________________________</strong></div>
+                <div><strong>MARC ALEXIE CAESAR B. BADAJOS, Ph.D.</strong></div>
+                <div>Vice President for Administration and Finance</div>
+            </div>
+            <div class="col text-center">
+                <div><strong>_________________________</strong></div>
+                <div><strong>ALADINO C. MORACA, Ph.D.</strong></div>
+                <div>SUC President II</div>
+            </div>
+        </div>
+    </div>
+</div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     const empid = "{{ $empid ?? '' }}";
