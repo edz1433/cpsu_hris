@@ -296,12 +296,6 @@
 
                     $updates[] = [
                         'id' => $data->id,
-                        'device_id_in' => $data->device_id_in ?: null,
-                        'device_id_out' => $data->device_id_out ?: null,
-                        'device_id_over' => $data->device_id_over ?: null,
-                        'time_in' => $data->time_in ?: null,
-                        'time_out' => $data->time_out ?: null,
-                        'time_over' => $data->time_over ?: null,
                         'device_id_in' => $this->trimCommas($filteredTimeIn['device_ids']),
                         'device_id_out' => $this->trimCommas($filteredTimeOut['device_ids']),
                         'device_id_over' => $this->trimCommas($filteredTimeOver['device_ids']),
@@ -410,7 +404,7 @@
                 $inside = !$inside;
             }
         }
-    
+        
         return $inside ? "✅ Inside the area" : "❌ Outside the area";
     }
 

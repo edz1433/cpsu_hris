@@ -343,6 +343,7 @@
     </tbody>
 </table>
 </div>
+
 <div class="row mt-2 mb-3">
     <div class="col-md-12 text-right mt-3" style="cursor: pointer;">
         <i class="fas fa-cog mr-2" style="font-size: 16px;" data-toggle="modal" data-target="#setupModal"></i>
