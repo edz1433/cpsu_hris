@@ -105,7 +105,7 @@
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </td>
-                                    </tr>
+                                    </tr> 
                                 @endforeach
                             </tbody>
                         </table>                    

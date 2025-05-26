@@ -107,7 +107,7 @@
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             @if(isset($prs[0]))
                 <td class="b-none text-center">
-                    <i class="fas fa-plus fa-lg text-success1 pl-1"
+                    <i class="fas fa-plus fa-lg text-success1 pl-1" style="cursor: pointer;"
                     data-toggle="modal"
                     data-cat="1"
                     data-id="{{ $prs[0]->id }}"
@@ -123,26 +123,26 @@
 
         
         @foreach($cores as $core)
-        <tr>
-            <td>{{ $core->mfo ?? '' }} ({{ $core->percent ?? '' }}%)</td>
-            <td class="text-center">{{ $core->target ?? '' }}</td>
-            <td class="text-center">{{ $core->in_support ?? '' }}</td>
-            <td class="text-center"></td>
-            <td class="text-center"></td>
-            <td class="text-center"></td>
-            <td class="text-center"></td>
-            <td class="text-center">{{ $core->report_sup ?? '' }}</td>
-            <td class="text-center">{{ $core->alloted ?? '' }}</td>
-            <td class="text-center">{{ $core->div_account ?? '' }}</td>
-            <td class="text-center">{{ $core->qrate ?? '' }}</td>
-            <td class="text-center">{{ $core->erate ?? '' }}</td>
-            <td class="text-center">{{ $core->trate ?? '' }}</td>
-            <td class="text-center">{{ $core->a ?? '' }}</td>
-            <td class="text-center">{{ $core->remarks ?? '' }}</td>
-            <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
-            <td class="b-none text-center">
-                <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></i>
-            </td>
+            <tr>
+                <td>{{ $core->mfo ?? '' }} ({{ $core->percent ?? '' }}%)</td>
+                <td class="text-center">{{ $core->target ?? '' }}</td>
+                <td class="text-center">{{ $core->in_support ?? '' }}</td>
+                <td class="text-center"></td>
+                <td class="text-center"></td>
+                <td class="text-center"></td>
+                <td class="text-center"></td>
+                <td class="text-center">{{ $core->report_sup ?? '' }}</td>
+                <td class="text-center">{{ $core->alloted ?? '' }}</td>
+                <td class="text-center">{{ $core->div_account ?? '' }}</td>
+                <td class="text-center">{{ $core->qrate ?? '' }}</td>
+                <td class="text-center">{{ $core->erate ?? '' }}</td>
+                <td class="text-center">{{ $core->trate ?? '' }}</td>
+                <td class="text-center">{{ $core->a ?? '' }}</td>
+                <td class="text-center">{{ $core->remarks ?? '' }}</td>
+                <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
+                <td class="b-none text-center">
+                    <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;" data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></i>
+                </td>
             </tr>
             @php
                 $filteredOpcrMfoDatas = in_array($cat, [1, 2])
@@ -192,7 +192,7 @@
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             @if(isset($prs[1]))
                 <td class="b-none text-center">
-                    <i class="fas fa-plus fa-lg text-success1 pl-1"
+                    <i class="fas fa-plus fa-lg text-success1 pl-1" style="cursor: pointer;"
                     data-toggle="modal"
                     data-cat="2"
                     data-id="{{ $prs[1]->id }}"
@@ -224,7 +224,7 @@
             <td class="text-center">{{ $strat->remarks ?? '' }}</td>
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             <td class="b-none text-center">
-                <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i>
+                <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;" data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i>
             </td>
              @php
                 $filteredopcrmfodatas = in_array($cat, [1, 2])
@@ -274,7 +274,7 @@
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             @if(isset($prs[2]))
                 <td class="b-none text-center">
-                    <i class="fas fa-plus fa-lg text-success1 pl-1"
+                    <i class="fas fa-plus fa-lg text-success1 pl-1" style="cursor: pointer;"
                     data-toggle="modal"
                     data-cat="3"
                     data-id="{{ $prs[2]->id }}"
@@ -304,7 +304,7 @@
             <td class="text-center">{{ $supp->remarks ?? '' }}</td>
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             <td class="b-none text-center">
-                <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i>
+                <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;" data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i>
             </td>
             @php
                 $filteredopcrmfodatas = in_array($cat, [1, 2])
@@ -338,44 +338,97 @@
 </table>
 </div>
 <div class="row mt-2 mb-3">
-    <div class="col-md-12 text-right mt-3">
-        <i class="fas fa-cog mr-2" style="font-size: 16px;"></i>
+    <div class="col-md-12 text-right mt-3" style="cursor: pointer;">
+        <i class="fas fa-cog mr-2" style="font-size: 16px;" data-toggle="modal" data-target="#setupModal"></i>
     </div>
     <div class="col-md-12 text-center">
         <div class="row">
             <div class="col text-center">
-                <div><strong>_________________________</strong></div>
+                <div><strong>_________________________________</strong></div>
                 <div><strong>ALADINO C. MORACA, Ph.D.</strong></div>
                 <div>SUC President II</div>
             </div>
             <div class="col text-center">
-                <div><strong>_________________________</strong></div>
+                <div><strong>_________________________________</strong></div>
                 <div><strong>GRENNY I. JUNGCO, Ph.D.</strong></div>
                 <div>Director, Quality Assurance</div>
             </div>
             <div class="col text-center">
-                <div><strong>_________________________</strong></div>
+                <div><strong>_________________________________</strong></div>
                 <div><strong>MARIA CRISTINA I. CANSON-BADAJOS</strong></div>
                 <div>Director, Planning and Development</div>
             </div>
             <div class="col text-center">
-                <div><strong>_________________________</strong></div>
+                <div><strong>_________________________________</strong></div>
                 <div><strong>FERNANDO D. ABELLO, Ph.D.</strong></div>
                 <div>Vice President for Academic Affairs</div>
             </div>
             <div class="col text-center">
-                <div><strong>_________________________</strong></div>
+                <div><strong>_________________________________</strong></div>
                 <div><strong>MARC ALEXIE CAESAR B. BADAJOS, Ph.D.</strong></div>
                 <div>Vice President for Administration and Finance</div>
             </div>
             <div class="col text-center">
-                <div><strong>_________________________</strong></div>
+                <div><strong>_________________________________</strong></div>
                 <div><strong>ALADINO C. MORACA, Ph.D.</strong></div>
                 <div>SUC President II</div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal Setup Asignatories -->
+<div class="modal fade" id="setupModal" tabindex="-1" role="dialog" aria-labelledby="setupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="setupModalLabel">Setup Signatories</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="setupForm">
+                    <div class="row">
+                        <div class="col-4">
+                            Discussed with:
+                            <select class="form-control form-control-sm select2" name="employee[]" id="employee[]" required multiple>
+                                <option value="Deans">All Deans</option>
+                                <option value="Heads">All Office Heads</option>
+                                @foreach($employees as $emp)
+                                    <option value="{{ $emp->emp_ID }}" @if(isset($employee) && $employee && $emp->emp_ID == $employee->emp_ID) selected @endif>
+                                        {{ $emp->fname }}
+                                        {{ isset($emp->mname) ?substr($emp->mname, 0, 1).'.' : '' }}
+                                        {{ $emp->lname }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="saveSetup()">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function saveSetup() {
+        // Logic to save the setup
+        const signatories = [];
+        for (let i = 1; i <= 5; i++) {
+            const value = document.getElementById(`signatory${i}`).value;
+            if (value) {
+                signatories.push(value);
+            }
+        }
+        console.log('Saved Signatories:', signatories);
+        $('#setupModal').modal('hide');
+    }
+</script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     const empid = "{{ $empid ?? '' }}";
