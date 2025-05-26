@@ -271,18 +271,12 @@
                     'emp_ID',
                     'date',
                     DB::raw("MAX(id) as id"),
-                    DB::raw("GROUP_CONCAT(NULLIF(device_id_in, '') ORDER BY id SEPARATOR ',') AS device_id_in"),
-                    DB::raw("GROUP_CONCAT(NULLIF(device_id_out, '') ORDER BY id SEPARATOR ',') AS device_id_out"),
-                    DB::raw("GROUP_CONCAT(NULLIF(device_id_over, '') ORDER BY id SEPARATOR ',') AS device_id_over"),
-                    DB::raw("GROUP_CONCAT(NULLIF(time_in, '') ORDER BY id SEPARATOR ',') AS time_in"),
-                    DB::raw("GROUP_CONCAT(NULLIF(time_out, '') ORDER BY id SEPARATOR ',') AS time_out"),
-                    DB::raw("GROUP_CONCAT(NULLIF(time_over, '') ORDER BY id SEPARATOR ',') AS time_over"),
-                    DB::raw("GROUP_CONCAT(DISTINCT NULLIF(device_id_in, '') ORDER BY device_id_in SEPARATOR ',') AS device_id_in"),
-                    DB::raw("GROUP_CONCAT(DISTINCT NULLIF(device_id_out, '') ORDER BY device_id_out SEPARATOR ',') AS device_id_out"),
-                    DB::raw("GROUP_CONCAT(DISTINCT NULLIF(device_id_over, '') ORDER BY device_id_over SEPARATOR ',') AS device_id_over"),
-                    DB::raw("GROUP_CONCAT(DISTINCT NULLIF(time_in, '') ORDER BY time_in SEPARATOR ',') AS time_in"),
-                    DB::raw("GROUP_CONCAT(DISTINCT NULLIF(time_out, '') ORDER BY time_out SEPARATOR ',') AS time_out"),
-                    DB::raw("GROUP_CONCAT(DISTINCT NULLIF(time_over, '') ORDER BY time_over SEPARATOR ',') AS time_over")
+                    DB::raw("GROUP_CONCAT(NULLIF(device_id_in, '') ORDER BY device_id_in SEPARATOR ',') AS device_id_in"),
+                    DB::raw("GROUP_CONCAT(NULLIF(device_id_out, '') ORDER BY device_id_out SEPARATOR ',') AS device_id_out"),
+                    DB::raw("GROUP_CONCAT(NULLIF(device_id_over, '') ORDER BY device_id_over SEPARATOR ',') AS device_id_over"),
+                    DB::raw("GROUP_CONCAT(NULLIF(time_in, '') ORDER BY time_in SEPARATOR ',') AS time_in"),
+                    DB::raw("GROUP_CONCAT(NULLIF(time_out, '') ORDER BY time_out SEPARATOR ',') AS time_out"),
+                    DB::raw("GROUP_CONCAT(NULLIF(time_over, '') ORDER BY time_over SEPARATOR ',') AS time_over")
                 )
                 ->whereIn('date', $dateList)
                 ->groupBy('emp_ID', 'date')
