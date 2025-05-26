@@ -165,6 +165,62 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Setup Asignatories -->
+<div class="modal fade" id="setupModal" tabindex="-1" role="dialog" aria-labelledby="setupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" style="width: 900px !important;" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="setupModalLabel">Setup Asignatories</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="setupForm">
+                    <div class="row">
+                        @php
+                            $groupedAsignatories = $selectedEmployees->groupBy('label');
+                        @endphp
+                        @foreach ($groupedAsignatories as $label => $asignatories)
+                            <div class="col-md-12 mb-3">
+                                <label>{{ $label ?? 'Employee' }}</label>
+                                @foreach ($asignatories as $index => $asignatory)
+                                    <div class="row mb-2">
+                                        <div class="col-md-4">
+                                            <select class="form-control form-control-sm select2" name="employee{{ $loop->parent->index + $index + 1 }}" id="employee{{ $loop->parent->index + $index + 1 }}" required>
+                                                <option value="">Select Employee</option>
+                                                @foreach($employees as $emp)
+                                                    @php
+                                                        $fullName = $emp->fname . ' ' .
+                                                                    ($emp->mname ? strtoupper(substr($emp->mname, 0, 1)) . '. ' : '') .
+                                                                    $emp->lname .
+                                                                    ($emp->suffixes ? ', ' . $emp->suffixes : '');
+                                                    @endphp
+                                                    <option value="{{ $emp->emp_ID }}" 
+                                                        @if($emp->emp_ID == $asignatory->empid) selected @endif>
+                                                        {{ $fullName }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control form-control-sm" name="designation{{ $loop->parent->index + $index + 1 }}" id="designation{{ $loop->parent->index + $index + 1 }}" value="{{ $asignatory->designation ?? '' }}" placeholder="Designation">
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endforeach
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="saveSetup()">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const saveButton = document.querySelector('button[type="submit"]');

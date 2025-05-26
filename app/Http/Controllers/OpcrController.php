@@ -9,6 +9,7 @@ use App\Models\Opcr;
 use App\Models\OpcrMfo;
 use App\Models\OpcrMfoData;
 use App\Models\Setting;
+use App\Models\SpmsAsignatory;
 
 class OpcrController extends Controller
 {
@@ -54,6 +55,19 @@ class OpcrController extends Controller
         }
         
         Opcr::insert($data);
+
+        $asignatories = [
+            ['pr_number' => $prNumber, 'empid' => 'EMP0001', 'suffixes' => 'Ph.D.\r\n', 'designation' => 'SUC President II', 'spms_type' => 'OPCR', 'label' => 'Discussed with:'],
+            ['pr_number' => $prNumber, 'empid' => 'EMP0131', 'suffixes' => 'Ph.D.\n', 'designation' => 'Director, Quality Assurance', 'spms_type' => 'OPCR', 'label' => 'Assessed by:'],
+            ['pr_number' => $prNumber, 'empid' => 'EMP0202', 'suffixes' => 'Ph.D.', 'designation' => 'Director, Planning and Development', 'spms_type' => 'OPCR', 'label' => 'Reviewed by:'],
+            ['pr_number' => $prNumber, 'empid' => 'EMP0003', 'suffixes' => 'Ph.D.', 'designation' => 'Vice President for Academic Affairs', 'spms_type' => 'OPCR', 'label' => 'Reviewed by:'],
+            ['pr_number' => $prNumber, 'empid' => 'EMP0002', 'suffixes' => 'Ph.D.', 'designation' => 'Vice President for Administration and Finance', 'spms_type' => 'OPCR', 'label' => 'Reviewed by:'],
+            ['pr_number' => $prNumber, 'empid' => 'EMP0001', 'suffixes' => 'Ph.D.', 'designation' => 'SUC President II', 'spms_type' => 'OPCR', 'label' => 'Final Rating by:'],
+        ];
+        
+        foreach ($asignatories as $asignatory) {
+            SpmsAsignatory::create($asignatory);
+        }
         
         return redirect()->back()->with('success', 'Data saved successfully!');
     }

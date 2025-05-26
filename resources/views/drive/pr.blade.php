@@ -30,6 +30,12 @@
         margin: 30px auto;
     }
 </style>
+@php
+    $selectedEmployees = \App\Models\SpmsAsignatory::where('pr_number', 0001)
+        ->join('employees', 'spms_asignatories.empid', '=', 'employees.emp_ID')
+        ->select('employees.fname', 'employees.lname', 'employees.mname', 'spms_asignatories.*')
+        ->get();
+@endphp
 @include('drive.modal-mfo')
 <div class="modal fade" id="modal-rating" tabindex="-1" role="dialog" aria-labelledby="modal-prform" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -343,74 +349,18 @@
     </div>
     <div class="col-md-12 text-center">
         <div class="row">
-            <div class="col text-center">
-                <div><strong>_________________________________</strong></div>
-                <div><strong>ALADINO C. MORACA, Ph.D.</strong></div>
-                <div>SUC President II</div>
-            </div>
-            <div class="col text-center">
-                <div><strong>_________________________________</strong></div>
-                <div><strong>GRENNY I. JUNGCO, Ph.D.</strong></div>
-                <div>Director, Quality Assurance</div>
-            </div>
-            <div class="col text-center">
-                <div><strong>_________________________________</strong></div>
-                <div><strong>MARIA CRISTINA I. CANSON-BADAJOS</strong></div>
-                <div>Director, Planning and Development</div>
-            </div>
-            <div class="col text-center">
-                <div><strong>_________________________________</strong></div>
-                <div><strong>FERNANDO D. ABELLO, Ph.D.</strong></div>
-                <div>Vice President for Academic Affairs</div>
-            </div>
-            <div class="col text-center">
-                <div><strong>_________________________________</strong></div>
-                <div><strong>MARC ALEXIE CAESAR B. BADAJOS, Ph.D.</strong></div>
-                <div>Vice President for Administration and Finance</div>
-            </div>
-            <div class="col text-center">
-                <div><strong>_________________________________</strong></div>
-                <div><strong>ALADINO C. MORACA, Ph.D.</strong></div>
-                <div>SUC President II</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Setup Asignatories -->
-<div class="modal fade" id="setupModal" tabindex="-1" role="dialog" aria-labelledby="setupModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-md" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="setupModalLabel">Setup Signatories</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="setupForm">
-                    <div class="row">
-                        <div class="col-4">
-                            Discussed with:
-                            <select class="form-control form-control-sm select2" name="employee[]" id="employee[]" required multiple>
-                                <option value="Deans">All Deans</option>
-                                <option value="Heads">All Office Heads</option>
-                                @foreach($employees as $emp)
-                                    <option value="{{ $emp->emp_ID }}" @if(isset($employee) && $employee && $emp->emp_ID == $employee->emp_ID) selected @endif>
-                                        {{ $emp->fname }}
-                                        {{ isset($emp->mname) ?substr($emp->mname, 0, 1).'.' : '' }}
-                                        {{ $emp->lname }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-success" onclick="saveSetup()">Save changes</button>
-            </div>
+            @foreach ($selectedEmployees as $asignatory)
+                @php
+                    $fullName = $asignatory->fname . ' ' .
+                                ($asignatory->mname ? strtoupper(substr($asignatory->mname, 0, 1)) . '. ' : '') .
+                                $asignatory->lname ;
+                @endphp
+                <div class="col text-center">
+                    <div><strong>_________________________________</strong></div>
+                    <div><strong>{{ $fullName ?? 'N/A' }}{{ ($asignatory->suffixes) ? ', '.$asignatory->suffixes : '' }}</strong></div>
+                    <div>{{ $asignatory->designation ?? 'N/A' }}</div>
+                </div>
+            @endforeach
         </div>
     </div>
 </div>
