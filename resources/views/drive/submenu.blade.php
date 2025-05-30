@@ -1,8 +1,10 @@
 
 @php
+    $isPersonnelActive = request()->is('spms-set/personnel*') || request()->is('spms-set/personnel*');
     $isSpmsActive = request()->is('spms') || request()->is('spms/*');
-    $isPmtActive = request()->is('spms-pmt*');
+    $isPmtActive = request()->is('spms-set/pmt*');
     $isPmtLogActive = request()->is('spms-logs');
+    $isMfoActive = request()->is('spms-mfo-settings*') || request()->is('spms-mfo-settings/edit*');
 @endphp
 
 @if($guard == "web")
@@ -45,11 +47,23 @@
         <h5 class="card-title" style="font-size: 17pt"></h5>
         <ul class="nav nav-pills nav-sidebar nav-compact flex-column">
             <li class="nav-item mb-1">
-                <a href="{{ route('pmtlist') }}" class="nav-link2 {{ $isPmtActive ? 'active1' : 'text-muted' }}" id="trashButton">
-                    <i class="fas fa-user-cog {{ $isPmtActive ? 'text-success1' : 'text-muted' }}"></i>
+                <a href="{{ route('spmsPersonnlist', 'pmt') }}" class="nav-link2 {{ $isPmtActive ? 'active1' : 'text-muted' }}" id="trashButton">
+                    <i class="fas fa-user {{ $isPmtActive ? 'text-success1' : 'text-muted' }}"></i>
                     <span class="ml-2 {{ $isPmtActive ? 'text-success1' : 'text-muted' }}">PMT</span>
                 </a>
             </li>
-        </ul>                     
+            <li class="nav-item mb-1">
+                <a href="{{ route('spmsPersonnlist', 'personnel') }}" class="nav-link2 {{ $isPersonnelActive ? 'active1' : 'text-muted' }}" id="trashButton">
+                    <i class="fas fa-user {{ $isPersonnelActive ? 'text-success1' : 'text-muted' }}"></i>
+                    <span class="ml-2 {{ $isPersonnelActive ? 'text-success1' : 'text-muted' }}">Personnel</span>
+                </a>
+            </li>
+            <li class="nav-item mb-1">
+                <a href="{{ route('mfoSettings') }}" class="nav-link2 {{ $isMfoActive ? 'active1' : 'text-muted' }}" id="trashButton">
+                    <i class="fas fa-sliders-h {{ $isMfoActive ? 'text-success1' : 'text-muted' }}"></i>
+                    <span class="ml-2 {{ $isMfoActive ? 'text-success1' : 'text-muted' }}">MFO Settings</span>
+                </a>
+            </li>
+        </ul>                    
     </div>
 @endif

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Employee;
 use App\Models\OpcrMfo;
 use App\Models\Pmt;
+use App\Models\PrSetting;
 
 class PmtController extends Controller
 {

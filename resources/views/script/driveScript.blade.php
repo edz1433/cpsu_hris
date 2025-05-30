@@ -80,7 +80,7 @@
 </script>
 
 <script>
-$(document).on('click', '.pmt-delete', function(e){
+$(document).on('click', '.person-delete', function(e){
     var id = $(this).val();
     
     $.ajaxSetup({
@@ -100,13 +100,14 @@ $(document).on('click', '.pmt-delete', function(e){
         if (result.isConfirmed){
             $.ajax({
                 type: "POST",
-                url: "{{ route('pmtDelete') }}",
+                url: "{{ route('spmsPersonnDelete') }}",
                 data: { id: id },
                 success: function (response) {  
                     if (response.status === 200) {
-                        $("#tr-"+response.id).fadeOut(2000, function () {
-                            $(this).remove();
-                        });
+                        // $("#tr-"+response.id).fadeOut(2000, function () {
+                        //     $(this).remove();
+                        // });
+
                         Swal.fire({
                             title: 'Deleted!',
                             text: 'Your file has been deleted.',
@@ -114,6 +115,10 @@ $(document).on('click', '.pmt-delete', function(e){
                             showConfirmButton: false,
                             timer: 1000
                         });
+                        
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1500);
                     } else {
                         Swal.fire({
                             title: 'Error!',

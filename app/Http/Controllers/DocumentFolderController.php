@@ -10,7 +10,7 @@ use App\Models\Employee;
 use App\Models\Office;
 use App\Models\Dpipop;
 use App\Models\Opcr;
-use App\Models\Pmt;
+use App\Models\SpmsPersonnel;
 use Illuminate\Support\Facades\Route;
 
 class DocumentFolderController extends Controller
@@ -24,13 +24,6 @@ class DocumentFolderController extends Controller
         }
     }
 
-    function shortEncrypt($string)
-    {
-        $key = 'fA7xB93kL0pTzWmQ';
-        $cipher = 'AES-128-ECB';
-        return rtrim(strtr(base64_encode(openssl_encrypt($string, $cipher, $key, 0)), '+/', '-_'), '=');
-    }
-    
     function shortDecrypt($encrypted)
     {
         $key = 'fA7xB93kL0pTzWmQ';
@@ -38,7 +31,7 @@ class DocumentFolderController extends Controller
         $encrypted = strtr($encrypted, '-_', '+/');
         return openssl_decrypt(base64_decode($encrypted), $cipher, $key, 0);
     }   
-
+    
     public function createFolder(Request $request)
     {
         $request->validate([
@@ -118,7 +111,7 @@ class DocumentFolderController extends Controller
     {
         $guard = $this->getGuard();
         $id = $this->shortDecrypt($id);
-        $pmtsUserIds = Pmt::pluck('empid')->toArray();
+        $pmtsUserIds = SpmsPersonnel::pluck('empid')->toArray();
         $officeHeads = Office::pluck('office_head_id')->toArray();
 
         if($guard == 'employee' && !in_array(auth()->guard('employee')->user()->id, $pmtsUserIds) && $id == 1){

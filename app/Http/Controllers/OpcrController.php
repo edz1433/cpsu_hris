@@ -9,6 +9,7 @@ use App\Models\Opcr;
 use App\Models\OpcrMfo;
 use App\Models\OpcrMfoData;
 use App\Models\Setting;
+use App\Models\PrSetting;
 use App\Models\SpmsAsignatory;
 
 class OpcrController extends Controller
@@ -27,49 +28,71 @@ class OpcrController extends Controller
         $request->validate([
             'user_id' => 'required',
             'folder_id' => 'required|exists:docu_folders,id',
-            'mfo.*' => 'required|string',
-            'percent.*' => 'required|integer|min:0|max:100',
+            'year' => 'required|integer',
         ]);
 
         $setting = Setting::first();
-        $folderId = $request->input('folder_id');
-        
-        $data = [];
-        $prNumber = Opcr::max('pr_number') ? str_pad(Opcr::max('pr_number') + 1, 4, '0', STR_PAD_LEFT) : '0001';
+        $prSetting = PrSetting::orderBy('created_at', 'asc')->first();
 
-        $exists = Opcr::where('year', $request->year)->exists();
-        
-        if ($exists) {
-            return redirect()->back()->with('error1', 'OPCR Already Exists!');
+        if (!$prSetting) {
+            return redirect()->back()->with('error1', 'PR Settings not configured.');
         }
 
-        foreach ($request->input('mfo') as $index => $mfo) {
-            $data[] = [
-            'user_id' => $setting->suc_pres,
-            'folder_id' => $folderId,
-            'pr_number' => $prNumber,
-            'mfo' => $mfo,
-            'percent' => $request->input('percent')[$index],
-            'year' => $request->year,
-            ];
+        $folderId = $request->folder_id;
+
+        // Generate next PR number
+        $maxPr = Opcr::max('pr_number');
+        $prNumber = $maxPr ? str_pad($maxPr + 1, 4, '0', STR_PAD_LEFT) : '0001';
+
+        // Check for existing OPCR for the same year
+        if (Opcr::where('year', $request->year)->exists()) {
+            return redirect()->back()->with('error1', 'OPCR already exists for this year!');
         }
-        
+
+        $data = [
+            [
+                'user_id'   => $setting->suc_pres,
+                'folder_id' => $folderId,
+                'pr_number' => $prNumber,
+                'mfo'       => 'CORE FUNCTIONS',
+                'percent'   => $prSetting->core_sum,
+                'year'      => $request->year,
+            ],
+            [
+                'user_id'   => $setting->suc_pres,
+                'folder_id' => $folderId,
+                'pr_number' => $prNumber,
+                'mfo'       => 'STRATEGIC FUNCTIONS',
+                'percent'   => $prSetting->strat_sum,
+                'year'      => $request->year,
+            ],
+            [
+                'user_id'   => $setting->suc_pres,
+                'folder_id' => $folderId,
+                'pr_number' => $prNumber,
+                'mfo'       => 'SUPPORT FUNCTIONS',
+                'percent'   => $prSetting->support_sum,
+                'year'      => $request->year,
+            ]
+        ];
+
         Opcr::insert($data);
 
+        // Signatories
         $asignatories = [
-            ['pr_number' => $prNumber, 'empid' => 'EMP0001', 'suffixes' => 'Ph.D.\r\n', 'designation' => 'SUC President II', 'spms_type' => 'OPCR', 'label' => 'Discussed with:'],
-            ['pr_number' => $prNumber, 'empid' => 'EMP0131', 'suffixes' => 'Ph.D.\n', 'designation' => 'Director, Quality Assurance', 'spms_type' => 'OPCR', 'label' => 'Assessed by:'],
-            ['pr_number' => $prNumber, 'empid' => 'EMP0202', 'suffixes' => 'Ph.D.', 'designation' => 'Director, Planning and Development', 'spms_type' => 'OPCR', 'label' => 'Reviewed by:'],
-            ['pr_number' => $prNumber, 'empid' => 'EMP0003', 'suffixes' => 'Ph.D.', 'designation' => 'Vice President for Academic Affairs', 'spms_type' => 'OPCR', 'label' => 'Reviewed by:'],
-            ['pr_number' => $prNumber, 'empid' => 'EMP0002', 'suffixes' => 'Ph.D.', 'designation' => 'Vice President for Administration and Finance', 'spms_type' => 'OPCR', 'label' => 'Reviewed by:'],
-            ['pr_number' => $prNumber, 'empid' => 'EMP0001', 'suffixes' => 'Ph.D.', 'designation' => 'SUC President II', 'spms_type' => 'OPCR', 'label' => 'Final Rating by:'],
+            ['pr_number' => $prNumber, 'empid' => 'EMP0001', 'suffixes' => "Ph.D.", 'designation' => 'SUC President II', 'spms_type' => 'OPCR', 'label' => 'Discussed with:'],
+            ['pr_number' => $prNumber, 'empid' => 'EMP0131', 'suffixes' => "Ph.D.", 'designation' => 'Director, Quality Assurance', 'spms_type' => 'OPCR', 'label' => 'Assessed by:'],
+            ['pr_number' => $prNumber, 'empid' => 'EMP0202', 'suffixes' => "Ph.D.", 'designation' => 'Director, Planning and Development', 'spms_type' => 'OPCR', 'label' => 'Reviewed by:'],
+            ['pr_number' => $prNumber, 'empid' => 'EMP0003', 'suffixes' => "Ph.D.", 'designation' => 'Vice President for Academic Affairs', 'spms_type' => 'OPCR', 'label' => 'Reviewed by:'],
+            ['pr_number' => $prNumber, 'empid' => 'EMP0002', 'suffixes' => "Ph.D.", 'designation' => 'Vice President for Administration and Finance', 'spms_type' => 'OPCR', 'label' => 'Reviewed by:'],
+            ['pr_number' => $prNumber, 'empid' => 'EMP0001', 'suffixes' => "Ph.D.", 'designation' => 'SUC President II', 'spms_type' => 'OPCR', 'label' => 'Final Rating by:'],
         ];
-        
+
         foreach ($asignatories as $asignatory) {
             SpmsAsignatory::create($asignatory);
         }
-        
-        return redirect()->back()->with('success', 'Data saved successfully!');
+
+        return redirect()->back()->with('success', 'OPCR created successfully!');
     }
 
     public function createOpcrMfo(Request $request)

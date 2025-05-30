@@ -352,7 +352,7 @@
             $uniqueTimes[] = $time;
             $uniqueDeviceIds[] = $deviceId;
         }
-
+        
         return [
             'times' => implode(',', $uniqueTimes),
             'device_ids' => implode(',', $uniqueDeviceIds),

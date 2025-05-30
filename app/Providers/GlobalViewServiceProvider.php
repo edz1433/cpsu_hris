@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
-use App\Models\Pmt;
+use App\Models\SpmsPersonnel;
 use App\Models\Office;
 
 class GlobalViewServiceProvider extends ServiceProvider
@@ -21,7 +21,7 @@ class GlobalViewServiceProvider extends ServiceProvider
                 $userid = $user->id;
 
                 // Fetch needed data
-                $pmtsmember = Pmt::pluck('empid')->toArray();
+                $pmtsmember = SpmsPersonnel::where('category', 1)->pluck('empid')->toArray();
                 $officeHeads = Office::pluck('office_head_id')->toArray();
 
                 // Determine route logic

@@ -205,33 +205,10 @@
                                     <label for="mfo" class="text-success1">YEAR</label>
                                 </div>
                                 <div class="form-group col-md-12 row0">
-                                    <input type="number" name="year" class="form-control form-control-sm text-center text-success1" style="font-size: 18px !important; font-weight: 900;" value="{{ date('Y') }}" min="2024" max="2050" step="1" placeholder="YYYY">
-                                </div>                                
-                                <div class="form-group col-md-10 row0">
-                                    <label for="mfo" class="text-success1">MFO</label>
-                                    <input type="hidden" name="user_id" class="form-control form-control-sm" value="{{ auth()->guard($guard)->user()->id }}" required>
+                                     <input type="hidden" name="user_id" class="form-control form-control-sm" value="{{ auth()->guard($guard)->user()->id }}" required>
                                     <input type="hidden" name="folder_id" class="form-control form-control-sm" value="{{ request()->is('spms/*') ? $folder->id : '' }}" required>
-                                    <input type="text" name="mfo[]" class="form-control form-control-sm" id="mfo" value="CORE FUNCTIONS" placeholder="Enter MFO" autocomplete="off" required readonly>
-                                </div>
-                                <div class="form-group col-md-2 row0">
-                                    <label for="percent" class="text-success1">Percent</label>
-                                    <input type="number" name="percent[]" class="form-control form-control-sm text-center" id="percent" value="60" autocomplete="off" placeholder="percent" required>
-                                </div>
-                                <div class="form-group col-md-10 row1">
-                                    <input type="text" name="mfo[]" class="form-control form-control-sm" id="mfo" value="STRATEGIC FUNCTIONS" placeholder="Enter MFO" autocomplete="off" required readonly>
-                                </div>
-                                <div class="form-group col-md-2 row1">
-                                    <input type="number" name="percent[]" class="form-control form-control-sm text-center" id="percent" value="20" autocomplete="off" placeholder="percent" required>
-                                </div>
-                                <div class="form-group col-md-10 row2">
-                                    <input type="text" name="mfo[]" class="form-control form-control-sm" id="mfo" value="SUPPORT FUNCTIONS" placeholder="Enter MFO" autocomplete="off" required readonly>
-                                </div>
-                                <div class="form-group col-md-2 row2">
-                                    <input type="number" name="percent[]" class="form-control form-control-sm text-center" id="percent" value="20" autocomplete="off" placeholder="percent" required>
-                                </div>
-                                {{-- <div class="form-group col-md-1 row2">
-                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteRow('row2')"><i class="fas fa-times"></i></button>
-                                </div> --}}
+                                    <input type="number" name="year" class="form-control form-control-sm text-center text-success1" style="font-size: 18px !important; font-weight: 900;" value="{{ date('Y') }}" min="2024" max="2050" step="1" placeholder="YYYY">
+                                </div>  
                             </div>
                             <div class="form-row">
                                 <div class="col-md-12 mt-2 text-right">

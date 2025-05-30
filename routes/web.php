@@ -34,7 +34,8 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PendingController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\OpcrController;
-use App\Http\Controllers\PmtController;
+use App\Http\Controllers\SpmsPersonnelController;
+use App\Http\Controllers\SpmsMfoPercentageController;
 
 Route::get('/', function () {
     if (Auth::guard('web')->check()) {
@@ -86,14 +87,32 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/asign-opcr', [OpcrController::class, 'asignOpcr'])->name('asignOpcr');
     });
 
-    Route::prefix('spms-pmt')->group(function() {
-        Route::get('/', [PmtController::class, 'pmtlist'])->name('pmtlist');
-        Route::post('/create', [PmtController::class, 'pmtCreate'])->name('pmtCreate');
-        Route::get('/edit/{id}', [PmtController::class, 'pmtEdit'])->name('pmtEdit');
-        Route::post('/update', [PmtController::class, 'pmtUpdate'])->name('pmtUpdate');
-        Route::post('/delete', [PmtController::class, 'pmtDelete'])->name('pmtDelete');
+    Route::prefix('spms-set')->group(function() {
+        //PR PMT
+        Route::get('/{cat}', [SpmsPersonnelController::class, 'spmsPersonnlist'])->name('spmsPersonnlist');
+        Route::post('/create', [SpmsPersonnelController::class, 'spmsPersonnCreate'])->name('spmsPersonnCreate');
+        Route::get('/{cat}/{id}', [SpmsPersonnelController::class, 'spmsPersonnEdit'])->name('spmsPersonnEdit');
+        Route::post('/update', [SpmsPersonnelController::class, 'spmsPersonnUpdate'])->name('spmsPersonnUpdate');
+        Route::post('/delete', [SpmsPersonnelController::class, 'spmsPersonnDelete'])->name('spmsPersonnDelete');
     });
-    
+
+    //DEANS
+    Route::prefix('deans')->group(function() {
+        Route::get('/', [DeansController::class, 'deanlist'])->name('deanlist');
+        Route::post('/create', [DeansController::class, 'deanCreate'])->name('deanCreate');
+        Route::get('/edit/{id}', [DeansController::class, 'deanEdit'])->name('deanEdit');
+        Route::post('/update', [DeansController::class, 'deanUpdate'])->name('deanUpdate');
+        Route::post('/delete', [DeansController::class, 'deanDelete'])->name('deanDelete');
+    });
+
+    //PR SETTINGS
+    Route::prefix('spms-mfo-settings')->group(function() {
+        Route::get('/', [SpmsMfoPercentageController::class, 'mfoSettings'])->name('mfoSettings');
+        Route::post('/mfo-setting-create', [SpmsMfoPercentageController::class, 'mfoSettingsCreate'])->name('mfoSettingsCreate');
+        Route::get('/mfo-setting-edit/{id}', [SpmsMfoPercentageController::class, 'mfoSettingsEdit'])->name('mfoSettingsEdit');
+        Route::post('/mfo-setting-update', [SpmsMfoPercentageController::class, 'mfoSettingsUpdate'])->name('mfoSettingsUpdate');
+    });
+
     // DTR
     Route::prefix('dtr')->group(function() {
         Route::get('/', [DtrController::class, 'dtrRead'])->name('dtr-read');

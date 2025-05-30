@@ -16,7 +16,7 @@
                             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-success1"><i class="fas fa-dashboard"></i> Dashboard</a></li>
                         @endif
                         <li class="breadcrumb-item"><a href="{{ route('drive') }}" class="text-success1">Drive</a></li>
-                        <li class="breadcrumb-item text-muted">Pmt</li>
+                        <li class="breadcrumb-item text-muted">Deans</li>
                     </ol> 
                 </nav>
                 <div class="card-body">
@@ -25,18 +25,18 @@
                             <div class="card card-muted card-outline">
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        <i class="fas fa-user-plus"></i> {{ $current_route == "pmtlist" ? "Add" : "Edit" }}
+                                        <i class="fas fa-user-plus"></i> {{ $current_route == "deanlist" ? "Add" : "Edit" }}
                                     </h3>
                                 </div>
                                 <div class="card-body">
-                                    <form class="form-horizontal" action="{{ $current_route == "pmtlist" ? route('pmtCreate') : route('pmtUpdate') }}" method="POST">
+                                    <form class="form-horizontal" action="{{ $current_route == "deanlist" ? route('deanCreate') : route('deanUpdate') }}" method="POST">
                                         @csrf
                                         <div class="form-group">
                                             <div class="form-row">
                                                 <div class="col-md-12">
                                                     <div class="input-group">
-                                                        @if(isset($pmtEdit))
-                                                        <input type="hidden" name="pmt_id" id="pmt_id" class="form-control" value="{{ $pmtEdit->id }}">
+                                                        @if(isset($deanEdit))
+                                                        <input type="hidden" name="id" id="id" class="form-control" value="{{ $deanEdit->id }}">
                                                         @endif
                                                         <div class="input-group-prepend">
                                                             <span class="input-group-text">
@@ -46,7 +46,7 @@
                                                         <select class="form-control select2" id="empid" name="empid" required>
                                                             <option value=""> --- Select Employee --- </option>
                                                             @foreach($employees as $emp)
-                                                                <option value="{{ $emp->id }}" @if($current_route == 'pmtEdit') @if($emp->id == $pmtEdit->empid) selected @endif @endif>{{ $emp->lname }} {{ $emp->fname }}</option>
+                                                                <option value="{{ $emp->id }}" @if($current_route == 'deanEdit') @if($emp->id == $deanEdit->empid) selected @endif @endif>{{ $emp->lname }} {{ $emp->fname }}</option>
                                                             @endforeach
                                                         </select>
                                                     </div>
@@ -63,13 +63,7 @@
                                                                 <i class="fas fa-user"></i>
                                                             </span>
                                                         </div>
-                                                        <select class="form-control select2" id="position" name="position" required>
-                                                            <option value=""> --- Select Position --- </option>
-                                                            <option value="1" @if($current_route == 'pmtEdit' && $pmtEdit->position == 1) selected @endif>Performance Management Team</option>
-                                                            <option value="2" @if($current_route == 'pmtEdit' && $pmtEdit->position == 2) selected @endif>Local PMT</option>
-                                                            <option value="3" @if($current_route == 'pmtEdit' && $pmtEdit->position == 3) selected @endif>PMT Secretariat</option>
-                                                            <option value="4" @if($current_route == 'pmtEdit' && $pmtEdit->position == 4) selected @endif>Dean</option>
-                                                        </select>
+                                                        <input type="text" class="form-control" id="designation" name="designation" placeholder="Enter Designation" value="{{ isset($deanEdit) ? $deanEdit->designation : '' }}" required>
                                                     </div>    
                                                 </div>
                                             </div>
@@ -97,29 +91,23 @@
                                                 <tr>
                                                     <th>No</th>
                                                     <th>Full Name</th>
+                                                    <th>Designation</th>
                                                     <th>Position</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="tbody">
-                                                @foreach($pmts as $index => $pmt)
-                                                    <tr id="tr-{{ $pmt->pmtid }}">
+                                                @foreach($deans as $index => $dean)
+                                                    <tr id="tr-{{ $dean->dean_id }}">
                                                         <td width="40" class="text-center">{{ $index + 1 }}</td>
-                                                        <td>{{ $pmt->lname }} {{ $pmt->fname }}</td>
-                                                        <td>
-                                                            @if($pmt->position == 1)
-                                                                Performance Management Team
-                                                            @elseif($pmt->position == 2)
-                                                                Local PMT
-                                                            @elseif($pmt->position == 3)
-                                                                PMT Secretariat
-                                                            @endif
-                                                        </td>
+                                                        <td>{{ $dean->lname }} {{ $dean->fname }}</td>
+                                                        <td>{{ $dean->designation }}</td>
+                                                        <td>{{ $dean->position == 1 ? 'Dean' : 'Other' }}</td>
                                                         <td class="text-center">
-                                                            <a href="{{ route('pmtEdit', $pmt->pmtid) }}" class="btn btn-info btn-xs">
+                                                            <a href="{{ route('deanEdit', $dean->dean_id) }}" class="btn btn-info btn-xs">
                                                                 <i class="fas fa-exclamation-circle"></i>
                                                             </a>
-                                                            <button value="{{ $pmt->pmtid }}" class="btn btn-danger btn-xs pmt-delete">
+                                                            <button value="{{ $dean->dean_id }}" class="btn btn-danger btn-xs dean-delete">
                                                                 <i class="fas fa-trash"></i>
                                                             </button>
                                                         </td>

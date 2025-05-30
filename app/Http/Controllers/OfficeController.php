@@ -17,7 +17,7 @@ class OfficeController extends Controller
             return 'employee';
         }
     }
-
+    
     public function officeList() {
         $guard = $this->getGuaard();
         $office = Office::leftJoin('dbcpsuhris.employees', 'offices.office_head_id', '=', 'dbcpsuhris.employees.id')
