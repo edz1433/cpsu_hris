@@ -224,9 +224,12 @@
     public function syncDtr(Request $request)
     {
         $data = json_decode($request->getContent(), true);
-        
-        if (!is_array($data)) {
-            return response()->json(['error' => 'Invalid JSON data'], 400);
+
+        if (!is_array($data) || empty($data)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or empty DTR data.'
+            ], 400);
         }
 
         $insertData = [];
@@ -262,45 +265,29 @@
 
         if (!empty($dates)) {
             DB::statement("SET SESSION group_concat_max_len = 4294967295");
-
             $dateList = array_keys($dates);
 
-            // Fetch merged data for all dates
             $mergedData = Dtr::select(
                 'emp_ID',
                 'date',
                 DB::raw("MAX(id) as id"),
-                DB::raw("GROUP_CONCAT(NULLIF(device_id_in, '') ORDER BY device_id_in SEPARATOR ',') AS device_id_in"),
-                DB::raw("GROUP_CONCAT(NULLIF(device_id_out, '') ORDER BY device_id_out SEPARATOR ',') AS device_id_out"),
-                DB::raw("GROUP_CONCAT(NULLIF(device_id_over, '') ORDER BY device_id_over SEPARATOR ',') AS device_id_over"),
-                DB::raw("GROUP_CONCAT(NULLIF(time_in, '') ORDER BY time_in SEPARATOR ',') AS time_in"),
-                DB::raw("GROUP_CONCAT(NULLIF(time_out, '') ORDER BY time_out SEPARATOR ',') AS time_out"),
-                DB::raw("GROUP_CONCAT(NULLIF(time_over, '') ORDER BY time_over SEPARATOR ',') AS time_over"),
-                DB::raw("GROUP_CONCAT(DISTINCT NULLIF(device_id_in, '') ORDER BY device_id_in SEPARATOR ',') AS device_id_in"),
-                DB::raw("GROUP_CONCAT(DISTINCT NULLIF(device_id_out, '') ORDER BY device_id_out SEPARATOR ',') AS device_id_out"),
-                DB::raw("GROUP_CONCAT(DISTINCT NULLIF(device_id_over, '') ORDER BY device_id_over SEPARATOR ',') AS device_id_over"),
-                DB::raw("GROUP_CONCAT(DISTINCT NULLIF(time_in, '') ORDER BY time_in SEPARATOR ',') AS time_in"),
-                DB::raw("GROUP_CONCAT(DISTINCT NULLIF(time_out, '') ORDER BY time_out SEPARATOR ',') AS time_out"),
-                DB::raw("GROUP_CONCAT(DISTINCT NULLIF(time_over, '') ORDER BY time_over SEPARATOR ',') AS time_over")
+                DB::raw("GROUP_CONCAT(CONCAT(NULLIF(time_in, ''), '|', NULLIF(device_id_in, '')) ORDER BY time_in SEPARATOR ',') AS time_in_device_in"),
+                DB::raw("GROUP_CONCAT(CONCAT(NULLIF(time_out, ''), '|', NULLIF(device_id_out, '')) ORDER BY time_out SEPARATOR ',') AS time_out_device_out"),
+                DB::raw("GROUP_CONCAT(CONCAT(NULLIF(time_over, ''), '|', NULLIF(device_id_over, '')) ORDER BY time_over SEPARATOR ',') AS time_over_device_over")
             )
             ->whereIn('date', $dateList)
             ->groupBy('emp_ID', 'date')
             ->get();
 
             $updates = [];
+
             foreach ($mergedData as $data) {
-                $filteredTimeIn = $this->removeDuplicatesWithDeviceIds($data->time_in, $data->device_id_in);
-                $filteredTimeOut = $this->removeDuplicatesWithDeviceIds($data->time_out, $data->device_id_out);
-                $filteredTimeOver = $this->removeDuplicatesWithDeviceIds($data->time_over, $data->device_id_over);
+                $filteredTimeIn = $this->splitPairedValues($data->time_in_device_in);
+                $filteredTimeOut = $this->splitPairedValues($data->time_out_device_out);
+                $filteredTimeOver = $this->splitPairedValues($data->time_over_device_over);
 
                 $updates[] = [
                     'id' => $data->id,
-                    'device_id_in' => $data->device_id_in ?: null,
-                    'device_id_out' => $data->device_id_out ?: null,
-                    'device_id_over' => $data->device_id_over ?: null,
-                    'time_in' => $data->time_in ?: null,
-                    'time_out' => $data->time_out ?: null,
-                    'time_over' => $data->time_over ?: null,
                     'device_id_in' => $this->trimCommas($filteredTimeIn['device_ids']),
                     'device_id_out' => $this->trimCommas($filteredTimeOut['device_ids']),
                     'device_id_over' => $this->trimCommas($filteredTimeOver['device_ids']),
@@ -310,10 +297,11 @@
                 ];
             }
 
-            // Batch update
-            DB::table('dtrs')->upsert($updates, ['id'], ['device_id_in', 'device_id_out', 'device_id_over', 'time_in', 'time_out', 'time_over']);
+            DB::table('dtrs')->upsert($updates, ['id'], [
+                'device_id_in', 'device_id_out', 'device_id_over',
+                'time_in', 'time_out', 'time_over'
+            ]);
 
-            // Delete duplicates (only keep latest per emp_ID, date)
             DB::table('dtrs')
                 ->whereIn('date', $dateList)
                 ->whereNotIn('id', function ($query) use ($dateList) {
@@ -325,39 +313,67 @@
                 ->delete();
         }
 
-        DB::statement("SET GLOBAL max_connect_errors = 1000000;");
-        
-        return response()->json(['message' => 'DTR Sync Complete']);
-    }
-    
-    private function removeDuplicatesWithDeviceIds($times, $deviceIds)
-    {
-        $timeArray = explode(',', $times);
-        $deviceIdArray = explode(',', $deviceIds);
-        $combined = [];
+        //DB::statement("SET GLOBAL max_connect_errors = 1000000;");
 
-        foreach ($timeArray as $index => $time) {
-            $deviceId = $deviceIdArray[$index] ?? null;
-            $pair = $time . '-' . $deviceId;
-            if (!in_array($pair, $combined)) {
-                $combined[] = $pair;
+        return response()->json([
+            'success' => true,
+            'message' => 'DTR Sync Complete'
+        ], 200);
+    }
+
+    private function splitPairedValues($combined)
+    {
+        $pairs = explode(',', $combined);
+        $seen = [];
+        $times = [];
+        $deviceIds = [];
+
+        foreach ($pairs as $pair) {
+            if (strpos($pair, '|') === false) continue;
+            [$time, $deviceId] = explode('|', $pair);
+
+            $key = "$time|$deviceId";
+            if (!isset($seen[$key])) {
+                $times[] = $time;
+                $deviceIds[] = $deviceId;
+                $seen[$key] = true;
             }
         }
 
-        $uniqueTimes = [];
-        $uniqueDeviceIds = [];
-
-        foreach ($combined as $pair) {
-            list($time, $deviceId) = explode('-', $pair);
-            $uniqueTimes[] = $time;
-            $uniqueDeviceIds[] = $deviceId;
-        }
-        
         return [
-            'times' => implode(',', $uniqueTimes),
-            'device_ids' => implode(',', $uniqueDeviceIds),
+            'times' => implode(',', $times),
+            'device_ids' => implode(',', $deviceIds),
         ];
     }
+    
+    // private function removeDuplicatesWithDeviceIds($times, $deviceIds)
+    // {
+    //     $timeArray = explode(',', $times);
+    //     $deviceIdArray = explode(',', $deviceIds);
+    //     $combined = [];
+
+    //     foreach ($timeArray as $index => $time) {
+    //         $deviceId = $deviceIdArray[$index] ?? null;
+    //         $pair = $time . '-' . $deviceId;
+    //         if (!in_array($pair, $combined)) {
+    //             $combined[] = $pair;
+    //         }
+    //     }
+
+    //     $uniqueTimes = [];
+    //     $uniqueDeviceIds = [];
+
+    //     foreach ($combined as $pair) {
+    //         list($time, $deviceId) = explode('-', $pair);
+    //         $uniqueTimes[] = $time;
+    //         $uniqueDeviceIds[] = $deviceId;
+    //     }
+        
+    //     return [
+    //         'times' => implode(',', $uniqueTimes),
+    //         'device_ids' => implode(',', $uniqueDeviceIds),
+    //     ];
+    // }
     
     private function trimCommas($value)
     {
