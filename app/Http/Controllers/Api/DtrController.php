@@ -330,8 +330,7 @@
         foreach ($times as $i => $time) {
             $device = $devices[$i] ?? null;
             if ($time && $device) {
-                //$pairKey = "$time|$device";
-                $pairKey = $time; // enforce one device per time
+                $pairKey = "$time|$device";
                 $target[$pairKey] = true;
             }
         }
