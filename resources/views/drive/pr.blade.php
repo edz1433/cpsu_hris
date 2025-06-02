@@ -365,7 +365,7 @@
         </div>
     </div>
 </div>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     function saveSetup() {
         // Logic to save the setup
@@ -380,7 +380,32 @@
         $('#setupModal').modal('hide');
     }
 </script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#employee').select2();
+
+        const groupValues = ['Deans', 'Campus Ad', 'Heads'];
+
+        $('#employee').on('change', function () {
+            const selected = $(this).val() || [];
+
+            // Check if any group value is selected
+            const hasGroup = selected.some(val => groupValues.includes(val));
+
+            if (hasGroup) {
+                // If group is selected, remove individual selections
+                const filtered = selected.filter(val => groupValues.includes(val));
+                $('#employee').val(filtered).trigger('change.select2');
+            } else {
+                // If individuals are selected, ensure group options are deselected
+                const filtered = selected.filter(val => !groupValues.includes(val));
+                $('#employee').val(filtered).trigger('change.select2');
+            }
+
+            console.log('Currently selected:', $('#employee').val());
+        });
+    });
+</script>
 <script>
     const empid = "{{ $empid ?? '' }}";
     const prnumber = "{{ $prnumber ?? '' }}";

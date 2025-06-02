@@ -264,38 +264,43 @@
         }
 
         if (!empty($dates)) {
-            DB::statement("SET SESSION group_concat_max_len = 4294967295");
             $dateList = array_keys($dates);
 
-            $mergedData = Dtr::select(
-                'emp_ID',
-                'date',
-                DB::raw("MAX(id) as id"),
-                DB::raw("GROUP_CONCAT(CONCAT_WS('|', time_in, device_id_in) ORDER BY id SEPARATOR ',') AS time_in_device_in"),
-                DB::raw("GROUP_CONCAT(CONCAT_WS('|', time_out, device_id_out) ORDER BY id SEPARATOR ',') AS time_out_device_out"),
-                DB::raw("GROUP_CONCAT(CONCAT_WS('|', time_over, device_id_over) ORDER BY id SEPARATOR ',') AS time_over_device_over")
-            )
-            ->whereIn('date', $dateList)
-            ->groupBy('emp_ID', 'date')
-            ->get();
+            $rawRows = Dtr::whereIn('date', $dateList)
+                        ->orderBy('id')
+                        ->get();
+
+            $grouped = [];
+
+            foreach ($rawRows as $row) {
+                $key = $row->emp_ID . '|' . $row->date;
+                $grouped[$key]['id'][] = $row->id;
+
+                self::mergePairs($grouped[$key]['in'], $row->time_in, $row->device_id_in);
+                self::mergePairs($grouped[$key]['out'], $row->time_out, $row->device_id_out);
+                self::mergePairs($grouped[$key]['over'], $row->time_over, $row->device_id_over);
+            }
 
             $updates = [];
 
-            foreach ($mergedData as $data) {
+            foreach ($grouped as $key => $data) {
+                [$emp_ID, $date] = explode('|', $key);
+
                 $updates[] = [
-                    'id' => $data->id,
-                    'device_id_in' => $this->trimCommas($this->extractDeviceIds($data->time_in_device_in)),
-                    'time_in' => $this->trimCommas($this->extractTimes($data->time_in_device_in)),
-                    'device_id_out' => $this->trimCommas($this->extractDeviceIds($data->time_out_device_out)),
-                    'time_out' => $this->trimCommas($this->extractTimes($data->time_out_device_out)),
-                    'device_id_over' => $this->trimCommas($this->extractDeviceIds($data->time_over_device_over)),
-                    'time_over' => $this->trimCommas($this->extractTimes($data->time_over_device_over)),
+                    'id' => max($data['id']),
+                    'emp_ID' => $emp_ID,
+                    'date' => $date,
+                    'time_in' => self::extractPart($data['in'], 0),
+                    'device_id_in' => self::extractPart($data['in'], 1),
+                    'time_out' => self::extractPart($data['out'], 0),
+                    'device_id_out' => self::extractPart($data['out'], 1),
+                    'time_over' => self::extractPart($data['over'], 0),
+                    'device_id_over' => self::extractPart($data['over'], 1),
                 ];
             }
 
             DB::table('dtrs')->upsert($updates, ['id'], [
-                'device_id_in', 'device_id_out', 'device_id_over',
-                'time_in', 'time_out', 'time_over'
+                'time_in', 'device_id_in', 'time_out', 'device_id_out', 'time_over', 'device_id_over'
             ]);
 
             DB::table('dtrs')
@@ -315,55 +320,36 @@
         ], 200);
     }
 
-    private function extractDeviceIds($paired)
+    private static function mergePairs(&$target, $timesStr, $devicesStr)
     {
-        if (!$paired) return null;
+        if (!$timesStr || !$devicesStr) return;
 
-        $pairs = explode(',', $paired);
-        $seen = [];
-        $devices = [];
+        $times = explode(',', trim($timesStr, ', '));
+        $devices = explode(',', trim($devicesStr, ', '));
 
-        foreach ($pairs as $pair) {
-            if (strpos($pair, '|') === false) continue;
-            [$time, $deviceId] = explode('|', $pair);
-
-            $key = "$time|$deviceId";
-            if (!isset($seen[$key])) {
-                $devices[] = $deviceId;
-                $seen[$key] = true;
+        foreach ($times as $i => $time) {
+            $device = $devices[$i] ?? null;
+            if ($time && $device) {
+                //$pairKey = "$time|$device";
+                $pairKey = $time; // enforce one device per time
+                $target[$pairKey] = true;
             }
         }
-
-        return implode(',', $devices);
     }
 
-    private function extractTimes($paired)
+    private static function extractPart($set, $index)
     {
-        if (!$paired) return null;
+        $parts = array_map(function ($pair) use ($index) {
+            return explode('|', $pair)[$index] ?? '';
+        }, array_keys($set));
 
-        $pairs = explode(',', $paired);
-        $seen = [];
-        $times = [];
+        return self::trimCommas(implode(',', $parts));
+    }
 
-        foreach ($pairs as $pair) {
-            if (strpos($pair, '|') === false) continue;
-            [$time, $deviceId] = explode('|', $pair);
-
-            $key = "$time|$deviceId";
-            if (!isset($seen[$key])) {
-                $times[] = $time;
-                $seen[$key] = true;
-            }
-        }
-
-        return implode(',', $times);
-    }    
-
-    private function trimCommas($value)
+    private static function trimCommas($value)
     {
         return trim($value, ", \t\n\r\0\x0B");
     }
-
     // private function removeDuplicatesWithDeviceIds($times, $deviceIds)
     // {
     //     $timeArray = explode(',', $times);
