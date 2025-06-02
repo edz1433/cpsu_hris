@@ -350,7 +350,7 @@
         if (!is_array($set)) {
             return '';
         }
-        
+
         $parts = array_map(function ($pair) use ($index) {
             return explode('|', $pair)[$index] ?? '';
         }, array_keys($set));
