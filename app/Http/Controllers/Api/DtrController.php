@@ -284,12 +284,12 @@
             foreach ($mergedData as $data) {
                 $updates[] = [
                     'id' => $data->id,
-                    'device_id_in' => $this->extractDeviceIds($data->time_in_device_in),
-                    'device_id_out' => $this->extractDeviceIds($data->time_out_device_out),
-                    'device_id_over' => $this->extractDeviceIds($data->time_over_device_over),
-                    'time_in' => $this->extractTimes($data->time_in_device_in),
-                    'time_out' => $this->extractTimes($data->time_out_device_out),
-                    'time_over' => $this->extractTimes($data->time_over_device_over),
+                    'device_id_in' => $this->trimCommas($this->extractDeviceIds($data->time_in_device_in)),
+                    'time_in' => $this->trimCommas($this->extractTimes($data->time_in_device_in)),
+                    'device_id_out' => $this->trimCommas($this->extractDeviceIds($data->time_out_device_out)),
+                    'time_out' => $this->trimCommas($this->extractTimes($data->time_out_device_out)),
+                    'device_id_over' => $this->trimCommas($this->extractDeviceIds($data->time_over_device_over)),
+                    'time_over' => $this->trimCommas($this->extractTimes($data->time_over_device_over)),
                 ];
             }
 
@@ -358,6 +358,12 @@
 
         return implode(',', $times);
     }    
+
+    private function trimCommas($value)
+    {
+        return trim($value, ", \t\n\r\0\x0B");
+    }
+
     // private function removeDuplicatesWithDeviceIds($times, $deviceIds)
     // {
     //     $timeArray = explode(',', $times);
@@ -387,10 +393,10 @@
     //     ];
     // }
     
-    private function trimCommas($value)
-    {
-        return trim($value, ',');
-    }   
+    // private function trimCommas($value)
+    // {
+    //     return trim($value, ',');
+    // }   
     
 
     function checkCoordinates() {
