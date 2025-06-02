@@ -274,6 +274,11 @@
 
             foreach ($rawRows as $row) {
                 $key = $row->emp_ID . '|' . $row->date;
+
+                if (!isset($grouped[$key])) {
+                    $grouped[$key] = ['id' => [], 'in' => [], 'out' => [], 'over' => []];
+                }
+
                 $grouped[$key]['id'][] = $row->id;
 
                 self::mergePairs($grouped[$key]['in'], $row->time_in, $row->device_id_in);
@@ -324,6 +329,10 @@
     {
         if (!$timesStr || !$devicesStr) return;
 
+        if (!is_array($target)) {
+            $target = []; // Initialize to empty array
+        }
+
         $times = explode(',', trim($timesStr, ', '));
         $devices = explode(',', trim($devicesStr, ', '));
 
@@ -338,6 +347,10 @@
 
     private static function extractPart($set, $index)
     {
+        if (!is_array($set)) {
+            return '';
+        }
+        
         $parts = array_map(function ($pair) use ($index) {
             return explode('|', $pair)[$index] ?? '';
         }, array_keys($set));
