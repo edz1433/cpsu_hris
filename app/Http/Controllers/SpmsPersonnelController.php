@@ -36,8 +36,11 @@ class SpmsPersonnelController extends Controller
         }
 
         $personnels = $personnelsQuery->get();
+        // Count employees with and without strat_function
+        $stratFunctionHasCount = Employee::whereNotNull('strat_function')->count();
+        $stratFunctionNoneCount = Employee::whereNull('strat_function')->count();
 
-        return view('drive.personnel-list', compact('employees', 'personnels', 'officecolleges', 'stratfunctions', 'cat'));
+        return view('drive.personnel-list', compact('employees', 'personnels', 'officecolleges', 'stratfunctions', 'cat', 'stratFunctionHasCount', 'stratFunctionNoneCount'));
     }
 
     public function spmsPersonnEdit($cat, $id)
@@ -77,7 +80,11 @@ class SpmsPersonnelController extends Controller
             ->where('spms_personnels.id', $id)
             ->first();
 
-        return view('drive.personnel-list', compact('employees', 'personnels', 'personnelsEdit', 'officecolleges', 'stratfunctions', 'cat'));
+            // Count employees with and without strat_function
+            $stratFunctionHasCount = Employee::whereNotNull('strat_function')->count();
+            $stratFunctionNoneCount = Employee::whereNull('strat_function')->count();
+
+        return view('drive.personnel-list', compact('employees', 'personnels', 'personnelsEdit', 'officecolleges', 'stratfunctions', 'cat', 'stratFunctionHasCount', 'stratFunctionNoneCount'));
     }
 
     public function spmsPersonnCreate(Request $request)

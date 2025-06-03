@@ -184,7 +184,6 @@
                                         @php
                                             $groupedPersonnels = $personnels->groupBy('empid');
                                         @endphp
-
                                         <table id="example1" class="table table-bordered table-hover">
                                             <thead>
                                                 <tr>
@@ -272,7 +271,17 @@
                                                     </tr>
                                                 @endforeach
                                             </tbody>
-                                        </table>
+                                        </table>                                        
+                                        <div class="mb-3 d-flex gap-4 align-items-center">
+                                            <div class="text-success">
+                                                <i class="fas fa-check-circle"></i>
+                                                <strong>{{ $stratFunctionHasCount }}</strong> 
+                                            </div>
+                                            <div class="text-danger ml-3">
+                                                <i class="fas fa-times-circle"></i>
+                                                <strong>{{ $stratFunctionNoneCount }}</strong>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
