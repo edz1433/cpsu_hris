@@ -121,8 +121,8 @@ class SpmsPersonnelController extends Controller
 
         } elseif ($cat === 'personnel') {
             $request->validate([
-                'category' => 'required|integer',
-                'off_coll_id' => 'required|in:1,2,3',
+                'category' => 'required',
+                'off_coll_id' => 'required',
                 'designation' => 'nullable|string|max:255',
                 'strat_function' => 'required|string|max:255',
             ]);
@@ -150,6 +150,7 @@ class SpmsPersonnelController extends Controller
 
             Employee::where('id', $empid)->update([
                 'strat_function' => $request->strat_function,
+                'emp_dept' => $offCollId,
             ]);
 
             if ($category == 4) {
@@ -206,7 +207,7 @@ class SpmsPersonnelController extends Controller
         } elseif ($cat === 'personnel') {
             $request->validate([
                 'person_id' => 'required|exists:spms_personnels,id',
-                'category' => 'required|in:2,3,4',
+                'category' => 'required',
                 'off_coll_id' => 'required',
                 'designation' => 'nullable|string|max:255',
                 'strat_function' => 'required|string|max:255',
@@ -241,9 +242,9 @@ class SpmsPersonnelController extends Controller
                 'position' => null,
             ]);
 
-            // Update Employee's strategic function
             Employee::where('id', $empid)->update([
-                'strat_function' => $stratFunction,
+                'strat_function' => $request->strat_function,
+                'emp_dept' => $offCollId,
             ]);
 
             // Update office head if category is 4

@@ -71,7 +71,7 @@
                                                                 <i class="fas fa-list-alt"></i>
                                                             </span>
                                                         </div>
-                                                        <select class="form-control form-control-sm select2" id="category" name="{{ isset($personnelsEdit) ? 'category' : 'category[]' }}" required>
+                                                        <select class="form-control form-control-sm select2" id="category" name="category" required>
                                                             <option value=""> --- Select Category --- </option>
                                                             <option value="2" @if(isset($personnelsEdit) && $personnelsEdit->category == 2) selected @endif>Dean</option>
                                                             <option value="3" @if(isset($personnelsEdit) && $personnelsEdit->category == 3) selected @endif>Campus Ad</option>
@@ -118,7 +118,7 @@
                                                                 <i class="fas fa-list-alt"></i>
                                                             </span>
                                                         </div>
-                                                        <select class="form-control form-control-sm select2" id="off_coll_id" name="{{ isset($personnelsEdit) ? 'off_coll_id' : 'off_coll_id[]' }}">
+                                                        <select class="form-control form-control-sm select2" id="off_coll_id" name="off_coll_id">
                                                             <option value=""> --- Select Office/College --- </option>
                                                             @foreach ($officecolleges as $off)
                                                                 <option value="{{ $off->id }}" @if(isset($personnelsEdit) && $personnelsEdit->off_coll_id == $off->id) selected @endif>{{ $off->office_name }}</option>
