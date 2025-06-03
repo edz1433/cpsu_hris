@@ -224,19 +224,19 @@
     public function syncDtr(Request $request)
     {
         $data = json_decode($request->getContent(), true);
-       
+        
         if (!is_array($data)) {
             return response()->json(['error' => 'Invalid JSON data'], 400);
         }
- 
+
         $insertData = [];
         $dates = [];
- 
+
         foreach ($data as $item) {
             if (!isset($item['emp_ID'], $item['date'])) {
                 continue;
             }
- 
+
             $insertData[] = [
                 'device_id_in' => $item['device_id_in'] ?? null,
                 'device_id_out' => $item['device_id_out'] ?? null,
@@ -247,24 +247,24 @@
                 'time_over' => $item['time_over'] ?? null,
                 'date' => $item['date'],
             ];
- 
+
             $dates[$item['date']] = true;
- 
+
             if (count($insertData) >= 100) {
                 Dtr::insert($insertData);
                 $insertData = [];
             }
         }
- 
+
         if (!empty($insertData)) {
             Dtr::insert($insertData);
         }
- 
+
         if (!empty($dates)) {
             DB::statement("SET SESSION group_concat_max_len = 4294967295");
- 
+
             $dateList = array_keys($dates);
- 
+
             // Fetch merged data for all dates
             $mergedData = Dtr::select(
                 'emp_ID',
@@ -286,13 +286,13 @@
             ->whereIn('date', $dateList)
             ->groupBy('emp_ID', 'date')
             ->get();
- 
+
             $updates = [];
             foreach ($mergedData as $data) {
                 $filteredTimeIn = $this->removeDuplicatesWithDeviceIds($data->time_in, $data->device_id_in);
                 $filteredTimeOut = $this->removeDuplicatesWithDeviceIds($data->time_out, $data->device_id_out);
                 $filteredTimeOver = $this->removeDuplicatesWithDeviceIds($data->time_over, $data->device_id_over);
- 
+
                 $updates[] = [
                     'id' => $data->id,
                     'device_id_in' => $data->device_id_in ?: null,
@@ -309,10 +309,10 @@
                     'time_over' => $this->trimCommas($filteredTimeOver['times']),
                 ];
             }
- 
+
             // Batch update
             DB::table('dtrs')->upsert($updates, ['id'], ['device_id_in', 'device_id_out', 'device_id_over', 'time_in', 'time_out', 'time_over']);
- 
+
             // Delete duplicates (only keep latest per emp_ID, date)
             DB::table('dtrs')
                 ->whereIn('date', $dateList)
@@ -324,45 +324,35 @@
                 })
                 ->delete();
         }
- 
+
         DB::statement("SET GLOBAL max_connect_errors = 1000000;");
-       
+        
         return response()->json(['message' => 'DTR Sync Complete']);
     }
-   
+    
     private function removeDuplicatesWithDeviceIds($times, $deviceIds)
     {
         $timeArray = explode(',', $times);
         $deviceIdArray = explode(',', $deviceIds);
-        $combined = [];
- 
+        $uniqueData = [];
+    
         foreach ($timeArray as $index => $time) {
             $deviceId = $deviceIdArray[$index] ?? null;
-            $pair = $time . '-' . $deviceId;
-            if (!in_array($pair, $combined)) {
-                $combined[] = $pair;
+            if (!isset($uniqueData[$time])) {
+                $uniqueData[$time] = $deviceId;
             }
         }
- 
-        $uniqueTimes = [];
-        $uniqueDeviceIds = [];
- 
-        foreach ($combined as $pair) {
-            list($time, $deviceId) = explode('-', $pair);
-            $uniqueTimes[] = $time;
-            $uniqueDeviceIds[] = $deviceId;
-        }
-       
+    
         return [
-            'times' => implode(',', $uniqueTimes),
-            'device_ids' => implode(',', $uniqueDeviceIds),
+            'times' => implode(',', array_keys($uniqueData)),
+            'device_ids' => implode(',', array_values($uniqueData))
         ];
     }
-   
+    
     private function trimCommas($value)
     {
         return trim($value, ',');
-    }     
+    }   
     
 
     function checkCoordinates() {
