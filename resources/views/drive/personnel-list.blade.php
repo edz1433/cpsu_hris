@@ -71,10 +71,14 @@
                                                                 <i class="fas fa-list-alt"></i>
                                                             </span>
                                                         </div>
-                                                        <select class="form-control form-control-sm select2" id="category" name="{{ isset($personnelsEdit) ? 'category' : 'category[]' }}" required onchange="handleCategoryChange()" @if(!isset($personnelsEdit)) multiple @endif>
-                                                            <option value="4" @if(isset($personnelsEdit) && $personnelsEdit->category == 4) selected @endif>Office Heads</option>
-                                                            <option value="2" @if(isset($personnelsEdit) && $personnelsEdit->category == 2) selected @endif>Deans</option>
+                                                        <select class="form-control form-control-sm select2" id="category" name="{{ isset($personnelsEdit) ? 'category' : 'category[]' }}" required onchange="handleCategoryChange()">
+                                                            <option value=""> --- Select Category --- </option>
+                                                            <option value="2" @if(isset($personnelsEdit) && $personnelsEdit->category == 2) selected @endif>Dean</option>
                                                             <option value="3" @if(isset($personnelsEdit) && $personnelsEdit->category == 3) selected @endif>Campus Ad</option>
+                                                            <option value="4" @if(isset($personnelsEdit) && $personnelsEdit->category == 4) selected @endif>Office Head</option>
+                                                            <option value="5" @if(isset($personnelsEdit) && $personnelsEdit->category == 5) selected @endif>Director</option>
+                                                            <option value="6" @if(isset($personnelsEdit) && $personnelsEdit->category == 6) selected @endif>Staff</option>
+                                                            <option value="7" @if(isset($personnelsEdit) && $personnelsEdit->category == 7) selected @endif>Faculty</option>
                                                         </select>
                                                     </div>    
                                                 </div>
@@ -114,7 +118,7 @@
                                                                 <i class="fas fa-list-alt"></i>
                                                             </span>
                                                         </div>
-                                                        <select class="form-control form-control-sm select2" id="off_coll_id" name="{{ isset($personnelsEdit) ? 'off_coll_id' : 'off_coll_id[]' }}" @if(!isset($personnelsEdit)) multiple @endif>
+                                                        <select class="form-control form-control-sm select2" id="off_coll_id" name="{{ isset($personnelsEdit) ? 'off_coll_id' : 'off_coll_id[]' }}">
                                                             <option value=""> --- Select Office/College --- </option>
                                                             @foreach ($officecolleges as $off)
                                                                 <option value="{{ $off->id }}" @if(isset($personnelsEdit) && $personnelsEdit->off_coll_id == $off->id) selected @endif>{{ $off->office_name }}</option>
@@ -137,14 +141,14 @@
                                                         <select class="form-control form-control-sm select2" id="strat_function" name="strat_function">
                                                             <option value=""> --- Select Strategic Functions --- </option>
                                                             @foreach ($stratfunctions as $strat)
-                                                                <option value="{{ $strat->id }}" @if(isset($personnelsEdit) && $personnelsEdit->strat_function == $strat->id) selected @endif>{{ $strat->category }}</option>
+                                                                <option value="{{ $strat->id }}" @if(isset($personnelsEdit) && $personnelsEdit->employee_strat_function == $strat->id) selected @endif>{{ $strat->category }}</option>
                                                             @endforeach
                                                         </select>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-
+                                        
                                         <div class="form-group">
                                             <div class="form-row">
                                                 <div class="col-md-12">
@@ -189,7 +193,7 @@
                                                         <th>Category</th>
                                                         <th>Office/College</th>
                                                         <th>Designation</th>
-                                                        <th>Strategic function</th>
+                                                        <th>Strategic Function</th>
                                                     @else
                                                         <th>Position</th>
                                                     @endif
@@ -202,16 +206,18 @@
                                                         $first = $records->first();
 
                                                         $categories = $records->map(function($r) {
-                                                            switch ($r->category) {
-                                                                case 1: return 'PMT';
-                                                                case 2: return 'DEANS';
-                                                                case 3: return 'CAMPUS ADMINISTRATOR';
-                                                                case 4: return 'OFFICE HEAD';
-                                                                default: return 'N/A';
-                                                            }
-                                                        })->unique()->map(function($cat) {
-                                                            return "<div style='margin-bottom: 4px;'>$cat</div>";
-                                                        })->implode('');
+                                                            return match ($r->category) {
+                                                                1 => 'PMT',
+                                                                2 => 'DEANS',
+                                                                3 => 'CAMPUS ADMINISTRATOR',
+                                                                4 => 'OFFICE HEAD',
+                                                                5 => 'DIRECTOR',
+                                                                6 => 'STAFF',
+                                                                7 => 'FACULTY',
+                                                                default => 'N/A',
+                                                            };
+                                                            
+                                                        })->unique()->map(fn($cat) => "<div style='margin-bottom: 4px;'>$cat</div>")->implode('');
 
                                                         $offices = $records->map(function($r) use ($officecolleges) {
                                                             if ($r->off_coll_id) {
@@ -219,9 +225,7 @@
                                                                 return $office ? $office->office_abbr : 'N/A';
                                                             }
                                                             return 'N/A';
-                                                        })->unique()->map(function($cat) {
-                                                            return "<div style='margin-bottom: 4px;'>$cat</div>";
-                                                        })->implode('');
+                                                        })->unique()->map(fn($abbr) => "<div style='margin-bottom: 4px;'>$abbr</div>")->implode('');
 
                                                         $position = match((int) $first->position) {
                                                             1 => 'Performance Management Team',
@@ -245,6 +249,7 @@
                                                         @if($cat == 'personnel')
                                                             <td>{!! $offices !!}</td>
                                                             <td>{{ isset($first->designation) ? strtoupper($first->designation) : 'N/A' }}</td>
+                                                            {{-- Now sourced from employees table --}}
                                                             <td>{{ $first->strat_category ?? 'N/A' }}</td>
                                                         @endif
 
@@ -252,8 +257,8 @@
                                                             @foreach($records as $record)
                                                                 <div class="mb-1">
                                                                     <a href="{{ route('spmsPersonnEdit', ['cat' => ($cat == 'pmt') ? 'pmt' : 'personnel', 'id' => $record->personid]) }}" 
-                                                                    class="btn btn-info btn-sm p-1" 
-                                                                    style="font-size: 8px; line-height: 0.6;">
+                                                                        class="btn btn-info btn-sm p-1" 
+                                                                        style="font-size: 8px; line-height: 0.6;">
                                                                         <i class="fas fa-exclamation-circle fa-xs"></i>
                                                                     </a>
                                                                     <button value="{{ $record->personid }}" 

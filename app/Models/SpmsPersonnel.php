@@ -9,6 +9,6 @@ class SpmsPersonnel extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'empid', 'category', 'off_coll_id', 'position', 'strat_function', 'designation'
+        'empid', 'category', 'off_coll_id', 'position', 'designation'
     ];
 }
