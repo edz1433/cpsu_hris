@@ -50,7 +50,7 @@
                                                                 <i class="fas fa-id-card"></i>
                                                             </span>
                                                         </div>
-                                                        <select class="form-control select2" id="empid" name="empid" required>
+                                                        <select class="form-control form-control-sm select2" id="empid" name="empid" required>
                                                             <option value=""> --- Select Employee --- </option>
                                                             @foreach($employees as $emp)
                                                                 <option value="{{ $emp->id }}" @if(isset($personnelsEdit) && $emp->id == $personnelsEdit->empid) selected @endif>{{ $emp->lname }} {{ $emp->fname }}</option>
@@ -71,7 +71,7 @@
                                                                 <i class="fas fa-list-alt"></i>
                                                             </span>
                                                         </div>
-                                                        <select class="form-control form-control-sm select2" id="category" name="{{ isset($personnelsEdit) ? 'category' : 'category[]' }}" required onchange="handleCategoryChange()">
+                                                        <select class="form-control form-control-sm select2" id="category" name="{{ isset($personnelsEdit) ? 'category' : 'category[]' }}" required>
                                                             <option value=""> --- Select Category --- </option>
                                                             <option value="2" @if(isset($personnelsEdit) && $personnelsEdit->category == 2) selected @endif>Dean</option>
                                                             <option value="3" @if(isset($personnelsEdit) && $personnelsEdit->category == 3) selected @endif>Campus Ad</option>
@@ -148,7 +148,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="form-group">
                                             <div class="form-row">
                                                 <div class="col-md-12">
