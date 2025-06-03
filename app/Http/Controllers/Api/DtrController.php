@@ -544,5 +544,4 @@
             'device_id_over' => $logs->device_id_over,
         ]);
     }
- 
  }
