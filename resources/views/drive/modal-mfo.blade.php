@@ -27,7 +27,6 @@
                             </div>
                             <div class="form-row">
                                 <div class="col-md-12 mt-2 text-right">
-                                    <button class="btn btn-info btn-sm" type="button" id="addRowMfoRows"><i class="fas fa-plus fa-xs"></i> ADD ROWS</button>
                                     <button class="btn btn-success btn-sm" type="submit"><i class="fas fa-save"></i> Save</button>
                                 </div>
                             </div>
@@ -245,22 +244,6 @@
             }
         }
 
-        // Add event listener for "Add Rows" button
-        document.getElementById('addRowMfoRows').addEventListener('click', function () {
-            const newRow = `
-                <div class="form-row align-items-center">
-                    <div class="form-group col-md-10">
-                        <textarea name="mfo[]" rows="2" class="form-control form-control-sm"></textarea>
-                    </div>
-                    <div class="form-group col-md-2">
-                        <input type="number" name="percent[]" class="form-control form-control-sm text-center" style="height: 52px; font-size: 25px;" value="">
-                    </div>
-                </div>
-            `;
-            addedRowsContainer.insertAdjacentHTML('beforeend', newRow);
-            attachInputListeners();
-        });
-
         $('#createOpcrMfoModal').on('show.bs.modal', function (event) {
             const button = $(event.relatedTarget);
             const dataId = button.data('cat');
@@ -317,7 +300,7 @@
                 </div>
             `;
             formRowContainer.insertAdjacentHTML('beforeend', labels);
-
+            
             if (defaultData[dataId]) {
                 defaultData[dataId].forEach(item => {
                     const newRow = `

@@ -61,7 +61,7 @@
                                                 <i class="far fa-user"></i>
                                             </span>
                                         </div>
-                                        <select class="form-control select2" name="office_head_id" required>
+                                        <select class="form-control select2" name="office_head_id">
                                             <option value=""> --- Select Employee --- </option>
                                             @foreach($employee as $emp)
                                                 <option value="{{ $emp->id }}" @if($current_route == 'officeEdit') @if($emp->id == $offEdit->office_head_id) selected @endif @endif>{{ $emp->emp_ID }} - {{ $emp->lname }} {{ $emp->fname }}</option>
