@@ -33,7 +33,7 @@ class OfficeController extends Controller
         $validator = Validator::make($request->all(), [
             'OfficeName'=>'required',
             'OfficeAbbreviation'=>'required',
-            'office_head_id'=>'required',
+            'office_head_id'=>'nullable',
             'GroupBy'=>'nullable',
         ]);
 
