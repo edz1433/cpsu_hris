@@ -124,6 +124,7 @@ class SpmsPersonnelController extends Controller
                 'category' => 'required',
                 'off_coll_id' => 'required',
                 'designation' => 'nullable|string|max:255',
+                'emp_position' => 'nullable|string|max:255',
                 'strat_function' => 'required|string|max:255',
             ]);
 
@@ -145,6 +146,7 @@ class SpmsPersonnelController extends Controller
                 'category' => $category,
                 'off_coll_id' => $offCollId,
                 'designation' => $designation,
+                'emp_position' => $request->emp_position,
                 'strat_function' => $request->strat_function,
             ]);
 
@@ -209,6 +211,7 @@ class SpmsPersonnelController extends Controller
                 'person_id' => 'required|exists:spms_personnels,id',
                 'category' => 'required',
                 'off_coll_id' => 'required',
+                'emp_position' => 'nullable|string|max:255',
                 'designation' => 'nullable|string|max:255',
                 'strat_function' => 'required|string|max:255',
             ]);
@@ -237,6 +240,7 @@ class SpmsPersonnelController extends Controller
                 'empid' => $empid,
                 'category' => $category,
                 'off_coll_id' => $offCollId,
+                'emp_position' => $request->emp_position,
                 'designation' => $designation,
                 'strat_function' => $stratFunction,
                 'position' => null,

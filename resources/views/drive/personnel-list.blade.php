@@ -22,7 +22,7 @@
                         @endif
                         <li class="breadcrumb-item"><a href="{{ route('drive') }}" class="text-success1">Drive</a></li>
                         <li class="breadcrumb-item text-muted">Personnel</li>
-                         <li class="breadcrumb-item text-muted">Personnel</li>
+                         <li class="breadcrumb-item text-muted">{{ ucfirst($cat) }}</li>
                     </ol> 
                 </nav>
                 <div class="card-body">
@@ -148,7 +148,22 @@
                                                 </div>
                                             </div>
                                         </div>
-
+                                        @if($cat == 'personnel')
+                                        <div class="form-group">
+                                            <div class="form-row">
+                                                <div class="col-md-12">
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </span>
+                                                        </div>
+                                                        <input type="text" class="form-control form-control-sm" id="emp_position" name="emp_position" placeholder="Enter Position" value="{{ isset($personnelsEdit) ? $personnelsEdit->emp_position : '' }}" autocomplete="off">
+                                                    </div>    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @endif
                                         <div class="form-group">
                                             <div class="form-row">
                                                 <div class="col-md-12">
@@ -163,6 +178,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        
                                         @endif
                                         <div class="form-group">
                                             <div class="form-row">
@@ -191,6 +207,7 @@
                                                     @if($cat == 'personnel')
                                                         <th>Category</th>
                                                         <th>Office/College</th>
+                                                        <th>Position</th>
                                                         <th>Designation</th>
                                                         <th>Strategic Function</th>
                                                     @else
@@ -247,6 +264,7 @@
 
                                                         @if($cat == 'personnel')
                                                             <td>{!! $offices !!}</td>
+                                                            <td>{{ $first->emp_position }}</td>
                                                             <td>{{ isset($first->designation) ? strtoupper($first->designation) : 'N/A' }}</td>
                                                             {{-- Now sourced from employees table --}}
                                                             <td>{{ $first->strat_category ?? 'N/A' }}</td>

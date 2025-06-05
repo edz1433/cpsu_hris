@@ -220,7 +220,7 @@
         
         return response()->json(['message' => 'DTR Sync Complete']);
     }
-
+    
     public function syncDtr(Request $request)
     {
         $data = json_decode($request->getContent(), true);
@@ -236,6 +236,14 @@
             if (!isset($item['emp_ID'], $item['date'])) {
                 continue;
             }
+
+            // // Validate time formats (HH:MM:SS, comma-separated)
+            // $timeFields = ['time_in', 'time_out', 'time_over'];
+            // foreach ($timeFields as $field) {
+            //     if (isset($item[$field]) && !preg_match('/^(\d{2}:\d{2}:\d{2})(,\d{2}:\d{2}:\d{2})*$/', $item[$field])) {
+            //         continue 2; // Skip invalid time format
+            //     }
+            // }
 
             $insertData[] = [
                 'device_id_in' => $item['device_id_in'] ?? null,
@@ -270,18 +278,12 @@
                 'emp_ID',
                 'date',
                 DB::raw("MAX(id) as id"),
-                DB::raw("GROUP_CONCAT(NULLIF(device_id_in, '') ORDER BY device_id_in SEPARATOR ',') AS device_id_in"),
-                DB::raw("GROUP_CONCAT(NULLIF(device_id_out, '') ORDER BY device_id_out SEPARATOR ',') AS device_id_out"),
-                DB::raw("GROUP_CONCAT(NULLIF(device_id_over, '') ORDER BY device_id_over SEPARATOR ',') AS device_id_over"),
-                DB::raw("GROUP_CONCAT(NULLIF(time_in, '') ORDER BY time_in SEPARATOR ',') AS time_in"),
-                DB::raw("GROUP_CONCAT(NULLIF(time_out, '') ORDER BY time_out SEPARATOR ',') AS time_out"),
-                DB::raw("GROUP_CONCAT(NULLIF(time_over, '') ORDER BY time_over SEPARATOR ',') AS time_over"),
-                DB::raw("GROUP_CONCAT(DISTINCT NULLIF(device_id_in, '') ORDER BY device_id_in SEPARATOR ',') AS device_id_in"),
-                DB::raw("GROUP_CONCAT(DISTINCT NULLIF(device_id_out, '') ORDER BY device_id_out SEPARATOR ',') AS device_id_out"),
-                DB::raw("GROUP_CONCAT(DISTINCT NULLIF(device_id_over, '') ORDER BY device_id_over SEPARATOR ',') AS device_id_over"),
-                DB::raw("GROUP_CONCAT(DISTINCT NULLIF(time_in, '') ORDER BY time_in SEPARATOR ',') AS time_in"),
-                DB::raw("GROUP_CONCAT(DISTINCT NULLIF(time_out, '') ORDER BY time_out SEPARATOR ',') AS time_out"),
-                DB::raw("GROUP_CONCAT(DISTINCT NULLIF(time_over, '') ORDER BY time_over SEPARATOR ',') AS time_over")
+                DB::raw("GROUP_CONCAT(NULLIF(device_id_in, '') ORDER BY id SEPARATOR ',') AS device_id_in"),
+                DB::raw("GROUP_CONCAT(NULLIF(device_id_out, '') ORDER BY id SEPARATOR ',') AS device_id_out"),
+                DB::raw("GROUP_CONCAT(NULLIF(device_id_over, '') ORDER BY id SEPARATOR ',') AS device_id_over"),
+                DB::raw("GROUP_CONCAT(NULLIF(time_in, '') ORDER BY id SEPARATOR ',') AS time_in"),
+                DB::raw("GROUP_CONCAT(NULLIF(time_out, '') ORDER BY id SEPARATOR ',') AS time_out"),
+                DB::raw("GROUP_CONCAT(NULLIF(time_over, '') ORDER BY id SEPARATOR ',') AS time_over")
             )
             ->whereIn('date', $dateList)
             ->groupBy('emp_ID', 'date')
@@ -295,12 +297,6 @@
 
                 $updates[] = [
                     'id' => $data->id,
-                    'device_id_in' => $data->device_id_in ?: null,
-                    'device_id_out' => $data->device_id_out ?: null,
-                    'device_id_over' => $data->device_id_over ?: null,
-                    'time_in' => $data->time_in ?: null,
-                    'time_out' => $data->time_out ?: null,
-                    'time_over' => $data->time_over ?: null,
                     'device_id_in' => $this->trimCommas($filteredTimeIn['device_ids']),
                     'device_id_out' => $this->trimCommas($filteredTimeOut['device_ids']),
                     'device_id_over' => $this->trimCommas($filteredTimeOver['device_ids']),
@@ -310,50 +306,61 @@
                 ];
             }
 
-            // Batch update
-            DB::table('dtrs')->upsert($updates, ['id'], ['device_id_in', 'device_id_out', 'device_id_over', 'time_in', 'time_out', 'time_over']);
+            // Batch update and delete duplicates in a transaction
+            DB::transaction(function () use ($updates, $dateList) {
+                DB::table('dtrs')->upsert(
+                    $updates,
+                    ['id'],
+                    ['device_id_in', 'device_id_out', 'device_id_over', 'time_in', 'time_out', 'time_over']
+                );
 
-            // Delete duplicates (only keep latest per emp_ID, date)
-            DB::table('dtrs')
-                ->whereIn('date', $dateList)
-                ->whereNotIn('id', function ($query) use ($dateList) {
-                    $query->selectRaw('MAX(id)')
-                        ->from('dtrs')
-                        ->whereIn('date', $dateList)
-                        ->groupBy('emp_ID', 'date');
-                })
-                ->delete();
+                DB::table('dtrs')
+                    ->whereIn('date', $dateList)
+                    ->whereNotIn('id', function ($query) use ($dateList) {
+                        $query->selectRaw('MAX(id)')
+                            ->from('dtrs')
+                            ->whereIn('date', $dateList)
+                            ->groupBy('emp_ID', 'date');
+                    })
+                    ->delete();
+            });
         }
 
         DB::statement("SET GLOBAL max_connect_errors = 1000000;");
         
         return response()->json(['message' => 'DTR Sync Complete']);
     }
-    
+
     private function removeDuplicatesWithDeviceIds($times, $deviceIds)
     {
+        if (empty($times) || empty($deviceIds)) {
+            return ['times' => '', 'device_ids' => ''];
+        }
+
         $timeArray = explode(',', $times);
         $deviceIdArray = explode(',', $deviceIds);
         $uniqueData = [];
-    
+
         foreach ($timeArray as $index => $time) {
+            if (empty($time)) {
+                continue;
+            }
             $deviceId = $deviceIdArray[$index] ?? null;
             if (!isset($uniqueData[$time])) {
                 $uniqueData[$time] = $deviceId;
             }
         }
-    
+
         return [
             'times' => implode(',', array_keys($uniqueData)),
             'device_ids' => implode(',', array_values($uniqueData))
         ];
     }
-    
+
     private function trimCommas($value)
     {
         return trim($value, ',');
-    }   
-    
+    }
 
     function checkCoordinates() {
         //Inside

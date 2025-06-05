@@ -80,11 +80,14 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         
         // opcr mfo's
         Route::post('/create-opcr', [OpcrController::class, 'createOpcr'])->name('create-opcr');
-        Route::post('/create-opcr-mfo', [OpcrController::class, 'createOpcrMfo'])->name('create-opcr-mfo');
+        Route::post('/update-opcr-mfo', [OpcrController::class, 'updateOpcrMfo'])->name('update-opcr-mfo');
         Route::post('/create-opcr-mfo-data', [OpcrController::class, 'createOpcrMfoData'])->name('create-opcr-mfo-data');
+        Route::post('/opcr-data', [OpcrController::class, 'opcrData'])->name('opcrData');
         Route::get('/opcrmfo-edit-ata/{id}', [OpcrController::class, 'opcrmfoEditData'])->name('opcrmfoEditData');
         Route::post('/opcrmfo-delete-data/{id}', [OpcrController::class, 'opcrmfoDeleteData'])->name('opcrmfoDeleteData');
-        Route::post('/asign-opcr', [OpcrController::class, 'asignOpcr'])->name('asignOpcr');
+
+        //Assign OPCR
+        Route::get('/assign-opcr', [OpcrController::class, 'assignOpcr'])->name('assignOpcr');
     });
 
     Route::prefix('spms-set')->group(function() {

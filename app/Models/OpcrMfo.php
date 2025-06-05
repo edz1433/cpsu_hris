@@ -9,6 +9,6 @@ class OpcrMfo extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'opcr_id', 'mfo', 'percent', 'count'
+        'opcr_id', 'mfo', 'functions', 'percent', 'count'
     ];
 }

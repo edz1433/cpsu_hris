@@ -113,24 +113,21 @@
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             @if(isset($prs[0]))
                 <td class="b-none text-center">
-                    <i class="fas fa-plus fa-lg text-success1 pl-1" style="cursor: pointer;"
+                    <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
                     data-toggle="modal"
                     data-cat="1"
                     data-id="{{ $prs[0]->id }}"
-                    data-mfo="{{ $prs[0]->mfo ?? '' }}"
-                    data-percent="{{ $prs[0]->percent ?? '' }}"
                     data-target="#createOpcrMfoModal">
                     </i>
                 </td>
-            @else
+            @else 
                 <td class="b-none text-center"></td>
             @endif
         </tr>
 
-        
         @foreach($cores as $core)
             <tr>
-                <td>{{ $core->mfo ?? '' }} ({{ $core->percent ?? '' }}%)</td>
+                <td>{{ $core->mfo ?? '' }} {{ $core->functions ?? '' }} ({{ $core->percent ?? '' }}%)</td>
                 <td class="text-center">{{ $core->target ?? '' }}</td>
                 <td class="text-center">{{ $core->in_support ?? '' }}</td>
                 <td class="text-center"></td>
@@ -198,12 +195,10 @@
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             @if(isset($prs[1]))
                 <td class="b-none text-center">
-                    <i class="fas fa-plus fa-lg text-success1 pl-1" style="cursor: pointer;"
+                    <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
                     data-toggle="modal"
                     data-cat="2"
                     data-id="{{ $prs[1]->id }}"
-                    data-mfo="{{ $prs[1]->mfo ?? '' }}"
-                    data-percent="{{ $prs[1]->percent ?? '' }}"
                     data-target="#createOpcrMfoModal">
                     </i>
                 </td>
@@ -213,7 +208,7 @@
         </tr>
         @foreach($strats as $strat)
         <tr>
-            <td>{{ $strat->mfo ?? '' }} ({{ $strat->percent ?? '' }}%)</td>
+            <td>{{ $strat->mfo ?? '' }} {{ $strat->functions ?? '' }} ({{ $strat->percent ?? '' }}%)</td>
             <td class="text-center">{{ $strat->target ?? '' }}</td>
             <td class="text-center">{{ $strat->in_support ?? '' }}</td>
             <td class="text-center"></td>
@@ -280,12 +275,10 @@
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             @if(isset($prs[2]))
                 <td class="b-none text-center">
-                    <i class="fas fa-plus fa-lg text-success1 pl-1" style="cursor: pointer;"
+                    <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
                     data-toggle="modal"
                     data-cat="3"
                     data-id="{{ $prs[2]->id }}"
-                    data-mfo="{{ $prs[2]->mfo ?? '' }}"
-                    data-percent="{{ $prs[2]->percent ?? '' }}"
                     data-target="#createOpcrMfoModal">
                     </i>
                 </td>
@@ -293,7 +286,7 @@
         </tr>
         @foreach($supports as $supp)
         <tr>
-            <td>{{ $supp->mfo ?? '' }} ({{ $supp->percent ?? '' }}%)</td>
+            <td>{{ $supp->mfo ?? '' }} {{ $supp->functions ?? '' }} ({{ $supp->percent ?? '' }}%)</td>
             <td class="text-center">{{ $supp->target ?? '' }}</td>
             <td class="text-center">{{ $supp->in_support ?? '' }}</td>
             <td class="text-center"></td>
@@ -366,6 +359,47 @@
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+    });
+
+    $(document).on('click', '.modalFunction', function () {
+        let cat = $(this).data('cat');
+        let id = $(this).data('id');
+
+        $('#opcr-cat').val(cat);
+        $('#opcr-id').val(id);
+
+        if(cat == 1) {
+            $('#opcr-cat-text').text('CORE FUNCTION');
+        } else if(cat == 2) {
+            $('#opcr-cat-text').text('STRATEGIC FUNCTION');
+        } else {
+            $('#opcr-cat-text').text('SUPPORT FUNCTION');
+        }
+        
+        $('#form-data').empty();
+
+        $.ajax({
+            url: '{{ route('opcrData') }}',
+            method: 'POST',
+            data: {
+                cat: cat,
+                id: id,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function (response) {
+                $('#form-data').html(response.html);
+            },
+            error: function () {
+                $('#form-data').html('<p class="text-danger">Failed to load data.</p>');
+            }
+        });
+    });
+</script>
 <script>
     function saveSetup() {
         // Logic to save the setup
