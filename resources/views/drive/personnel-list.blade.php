@@ -139,9 +139,9 @@
                                                             </span>
                                                         </div>
                                                         <select class="form-control form-control-sm select2" id="strat_function" name="strat_function">
-                                                            <option value=""> --- Select Strategic Functions --- </option>
-                                                            @foreach ($stratfunctions as $strat)
-                                                                <option value="{{ $strat->id }}" @if(isset($personnelsEdit) && $personnelsEdit->employee_strat_function == $strat->id) selected @endif>{{ $strat->category }}</option>
+                                                            <option value=""> --- Select Personnel Category --- </option>
+                                                            @foreach ($stratfunctions as $personcat)
+                                                                <option value="{{ $personcat->id }}" @if(isset($personnelsEdit) && $personnelsEdit->employee_strat_function == $personcat->id) selected @endif>{{ $personcat->category }}</option>
                                                             @endforeach
                                                         </select>
                                                     </div>
