@@ -36,6 +36,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\OpcrController;
 use App\Http\Controllers\SpmsPersonnelController;
 use App\Http\Controllers\SpmsMfoPercentageController;
+use App\Http\Controllers\PerformanceController;
 
 Route::get('/', function () {
     if (Auth::guard('web')->check()) {
@@ -58,6 +59,8 @@ Route::get('/verify', [GoogleAuthController::class, 'verifyForm'])->name('verify
 Route::post('/verify', [GoogleAuthController::class, 'verify'])->name('verify.code');
 
 Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], function() {
+    //Performance
+    Route::get('/system-performance', [PerformanceController::class, 'systemPerformance'])->name('systemPerformance');
     // Dashboard
     Route::get('/dashboard', [MasterController::class, 'dashboard'])->name('dashboard');
     

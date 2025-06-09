@@ -22,7 +22,7 @@ class OpcrController extends Controller
             return 'employee';
         }
     }
-
+    
     public function createOpcr(Request $request)
     {
         $request->validate([
