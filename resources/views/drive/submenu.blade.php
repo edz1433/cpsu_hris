@@ -7,7 +7,7 @@
     $isMfoActive = request()->is('spms-mfo-settings*') || request()->is('spms-mfo-settings/edit*');
 @endphp
 
-@if($guard == "web")
+@if($guard == "web" || in_array($userid, $pmtsmember ?? []))
 <div class="btn-group w-100">
     <button type="button" class="btn bg-success1 btn-block mb-3 dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <i class="fa fa-plus"></i> New
