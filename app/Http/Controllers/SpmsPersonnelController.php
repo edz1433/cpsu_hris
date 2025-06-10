@@ -10,50 +10,59 @@ use App\Models\PrSetting;
 
 class SpmsPersonnelController extends Controller
 {
-    public function spmsPersonnlist($cat){
+    public function spmsPersonnlist($cat)
+    {
         $employees = Employee::all();
         $stratfunctions = PrSetting::all();
+
         $officecolleges = Office::leftJoin('dbcpsuhris.employees', 'offices.office_head_id', '=', 'dbcpsuhris.employees.id')
-        ->get(['offices.*', 'dbcpsuhris.employees.fname as efname', 'dbcpsuhris.employees.lname as elname']); 
+            ->get(['offices.*', 'dbcpsuhris.employees.fname as efname', 'dbcpsuhris.employees.lname as elname']);
 
         $personnelsQuery = SpmsPersonnel::leftJoin('employees', 'spms_personnels.empid', '=', 'employees.id')
-            ->leftJoin('pr_settings', 'pr_settings.id', '=', 'spms_personnels.strat_function')
+            ->leftJoin('pr_settings', 'pr_settings.id', '=', 'employees.strat_function') // Now via Employee
             ->select(
                 'spms_personnels.*',
                 'spms_personnels.id as personid',
                 'employees.fname',
                 'employees.lname',
+                'employees.strat_function as employee_strat_function',
                 'pr_settings.category as strat_category'
             );
 
-        if ($cat == 'pmt') {
+        if ($cat === 'pmt') {
             $personnelsQuery->where('spms_personnels.category', 1);
         } else {
             $personnelsQuery->where('spms_personnels.category', '!=', 1);
         }
 
         $personnels = $personnelsQuery->get();
-               
-        return view('drive.personnel-list', compact('employees', 'personnels', 'officecolleges', 'stratfunctions', 'cat'));
+        // Count employees with and without strat_function
+        $stratFunctionHasCount = Employee::whereNotNull('strat_function')->count();
+        $stratFunctionNoneCount = Employee::whereNull('strat_function')->count();
+
+        return view('drive.personnel-list', compact('employees', 'personnels', 'officecolleges', 'stratfunctions', 'cat', 'stratFunctionHasCount', 'stratFunctionNoneCount'));
     }
 
-    public function spmsPersonnEdit($cat, $id){
+    public function spmsPersonnEdit($cat, $id)
+    {
         $employees = Employee::all();
         $stratfunctions = PrSetting::all();
+
         $officecolleges = Office::leftJoin('dbcpsuhris.employees', 'offices.office_head_id', '=', 'dbcpsuhris.employees.id')
-        ->get(['offices.*', 'dbcpsuhris.employees.fname as efname', 'dbcpsuhris.employees.lname as elname']); 
-        
+            ->get(['offices.*', 'dbcpsuhris.employees.fname as efname', 'dbcpsuhris.employees.lname as elname']);
+
         $personnelsQuery = SpmsPersonnel::leftJoin('employees', 'spms_personnels.empid', '=', 'employees.id')
-            ->leftJoin('pr_settings', 'pr_settings.id', '=', 'spms_personnels.strat_function')
+            ->leftJoin('pr_settings', 'pr_settings.id', '=', 'employees.strat_function')
             ->select(
                 'spms_personnels.*',
                 'spms_personnels.id as personid',
                 'employees.fname',
                 'employees.lname',
+                'employees.strat_function as employee_strat_function',
                 'pr_settings.category as strat_category'
             );
 
-        if ($cat == 'pmt') {
+        if ($cat === 'pmt') {
             $personnelsQuery->where('spms_personnels.category', 1);
         } else {
             $personnelsQuery->where('spms_personnels.category', '!=', 1);
@@ -62,18 +71,27 @@ class SpmsPersonnelController extends Controller
         $personnels = $personnelsQuery->get();
 
         $personnelsEdit = SpmsPersonnel::join('employees', 'spms_personnels.empid', '=', 'employees.id')
-              ->select('spms_personnels.*', 'employees.fname', 'employees.lname')
-              ->where('spms_personnels.id', $id)
-              ->first();
+            ->select(
+                'spms_personnels.*',
+                'employees.fname',
+                'employees.lname',
+                'employees.strat_function as employee_strat_function'
+            )
+            ->where('spms_personnels.id', $id)
+            ->first();
 
-        return view('drive.personnel-list', compact('employees', 'personnels', 'personnelsEdit', 'officecolleges', 'stratfunctions', 'cat'));
+            // Count employees with and without strat_function
+            $stratFunctionHasCount = Employee::whereNotNull('strat_function')->count();
+            $stratFunctionNoneCount = Employee::whereNull('strat_function')->count();
+
+        return view('drive.personnel-list', compact('employees', 'personnels', 'personnelsEdit', 'officecolleges', 'stratfunctions', 'cat', 'stratFunctionHasCount', 'stratFunctionNoneCount'));
     }
 
     public function spmsPersonnCreate(Request $request)
     {
         $validated = $request->validate([
             'empid' => 'required|integer',
-            'cat' => 'required',
+            'cat' => 'required|in:pmt,personnel',
         ]);
 
         $empid = $validated['empid'];
@@ -85,8 +103,10 @@ class SpmsPersonnelController extends Controller
                 'position' => 'required|in:1,2,3',
             ]);
 
+            $category = $request->input('category');
+
             $existing = SpmsPersonnel::where('empid', $empid)
-                ->where('category', 1)
+                ->where('category', $category)
                 ->first();
 
             if ($existing) {
@@ -95,84 +115,50 @@ class SpmsPersonnelController extends Controller
 
             SpmsPersonnel::create([
                 'empid' => $empid,
-                'category' => 1,
+                'category' => $category,
                 'position' => $request->position,
             ]);
 
         } elseif ($cat === 'personnel') {
             $request->validate([
-                'category' => 'required|array|min:1|max:2',
-                'category.*' => 'in:2,3,4',
-                'off_coll_id' => 'required|array|min:1|max:2',
+                'category' => 'required',
+                'off_coll_id' => 'required',
                 'designation' => 'nullable|string|max:255',
-                'strat_function' => 'nullable|string|max:255',
+                'emp_position' => 'nullable|string|max:255',
+                'strat_function' => 'required|string|max:255',
             ]);
 
-            $categories = $request->category;
-            $offices = $request->off_coll_id;
+            $category = $request->input('category');
+            $offCollId = $request->input('off_coll_id');
+            $designation = $request->input('designation');
 
-            // Check if category and office count matches
-            if (count($categories) !== count($offices)) {
-                return redirect()->back()->withErrors([
-                    'off_coll_id' => 'Each selected category must have a corresponding office/college.',
-                ]);
+            $existing = SpmsPersonnel::where('empid', $empid)
+                ->where('category', $category)
+                ->where('off_coll_id', $offCollId)
+                ->first();
+
+            if ($existing) {
+                return redirect()->back()->withErrors(['category' => 'Personnel record already exists for this employee in the selected category and office/college.']);
             }
 
-            // Disallow selecting both 2 and 3
-            if (in_array(2, $categories) && in_array(3, $categories)) {
-                return redirect()->back()->withErrors([
-                    'category' => 'You cannot select both DEAN (2) and CAMPUS ADMINISTRATOR (3) at the same time.',
+            SpmsPersonnel::create([
+                'empid' => $empid,
+                'category' => $category,
+                'off_coll_id' => $offCollId,
+                'designation' => $designation,
+                'emp_position' => $request->emp_position,
+                'strat_function' => $request->strat_function,
+            ]);
+
+            Employee::where('id', $empid)->update([
+                'strat_function' => $request->strat_function,
+                'emp_dept' => $offCollId,
+            ]);
+
+            if ($category == 4) {
+                Office::where('id', $offCollId)->update([
+                    'office_head_id' => $empid,
                 ]);
-            }
-
-            // ✅ PRE-CHECK: If any selected office already has a head (when category is 4)
-            foreach ($categories as $index => $category) {
-                if ($category == 4) {
-                    $offCollId = $offices[$index];
-                    $office = SpmsPersonnel::where('off_coll_id', $offCollId)->first();
-
-                    if ($office && !is_null($office->office_head_id) && $office->office_head_id != $empid) {
-                        return redirect()->back()->withErrors([
-                            'off_coll_id' => 'Office/College already has an assigned office head.',
-                        ]);
-                    }
-                }
-            }
-
-            // ✅ Insert after passing validation
-            foreach ($categories as $index => $category) {
-                $offCollId = $offices[$index];
-
-                $existing = SpmsPersonnel::where('empid', $empid)
-                    ->where('category', $category)
-                    ->where('off_coll_id', $offCollId)
-                    ->first();
-
-                if ($existing) {
-                    continue;
-                }
-
-                if ($category == 2) {
-                    $designation = 'DEAN';
-                } elseif ($category == 3) {
-                    $designation = 'CAMPUS ADMINISTRATOR';
-                } else {
-                    $designation = $request->designation;
-                }
-
-                SpmsPersonnel::create([
-                    'empid' => $empid,
-                    'category' => $category,
-                    'off_coll_id' => $offCollId,
-                    'designation' => $designation,
-                    'strat_function' => $request->strat_function,
-                ]);
-
-                if ($category == 4 && $offCollId) {
-                    Office::where('id', $offCollId)->update([
-                        'office_head_id' => $empid,
-                    ]);
-                }
             }
         }
 
@@ -180,17 +166,15 @@ class SpmsPersonnelController extends Controller
             ->with('success', 'Personnel added successfully.');
     }
 
-
     public function spmsPersonnUpdate(Request $request)
     {
         $validated = $request->validate([
             'empid' => 'required|integer|exists:employees,id',
-            'cat' => 'required',
+            'cat' => 'required|in:pmt,personnel',
         ]);
 
         $empid = $validated['empid'];
         $cat = $validated['cat'];
-        $messages = [];
 
         if ($cat === 'pmt') {
             $request->validate([
@@ -199,10 +183,12 @@ class SpmsPersonnelController extends Controller
                 'position' => 'required|in:1,2,3',
             ]);
 
-            $personid = $request->person_id;
+            $personid = $request->input('person_id');
+            $category = $request->input('category');
 
+            // Check for existing PMT record
             $existing = SpmsPersonnel::where('empid', $empid)
-                ->where('category', 1)
+                ->where('category', $category)
                 ->where('id', '!=', $personid)
                 ->first();
 
@@ -213,7 +199,7 @@ class SpmsPersonnelController extends Controller
             $spmsPersonnel = SpmsPersonnel::findOrFail($personid);
             $spmsPersonnel->update([
                 'empid' => $empid,
-                'category' => 1,
+                'category' => $category,
                 'position' => $request->position,
                 'off_coll_id' => null,
                 'designation' => null,
@@ -222,50 +208,60 @@ class SpmsPersonnelController extends Controller
 
         } elseif ($cat === 'personnel') {
             $request->validate([
-                'person_id' => 'nullable|exists:spms_personnels,id',
-                'category' => 'required|in:2,3,4',
+                'person_id' => 'required|exists:spms_personnels,id',
+                'category' => 'required',
                 'off_coll_id' => 'required',
+                'emp_position' => 'nullable|string|max:255',
                 'designation' => 'nullable|string|max:255',
-                'strat_function' => 'nullable|string|max:255',
+                'strat_function' => 'required|string|max:255',
             ]);
-
-            $personid = $request->person_id;
-            $category = $request->category;
-            $offCollId = $request->off_coll_id;
+            
+            $personid = $request->input('person_id');
+            $category = $request->input('category');
+            $offCollId = $request->input('off_coll_id');
+            $designation = $request->input('designation');
+            $stratFunction = $request->input('strat_function');
 
             // Check for duplicate personnel
             $existing = SpmsPersonnel::where('empid', $empid)
                 ->where('category', $category)
                 ->where('off_coll_id', $offCollId)
-                ->when($personid, function($query) use ($personid) {
-                    $query->where('id', '!=', $personid);
-                })
-                ->first();  
+                ->where('id', '!=', $personid)
+                ->first();
 
-            if (!$existing) {
-                $spmsPersonnel = SpmsPersonnel::find($personid);
-                if ($spmsPersonnel) {
-                    $spmsPersonnel->update([
-                        'empid' => $empid,
-                        'category' => $category,
-                        'off_coll_id' => $offCollId,
-                        'position' => null,
-                    ]);
-                }
+            if ($existing) {
+                return redirect()->back()->withErrors([
+                    'category' => 'Personnel record already exists for this employee in the selected category and office/college.',
+                ]);
             }
 
-            // Update designation and strategic function
-            SpmsPersonnel::where('empid', $empid)->update([
-                'designation' => $request->designation,
-                'strat_function' => $request->strat_function,
+            $spmsPersonnel = SpmsPersonnel::findOrFail($personid);
+            $spmsPersonnel->update([
+                'empid' => $empid,
+                'category' => $category,
+                'off_coll_id' => $offCollId,
+                'emp_position' => $request->emp_position,
+                'designation' => $designation,
+                'strat_function' => $stratFunction,
+                'position' => null,
             ]);
+
+            Employee::where('id', $empid)->update([
+                'strat_function' => $request->strat_function,
+                'emp_dept' => $offCollId,
+            ]);
+
+            // Update office head if category is 4
+            if ($category == 4) {
+                Office::where('id', $offCollId)->update([
+                    'office_head_id' => $empid,
+                ]);
+            }
         }
 
-        // Final redirect with success and any warnings
         return redirect()->route('spmsPersonnlist', ['cat' => $cat])
             ->with('success', 'Personnel updated successfully.');
     }
-
 
     public function spmsPersonnDelete(Request $request) {
         $pmt = SpmsPersonnel::find($request->id);
