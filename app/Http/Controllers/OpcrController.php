@@ -241,21 +241,24 @@ class OpcrController extends Controller
 
         $opcrId = $request->input('opcr_mfo_id');
         $opcrdataId = $request->input('opcrdata_id');
+        $categories = $request->input('category') === 'All' ? [1, 2] : [$request->input('category')];
 
-        if($opcrdataId == 0){
-            OpcrMfoData::create([
-                'opcr_mfo_id' => $opcrId,
-                'mfo' => $request->input('mfo'),
-                'target' => $request->input('target'),
-                'in_support' => $request->input('in_support'),
-                'report_sup' => $request->input('report_sup'),
-                'div_account' => $request->input('div_account'),
-                'quality' => $request->input('quality'),
-                'efficiency' => $request->input('efficiency'),
-                'timeliness' => $request->input('timeliness'),
-                'category' => $request->input('category'),
-                'opcr_by' => $request->input('opcr_by'),
-            ]);
+        if ($opcrdataId == 0) {
+            foreach ($categories as $category) {
+                OpcrMfoData::create([
+                    'opcr_mfo_id' => $opcrId,
+                    'mfo' => $request->input('mfo'),
+                    'target' => $request->input('target'),
+                    'in_support' => $request->input('in_support'),
+                    'report_sup' => $request->input('report_sup'),
+                    'div_account' => $request->input('div_account'),
+                    'quality' => $request->input('quality'),
+                    'efficiency' => $request->input('efficiency'),
+                    'timeliness' => $request->input('timeliness'),
+                    'category' => $category,
+                    'opcr_by' => $request->input('opcr_by'),
+                ]);
+            }
         } else {
             $opcrData = OpcrMfoData::find($opcrdataId);
             if ($opcrData) {
@@ -271,11 +274,11 @@ class OpcrController extends Controller
                     'category' => $request->input('category'),
                     'opcr_by' => $request->input('opcr_by'),
                 ]);
-            }else {
+            } else {
                 return redirect()->back()->with('error', 'OPCR MFO Data not found!');
             }
         }
-        
+
         return redirect()->back()->with('success', 'MFO data saved successfully!');
     }
 

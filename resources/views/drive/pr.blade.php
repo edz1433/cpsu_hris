@@ -35,6 +35,10 @@
         ->join('employees', 'spms_asignatories.empid', '=', 'employees.emp_ID')
         ->select('employees.fname', 'employees.lname', 'employees.mname', 'spms_asignatories.*')
         ->get();
+
+    function displayValue($value) {
+        return strtolower(trim($value ?? '')) === 'n/a' ? '' : $value;
+    }
 @endphp
 @include('drive.modal-mfo')
 <div class="modal fade" id="modal-rating" tabindex="-1" role="dialog" aria-labelledby="modal-prform" aria-hidden="true">
@@ -127,55 +131,59 @@
 
         @foreach($cores as $core)
             <tr>
-                <td>{{ $core->mfo ?? '' }} {{ $core->functions ?? '' }} ({{ $core->percent ?? '' }}%)</td>
-                <td class="text-center">{{ $core->target ?? '' }}</td>
-                <td class="text-center">{{ $core->in_support ?? '' }}</td>
+                <td>
+                    @if(displayValue($core->mfo) || displayValue($core->functions) || displayValue($core->percent))
+                        {{ displayValue($core->mfo) }} {{ displayValue($core->functions) }} ({{ displayValue($core->percent) }}%)
+                    @endif
+                </td>
+                <td class="text-center">{{ displayValue($core->target) }}</td>
+                <td class="text-center">{{ displayValue($core->in_support) }}</td>
                 <td class="text-center"></td>
                 <td class="text-center"></td>
                 <td class="text-center"></td>
                 <td class="text-center"></td>
-                <td class="text-center">{{ $core->report_sup ?? '' }}</td>
-                <td class="text-center">{{ $core->alloted ?? '' }}</td>
-                <td class="text-center">{{ $core->div_account ?? '' }}</td>
-                <td class="text-center">{{ $core->qrate ?? '' }}</td>
-                <td class="text-center">{{ $core->erate ?? '' }}</td>
-                <td class="text-center">{{ $core->trate ?? '' }}</td>
-                <td class="text-center">{{ $core->a ?? '' }}</td>
-                <td class="text-center">{{ $core->remarks ?? '' }}</td>
+                <td class="text-center">{{ displayValue($core->report_sup) }}</td>
+                <td class="text-center">{{ displayValue($core->alloted) }}</td>
+                <td class="text-center">{{ displayValue($core->div_account) }}</td>
+                <td class="text-center">{{ displayValue($core->qrate) }}</td>
+                <td class="text-center">{{ displayValue($core->erate) }}</td>
+                <td class="text-center">{{ displayValue($core->trate) }}</td>
+                <td class="text-center">{{ displayValue($core->a) }}</td>
+                <td class="text-center">{{ displayValue($core->remarks) }}</td>
                 <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
                 <td class="b-none text-center">
                     <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;" data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></i>
                 </td>
             </tr>
+
             @php
                 $filteredOpcrMfoDatas = in_array($cat, [1, 2])
                     ? $opcrmfodatas->where('opcr_mfo_id', $core->id)->where('category', $cat)
                     : $opcrmfodatas->where('opcr_mfo_id', $core->id);
             @endphp
-        
+
             @foreach($filteredOpcrMfoDatas as $opcrmfodata)
             <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }})" style="cursor: pointer;">
-                <td class="text-left align-top">{!! $opcrmfodata->mfo !!}</td>
-                <td class="text-left pl-1">{!! $opcrmfodata->target !!}</td>
+                <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
+                <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
                 <td class="text-center"></td>
-                <td class="text-center">{!! $opcrmfodata->in_support !!}</td>
+                <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                 <td class="text-center"></td>
                 <td class="text-center"></td>
-                <td class="text-center">{!! $opcrmfodata->div_account !!}</td>
-                <td class="text-center">{!! $opcrmfodata->quality !!}</td>
-                <td class="text-center">{!! $opcrmfodata->q_score !!}</td>
-                <td class="text-center">{!! nl2br(e($opcrmfodata->efficiency)) !!}</td>
-                <td class="text-center">{!! $opcrmfodata->e_score !!}</td>
-                <td class="text-center">{!! $opcrmfodata->timeliness !!}</td>
-                <td class="text-center">{!! $opcrmfodata->t_score !!}</td>
-                <td class="text-center">{!! $opcrmfodata->average !!}</td>
-                <td class="text-center">{!! $opcrmfodata->remarks !!}</td>
+                <td class="text-center">{!! displayValue($opcrmfodata->div_account) !!}</td>
+                <td class="text-center">{!! displayValue($opcrmfodata->quality) !!}</td>
+                <td class="text-center">{!! displayValue($opcrmfodata->q_score) !!}</td>
+                <td class="text-center">{!! nl2br(e(displayValue($opcrmfodata->efficiency))) !!}</td>
+                <td class="text-center">{!! displayValue($opcrmfodata->e_score) !!}</td>
+                <td class="text-center">{!! displayValue($opcrmfodata->timeliness) !!}</td>
+                <td class="text-center">{!! displayValue($opcrmfodata->t_score) !!}</td>
+                <td class="text-center">{!! displayValue($opcrmfodata->average) !!}</td>
+                <td class="text-center">{!! displayValue($opcrmfodata->remarks) !!}</td>
                 <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             </tr>
             @endforeach
         @endforeach
 
-        
         <tr>
             <td><b>{{ $prs[1]->mfo ?? '' }} ({{ $prs[1]->percent ?? '' }}%)</b></td>
             <td></td>
@@ -206,56 +214,58 @@
                 <td class="b-none text-center"></td>
             @endif
         </tr>
+
         @foreach($strats as $strat)
-        <tr>
-            <td>{{ $strat->mfo ?? '' }} {{ $strat->functions ?? '' }} ({{ $strat->percent ?? '' }}%)</td>
-            <td class="text-center">{{ $strat->target ?? '' }}</td>
-            <td class="text-center">{{ $strat->in_support ?? '' }}</td>
-            <td class="text-center"></td>
-            <td class="text-center"></td>
-            <td class="text-center"></td>
-            <td class="text-center"></td>
-            <td class="text-center">{{ $strat->report_sup ?? '' }}</td>
-            <td class="text-center">{{ $strat->alloted ?? '' }}</td>
-            <td class="text-center">{{ $strat->div_account ?? '' }}</td>
-            <td class="text-center">{{ $strat->qrate ?? '' }}</td>
-            <td class="text-center">{{ $strat->erate ?? '' }}</td>
-            <td class="text-center">{{ $strat->trate ?? '' }}</td>
-            <td class="text-center">{{ $strat->a ?? '' }}</td>
-            <td class="text-center">{{ $strat->remarks ?? '' }}</td>
-            <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
-            <td class="b-none text-center">
-                <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;" data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i>
-            </td>
-             @php
+            <tr>
+                <td>{{ displayValue($strat->mfo) }} {{ displayValue($strat->functions) }} ({{ displayValue($strat->percent) }}%)</td>
+                <td class="text-center">{{ displayValue($strat->target) }}</td>
+                <td class="text-center">{{ displayValue($strat->in_support) }}</td>
+                <td class="text-center"></td>
+                <td class="text-center"></td>
+                <td class="text-center"></td>
+                <td class="text-center"></td>
+                <td class="text-center">{{ displayValue($strat->report_sup) }}</td>
+                <td class="text-center">{{ displayValue($strat->alloted) }}</td>
+                <td class="text-center">{{ displayValue($strat->div_account) }}</td>
+                <td class="text-center">{{ displayValue($strat->qrate) }}</td>
+                <td class="text-center">{{ displayValue($strat->erate) }}</td>
+                <td class="text-center">{{ displayValue($strat->trate) }}</td>
+                <td class="text-center">{{ displayValue($strat->a) }}</td>
+                <td class="text-center">{{ displayValue($strat->remarks) }}</td>
+                <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
+                <td class="b-none text-center">
+                    <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;" data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i>
+                </td>
+            </tr>
+
+            @php
                 $filteredopcrmfodatas = in_array($cat, [1, 2])
                     ? $opcrmfodatas->where('opcr_mfo_id', $strat->id)->where('category', $cat)
                     : $opcrmfodatas->where('opcr_mfo_id', $strat->id);
             @endphp
-        
-            {{-- @php dd($opcrmfodatas); @endphp --}}
+
             @foreach($filteredopcrmfodatas as $opcrmfodata)
                 <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->opcr_mfo_id }})" style="cursor: pointer;">
-                    <td class="text-left align-top">{!! $opcrmfodata->mfo !!}</td>
-                    <td class="text-left pl-1">{!! $opcrmfodata->target !!}</td>
+                    <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
+                    <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
                     <td class="text-center"></td>
-                    <td class="text-center">{!! $opcrmfodata->in_support !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
                     <td class="text-center"></td>
-                    <td class="text-center">{!! $opcrmfodata->div_account !!}</td>
-                    <td class="text-center">{!! $opcrmfodata->quality !!}</td>
-                    <td class="text-center">{!! $opcrmfodata->q_score !!}</td>
-                    <td class="text-center">{!! $opcrmfodata->efficiency !!}</td>
-                    <td class="text-center">{!! $opcrmfodata->e_score !!}</td>
-                    <td class="text-center">{!! $opcrmfodata->timeliness !!}</td>
-                    <td class="text-center">{!! $opcrmfodata->t_score !!}</td>
-                    <td class="text-center">{!! $opcrmfodata->average !!}</td>
-                    <td class="text-center">{!! $opcrmfodata->remarks !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->div_account) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->quality) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->q_score) !!}</td>
+                    <td class="text-center">{!! nl2br(e(displayValue($opcrmfodata->efficiency))) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->e_score) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->timeliness) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->t_score) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->average) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->remarks) !!}</td>
                     <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
                 </tr>
             @endforeach
-        </tr>
         @endforeach
+
         <tr>
             <td><b>{{ $prs[2]->mfo ?? '' }} ({{ $prs[2]->percent ?? '' }}%)</b></td>
             <td></td>
@@ -285,53 +295,54 @@
             @endif
         </tr>
         @foreach($supports as $supp)
-        <tr>
-            <td>{{ $supp->mfo ?? '' }} {{ $supp->functions ?? '' }} ({{ $supp->percent ?? '' }}%)</td>
-            <td class="text-center">{{ $supp->target ?? '' }}</td>
-            <td class="text-center">{{ $supp->in_support ?? '' }}</td>
-            <td class="text-center"></td>
-            <td class="text-center"></td>
-            <td class="text-center"></td>
-            <td class="text-center"></td>
-            <td class="text-center">{{ $supp->report_sup ?? '' }}</td>
-            <td class="text-center">{{ $supp->alloted ?? '' }}</td>
-            <td class="text-center">{{ $supp->div_account ?? '' }}</td>
-            <td class="text-center">{{ $supp->qrate ?? '' }}</td>
-            <td class="text-center">{{ $supp->erate ?? '' }}</td>
-            <td class="text-center">{{ $supp->trate ?? '' }}</td>
-            <td class="text-center">{{ $supp->a ?? '' }}</td>
-            <td class="text-center">{{ $supp->remarks ?? '' }}</td>
-            <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
-            <td class="b-none text-center">
-                <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;" data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i>
-            </td>
+            <tr>
+                <td>{{ displayValue($supp->mfo) }} {{ displayValue($supp->functions) }} ({{ displayValue($supp->percent) }}%)</td>
+                <td class="text-center">{{ displayValue($supp->target) }}</td>
+                <td class="text-center">{{ displayValue($supp->in_support) }}</td>
+                <td class="text-center"></td>
+                <td class="text-center"></td>
+                <td class="text-center"></td>
+                <td class="text-center"></td>
+                <td class="text-center">{{ displayValue($supp->report_sup) }}</td>
+                <td class="text-center">{{ displayValue($supp->alloted) }}</td>
+                <td class="text-center">{{ displayValue($supp->div_account) }}</td>
+                <td class="text-center">{{ displayValue($supp->qrate) }}</td>
+                <td class="text-center">{{ displayValue($supp->erate) }}</td>
+                <td class="text-center">{{ displayValue($supp->trate) }}</td>
+                <td class="text-center">{{ displayValue($supp->a) }}</td>
+                <td class="text-center">{{ displayValue($supp->remarks) }}</td>
+                <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
+                <td class="b-none text-center">
+                    <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;" data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i>
+                </td>
+            </tr>
+
             @php
                 $filteredopcrmfodatas = in_array($cat, [1, 2])
                     ? $opcrmfodatas->where('opcr_mfo_id', $supp->id)->where('category', $cat)
                     : $opcrmfodatas->where('opcr_mfo_id', $supp->id);
             @endphp
-        
+
             @foreach($filteredopcrmfodatas as $opcrmfodata)
                 <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }})" style="cursor: pointer;">
-                    <td class="text-left align-top">{!! $opcrmfodata->mfo !!}</td>
-                    <td class="text-left pl-1">{!! $opcrmfodata->target !!}</td>
+                    <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
+                    <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
                     <td class="text-center"></td>
-                    <td class="text-center">{!! $opcrmfodata->in_support !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
                     <td class="text-center"></td>
-                    <td class="text-center">{!! $opcrmfodata->div_account !!}</td>
-                    <td class="text-center">{!! $opcrmfodata->quality !!}</td>
-                    <td class="text-center">{!! $opcrmfodata->q_score !!}</td>
-                    <td class="text-center">{!! $opcrmfodata->efficiency !!}</td>
-                    <td class="text-center">{!! $opcrmfodata->e_score !!}</td>
-                    <td class="text-center">{!! $opcrmfodata->timeliness !!}</td>
-                    <td class="text-center">{!! $opcrmfodata->t_score !!}</td>
-                    <td class="text-center">{!! $opcrmfodata->average !!}</td>
-                    <td class="text-center">{!! $opcrmfodata->remarks !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->div_account) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->quality) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->q_score) !!}</td>
+                    <td class="text-center">{!! nl2br(e(displayValue($opcrmfodata->efficiency))) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->e_score) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->timeliness) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->t_score) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->average) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->remarks) !!}</td>
                     <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
                 </tr>
             @endforeach
-        </tr>
         @endforeach
     </tbody>
 </table>
