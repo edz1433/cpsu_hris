@@ -147,7 +147,7 @@
                 </div>
                 <div class="modal-body text-center">
                     <input type="hidden" name="opcrid" id="opcr-mfo-data-id">
-                    <input type="text" name="count" id="count">
+                    <input type="hidden" name="count" id="count">
                     <select class="form-control form-control-sm select2" name="empid[]" id="employee" required multiple>
                         <option value="Deans">All Deans</option>
                         <option value="Campus Ad">All Campus Ad</option>
