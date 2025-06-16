@@ -123,33 +123,25 @@ class DocumentController extends Controller
         $dempid = ($empid) ? $dempid : auth()->guard($guard)->user()->id;
         $employees = Employee::where('emp_status', 1)->get();
 
-        if (str_starts_with($dprnumber, 'O-')) {
-            $prs = Opcr::where('user_id', $dempid)->where('pr_number', $dprnumber)->get();
+        $prefix = substr($dprnumber, 0, 2); // e.g., O-, D-, I-
+        $typeMap = [
+            'O-' => ['pr_model' => Opcr::class, 'mfo_model' => OpcrMfo::class, 'data_model' => OpcrMfoData::class, 'key' => 'opcr_id'],
+            'D-' => ['pr_model' => Dpcr::class, 'mfo_model' => DpcrMfo::class, 'data_model' => DpcrMfoData::class, 'key' => 'dpcr_id'],
+            'I-' => ['pr_model' => Ipcr::class, 'mfo_model' => IpcrMfo::class, 'data_model' => IpcrMfoData::class, 'key' => 'ipcr_id'],
+        ];
 
-            $cores = $prs->isNotEmpty() ? OpcrMfo::where("opcr_id", $prs[0]->id)->get() : collect();
-            $strats = $prs->count() > 1 ? OpcrMfo::where("opcr_id", $prs[1]->id)->get() : collect();
-            $supports = $prs->count() > 2 ? OpcrMfo::where("opcr_id", $prs[2]->id)->get() : collect();
-
-            $opcrmfodatas = OpcrMfoData::all();
-        } elseif (str_starts_with($dprnumber, 'D-')) {
-            $prs = Dpcr::where('user_id', $dempid)->where('pr_number', $dprnumber)->get();
-
-            $cores = $prs->isNotEmpty() ? DpcrMfo::where("dpcr_id", $prs[0]->id)->get() : collect();
-            $strats = $prs->count() > 1 ? DpcrMfo::where("dpcr_id", $prs[1]->id)->get() : collect();
-            $supports = $prs->count() > 2 ? DpcrMfo::where("dpcr_id", $prs[2]->id)->get() : collect();
-
-            $opcrmfodatas = DpcrMfoData::all();
-        } elseif (str_starts_with($dprnumber, 'I-')) {
-            $prs = Ipcr::where('user_id', $dempid)->where('pr_number', $dprnumber)->get();
-
-            $cores = $prs->isNotEmpty() ? IpcrMfo::where("ipcr_id", $prs[0]->id)->get() : collect();
-            $strats = $prs->count() > 1 ? IpcrMfo::where("ipcr_id", $prs[1]->id)->get() : collect();
-            $supports = $prs->count() > 2 ? IpcrMfo::where("ipcr_id", $prs[2]->id)->get() : collect();
-
-            $opcrmfodatas = IpcrMfoData::all();
-        } else {
-           return redirect()->back()->with('error', 'Invalid PR number format.');
+        if (!isset($typeMap[$prefix])) {
+            return redirect()->back()->with('error', 'Invalid PR number format.');
         }
+
+        $models = $typeMap[$prefix];
+        $prs = $models['pr_model']::where('user_id', $dempid)->where('pr_number', $dprnumber)->get();
+
+        $cores = $prs->get(0) ? $models['mfo_model']::where($models['key'], $prs[0]->id)->get() : collect();
+        $strats = $prs->get(1) ? $models['mfo_model']::where($models['key'], $prs[1]->id)->get() : collect();
+        $supports = $prs->get(2) ? $models['mfo_model']::where($models['key'], $prs[2]->id)->get() : collect();
+
+        $opcrmfodatas = $models['data_model']::all();
 
         return view("drive.pr", compact('guard', 'opcrmfodatas', 'prs', 'cores', 'strats', 'supports', 'cat', 'empid', 'employees', 'prnumber'));
     }
