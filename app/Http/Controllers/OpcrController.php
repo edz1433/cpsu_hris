@@ -491,6 +491,9 @@ class OpcrController extends Controller
                     DpcrMfoData::create($data);
                 }
             }
+
+            return response()->json(['success' => 'Assigned successfully!']);
+
         }
     }
 
