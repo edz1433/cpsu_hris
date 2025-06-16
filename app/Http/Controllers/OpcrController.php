@@ -472,7 +472,7 @@ class OpcrController extends Controller
             $dpcrmfofind = DpcrMfo::where('opcr_id', $opcrmfo->opcr_id)
                 ->where('count', $count)
                             ->first();
-
+            
             // Create DpcrMfoData
             if ($opcrmfodata) {
                 $data = $opcrmfodata->toArray();
@@ -486,7 +486,7 @@ class OpcrController extends Controller
                 $exists = DpcrMfoData::where('user_id', $empid)
                             ->where('opcr_mfo_data_id', $id)
                             ->exists();
-
+  
                 if (!$exists) {
                     DpcrMfoData::create($data);
                 }

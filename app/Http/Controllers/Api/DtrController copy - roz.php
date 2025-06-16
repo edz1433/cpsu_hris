@@ -235,15 +235,7 @@
         foreach ($data as $item) {
             if (!isset($item['emp_ID'], $item['date'])) {
                 continue;
-            }
-
-            // // Validate time formats (HH:MM:SS, comma-separated)
-            // $timeFields = ['time_in', 'time_out', 'time_over'];
-            // foreach ($timeFields as $field) {
-            //     if (isset($item[$field]) && !preg_match('/^(\d{2}:\d{2}:\d{2})(,\d{2}:\d{2}:\d{2})*$/', $item[$field])) {
-            //         continue 2; // Skip invalid time format
-            //     }
-            // }
+            }            
 
             $insertData[] = [
                 'device_id_in' => $item['device_id_in'] ?? null,
@@ -359,7 +351,7 @@
     private function trimCommas($value)
     {
         return trim($value, ',');
-    }    
+    } 
 
     function checkCoordinates() {
         //Inside
