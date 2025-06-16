@@ -11,6 +11,9 @@ use App\Models\PrData;
 use App\Models\Opcr;
 use App\Models\OpcrMfo;
 use App\Models\OpcrMfoData;
+use App\Models\Dpcr;
+use App\Models\DpcrMfo;
+use App\Models\DpcrMfoData;
 
 class DocumentController extends Controller
 {
@@ -118,7 +121,7 @@ class DocumentController extends Controller
         $dprnumber = $this->shortDecrypt($prnumber);
         $dempid = ($empid) ? $dempid : auth()->guard($guard)->user()->id;
         $employees = Employee::where('emp_status', 1)->get();
-
+        
         $prs = Opcr::where('user_id', $dempid)->where('pr_number', $dprnumber)->get();
 
         $cores = $prs->isNotEmpty() ? OpcrMfo::where("opcr_id", $prs[0]->id)->get() : collect();

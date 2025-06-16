@@ -13,7 +13,7 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-success1"><i class="fas fa-dashboard"></i> Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('drive') }}" class="text-success1">My Drive</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('drive') }}" class="text-success1">Drive</a></li>
                     
                     @foreach($connFolders as $connFolder)
                         <li class="breadcrumb-item"><a href="{{ route('sub-folder', $connFolder->id) }}" class="text-success1">{{ $connFolder->folder_name }}</a></li>
@@ -83,14 +83,27 @@
                                     $employee = $mfoItems->first();
                                     $fullName = Str::upper("{$employee->fname} {$employee->mname} {$employee->lname}");
                                     $year = $employee->year;
-                                    
                                 @endphp
                                 <tr onclick="showForm('{{ shortEncrypt($employee->empid) }}', '{{ shortEncrypt($employee->pr_number) }}')">
-                                    <td width="40">  
-                                        <img src="{{ asset('Profile/Employee/'.$employee->profile) }}" alt="User Image" class="profile-image">
+                                    @php
+                                        $profileFile = $employee->profile ?? '';
+                                        $sex = $employee->sex ?? 'Male';
+                                        $profilePath = public_path('Profile/Employee/' . $profileFile);
+
+                                        if (!empty($profileFile) && file_exists($profilePath)) {
+                                            $image = asset('Profile/Employee/' . $profileFile);
+                                        } else {
+                                            $defaultImage = $sex === 'Female' ? 'default-female.png' : 'default.png';
+                                            $image = asset('Profile/Employee/' . $defaultImage);
+                                        }
+                                    @endphp
+
+                                    <td width="40">
+                                        <img src="{{ $image }}" alt="User Image" class="profile-image">
                                     </td>
+
                                     <td><b>{{ $fullName }}</b></td>
-                                    <td><b>{{ 'OPCR FOR '.strtoupper($year) }}</b></td>
+                                    <td><b>{{ $foldercat.' '.strtoupper($year) }}</b> </td>
                                     @foreach ($mfoItems as $item)
                                         <td>
                                             <b>{{ $item->mfo }} (<span class="text-danger">{{ $item->percent }}%</span>)</b>

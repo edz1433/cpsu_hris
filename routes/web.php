@@ -75,7 +75,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         
         // Upload File
         Route::post('/upload/{id}', [DocumentController::class, 'storeFile'])->name('document-store');
-        Route::post('/update-file', [DocumentController::class, 'updateFile'])->name('document-update');
+        Route::post('/update-file', [DocumentControllfilteredOpcrMfoDatasprer::class, 'updateFile'])->name('document-update');
         Route::get('/delete-file/{id}', [DocumentController::class, 'deleteFile'])->name('delete-file');
          
         //performance rating
@@ -90,7 +90,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/opcrmfo-delete-data/{id}', [OpcrController::class, 'opcrmfoDeleteData'])->name('opcrmfoDeleteData');
 
         //Assign OPCR
-        Route::get('/assign-opcr', [OpcrController::class, 'assignOpcr'])->name('assignOpcr');
+        Route::post('/assign-opcr', [OpcrController::class, 'assignOpcr'])->name('assignOpcr');
     });
 
     Route::prefix('spms-set')->group(function() {

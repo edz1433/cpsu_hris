@@ -6,7 +6,6 @@
         width: 100%;
         font-size: 10px;
     }
-
     #table-form td, th{
         border: 1px solid rgb(92, 85, 85);
         padding: 1px;
@@ -155,7 +154,7 @@
                     <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;" data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></i>
                 </td>
             </tr>
-
+            
             @php
                 $filteredOpcrMfoDatas = in_array($cat, [1, 2])
                     ? $opcrmfodatas->where('opcr_mfo_id', $core->id)->where('category', $cat)
@@ -163,7 +162,7 @@
             @endphp
 
             @foreach($filteredOpcrMfoDatas as $opcrmfodata)
-            <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }})" style="cursor: pointer;">
+            <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
                 <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
                 <td class="text-center"></td>
@@ -245,7 +244,7 @@
             @endphp
 
             @foreach($filteredopcrmfodatas as $opcrmfodata)
-                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->opcr_mfo_id }})" style="cursor: pointer;">
+                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->opcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
                     <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
                     <td class="text-center"></td>
@@ -324,7 +323,7 @@
             @endphp
 
             @foreach($filteredopcrmfodatas as $opcrmfodata)
-                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }})" style="cursor: pointer;">
+                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
                     <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
                     <td class="text-center"></td>
@@ -468,7 +467,7 @@
     });
 </script>
 <script>
-    function showOpcrMfoData(id, mfoid) {
+    function showOpcrMfoData(id, mfoid, count) {
         Swal.fire({
             title: 'Choose an action',
             icon: 'question',
@@ -487,6 +486,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $('#opcr-mfo-data-id').val(id);
+                $('#count').val(count);
                 $('#asign-to-dpcr').modal('show');
             } else if (result.isDenied) {
                 editOpcrData(id);
@@ -500,6 +500,7 @@
                         $('#opcr_by').val(data.opcr_by);
                         $('#mfo').val(data.mfo);
                         $('#target').val(data.target);
+                        $('#measure').val(data.measure);
                         $('#in_support').val(data.in_support);
                         $('#report_sup').val(data.report_sup);
                         $('#div_account').val(data.div_account);

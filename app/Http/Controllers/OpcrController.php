@@ -11,6 +11,10 @@ use App\Models\OpcrMfoData;
 use App\Models\Setting;
 use App\Models\PrSetting;
 use App\Models\SpmsAsignatory;
+use App\Models\Dpcr;
+use App\Models\DpcrMfo;
+use App\Models\DpcrMfoData;
+
 
 class OpcrController extends Controller
 {
@@ -41,8 +45,11 @@ class OpcrController extends Controller
         $folderId = $request->folder_id;
 
         // Generate next PR number
-        $maxPr = Opcr::max('pr_number');
-        $prNumber = $maxPr ? str_pad($maxPr + 1, 4, '0', STR_PAD_LEFT) : '0001';
+        $maxPr = Opcr::selectRaw("MAX(CAST(SUBSTRING(pr_number, 2) AS UNSIGNED)) as max_pr")
+                    ->value('max_pr');
+        // Generate the next pr_number with 'O' prefix and padded numeric part
+        $nextNumber = $maxPr ? $maxPr + 1 : 1;
+        $prNumber = 'O-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
         // Check for existing OPCR for the same year
         if (Opcr::where('year', $request->year)->exists()) {
@@ -51,7 +58,7 @@ class OpcrController extends Controller
 
         // Get the settings first
         $prSetting = PrSetting::find(1);
-
+        
         // 1. Prepare OPCR parent data
         $opcrRecords = [
             [
@@ -124,14 +131,14 @@ class OpcrController extends Controller
                 'mfo'     => 'MFO 4',
                 'functions' => '',
                 'percent' => $prSetting->strategic_mfo4 ?? 0,
-                'count'   => 1,
+                'count'   => 4,
             ],
             [
                 'opcr_id' => $secondOpcrId,
                 'mfo'     => 'MFO 5',
                 'functions' => '',
                 'percent' => $prSetting->strategic_mfo5 ?? 0,
-                'count'   => 2,
+                'count'   => 5,
             ],
             // Support functions
             [
@@ -139,14 +146,14 @@ class OpcrController extends Controller
                 'mfo'     => 'MFO 4',
                 'functions' => '',
                 'percent' => $prSetting->support_mfo4 ?? 0,
-                'count'   => 1,
+                'count'   => 6,
             ],
             [
                 'opcr_id' => $thirdOpcrId,
                 'mfo'     => 'MFO 5',
                 'functions' => '',
                 'percent' => $prSetting->support_mfo5 ?? 0,
-                'count'   => 2,
+                'count'   => 7,
             ]
         ];
 
@@ -249,6 +256,7 @@ class OpcrController extends Controller
                     'opcr_mfo_id' => $opcrId,
                     'mfo' => $request->input('mfo'),
                     'target' => $request->input('target'),
+                    'measure' => $request->input('measure'),
                     'in_support' => $request->input('in_support'),
                     'report_sup' => $request->input('report_sup'),
                     'div_account' => $request->input('div_account'),
@@ -265,6 +273,7 @@ class OpcrController extends Controller
                 $opcrData->update([
                     'mfo' => $request->input('mfo'),
                     'target' => $request->input('target'),
+                    'measure' => $request->input('measure'),
                     'in_support' => $request->input('in_support'),
                     'report_sup' => $request->input('report_sup'),
                     'div_account' => $request->input('div_account'),
@@ -366,8 +375,123 @@ class OpcrController extends Controller
         }
     }
 
-    public function asignOpcr(Request $request)
+    public function assignOpcr(Request $request)
     {
-        
+        $id = $request->opcrid;
+        $empIds = $request->empid; // now an array: empid[]
+        $count = $request->count; 
+
+        foreach ($empIds as $empid) {
+            // Skip if not numeric (in case of "All Deans" options etc.)
+            if (!is_numeric($empid)) continue;
+
+            $employee = Employee::find($empid);
+            if (!$employee) continue;
+
+            $prSetting = PrSetting::find($employee->strat_function);
+            $opcrmfodata = OpcrMfoData::find($id);
+            $opcrmfo = OpcrMfo::find($opcrmfodata->opcr_mfo_id ?? null);
+            $opcr = Opcr::find($opcrmfo->opcr_id ?? null);
+
+            if (!$opcr) continue;
+
+            $maxPr = Dpcr::selectRaw("MAX(CAST(SUBSTRING(pr_number, 2) AS UNSIGNED)) as max_pr")
+                        ->value('max_pr');
+
+            $nextNumber = $maxPr ? $maxPr + 1 : 1;
+            $prNumber = 'D-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+            $exists = Dpcr::where('user_id', $empid)
+                ->where('op_pr_number', $opcr->pr_number)
+                ->exists();
+
+            if (!$exists) {
+                $dpcrRecords = [
+                    ['mfo' => 'CORE FUNCTIONS',     'percent' => $prSetting->core_sum],
+                    ['mfo' => 'STRATEGIC FUNCTIONS','percent' => $prSetting->strat_sum],
+                    ['mfo' => 'SUPPORT FUNCTIONS',  'percent' => $prSetting->support_sum],
+                ];
+
+                $insertedIds = [];
+                foreach ($dpcrRecords as $record) {
+                    $model = Dpcr::create([
+                        'user_id'   => $empid,
+                        'opcr_id'   => $opcrmfo->opcr_id ?? null,
+                        'op_pr_number' => $opcr->pr_number,
+                        'folder_id' => 2,
+                        'pr_number' => $prNumber,
+                        'mfo'       => $record['mfo'],
+                        'percent'   => $record['percent'],
+                        'year'      => $opcr->year,
+                    ]);
+                    $insertedIds[] = $model->id;
+                }
+
+                [$firstDpcrId, $secondDpcrId, $thirdDpcrId] = $insertedIds;
+
+                $dpcrMfo = [
+                    ['dpcr_id' => $firstDpcrId, 'opcr_id'  => $opcrmfo->opcr_id, 'mfo' => 'MFO 1', 'percent' => $prSetting->core_mfo1 ?? 0, 'count' => 1],
+                    ['dpcr_id' => $firstDpcrId, 'opcr_id'  => $opcrmfo->opcr_id, 'mfo' => 'MFO 2', 'percent' => $prSetting->core_mfo2 ?? 0, 'count' => 2],
+                    ['dpcr_id' => $firstDpcrId, 'opcr_id'  => $opcrmfo->opcr_id, 'mfo' => 'MFO 3', 'percent' => $prSetting->core_mfo3 ?? 0, 'count' => 3],
+
+                    ['dpcr_id' => $secondDpcrId, 'opcr_id'  => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->strategic_mfo4 ?? 0, 'count' => 4],
+                    ['dpcr_id' => $secondDpcrId, 'opcr_id'  => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->strategic_mfo5 ?? 0, 'count' => 5],
+
+                    ['dpcr_id' => $thirdDpcrId, 'opcr_id'  => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->support_mfo4 ?? 0, 'count' => 6],
+                    ['dpcr_id' => $thirdDpcrId, 'opcr_id'  => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->support_mfo5 ?? 0, 'count' => 7],
+                ];
+
+                foreach ($dpcrMfo as &$entry) {
+                    $entry['functions'] = '';
+                }
+
+                DpcrMfo::insert($dpcrMfo);
+
+                // Signatories
+                $asignatories = [
+                    ['empid' => 'EMP0001', 'suffixes' => "Ph.D.", 'designation' => 'SUC President II', 'label' => 'Discussed with:'],
+                    ['empid' => 'EMP0131', 'suffixes' => "Ph.D.", 'designation' => 'Director, Quality Assurance', 'label' => 'Assessed by:'],
+                    ['empid' => 'EMP0202', 'suffixes' => "Ph.D.", 'designation' => 'Director, Planning and Development', 'label' => 'Reviewed by:'],
+                    ['empid' => 'EMP0003', 'suffixes' => "Ph.D.", 'designation' => 'Vice President for Academic Affairs', 'label' => 'Reviewed by:'],
+                    ['empid' => 'EMP0002', 'suffixes' => "Ph.D.", 'designation' => 'Vice President for Administration and Finance', 'label' => 'Reviewed by:'],
+                    ['empid' => 'EMP0001', 'suffixes' => "Ph.D.", 'designation' => 'SUC President II', 'label' => 'Final Rating by:'],
+                ];
+
+                foreach ($asignatories as $asignatory) {
+                    SpmsAsignatory::create([
+                        'pr_number' => $prNumber,
+                        'empid' => $asignatory['empid'],
+                        'suffixes' => $asignatory['suffixes'],
+                        'designation' => $asignatory['designation'],
+                        'spms_type' => 'OPCR',
+                        'label' => $asignatory['label'],
+                    ]);
+                }
+            }
+
+            $dpcrmfofind = DpcrMfo::where('opcr_id', $opcrmfo->opcr_id)
+                ->where('count', $count)
+                            ->first();
+
+            // Create DpcrMfoData
+            if ($opcrmfodata) {
+                $data = $opcrmfodata->toArray();
+                unset($data['id']);
+
+                $data['pr_number'] = $opcrmfo->pr_number ?? null;
+                $data['dpcr_mfo_id'] = $dpcrmfofind->id;
+                $data['opcr_mfo_data_id'] = $id;
+                $data['user_id'] = $empid;
+
+                $exists = DpcrMfoData::where('user_id', $empid)
+                            ->where('opcr_mfo_data_id', $id)
+                            ->exists();
+
+                if (!$exists) {
+                    DpcrMfoData::create($data);
+                }
+            }
+        }
     }
+
 }

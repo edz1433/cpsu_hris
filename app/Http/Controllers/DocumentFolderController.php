@@ -10,6 +10,8 @@ use App\Models\Employee;
 use App\Models\Office;
 use App\Models\Dpipop;
 use App\Models\Opcr;
+use App\Models\Dpcr;
+use App\Models\Ipcr;
 use App\Models\SpmsPersonnel;
 use Illuminate\Support\Facades\Route;
 
@@ -120,19 +122,39 @@ class DocumentFolderController extends Controller
             return redirect()->route('drive')->with('error', 'You do not have permission to access this page');
         }
 
-        $opcrs = Opcr::join('employees', 'opcrs.user_id', '=', 'employees.id')
-        ->where('folder_id', $id)
-        ->select(
-            'opcrs.user_id', 'opcrs.pr_number', 'opcrs.mfo', 'opcrs.percent', 'opcrs.year',
-            'employees.fname', 'employees.lname', 
-            'employees.mname', 'employees.profile', 
-            'employees.id as empid'
-        )
-        ->get() 
-        ->groupBy(function ($item) {
-            return $item->user_id . '-' . $item->year;
-        });
-    
+        if ($id == 1) {
+            $model = new \App\Models\Opcr;
+            $foldercat = 'OPCR FOR';
+        } elseif ($id == 2) {
+            $model = new \App\Models\Dpcr;
+            $foldercat = 'DPCR FOR';
+        } else {
+            $model = new \App\Models\Ipcr;
+            $foldercat = 'IPCR FOR';
+        }
+
+        $table = $model->getTable();
+
+        $opcrs = $model->join('employees', "$table.user_id", '=', 'employees.id')
+            ->where("$table.folder_id", $id)
+            ->select(
+                "$table.user_id",
+                "$table.pr_number",
+                "$table.mfo",
+                "$table.percent",
+                "$table.year",
+                'employees.fname',
+                'employees.lname',
+                'employees.mname',
+                'employees.profile',
+                'employees.sex',
+                'employees.id as empid'
+            )
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->user_id . '-' . $item->year;
+            });
+
         $topUser = Opcr::select('user_id')
             ->selectRaw('COUNT(*) as count')
             ->groupBy('user_id')
@@ -189,7 +211,7 @@ class DocumentFolderController extends Controller
             }  
         }
         
-        return view('drive.viewSubFolder', compact('folder', 'subfolder', 'id', 'connFolders', 'documents', 'opcrs', 'rowCount', 'guard', 'uid', 'folderPath', 'office', 'offices'));
+        return view('drive.viewSubFolder', compact('folder', 'subfolder', 'id', 'connFolders', 'documents', 'opcrs', 'rowCount', 'guard', 'uid', 'folderPath', 'office', 'offices', 'foldercat'));
     }
     
     public function createSubFolder(Request $request, $id)

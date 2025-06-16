@@ -59,49 +59,50 @@
                                     <label class="text-success1">QUARTER</label>
                                     <select type="text" class="form-control" name="category" id="category">
                                         <option value="All">All</option>
-                                        <option value="1">1ST QUARTER</option>
-                                        <option value="2">2ND QUARTER</option>
+                                        <option value="1">1ST HALF</option>
+                                        <option value="2">2ND HALF</option>
                                     </select>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="text-success1">DIVISION/ INDIVIDUALS ACCOUNTABLE</label>
-                                    <input type="text" class="form-control p-3" name="opcr_by" id="opcr_by" >
+                                    <input type="text" class="form-control p-3" name="opcr_by" id="opcr_by" autocomplete="off">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="text-success1">MFO / PAP's</label>
-                                    <input type="text" class="form-control p-3" name="mfo" id="mfo" >
+                                    <input type="text" class="form-control p-3" name="mfo" id="mfo" autocomplete="off">
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">TARGETS </label>
-                                    <textarea name="target" rows="3" class="form-control form-control-sm" id="target"></textarea>
+                                    <textarea name="target" rows="3" class="form-control form-control-sm" id="target" autocomplete="off"></textarea>
                                 </div>
                                 <div class="form-group col-md-3">
-                                    <label class="text-success1">MEASURE </label>
-                                    <textarea name="measure" rows="3" class="form-control form-control-sm" id="measure"></textarea>
+                                    <label class="text-success1">MEASURE</label>
+                                    <textarea name="measure" rows="3" class="form-control form-control-sm" id="measure" autocomplete="off"
+                                        oninput="this.value = this.value.replace(/[^\d\n.,]/g, '');"></textarea>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">INDIVIDUAL SUPPORT DOCUMENTS</label>
-                                    <textarea name="in_support" rows="3" class="form-control form-control-sm" id="in_support"></textarea>
+                                    <textarea name="in_support" rows="3" class="form-control form-control-sm" id="in_support" autocomplete="off"></textarea>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">REPORT OF SUPERVISOR / OTHER OFFICES</label>
-                                    <textarea name="report_sup" rows="3" class="form-control form-control-sm" id="report_sup"></textarea>
+                                    <textarea name="report_sup" rows="3" class="form-control form-control-sm" id="report_sup" autocomplete="off"></textarea>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">DIVISION / INDIVIDUALS ACCOUNTABLE</label>
-                                    <textarea name="div_account" rows="3" class="form-control form-control-sm" id="div_account"></textarea>
+                                    <textarea name="div_account" rows="3" class="form-control form-control-sm" id="div_account" autocomplete="off"></textarea>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">QUALITY</label>
-                                    <textarea name="quality" rows="3" class="form-control form-control-sm" id="quality"></textarea>
+                                    <textarea name="quality" rows="3" class="form-control form-control-sm" id="quality" autocomplete="off"></textarea>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">EFFICIENCY</label>
-                                    <textarea name="efficiency" rows="3" class="form-control form-control-sm" id="efficiency"></textarea>
+                                    <textarea name="efficiency" rows="3" class="form-control form-control-sm" id="efficiency" autocomplete="off"></textarea>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">TIMELINESS</label>
-                                    <textarea name="timeliness" rows="3" class="form-control form-control-sm" id="timeliness"></textarea>
+                                    <textarea name="timeliness" rows="3" class="form-control form-control-sm" id="timeliness" autocomplete="off"></textarea>
                                 </div>
                             </div>
                             <div class="form-row">
@@ -110,8 +111,7 @@
                                 </div>
                             </div>
                         </form>
-                    </div>
-                    
+                    </div> 
                 </div>
             </div>
         </div>
@@ -126,7 +126,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body text-center">
-                <input type="hidden" id="opcr_id">
+                <input type="hidden" id="opcr_id"> 
 
                 <p>What do you want to do?</p>
 
@@ -146,13 +146,15 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body text-center">
-                    <input type="hidden" id="opcr-mfo-data-id">
-                    <select class="form-control form-control-sm select2" name="employee" id="employee" required multiple>
+                    <input type="hidden" name="opcrid" id="opcr-mfo-data-id">
+                    <input type="text" name="count" id="count">
+                    <select class="form-control form-control-sm select2" name="empid[]" id="employee" required multiple>
                         <option value="Deans">All Deans</option>
                         <option value="Campus Ad">All Campus Ad</option>
                         <option value="Heads">All Office Heads</option>
+                        <option value="Director">All Director</option>
                         @foreach($employees as $emp)
-                            <option value="{{ $emp->emp_ID }}" @if(isset($employee) && $employee && $emp->emp_ID == $employee->emp_ID) selected @endif>
+                            <option value="{{ $emp->id }}" @if(isset($employee) && $employee && $emp->emp_ID == $employee->emp_ID) selected @endif>
                                 {{ $emp->lname }}
                                 {{ $emp->prefix }}
                                 {{ $emp->fname }}
@@ -198,9 +200,9 @@
                                                 @foreach($employees as $emp)
                                                     @php
                                                         $fullName = $emp->fname . ' ' .
-                                                                    ($emp->mname ? strtoupper(substr($emp->mname, 0, 1)) . '. ' : '') .
-                                                                    $emp->lname .
-                                                                    ($emp->suffixes ? ', ' . $emp->suffixes : '');
+                                                        ($emp->mname ? strtoupper(substr($emp->mname, 0, 1)) . '. ' : '') .
+                                                        $emp->lname .
+                                                        ($emp->suffixes ? ', ' . $emp->suffixes : '');
                                                     @endphp
                                                     <option value="{{ $emp->emp_ID }}" 
                                                         @if($emp->emp_ID == $asignatory->empid) selected @endif>

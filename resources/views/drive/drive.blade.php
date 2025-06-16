@@ -16,7 +16,6 @@
                             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-success1"><i class="fas fa-dashboard"></i> Dashboard</a></li>
                         @endif
                         <li class="breadcrumb-item"><a href="{{ route('drive') }}" class="text-success1">Drive</a></li>
-                        <li class="breadcrumb-item text-muted">My Drive</li>
                     </ol> 
                 </nav>
                 <div class="card-body folder-grid">
