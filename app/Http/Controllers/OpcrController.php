@@ -44,12 +44,18 @@ class OpcrController extends Controller
 
         $folderId = $request->folder_id;
 
-        // Generate next PR number
-        $maxPr = Opcr::selectRaw("MAX(CAST(SUBSTRING(pr_number, 2) AS UNSIGNED)) as max_pr")
-                    ->value('max_pr');
-        // Generate the next pr_number with 'O' prefix and padded numeric part
-        $nextNumber = $maxPr ? $maxPr + 1 : 1;
+        $lastPr = Opcr::where('pr_number', 'like', 'O-%')
+                    ->orderByDesc('id')
+                    ->value('pr_number');
+
+        if ($lastPr && preg_match('/O-(\d+)/', $lastPr, $matches)) {
+            $nextNumber = (int)$matches[1] + 1;
+        } else {
+            $nextNumber = 1;
+        }
+
         $prNumber = 'O-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
 
         // Check for existing OPCR for the same year
         if (Opcr::where('year', $request->year)->exists()) {
@@ -426,10 +432,16 @@ class OpcrController extends Controller
 
             if (!$opcr) continue;
 
-            $maxPr = Dpcr::selectRaw("MAX(CAST(SUBSTRING(pr_number, 2) AS UNSIGNED)) as max_pr")
-                        ->value('max_pr');
+            $lastPr = Dpcr::where('pr_number', 'like', 'D-%')
+                        ->orderByDesc('id')
+                        ->value('pr_number');
 
-            $nextNumber = $maxPr ? $maxPr + 1 : 1;
+            if ($lastPr && preg_match('/D-(\d+)/', $lastPr, $matches)) {
+                $nextNumber = (int)$matches[1] + 1;
+            } else {
+                $nextNumber = 1;
+            }
+
             $prNumber = 'D-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
             $exists = Dpcr::where('user_id', $empid)
