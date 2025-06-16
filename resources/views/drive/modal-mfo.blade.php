@@ -149,10 +149,12 @@
                     <input type="hidden" name="opcrid" id="opcr-mfo-data-id">
                     <input type="hidden" name="count" id="count">
                     <select class="form-control form-control-sm select2" name="empid[]" id="employee" required multiple>
-                        <option value="Deans">All Deans</option>
-                        <option value="Campus Ad">All Campus Ad</option>
-                        <option value="Heads">All Office Heads</option>
-                        <option value="Director">All Director</option>
+                        <option value="C:2">All Dean</option>
+                        <option value="C:3">All Campus Ad</option>
+                        <option value="C:4">All Office Head</option>
+                        <option value="C:5">All Director</option>
+                        <option value="C:6">All Staff</option>
+                        <option value="C:7">All Faculty</option>
                         @foreach($employees as $emp)
                             <option value="{{ $emp->id }}" @if(isset($employee) && $employee && $emp->emp_ID == $employee->emp_ID) selected @endif>
                                 {{ $emp->lname }}

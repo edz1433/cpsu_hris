@@ -14,7 +14,7 @@ use App\Models\SpmsAsignatory;
 use App\Models\Dpcr;
 use App\Models\DpcrMfo;
 use App\Models\DpcrMfoData;
-
+use App\Models\SpmsPersonnel;
 
 class OpcrController extends Controller
 {
@@ -377,11 +377,42 @@ class OpcrController extends Controller
 
     public function assignOpcr(Request $request)
     {
+        $setting = Setting::first();
+
         $id = $request->opcrid;
         $empIds = $request->empid; // now an array: empid[]
         $count = $request->count; 
 
-        foreach ($empIds as $empid) {
+        $finalEmpIds = [];
+
+        if (!empty($empIds) && str_contains(implode(',', $empIds), 'C:')) {
+            $categoryIds = [];
+
+            foreach ($empIds as $empId) {
+                $parts = explode(',', $empId);
+                foreach ($parts as $part) {
+                    if (str_starts_with($part, 'C:')) {
+                        $categoryIds[] = substr($part, 2);
+                    }
+                }
+            }
+
+     
+
+            $finalEmpIds = SpmsPersonnel::whereIn('category', $categoryIds)
+                            ->where('empid', '!=', $setting->suc_pres)
+                            ->pluck('empid')
+                            ->toArray();
+
+        } else {
+            foreach ($empIds as $empId) {
+                if ($empId != $setting->suc_pres) {
+                    $finalEmpIds[] = $empId;
+                }
+            }
+        }
+        
+        foreach ($finalEmpIds as $empid) {
             // Skip if not numeric (in case of "All Deans" options etc.)
             if (!is_numeric($empid)) continue;
 
@@ -472,7 +503,7 @@ class OpcrController extends Controller
             $dpcrmfofind = DpcrMfo::where('opcr_id', $opcrmfo->opcr_id)
                 ->where('count', $count)
                             ->first();
-            
+
             // Create DpcrMfoData
             if ($opcrmfodata) {
                 $data = $opcrmfodata->toArray();
@@ -492,9 +523,9 @@ class OpcrController extends Controller
                 }
             }
 
-            return response()->json(['success' => 'Assigned successfully!']);
-
         }
+
+        return redirect()->back()->with('success', 'Assigned successfully!');
     }
 
 }
