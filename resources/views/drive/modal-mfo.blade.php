@@ -96,7 +96,7 @@
                                     <label class="text-success1">QUALITY</label>
                                     <textarea name="quality" rows="3" class="form-control form-control-sm" id="quality" autocomplete="off"></textarea>
                                 </div>
-                                <div class="form-group col-md-3">
+                                <div class="form-group col-md-3">   
                                     <label class="text-success1">EFFICIENCY</label>
                                     <textarea name="efficiency" rows="3" class="form-control form-control-sm" id="efficiency" autocomplete="off"></textarea>
                                 </div>
