@@ -167,28 +167,28 @@
             </tr>
             
             @php
-                $filteredOpcrMfoDatas = in_array($cat, [1, 2])
-                    ? $opcrmfodatas->where('dpcr_mfo_id', $core->id)->where('category', $cat)
-                    : $opcrmfodatas->where('dpcr_mfo_id', $core->id);
+                $filteredDpcrMfoDatas = in_array($cat, [1, 2])
+                    ? $datas->where('dpcr_mfo_id', $core->id)->where('category', $cat)
+                    : $datas->where('dpcr_mfo_id', $core->id);
             @endphp
 
-            @foreach($filteredOpcrMfoDatas as $opcrmfodata)
-            <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->dpcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
-                <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
-                <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
+            @foreach($filteredDpcrMfoDatas as $dpcrmfodata)
+            <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
+                <td class="text-left align-top">{!! displayValue($dpcrmfodata->mfo) !!}</td>
+                <td class="text-left pl-1">{!! displayValue($dpcrmfodata->target) !!}</td>
+                <td class="text-center"><div onclick="event.stopPropagation(); uploadEvidence('{{ $dpcrmfodata->id }}')" class="w-100">Evidence </div></td>
+                <td class="text-center">{!! displayValue($dpcrmfodata->in_support) !!}</td>
                 <td class="text-center"></td>
-                <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                 <td class="text-center"></td>
-                <td class="text-center"></td>
-                <td class="text-center">{!! displayValue($opcrmfodata->div_account) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->quality) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->q_score) !!}</td>
-                <td class="text-center">{!! nl2br(e(displayValue($opcrmfodata->efficiency))) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->e_score) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->timeliness) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->t_score) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->average) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->remarks) !!}</td>
+                <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
+                <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
+                <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
+                <td class="text-center">{!! nl2br(e(displayValue($dpcrmfodata->efficiency))) !!}</td>
+                <td class="text-center">{!! displayValue($dpcrmfodata->e_score) !!}</td>
+                <td class="text-center">{!! displayValue($dpcrmfodata->timeliness) !!}</td>
+                <td class="text-center">{!! displayValue($dpcrmfodata->t_score) !!}</td>
+                <td class="text-center">{!! displayValue($dpcrmfodata->average) !!}</td>
+                <td class="text-center">{!! displayValue($dpcrmfodata->remarks) !!}</td>
                 <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             </tr>
             @endforeach
@@ -249,28 +249,28 @@
             </tr>
 
             @php
-                $filteredopcrmfodatas = in_array($cat, [1, 2])
-                    ? $opcrmfodatas->where('dpcr_mfo_id', $strat->id)->where('category', $cat)
-                    : $opcrmfodatas->where('dpcr_mfo_id', $strat->id);
+                $filtereddpcrmfodatas = in_array($cat, [1, 2])
+                    ? $datas->where('dpcr_mfo_id', $strat->id)->where('category', $cat)
+                    : $datas->where('dpcr_mfo_id', $strat->id);
             @endphp
 
-            @foreach($filteredopcrmfodatas as $opcrmfodata)
-                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->dpcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
-                    <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
-                    <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
+            @foreach($filtereddpcrmfodatas as $dpcrmfodata)
+                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
+                    <td class="text-left align-top">{!! displayValue($dpcrmfodata->mfo) !!}</td>
+                    <td class="text-left pl-1">{!! displayValue($dpcrmfodata->target) !!}</td>
+                    <td class="text-center"><div onclick="event.stopPropagation(); uploadEvidence('{{ $dpcrmfodata->id }}')" class="w-100">Evidence </div></td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
-                    <td class="text-center"></td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->div_account) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->quality) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->q_score) !!}</td>
-                    <td class="text-center">{!! nl2br(e(displayValue($opcrmfodata->efficiency))) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->e_score) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->timeliness) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->t_score) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->average) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->remarks) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
+                    <td class="text-center">{!! nl2br(e(displayValue($dpcrmfodata->efficiency))) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->e_score) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->timeliness) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->t_score) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->average) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->remarks) !!}</td>
                     <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
                 </tr>
             @endforeach
@@ -328,28 +328,28 @@
             </tr>
 
             @php
-                $filteredopcrmfodatas = in_array($cat, [1, 2])
-                    ? $opcrmfodatas->where('dpcr_mfo_id', $supp->id)->where('category', $cat)
-                    : $opcrmfodatas->where('dpcr_mfo_id', $supp->id);
+                $filtereddpcrmfodatas = in_array($cat, [1, 2])
+                    ? $datas->where('dpcr_mfo_id', $supp->id)->where('category', $cat)
+                    : $datas->where('dpcr_mfo_id', $supp->id);
             @endphp
 
-            @foreach($filteredopcrmfodatas as $opcrmfodata)
-                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->dpcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
-                    <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
-                    <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
+            @foreach($filtereddpcrmfodatas as $dpcrmfodata)
+                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
+                    <td class="text-left align-top">{!! displayValue($dpcrmfodata->mfo) !!}</td>
+                    <td class="text-left pl-1">{!! displayValue($dpcrmfodata->target) !!}</td>
                     <td class="text-center"></td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
                     <td class="text-center"></td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->div_account) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->quality) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->q_score) !!}</td>
-                    <td class="text-center">{!! nl2br(e(displayValue($opcrmfodata->efficiency))) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->e_score) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->timeliness) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->t_score) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->average) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->remarks) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
+                    <td class="text-center">{!! nl2br(e(displayValue($dpcrmfodata->efficiency))) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->e_score) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->timeliness) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->t_score) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->average) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->remarks) !!}</td>
                     <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
                 </tr>
             @endforeach
@@ -379,6 +379,7 @@
         </div>
     </div>
 </div>
+<input type="file" id="pdfUploader" accept="application/pdf" hidden onchange="handlePdfUpload(this)">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $.ajaxSetup({
@@ -596,6 +597,60 @@
         $('#efficiency').val('');
         $('#timeliness').val('');
     });
+</script>
+<script>
+let currentEvidenceId = null;
 
+function uploadEvidence(id) {
+    currentEvidenceId = id;
+    document.getElementById('pdfUploader').click();
+}
+
+function handlePdfUpload(input) {
+    const file = input.files[0];
+
+    if (!file || file.type !== "application/pdf") {
+        console.warn("Invalid PDF file.");
+        input.value = "";
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('empid', '{{ $dempid }}'); // Blade variable
+    formData.append('category', 2);            // Adjust as needed
+    formData.append('data_id', currentEvidenceId);
+    formData.append('evidence[]', file);       // As an array, since PHP expects index [0]
+
+    fetch("{{ route('uploadEvidence') }}", {
+        method: "POST",
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: formData
+    })
+    .then(async res => {
+        const text = await res.text();
+        if (!res.ok) {
+            console.error("Error response from Laravel controller:");
+            console.error(text); // Show server error
+        } else {
+            console.log("Evidence uploaded successfully:", text);
+            Swal.fire({
+                title: 'Success',
+                text: 'Evidence uploaded successfully.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                location.reload(); // Reload the page to reflect changes
+            });
+        }
+    })
+    .catch(err => {
+        console.error("JavaScript fetch failed:", err);
+    });
+
+    input.value = "";
+    currentEvidenceId = null;
+}
 </script>
 @endsection

@@ -388,6 +388,7 @@ class OpcrController extends Controller
         $id = $request->opcrid;
         $empIds = $request->empid; // now an array: empid[]
         $count = $request->count; 
+        $prnumber = $request->prnumber; 
 
         $finalEmpIds = [];
 
@@ -402,8 +403,6 @@ class OpcrController extends Controller
                     }
                 }
             }
-
-     
 
             $finalEmpIds = SpmsPersonnel::whereIn('category', $categoryIds)
                             ->where('empid', '!=', $setting->suc_pres)
@@ -512,9 +511,12 @@ class OpcrController extends Controller
                 }
             }
 
-            $dpcrmfofind = DpcrMfo::where('count', $count)
-                            ->first();
-
+            $dpcrmfofind = DpcrMfo::join('dpcrs', 'dpcr_mfos.dpcr_id', '=', 'dpcrs.id')
+                ->where('dpcrs.user_id', $empid)
+                ->where('dpcr_mfos.count', $count)
+                ->select('dpcr_mfos.*')
+                ->first();
+            
             // Create DpcrMfoData
             if ($opcrmfodata) {
                 $data = $opcrmfodata->toArray();

@@ -119,7 +119,7 @@ class DocumentController extends Controller
         $guard = $this->getGuard();
         $dempid = $this->shortDecrypt($empid);
         $dprnumber = $this->shortDecrypt($prnumber);
-        
+
         $dempid = ($empid) ? $dempid : auth()->guard($guard)->user()->id;
         $employees = Employee::where('emp_status', 1)->get();
         $employee = Employee::where('id', $dempid)->first();
@@ -149,7 +149,26 @@ class DocumentController extends Controller
         $strats = $prs->get(1) ? $models['mfo_model']::where($models['key'], $prs[1]->id)->get() : collect();
         $supports = $prs->get(2) ? $models['mfo_model']::where($models['key'], $prs[2]->id)->get() : collect();
 
-        $opcrmfodatas = $models['data_model']::all();
+        $datas = $models['data_model']::all();
+
+        $datasdpcr = \DB::table('dpcr_mfo_data')
+            ->join('employees', 'dpcr_mfo_data.user_id', '=', 'employees.id')
+            ->leftJoin('evidence', function ($join) {
+                $join->on('dpcr_mfo_data.id', '=', 'evidence.data_id')
+                    ->where('evidence.category', '=', 2); // Assuming category 2 for DPCR, adjust if needed
+            })
+            ->select(
+                'dpcr_mfo_data.*',
+                'evidence.evidence as evidence_file',
+                \DB::raw("CONCAT(employees.fname, ' ', 
+                    IF(employees.mname IS NOT NULL AND employees.mname != '', 
+                        CONCAT(UPPER(LEFT(employees.mname, 1)), '.'), 
+                        ''
+                    ), 
+                    ' ', employees.lname
+                ) AS fullname")
+            )
+            ->get();
 
         if($prefix == 'O-') {
             $blade = 'pr';
@@ -159,7 +178,7 @@ class DocumentController extends Controller
             $blade = 'pr-ipcr';
         }
 
-        return view("drive.$blade", compact('guard', 'opcrmfodatas', 'prs', 'cores', 'strats', 'supports', 'cat', 'empid', 'employees', 'fullname', 'prnumber'));
+        return view("drive.$blade", compact('guard', 'datas', 'prs', 'cores', 'strats', 'supports', 'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'datasdpcr'));
     }
     
     public function deleteFile($id)

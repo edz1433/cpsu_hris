@@ -169,30 +169,60 @@
             
             @php
                 $filteredOpcrMfoDatas = in_array($cat, [1, 2])
-                    ? $opcrmfodatas->where('opcr_mfo_id', $core->id)->where('category', $cat)
-                    : $opcrmfodatas->where('opcr_mfo_id', $core->id);
+                    ? $datas->where('opcr_mfo_id', $core->id)->where('category', $cat)
+                    : $datas->where('opcr_mfo_id', $core->id);
             @endphp
 
             @foreach($filteredOpcrMfoDatas as $opcrmfodata)
-            <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
-                <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
-                <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
-                <td class="text-center"></td>
-                <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
-                <td class="text-center"></td>
-                <td class="text-center"></td>
-                <td class="text-center">{!! displayValue($opcrmfodata->div_account) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->quality) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->q_score) !!}</td>
-                <td class="text-center">{!! nl2br(e(displayValue($opcrmfodata->efficiency))) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->e_score) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->timeliness) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->t_score) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->average) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->remarks) !!}</td>
-                <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
-            </tr>
+                @php
+                    $relatedDpcrs = $datasdpcr->where('opcr_mfo_data_id', $opcrmfodata->id);
+                @endphp
+
+                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
+                    <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
+                    <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
+                    <td class="text-left pl-2" onclick="event.stopPropagation();">
+@foreach ($relatedDpcrs as $index => $dpcr)
+    @php
+        $hasEvidence = !empty($dpcr->evidence_file);
+        $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
+        $evidenceUrl = $hasEvidence ? asset("storage/Evidence/{$dpcr->evidence_file}") : 'javascript:void(0)';
+    @endphp
+
+    @if ($hasEvidence)
+        <a href="{{ $evidenceUrl }}" target="_blank" style="text-decoration: none;">
+            <i class="fas fa-check-circle {{ $iconClass }}"></i>
+            <b>{{ strtoupper($dpcr->fullname) }}</b>
+        </a>
+    @else
+        <span style="text-decoration: none; cursor: default;">
+            <i class="fas fa-check-circle {{ $iconClass }}"></i>
+            <b>{{ strtoupper($dpcr->fullname) }}</b>
+        </span>
+    @endif
+
+    @if (($index + 1) % 2 == 0)
+        <br>
+    @endif
+@endforeach
+
+                    </td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
+                    <td class="text-center"></td>
+                    <td class="text-center"></td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->div_account) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->quality) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->q_score) !!}</td>
+                    <td class="text-center">{!! nl2br(e(displayValue($opcrmfodata->efficiency))) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->e_score) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->timeliness) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->t_score) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->average) !!}</td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->remarks) !!}</td>
+                    <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
+                </tr>
             @endforeach
+
         @endforeach
 
         <tr>
@@ -251,15 +281,43 @@
 
             @php
                 $filteredopcrmfodatas = in_array($cat, [1, 2])
-                    ? $opcrmfodatas->where('opcr_mfo_id', $strat->id)->where('category', $cat)
-                    : $opcrmfodatas->where('opcr_mfo_id', $strat->id);
+                    ? $datas->where('opcr_mfo_id', $strat->id)->where('category', $cat)
+                    : $datas->where('opcr_mfo_id', $strat->id);
             @endphp
 
             @foreach($filteredopcrmfodatas as $opcrmfodata)
+                @php
+                    $relatedDpcrs = $datasdpcr->where('opcr_mfo_data_id', $opcrmfodata->id);
+                @endphp
                 <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->opcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
                     <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
-                    <td class="text-center"></td>
+                    <td class="text-left pl-2" onclick="event.stopPropagation();">
+@foreach ($relatedDpcrs as $index => $dpcr)
+    @php
+        $hasEvidence = !empty($dpcr->evidence_file);
+        $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
+        $evidenceUrl = $hasEvidence ? asset("storage/Evidence/{$dpcr->evidence_file}") : 'javascript:void(0)';
+    @endphp
+
+    @if ($hasEvidence)
+        <a href="{{ $evidenceUrl }}" target="_blank" style="text-decoration: none;">
+            <i class="fas fa-check-circle {{ $iconClass }}"></i>
+            <b>{{ strtoupper($dpcr->fullname) }}</b>
+        </a>
+    @else
+        <span style="text-decoration: none; cursor: default;">
+            <i class="fas fa-check-circle {{ $iconClass }}"></i>
+            <b>{{ strtoupper($dpcr->fullname) }}</b>
+        </span>
+    @endif
+
+    @if (($index + 1) % 2 == 0)
+        <br>
+    @endif
+@endforeach
+
+                    </td>
                     <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
                     <td class="text-center"></td>
@@ -330,15 +388,43 @@
 
             @php
                 $filteredopcrmfodatas = in_array($cat, [1, 2])
-                    ? $opcrmfodatas->where('opcr_mfo_id', $supp->id)->where('category', $cat)
-                    : $opcrmfodatas->where('opcr_mfo_id', $supp->id);
+                    ? $datas->where('opcr_mfo_id', $supp->id)->where('category', $cat)
+                    : $datas->where('opcr_mfo_id', $supp->id);
             @endphp
 
             @foreach($filteredopcrmfodatas as $opcrmfodata)
+                @php
+                    $relatedDpcrs = $datasdpcr->where('opcr_mfo_data_id', $opcrmfodata->id);
+                @endphp
                 <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
                     <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
-                    <td class="text-center"></td>
+                    <td class="text-left pl-2" onclick="event.stopPropagation();">
+@foreach ($relatedDpcrs as $index => $dpcr)
+    @php
+        $hasEvidence = !empty($dpcr->evidence_file);
+        $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
+        $evidenceUrl = $hasEvidence ? asset("storage/Evidence/{$dpcr->evidence_file}") : 'javascript:void(0)';
+    @endphp
+
+    @if ($hasEvidence)
+        <a href="{{ $evidenceUrl }}" target="_blank" style="text-decoration: none;">
+            <i class="fas fa-check-circle {{ $iconClass }}"></i>
+            <b>{{ strtoupper($dpcr->fullname) }}</b>
+        </a>
+    @else
+        <span style="text-decoration: none; cursor: default;">
+            <i class="fas fa-check-circle {{ $iconClass }}"></i>
+            <b>{{ strtoupper($dpcr->fullname) }}</b>
+        </span>
+    @endif
+
+    @if (($index + 1) % 2 == 0)
+        <br>
+    @endif
+@endforeach
+
+                    </td>
                     <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
                     <td class="text-center"></td>

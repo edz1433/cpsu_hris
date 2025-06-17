@@ -37,6 +37,7 @@ use App\Http\Controllers\OpcrController;
 use App\Http\Controllers\SpmsPersonnelController;
 use App\Http\Controllers\SpmsMfoPercentageController;
 use App\Http\Controllers\PerformanceController;
+use App\Http\Controllers\EvidenceController;
 
 Route::get('/', function () {
     if (Auth::guard('web')->check()) {
@@ -91,6 +92,9 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
 
         //Assign OPCR
         Route::post('/assign-opcr', [OpcrController::class, 'assignOpcr'])->name('assignOpcr');
+
+        //Evidence
+        Route::post('/upload-evidence', [EvidenceController::class, 'uploadEvidence'])->name('uploadEvidence');
     });
 
     Route::prefix('spms-set')->group(function() {
