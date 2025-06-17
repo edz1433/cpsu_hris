@@ -512,8 +512,7 @@ class OpcrController extends Controller
                 }
             }
 
-            $dpcrmfofind = DpcrMfo::where('opcr_id', $opcrmfo->opcr_id)
-                ->where('count', $count)
+            $dpcrmfofind = DpcrMfo::where('count', $count)
                             ->first();
 
             // Create DpcrMfoData

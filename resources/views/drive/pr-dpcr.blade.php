@@ -49,7 +49,6 @@
         </div>
     </div>
 </div>
-
 <div class="d-flex justify-content-between align-items-center gap-3 mb-3 flex-wrap">
     {{-- Full Name on the Left --}}
     <div class="d-flex align-items-center ml-2">
@@ -169,12 +168,12 @@
             
             @php
                 $filteredOpcrMfoDatas = in_array($cat, [1, 2])
-                    ? $opcrmfodatas->where('opcr_mfo_id', $core->id)->where('category', $cat)
-                    : $opcrmfodatas->where('opcr_mfo_id', $core->id);
+                    ? $opcrmfodatas->where('dpcr_mfo_id', $core->id)->where('category', $cat)
+                    : $opcrmfodatas->where('dpcr_mfo_id', $core->id);
             @endphp
 
             @foreach($filteredOpcrMfoDatas as $opcrmfodata)
-            <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
+            <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->dpcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
                 <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
                 <td class="text-center"></td>
@@ -251,12 +250,12 @@
 
             @php
                 $filteredopcrmfodatas = in_array($cat, [1, 2])
-                    ? $opcrmfodatas->where('opcr_mfo_id', $strat->id)->where('category', $cat)
-                    : $opcrmfodatas->where('opcr_mfo_id', $strat->id);
+                    ? $opcrmfodatas->where('dpcr_mfo_id', $strat->id)->where('category', $cat)
+                    : $opcrmfodatas->where('dpcr_mfo_id', $strat->id);
             @endphp
 
             @foreach($filteredopcrmfodatas as $opcrmfodata)
-                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->opcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
+                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->dpcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
                     <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
                     <td class="text-center"></td>
@@ -330,12 +329,12 @@
 
             @php
                 $filteredopcrmfodatas = in_array($cat, [1, 2])
-                    ? $opcrmfodatas->where('opcr_mfo_id', $supp->id)->where('category', $cat)
-                    : $opcrmfodatas->where('opcr_mfo_id', $supp->id);
+                    ? $opcrmfodatas->where('dpcr_mfo_id', $supp->id)->where('category', $cat)
+                    : $opcrmfodatas->where('dpcr_mfo_id', $supp->id);
             @endphp
 
             @foreach($filteredopcrmfodatas as $opcrmfodata)
-                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
+                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->dpcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
                     <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
                     <td class="text-center"></td>

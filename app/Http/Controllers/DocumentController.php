@@ -122,6 +122,14 @@ class DocumentController extends Controller
         
         $dempid = ($empid) ? $dempid : auth()->guard($guard)->user()->id;
         $employees = Employee::where('emp_status', 1)->get();
+        $employee = Employee::where('id', $dempid)->first();
+
+        if ($employee) {
+            $middleInitial = $employee->mname ? strtoupper(substr($employee->mname, 0, 1)) . '.' : '';
+            $fullname = $employee->fname . ' ' . $middleInitial . ' ' . $employee->lname;
+        } else {
+            $fullname = '';
+        }
 
         $prefix = substr($dprnumber, 0, 2); // e.g., O-, D-, I-
         $typeMap = [
@@ -143,7 +151,15 @@ class DocumentController extends Controller
 
         $opcrmfodatas = $models['data_model']::all();
 
-        return view("drive.pr", compact('guard', 'opcrmfodatas', 'prs', 'cores', 'strats', 'supports', 'cat', 'empid', 'employees', 'prnumber'));
+        if($prefix == 'O-') {
+            $blade = 'pr';
+        } elseif($prefix == 'D-') {
+            $blade = 'pr-dpcr';
+        } else {
+            $blade = 'pr-ipcr';
+        }
+
+        return view("drive.$blade", compact('guard', 'opcrmfodatas', 'prs', 'cores', 'strats', 'supports', 'cat', 'empid', 'employees', 'fullname', 'prnumber'));
     }
     
     public function deleteFile($id)

@@ -49,32 +49,20 @@
         </div>
     </div>
 </div>
-
-<div class="d-flex justify-content-between align-items-center gap-3 mb-3 flex-wrap">
-    {{-- Full Name on the Left --}}
-    <div class="d-flex align-items-center ml-2">
-        <span class="badge bg-primary text-light px-3 py-2 shadow-sm" style="font-size: 0.875rem;">
-            <i class="fas fa-user-circle me-1"></i> {{ strtoupper($fullname) }}
-        </span>
-    </div>
-
-    {{-- Filter & Button on the Right --}}
-    <div class="d-flex align-items-center gap-2">
-        <div class="input-group" style="width: auto;">
-            <select class="form-control form-control-sm" id="categorySelect">
-                <option value="0" {{ ($cat == 0) ? 'selected' : '' }}>All</option>
-                <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>1st Quarter</option>
-                <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>2nd Quarter</option>
-            </select>
-            <div class="input-group-append" style="margin-right: 5px;">
-                <span class="input-group-text"><i class="fas fa-filter"></i></span>
-            </div>
+<div class="d-flex justify-content-end align-items-center gap-2 mb-3">
+    <div class="input-group" style="width: auto;">
+        <select class="form-control form-control-sm" id="categorySelect">
+            <option value="0" {{ ($cat == 0) ? 'selected' : '' }} >All</option>
+            <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>1st Quarter</option>
+            <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>2nd Quarter</option>
+        </select>
+        <div class="input-group-append" style="margin-right: 5px;">
+            <span class="input-group-text"><i class="fas fa-filter"></i></span>
         </div>
-
-        <button type="submit" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modal-rating">
-            <i class="fas fa-star"></i> Rating
-        </button>
     </div>
+    <button type="submit" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modal-rating">
+        <i class="fas fa-star"></i> Rating
+    </button>
 </div>
 
 <div style="max-height: 500px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.25rem; padding: 10px;">
@@ -169,12 +157,12 @@
             
             @php
                 $filteredOpcrMfoDatas = in_array($cat, [1, 2])
-                    ? $opcrmfodatas->where('opcr_mfo_id', $core->id)->where('category', $cat)
-                    : $opcrmfodatas->where('opcr_mfo_id', $core->id);
+                    ? $opcrmfodatas->where('ipcr_mfo_id', $core->id)->where('category', $cat)
+                    : $opcrmfodatas->where('ipcr_mfo_id', $core->id);
             @endphp
 
             @foreach($filteredOpcrMfoDatas as $opcrmfodata)
-            <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
+            <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->ipcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->ipcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
                 <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
                 <td class="text-center"></td>
@@ -251,12 +239,12 @@
 
             @php
                 $filteredopcrmfodatas = in_array($cat, [1, 2])
-                    ? $opcrmfodatas->where('opcr_mfo_id', $strat->id)->where('category', $cat)
-                    : $opcrmfodatas->where('opcr_mfo_id', $strat->id);
+                    ? $opcrmfodatas->where('ipcr_mfo_id', $strat->id)->where('category', $cat)
+                    : $opcrmfodatas->where('ipcr_mfo_id', $strat->id);
             @endphp
 
             @foreach($filteredopcrmfodatas as $opcrmfodata)
-                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->opcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
+                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->ipcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->ipcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
                     <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
                     <td class="text-center"></td>
@@ -330,12 +318,12 @@
 
             @php
                 $filteredopcrmfodatas = in_array($cat, [1, 2])
-                    ? $opcrmfodatas->where('opcr_mfo_id', $supp->id)->where('category', $cat)
-                    : $opcrmfodatas->where('opcr_mfo_id', $supp->id);
+                    ? $opcrmfodatas->where('ipcr_mfo_id', $supp->id)->where('category', $cat)
+                    : $opcrmfodatas->where('ipcr_mfo_id', $supp->id);
             @endphp
 
             @foreach($filteredopcrmfodatas as $opcrmfodata)
-                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
+                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->ipcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->ipcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
                     <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
                     <td class="text-center"></td>
