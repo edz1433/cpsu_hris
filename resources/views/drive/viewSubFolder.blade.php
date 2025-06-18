@@ -136,15 +136,30 @@
 </script>
 <script>
     function showForm(empid, prnumber) {
-        // Open the generated URL in a new tab
-        window.open(
-            "{{ route('per-rating', ['cat' => ':cat', 'empid' => ':empid', 'prnumber' => ':prnumber']) }}"
-                .replace(":cat", 1)
-                .replace(":empid", empid)
-                .replace(":prnumber", prnumber),
-            "_blank"
-        );
+        let route = "";
+        let folder = parseInt("{{ $id }}"); // Convert Blade string to integer
+
+        switch (folder) {
+            case 1:
+                route = "{{ route('perRatingOpcr', ['cat' => ':cat', 'empid' => ':empid', 'prnumber' => ':prnumber']) }}";
+                break;
+            case 2:
+                route = "{{ route('perRatingDpcr', ['cat' => ':cat', 'empid' => ':empid', 'prnumber' => ':prnumber']) }}";
+                break;
+            case 3:
+                route = "{{ route('perRatingIpcr', ['cat' => ':cat', 'empid' => ':empid', 'prnumber' => ':prnumber']) }}";
+                break;
+            default:
+                alert("Invalid category: " + folder);
+                return;
+        }
+
+        const url = route
+            .replace(':cat', 1)
+            .replace(':empid', empid)
+            .replace(':prnumber', prnumber);
+
+        window.open(url, "_blank");
     }
 </script>
-
 @endsection

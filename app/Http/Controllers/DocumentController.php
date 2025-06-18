@@ -115,7 +115,114 @@ class DocumentController extends Controller
 
     }
 
-    public function perRating($cat, $empid, $prnumber){
+    public function perRatingOpcr($cat, $empid, $prnumber)
+    {
+        $guard = $this->getGuard();
+        $dempid = $this->shortDecrypt($empid);
+        $dprnumber = $this->shortDecrypt($prnumber);
+
+        $dempid = ($empid) ? $dempid : auth()->guard($guard)->user()->id;
+
+        $employees = Employee::where('emp_status', 1)->get();
+        $employee = Employee::find($dempid);
+
+        $fullname = $employee
+            ? $employee->fname . ' ' . 
+                ($employee->mname ? strtoupper(substr($employee->mname, 0, 1)) . '.' : '') . 
+                ' ' . $employee->lname
+            : '';
+
+        // Fetch OPCR data
+        $prs = Opcr::where('user_id', $dempid)
+            ->where('pr_number', $dprnumber)
+            ->get();
+
+        $cores = $prs->get(0) ? OpcrMfo::where('opcr_id', $prs[0]->id)->get() : collect();
+        $strats = $prs->get(1) ? OpcrMfo::where('opcr_id', $prs[1]->id)->get() : collect();
+        $supports = $prs->get(2) ? OpcrMfo::where('opcr_id', $prs[2]->id)->get() : collect();
+
+        $datas = OpcrMfoData::all();
+
+        // Include DPCR-related data (if still needed for the OPCR view)
+        $datasdpcr = \DB::table('dpcr_mfo_data')
+            ->join('employees', 'dpcr_mfo_data.user_id', '=', 'employees.id')
+            ->leftJoin('evidence', function ($join) {
+                $join->on('dpcr_mfo_data.id', '=', 'evidence.data_id')
+                    ->where('evidence.category', '=', 2); // Category 2 assumed for DPCR
+            })
+            ->select(
+                'dpcr_mfo_data.*',
+                'evidence.evidence as evidence_file',
+                \DB::raw("CONCAT(employees.fname, ' ', 
+                    IF(employees.mname IS NOT NULL AND employees.mname != '', 
+                        CONCAT(UPPER(LEFT(employees.mname, 1)), '.'), 
+                        ''
+                    ), 
+                    ' ', employees.lname
+                ) AS fullname")
+            )
+            ->get();
+
+        return view('drive.pr', compact(
+            'guard', 'datas', 'prs', 'cores', 'strats', 'supports',
+            'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'datasdpcr'
+        ));
+    }
+    
+    public function perRatingDpcr($cat, $empid, $prnumber)
+    {
+        $guard = $this->getGuard();
+        $dempid = $this->shortDecrypt($empid);
+        $dprnumber = $this->shortDecrypt($prnumber);
+
+        $dempid = ($empid) ? $dempid : auth()->guard($guard)->user()->id;
+
+        $employees = Employee::where('emp_status', 1)->get();
+        $employee = Employee::find($dempid);
+
+        $fullname = $employee
+            ? $employee->fname . ' ' .
+                ($employee->mname ? strtoupper(substr($employee->mname, 0, 1)) . '.' : '') .
+                ' ' . $employee->lname
+            : '';
+
+        // Fetch DPCR data
+        $prs = Dpcr::where('user_id', $dempid)
+            ->where('pr_number', $dprnumber)
+            ->get();
+
+        $cores = $prs->get(0) ? DpcrMfo::where('dpcr_id', $prs[0]->id)->get() : collect();
+        $strats = $prs->get(1) ? DpcrMfo::where('dpcr_id', $prs[1]->id)->get() : collect();
+        $supports = $prs->get(2) ? DpcrMfo::where('dpcr_id', $prs[2]->id)->get() : collect();
+
+        // Assign joined DPCR data directly to $datas
+        $datas = \DB::table('dpcr_mfo_data')
+            ->join('employees', 'dpcr_mfo_data.user_id', '=', 'employees.id')
+            ->leftJoin('evidence', function ($join) {
+                $join->on('dpcr_mfo_data.id', '=', 'evidence.data_id')
+                    ->where('evidence.category', '=', 2); // Category 2 for DPCR
+            })
+            ->select(
+                'dpcr_mfo_data.*',
+                'evidence.evidence as evidence_file',
+                \DB::raw("CONCAT(employees.fname, ' ', 
+                    IF(employees.mname IS NOT NULL AND employees.mname != '', 
+                        CONCAT(UPPER(LEFT(employees.mname, 1)), '.'), 
+                        ''
+                    ), 
+                    ' ', employees.lname
+                ) AS fullname")
+            )
+            ->get();
+
+
+        return view('drive.pr-dpcr', compact(
+            'guard', 'datas', 'prs', 'cores', 'strats', 'supports',
+            'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber'
+        ));
+    }
+
+    public function perRatingIpcr($cat, $empid, $prnumber){
         $guard = $this->getGuard();
         $dempid = $this->shortDecrypt($empid);
         $dprnumber = $this->shortDecrypt($prnumber);

@@ -175,37 +175,36 @@
 
             @foreach($filteredOpcrMfoDatas as $opcrmfodata)
                 @php
-                    $relatedDpcrs = $datasdpcr->where('opcr_mfo_data_id', $opcrmfodata->id);
+                    $relatedSubordinates = $datasdpcr->where('opcr_mfo_data_id', $opcrmfodata->id);
                 @endphp
 
                 <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
                     <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
                     <td class="text-left pl-2" onclick="event.stopPropagation();">
-@foreach ($relatedDpcrs as $index => $dpcr)
-    @php
-        $hasEvidence = !empty($dpcr->evidence_file);
-        $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
-        $evidenceUrl = $hasEvidence ? asset("storage/Evidence/{$dpcr->evidence_file}") : 'javascript:void(0)';
-    @endphp
+                        @foreach ($relatedSubordinates as $index => $sub)
+                            @php
+                                $hasEvidence = !empty($sub->evidence_file);
+                                $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
+                                $evidenceUrl = $hasEvidence ? asset("storage/Evidence/{$sub->evidence_file}") : 'javascript:void(0)';
+                            @endphp
 
-    @if ($hasEvidence)
-        <a href="{{ $evidenceUrl }}" target="_blank" style="text-decoration: none;">
-            <i class="fas fa-check-circle {{ $iconClass }}"></i>
-            <b>{{ strtoupper($dpcr->fullname) }}</b>
-        </a>
-    @else
-        <span style="text-decoration: none; cursor: default;">
-            <i class="fas fa-check-circle {{ $iconClass }}"></i>
-            <b>{{ strtoupper($dpcr->fullname) }}</b>
-        </span>
-    @endif
+                            @if ($hasEvidence)
+                                <a href="{{ $evidenceUrl }}" target="_blank" style="text-decoration: none;">
+                                    <i class="fas fa-check-circle {{ $iconClass }}"></i>
+                                    <b>{{ strtoupper($sub->fullname) }}</b>
+                                </a>
+                            @else
+                                <span style="text-decoration: none; cursor: default;">
+                                    <i class="fas fa-check-circle {{ $iconClass }}"></i>
+                                    <b>{{ strtoupper($sub->fullname) }}</b>
+                                </span>
+                            @endif
 
-    @if (($index + 1) % 2 == 0)
-        <br>
-    @endif
-@endforeach
-
+                            @if (($index + 1) % 2 == 0)
+                                <br>
+                            @endif
+                        @endforeach
                     </td>
                     <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
@@ -287,36 +286,35 @@
 
             @foreach($filteredopcrmfodatas as $opcrmfodata)
                 @php
-                    $relatedDpcrs = $datasdpcr->where('opcr_mfo_data_id', $opcrmfodata->id);
+                    $relatedSubordinates = $datasdpcr->where('opcr_mfo_data_id', $opcrmfodata->id);
                 @endphp
                 <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->opcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
                     <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
                     <td class="text-left pl-2" onclick="event.stopPropagation();">
-@foreach ($relatedDpcrs as $index => $dpcr)
-    @php
-        $hasEvidence = !empty($dpcr->evidence_file);
-        $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
-        $evidenceUrl = $hasEvidence ? asset("storage/Evidence/{$dpcr->evidence_file}") : 'javascript:void(0)';
-    @endphp
+                        @foreach ($relatedSubordinates as $index => $sub)
+                            @php
+                                $hasEvidence = !empty($sub->evidence_file);
+                                $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
+                                $evidenceUrl = $hasEvidence ? asset("storage/Evidence/{$sub->evidence_file}") : 'javascript:void(0)';
+                            @endphp
 
-    @if ($hasEvidence)
-        <a href="{{ $evidenceUrl }}" target="_blank" style="text-decoration: none;">
-            <i class="fas fa-check-circle {{ $iconClass }}"></i>
-            <b>{{ strtoupper($dpcr->fullname) }}</b>
-        </a>
-    @else
-        <span style="text-decoration: none; cursor: default;">
-            <i class="fas fa-check-circle {{ $iconClass }}"></i>
-            <b>{{ strtoupper($dpcr->fullname) }}</b>
-        </span>
-    @endif
+                            @if ($hasEvidence)
+                                <a href="{{ $evidenceUrl }}" target="_blank" style="text-decoration: none;">
+                                    <i class="fas fa-check-circle {{ $iconClass }}"></i>
+                                    <b>{{ strtoupper($sub->fullname) }}</b>
+                                </a>
+                            @else
+                                <span style="text-decoration: none; cursor: default;">
+                                    <i class="fas fa-check-circle {{ $iconClass }}"></i>
+                                    <b>{{ strtoupper($sub->fullname) }}</b>
+                                </span>
+                            @endif
 
-    @if (($index + 1) % 2 == 0)
-        <br>
-    @endif
-@endforeach
-
+                            @if (($index + 1) % 2 == 0)
+                                <br>
+                            @endif
+                        @endforeach
                     </td>
                     <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
@@ -394,36 +392,35 @@
 
             @foreach($filteredopcrmfodatas as $opcrmfodata)
                 @php
-                    $relatedDpcrs = $datasdpcr->where('opcr_mfo_data_id', $opcrmfodata->id);
+                    $relatedSubordinates = $datasdpcr->where('opcr_mfo_data_id', $opcrmfodata->id);
                 @endphp
                 <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
                     <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
                     <td class="text-left pl-2" onclick="event.stopPropagation();">
-@foreach ($relatedDpcrs as $index => $dpcr)
-    @php
-        $hasEvidence = !empty($dpcr->evidence_file);
-        $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
-        $evidenceUrl = $hasEvidence ? asset("storage/Evidence/{$dpcr->evidence_file}") : 'javascript:void(0)';
-    @endphp
+                        @foreach ($relatedSubordinates as $index => $sub)
+                            @php
+                                $hasEvidence = !empty($sub->evidence_file);
+                                $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
+                                $evidenceUrl = $hasEvidence ? asset("storage/Evidence/{$sub->evidence_file}") : 'javascript:void(0)';
+                            @endphp
 
-    @if ($hasEvidence)
-        <a href="{{ $evidenceUrl }}" target="_blank" style="text-decoration: none;">
-            <i class="fas fa-check-circle {{ $iconClass }}"></i>
-            <b>{{ strtoupper($dpcr->fullname) }}</b>
-        </a>
-    @else
-        <span style="text-decoration: none; cursor: default;">
-            <i class="fas fa-check-circle {{ $iconClass }}"></i>
-            <b>{{ strtoupper($dpcr->fullname) }}</b>
-        </span>
-    @endif
+                            @if ($hasEvidence)
+                                <a href="{{ $evidenceUrl }}" target="_blank" style="text-decoration: none;">
+                                    <i class="fas fa-check-circle {{ $iconClass }}"></i>
+                                    <b>{{ strtoupper($sub->fullname) }}</b>
+                                </a>
+                            @else
+                                <span style="text-decoration: none; cursor: default;">
+                                    <i class="fas fa-check-circle {{ $iconClass }}"></i>
+                                    <b>{{ strtoupper($sub->fullname) }}</b>
+                                </span>
+                            @endif
 
-    @if (($index + 1) % 2 == 0)
-        <br>
-    @endif
-@endforeach
-
+                            @if (($index + 1) % 2 == 0)
+                                <br>
+                            @endif
+                        @endforeach
                     </td>
                     <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
@@ -556,7 +553,7 @@
         const cat = this.value;
 
         // Use the route base and replace the params dynamically
-        const url = `{{ route('per-rating', ['cat' => 'CAT_PLACEHOLDER', 'empid' => 'EMPID_PLACEHOLDER', 'prnumber' => 'PR_PLACEHOLDER']) }}`
+        const url = `{{ route('perRatingOpcr', ['cat' => 'CAT_PLACEHOLDER', 'empid' => 'EMPID_PLACEHOLDER', 'prnumber' => 'PR_PLACEHOLDER']) }}`
             .replace('CAT_PLACEHOLDER', cat)
             .replace('EMPID_PLACEHOLDER', empid)
             .replace('PR_PLACEHOLDER', prnumber);

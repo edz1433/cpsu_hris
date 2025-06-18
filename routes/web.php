@@ -80,7 +80,9 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/delete-file/{id}', [DocumentController::class, 'deleteFile'])->name('delete-file');
          
         //performance rating
-        Route::get('/pr/{cat}/{empid?}/{prnumber}', [DocumentController::class, 'perRating'])->name('per-rating');
+        Route::get('/opcr/{cat}/{empid?}/{prnumber}', [DocumentController::class, 'perRatingOpcr'])->name('perRatingOpcr');
+        Route::get('/dpcr/{cat}/{empid?}/{prnumber}', [DocumentController::class, 'perRatingDpcr'])->name('perRatingDpcr');
+        Route::get('/ipcr/{cat}/{empid?}/{prnumber}', [DocumentController::class, 'perRatingIpcr'])->name('perRatingIpcr');
         
         // opcr mfo's
         Route::post('/create-opcr', [OpcrController::class, 'createOpcr'])->name('create-opcr');

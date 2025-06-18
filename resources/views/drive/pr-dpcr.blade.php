@@ -176,7 +176,38 @@
             <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
                 <td class="text-left align-top">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">{!! displayValue($dpcrmfodata->target) !!}</td>
-                <td class="text-center"><div onclick="event.stopPropagation(); uploadEvidence('{{ $dpcrmfodata->id }}')" class="w-100">Evidence </div></td>
+                <td class="text-center">
+                    @if($dpcrmfodata->evidence_file)
+                        <div class="d-flex justify-content-between gap-1">
+                            {{-- View link on the left --}}
+                            <a 
+                                href="{{ asset('storage/Evidence/' . $dpcrmfodata->evidence_file) }}" 
+                                target="_blank"
+                                class="badge bg-success text-white flex-fill text-decoration-none"
+                            >
+                                View
+                            </a>
+
+                            {{-- Update button on the right --}}
+                            <span 
+                                onclick="event.stopPropagation(); uploadEvidence('{{ $dpcrmfodata->id }}')" 
+                                class="badge bg-primary ml-1 text-white flex-fill" 
+                                style="cursor: pointer;"
+                            >
+                                Update
+                            </span>
+                        </div>
+                    @else
+                        {{-- Single Attach Evidence badge centered --}}
+                        <span 
+                            onclick="event.stopPropagation(); uploadEvidence('{{ $dpcrmfodata->id }}')" 
+                            class="badge bg-secondary text-white w-100 d-inline-block" 
+                            style="cursor: pointer;"
+                        >
+                            Attach Evidence
+                        </span>
+                    @endif
+                </td>
                 <td class="text-center">{!! displayValue($dpcrmfodata->in_support) !!}</td>
                 <td class="text-center"></td>
                 <td class="text-center"></td>
@@ -258,7 +289,38 @@
                 <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
                     <td class="text-left align-top">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($dpcrmfodata->target) !!}</td>
-                    <td class="text-center"><div onclick="event.stopPropagation(); uploadEvidence('{{ $dpcrmfodata->id }}')" class="w-100">Evidence </div></td>
+                <td class="text-center">
+                    @if($dpcrmfodata->evidence_file)
+                        <div class="d-flex justify-content-between gap-1">
+                            {{-- View link on the left --}}
+                            <a 
+                                href="{{ asset('storage/Evidence/' . $dpcrmfodata->evidence_file) }}" 
+                                target="_blank"
+                                class="badge bg-success text-white flex-fill text-decoration-none"
+                            >
+                                View
+                            </a>
+
+                            {{-- Update button on the right --}}
+                            <span 
+                                onclick="event.stopPropagation(); uploadEvidence('{{ $dpcrmfodata->id }}')" 
+                                class="badge bg-primary ml-1 text-white flex-fill" 
+                                style="cursor: pointer;"
+                            >
+                                Update
+                            </span>
+                        </div>
+                    @else
+                        {{-- Single Attach Evidence badge centered --}}
+                        <span 
+                            onclick="event.stopPropagation(); uploadEvidence('{{ $dpcrmfodata->id }}')" 
+                            class="badge bg-secondary text-white w-100 d-inline-block" 
+                            style="cursor: pointer;"
+                        >
+                            Attach Evidence
+                        </span>
+                    @endif
+                </td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
                     <td class="text-center"></td>
@@ -337,7 +399,38 @@
                 <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
                     <td class="text-left align-top">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($dpcrmfodata->target) !!}</td>
-                    <td class="text-center"></td>
+                <td class="text-center">
+                    @if($dpcrmfodata->evidence_file)
+                        <div class="d-flex justify-content-between gap-1">
+                            {{-- View link on the left --}}
+                            <a 
+                                href="{{ asset('storage/Evidence/' . $dpcrmfodata->evidence_file) }}" 
+                                target="_blank"
+                                class="badge bg-success text-white flex-fill text-decoration-none"
+                            >
+                                View
+                            </a>
+
+                            {{-- Update button on the right --}}
+                            <span 
+                                onclick="event.stopPropagation(); uploadEvidence('{{ $dpcrmfodata->id }}')" 
+                                class="badge bg-primary ml-1 text-white flex-fill" 
+                                style="cursor: pointer;"
+                            >
+                                Update
+                            </span>
+                        </div>
+                    @else
+                        {{-- Single Attach Evidence badge centered --}}
+                        <span 
+                            onclick="event.stopPropagation(); uploadEvidence('{{ $dpcrmfodata->id }}')" 
+                            class="badge bg-secondary text-white w-100 d-inline-block" 
+                            style="cursor: pointer;"
+                        >
+                            Attach Evidence
+                        </span>
+                    @endif
+                </td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
                     <td class="text-center"></td>
@@ -470,7 +563,7 @@
         const cat = this.value;
 
         // Use the route base and replace the params dynamically
-        const url = `{{ route('per-rating', ['cat' => 'CAT_PLACEHOLDER', 'empid' => 'EMPID_PLACEHOLDER', 'prnumber' => 'PR_PLACEHOLDER']) }}`
+        const url = `{{ route('perRatingDpcr', ['cat' => 'CAT_PLACEHOLDER', 'empid' => 'EMPID_PLACEHOLDER', 'prnumber' => 'PR_PLACEHOLDER']) }}`
             .replace('CAT_PLACEHOLDER', cat)
             .replace('EMPID_PLACEHOLDER', empid)
             .replace('PR_PLACEHOLDER', prnumber);
