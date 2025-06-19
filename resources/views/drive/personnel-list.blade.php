@@ -21,7 +21,6 @@
                             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-success1"><i class="fas fa-dashboard"></i> Dashboard</a></li>
                         @endif
                         <li class="breadcrumb-item"><a href="{{ route('drive') }}" class="text-success1">Drive</a></li>
-                        <li class="breadcrumb-item text-muted">Personnel</li>
                          <li class="breadcrumb-item text-muted">{{ ucfirst($cat) }}</li>
                     </ol> 
                 </nav>
@@ -31,7 +30,7 @@
                             <div class="card card-muted card-outline">
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        <i class="fas fa-user"></i> PERSONNEL
+                                        <i class="fas fa-user"></i> {{ strtoupper($cat) }}
                                     </h3>
                                 </div>
                                 <div class="card-body">

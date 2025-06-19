@@ -171,10 +171,10 @@
                     ? $datas->where('dpcr_mfo_id', $core->id)->where('category', $cat)
                     : $datas->where('dpcr_mfo_id', $core->id);
             @endphp
-
+            
             @foreach($filteredDpcrMfoDatas as $dpcrmfodata)
             <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
-                <td class="text-left align-top">{!! displayValue($dpcrmfodata->mfo) !!}</td>
+                <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">{!! displayValue($dpcrmfodata->target) !!}</td>
                 <td class="text-center">
                     @if($dpcrmfodata->evidence_file)
@@ -287,7 +287,7 @@
 
             @foreach($filtereddpcrmfodatas as $dpcrmfodata)
                 <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
-                    <td class="text-left align-top">{!! displayValue($dpcrmfodata->mfo) !!}</td>
+                    <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($dpcrmfodata->target) !!}</td>
                 <td class="text-center">
                     @if($dpcrmfodata->evidence_file)
@@ -397,7 +397,7 @@
 
             @foreach($filtereddpcrmfodatas as $dpcrmfodata)
                 <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
-                    <td class="text-left align-top">{!! displayValue($dpcrmfodata->mfo) !!}</td>
+                    <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($dpcrmfodata->target) !!}</td>
                 <td class="text-center">
                     @if($dpcrmfodata->evidence_file)

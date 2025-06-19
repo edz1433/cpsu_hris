@@ -162,7 +162,7 @@
         <!-- Main Footer -->
         <footer class="main-footer">
             <div class="float-right d-none d-sm-inline">
-                Maintained and Managed by <a href="#">MIS</a>.
+                Maintained and Managed by <a href="https://www.facebook.com/cpsumiso.main" target="_blank">MIS</a>.
             </div>
             <strong>All rights reserved.</strong>
         </footer>

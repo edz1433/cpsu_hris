@@ -115,7 +115,7 @@ class DocumentFolderController extends Controller
         $id = $this->shortDecrypt($id);
         $pmtsUserIds = SpmsPersonnel::pluck('empid')->toArray();
         $officeHeads = Office::pluck('office_head_id')->toArray();
-
+        $pmtsmember = SpmsPersonnel::where('category', 1)->pluck('empid')->toArray();
         if($guard == 'employee' && !in_array(auth()->guard('employee')->user()->id, $pmtsUserIds) && $id == 1){
             return redirect()->route('drive')->with('error', 'You do not have permission to access this page');
         }elseif($guard == 'employee' && !in_array(auth()->guard('employee')->user()->id, $pmtsUserIds) && in_array($id, [1, 2]) && !in_array(auth()->guard('employee')->user()->id, $officeHeads)){
@@ -135,7 +135,7 @@ class DocumentFolderController extends Controller
 
         $table = $model->getTable();
 
-        $opcrs = $model->join('employees', "$table.user_id", '=', 'employees.id')
+        $opcrsQuery = $model->join('employees', "$table.user_id", '=', 'employees.id')
             ->where("$table.folder_id", $id)
             ->select(
                 "$table.user_id",
@@ -149,11 +149,17 @@ class DocumentFolderController extends Controller
                 'employees.profile',
                 'employees.sex',
                 'employees.id as empid'
-            )
-            ->get()
+            );
+
+        if ($guard == 'employee' && !in_array(auth()->guard($guard)->user()->id, $pmtsmember ?? [])) {
+            $opcrsQuery->where('employees.id', auth()->guard($guard)->user()->id);
+        }
+
+        $opcrs = $opcrsQuery->get()
             ->groupBy(function ($item) {
                 return $item->user_id . '-' . $item->year;
             });
+
 
         $topUser = Opcr::select('user_id')
             ->selectRaw('COUNT(*) as count')
@@ -210,7 +216,7 @@ class DocumentFolderController extends Controller
                 $documents = Document::where('folder_id', $id)->where('user_id', $uid)->get();
             }  
         }
-        
+         
         return view('drive.viewSubFolder', compact('folder', 'subfolder', 'id', 'connFolders', 'documents', 'opcrs', 'rowCount', 'guard', 'uid', 'folderPath', 'office', 'offices', 'foldercat'));
     }
     

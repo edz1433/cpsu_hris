@@ -179,9 +179,11 @@
                 @endphp
 
                 <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
-                    <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
-                    <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
-                    <td class="text-left pl-2" onclick="event.stopPropagation();">
+                    <td class="text-left align-top" width="210">{!! displayValue($opcrmfodata->mfo) !!}</td>
+                    <td class="text-left pl-1">
+                        {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
+                    </td>
+                    <td class="text-left pl-2" width="205" onclick="event.stopPropagation();">
                         @foreach ($relatedSubordinates as $index => $sub)
                             @php
                                 $hasEvidence = !empty($sub->evidence_file);
@@ -200,7 +202,7 @@
                                     <b>{{ strtoupper($sub->fullname) }}</b>
                                 </span>
                             @endif
-
+                                
                             @if (($index + 1) % 2 == 0)
                                 <br>
                             @endif
@@ -221,7 +223,6 @@
                     <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
                 </tr>
             @endforeach
-
         @endforeach
 
         <tr>
@@ -289,9 +290,9 @@
                     $relatedSubordinates = $datasdpcr->where('opcr_mfo_data_id', $opcrmfodata->id);
                 @endphp
                 <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->opcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
-                    <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
+                    <td class="text-left align-top" width="210">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
-                    <td class="text-left pl-2" onclick="event.stopPropagation();">
+                    <td class="text-left pl-2" width="205" onclick="event.stopPropagation();">
                         @foreach ($relatedSubordinates as $index => $sub)
                             @php
                                 $hasEvidence = !empty($sub->evidence_file);
@@ -395,9 +396,9 @@
                     $relatedSubordinates = $datasdpcr->where('opcr_mfo_data_id', $opcrmfodata->id);
                 @endphp
                 <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
-                    <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
+                    <td class="text-left align-top" width="210">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
-                    <td class="text-left pl-2" onclick="event.stopPropagation();">
+                    <td class="text-left pl-2" width="205" onclick="event.stopPropagation();">
                         @foreach ($relatedSubordinates as $index => $sub)
                             @php
                                 $hasEvidence = !empty($sub->evidence_file);

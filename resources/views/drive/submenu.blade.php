@@ -60,7 +60,7 @@
             </li>
             <li class="nav-item mb-1">
                 <a href="{{ route('mfoSettings') }}" class="nav-link2 {{ $isMfoActive ? 'active1' : 'text-muted' }}" id="trashButton">
-                    <i class="fas fa-sliders-h {{ $isMfoActive ? 'text-success1' : 'text-muted' }}"></i>
+                    <i class="fas fa-cogs {{ $isMfoActive ? 'text-success1' : 'text-muted' }}"></i>
                     <span class="ml-2 {{ $isMfoActive ? 'text-success1' : 'text-muted' }}">MFO Settings</span>
                 </a>
             </li>

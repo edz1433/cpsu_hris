@@ -22,7 +22,9 @@ class GlobalViewServiceProvider extends ServiceProvider
 
                 // Fetch needed data
                 $pmtsmember = SpmsPersonnel::where('category', 1)->pluck('empid')->toArray();
-                $officeHeads = Office::pluck('office_head_id')->toArray();
+                $officeHeads = Office::whereRaw('LOWER(office_name) NOT LIKE ?', ['%college%'])
+                    ->pluck('office_head_id')
+                    ->toArray();
 
                 // Determine route logic
                 $driveRoute = ($role == 'Administrator' || $role == 'HR Administrator')
