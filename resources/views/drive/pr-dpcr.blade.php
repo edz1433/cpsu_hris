@@ -171,9 +171,9 @@
                     ? $datas->where('dpcr_mfo_id', $core->id)->where('category', $cat)
                     : $datas->where('dpcr_mfo_id', $core->id);
             @endphp
-            
+
             @foreach($filteredDpcrMfoDatas as $dpcrmfodata)
-            <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
+            <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
                 <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">{!! displayValue($dpcrmfodata->target) !!}</td>
                 <td class="text-center">
@@ -286,7 +286,7 @@
             @endphp
 
             @foreach($filtereddpcrmfodatas as $dpcrmfodata)
-                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
+                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $strat->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
                     <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($dpcrmfodata->target) !!}</td>
                 <td class="text-center">
@@ -396,7 +396,7 @@
             @endphp
 
             @foreach($filtereddpcrmfodatas as $dpcrmfodata)
-                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
+                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $supp->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
                     <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($dpcrmfodata->target) !!}</td>
                 <td class="text-center">
@@ -572,11 +572,12 @@
     });
 </script>
 <script>
-    function showOpcrMfoData(id, mfoid, count) {
+    let canDelete = @json($guard == 'web' || in_array($userid, $pmtsmember ?? []));
+    function showOpcrMfoData(id, mfoid, count, lock) {
         Swal.fire({
             title: 'Choose an action',
             icon: 'question',
-            showCancelButton: true,
+            showCancelButton: (lock != 1 || canDelete), // 🔁 Always show delete if canDelete is true
             showDenyButton: true,
             confirmButtonText: 'Asign',
             denyButtonText: 'Edit',
@@ -587,7 +588,7 @@
                 denyButton: 'btn btn-info mx-1',
                 cancelButton: 'btn btn-danger mx-1'
             },
-            buttonsStyling: false // Needed to apply Bootstrap styles
+            buttonsStyling: false
         }).then((result) => {
             if (result.isConfirmed) {
                 $('#opcr-mfo-data-id').val(id);
@@ -622,6 +623,7 @@
             }
         });
     }
+
 
     function editOpcrData(id) {
         // Set hidden input value

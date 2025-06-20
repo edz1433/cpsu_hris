@@ -34,6 +34,8 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PendingController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\OpcrController;
+use App\Http\Controllers\DpcrController;
+use App\Http\Controllers\IpcrController;
 use App\Http\Controllers\SpmsPersonnelController;
 use App\Http\Controllers\SpmsMfoPercentageController;
 use App\Http\Controllers\PerformanceController;
@@ -94,6 +96,13 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
 
         //Assign OPCR
         Route::post('/assign-opcr', [OpcrController::class, 'assignOpcr'])->name('assignOpcr');
+
+        //Dpcr
+        Route::post('/update-dpcr-mfo', [DpcrController::class, 'updateDpcrMfo'])->name('update-dpcr-mfo');
+        Route::post('/create-dpcr-mfo-data', [DpcrController::class, 'createDpcrMfoData'])->name('create-dpcr-mfo-data');
+        Route::post('/dpcr-data', [DpcrController::class, 'dpcrData'])->name('dpcrData');
+        Route::get('/dpcrmfo-edit-data/{id}', [DpcrController::class, 'dpcrmfoEditData'])->name('dpcrmfoEditData');
+        Route::post('/dpcrmfo-delete-data/{id}', [DpcrController::class, 'dpcrmfoDeleteData'])->name('dpcrmfoDeleteData');
 
         //Evidence
         Route::post('/upload-evidence', [EvidenceController::class, 'uploadEvidence'])->name('uploadEvidence');

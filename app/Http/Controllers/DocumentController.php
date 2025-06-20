@@ -117,6 +117,7 @@ class DocumentController extends Controller
 
     public function perRatingOpcr($cat, $empid, $prnumber)
     {
+        $folder = 1;
         $guard = $this->getGuard();
         $dempid = $this->shortDecrypt($empid);
         $dprnumber = $this->shortDecrypt($prnumber);
@@ -164,13 +165,14 @@ class DocumentController extends Controller
             ->get();
 
         return view('drive.pr', compact(
-            'guard', 'datas', 'prs', 'cores', 'strats', 'supports',
+            'guard', 'datas', 'prs', 'cores', 'strats', 'supports', 'folder',
             'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'datasdpcr'
         ));
     }
     
     public function perRatingDpcr($cat, $empid, $prnumber)
     {
+        $folder = 2;
         $guard = $this->getGuard();
         $dempid = $this->shortDecrypt($empid);
         $dprnumber = $this->shortDecrypt($prnumber);
@@ -214,10 +216,10 @@ class DocumentController extends Controller
                 ) AS fullname")
             )
             ->get();
-
+            
 
         return view('drive.pr-dpcr', compact(
-            'guard', 'datas', 'prs', 'cores', 'strats', 'supports',
+            'guard', 'datas', 'prs', 'cores', 'strats', 'supports', 'folder',
             'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber'
         ));
     }

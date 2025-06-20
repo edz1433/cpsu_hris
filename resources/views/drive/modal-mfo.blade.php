@@ -50,10 +50,23 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-12">
-                        <form id="uploadForm" method="POST" action="{{ request()->is('spms/*') ? route('create-opcr-mfo-data') : '' }}" enctype="multipart/form-data">
+                        @php
+                            $formAction = '';
+                            if (request()->is('spms/*')) {
+                                if ($folder == 1) {
+                                    $formAction = route('create-opcr-mfo-data');
+                                } elseif ($folder == 2) {
+                                    $formAction = route('create-dpcr-mfo-data');
+                                } elseif ($folder == 3) {
+                                    $formAction = route('create-ipcr-mfo-data');
+                                }
+                            }
+                        @endphp
+                        <form id="uploadForm" method="POST" action="{{ $formAction }}" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="opcr_mfo_id" id="opcr-mfo-id">
                             <input type="hidden" name="opcrdata_id" id="opcrdata_id">
+                            <input type="hidden" name="user_id" id="user_id" value="{{ $empid }}">
                             <div class="form-row align-items-center">
                                 <div class="form-group col-md-4">
                                     <label class="text-success1">QUARTER</label>

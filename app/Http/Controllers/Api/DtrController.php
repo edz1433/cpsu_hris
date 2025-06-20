@@ -250,7 +250,7 @@
 
                     $dates[$item['date']] = true;
 
-                    if (count($insertData) >= 100) {
+                    if (count($insertData) >= 200) {
                         Dtr::insert($insertData);
                         $insertData = [];
                     }

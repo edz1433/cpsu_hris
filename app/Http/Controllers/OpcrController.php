@@ -384,11 +384,10 @@ class OpcrController extends Controller
     public function assignOpcr(Request $request)
     {
         $setting = Setting::first();
-
         $id = $request->opcrid;
-        $empIds = $request->empid; // now an array: empid[]
-        $count = $request->count; 
-        $prnumber = $request->prnumber; 
+        $empIds = $request->empid;
+        $count = $request->count;
+        $prnumber = $request->prnumber;
 
         $finalEmpIds = [];
 
@@ -408,7 +407,6 @@ class OpcrController extends Controller
                             ->where('empid', '!=', $setting->suc_pres)
                             ->pluck('empid')
                             ->toArray();
-
         } else {
             foreach ($empIds as $empId) {
                 if ($empId != $setting->suc_pres) {
@@ -416,9 +414,8 @@ class OpcrController extends Controller
                 }
             }
         }
-        
+
         foreach ($finalEmpIds as $empid) {
-            // Skip if not numeric (in case of "All Deans" options etc.)
             if (!is_numeric($empid)) continue;
 
             $employee = Employee::find($empid);
@@ -428,68 +425,63 @@ class OpcrController extends Controller
             $opcrmfodata = OpcrMfoData::find($id);
             $opcrmfo = OpcrMfo::find($opcrmfodata->opcr_mfo_id ?? null);
             $opcr = Opcr::find($opcrmfo->opcr_id ?? null);
-
             if (!$opcr) continue;
+
+            $opcrmfos = OpcrMfo::where('opcr_id', $opcr->id)->get();
+            $functions = $opcrmfos->pluck('functions')->all();
 
             $lastPr = Dpcr::where('pr_number', 'like', 'D-%')
                         ->orderByDesc('id')
                         ->value('pr_number');
 
-            if ($lastPr && preg_match('/D-(\d+)/', $lastPr, $matches)) {
-                $nextNumber = (int)$matches[1] + 1;
-            } else {
-                $nextNumber = 1;
-            }
+            $nextNumber = ($lastPr && preg_match('/D-(\d+)/', $lastPr, $matches))
+                            ? ((int)$matches[1] + 1)
+                            : 1;
 
             $prNumber = 'D-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
             $exists = Dpcr::where('user_id', $empid)
-                ->where('op_pr_number', $opcr->pr_number)
-                ->exists();
+                        ->where('op_pr_number', $opcr->pr_number)
+                        ->exists();
 
             if (!$exists) {
                 $dpcrRecords = [
-                    ['mfo' => 'CORE FUNCTIONS',     'percent' => $prSetting->core_sum],
-                    ['mfo' => 'STRATEGIC FUNCTIONS','percent' => $prSetting->strat_sum],
-                    ['mfo' => 'SUPPORT FUNCTIONS',  'percent' => $prSetting->support_sum],
+                    ['mfo' => 'CORE FUNCTIONS',      'percent' => $prSetting->core_sum],
+                    ['mfo' => 'STRATEGIC FUNCTIONS', 'percent' => $prSetting->strat_sum],
+                    ['mfo' => 'SUPPORT FUNCTIONS',   'percent' => $prSetting->support_sum],
                 ];
 
                 $insertedIds = [];
                 foreach ($dpcrRecords as $record) {
                     $model = Dpcr::create([
-                        'user_id'   => $empid,
-                        'opcr_id'   => $opcrmfo->opcr_id ?? null,
+                        'user_id'      => $empid,
+                        'opcr_id'      => $opcrmfo->opcr_id ?? null,
                         'op_pr_number' => $opcr->pr_number,
-                        'folder_id' => 2,
-                        'pr_number' => $prNumber,
-                        'mfo'       => $record['mfo'],
-                        'percent'   => $record['percent'],
-                        'year'      => $opcr->year,
+                        'folder_id'    => 2,
+                        'pr_number'    => $prNumber,
+                        'mfo'          => $record['mfo'],
+                        'percent'      => $record['percent'],
+                        'year'         => $opcr->year,
                     ]);
                     $insertedIds[] = $model->id;
                 }
 
-                [$firstDpcrId, $secondDpcrId, $thirdDpcrId] = $insertedIds;
+                [$firstId, $secondId, $thirdId] = $insertedIds;
 
                 $dpcrMfo = [
-                    ['dpcr_id' => $firstDpcrId, 'opcr_id'  => $opcrmfo->opcr_id, 'mfo' => 'MFO 1', 'percent' => $prSetting->core_mfo1 ?? 0, 'count' => 1],
-                    ['dpcr_id' => $firstDpcrId, 'opcr_id'  => $opcrmfo->opcr_id, 'mfo' => 'MFO 2', 'percent' => $prSetting->core_mfo2 ?? 0, 'count' => 2],
-                    ['dpcr_id' => $firstDpcrId, 'opcr_id'  => $opcrmfo->opcr_id, 'mfo' => 'MFO 3', 'percent' => $prSetting->core_mfo3 ?? 0, 'count' => 3],
+                    ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 1', 'percent' => $prSetting->core_mfo1 ?? 0, 'functions' => $functions[0] ?? '', 'count' => 1],
+                    ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 2', 'percent' => $prSetting->core_mfo2 ?? 0, 'functions' => $functions[1] ?? '', 'count' => 2],
+                    ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 3', 'percent' => $prSetting->core_mfo3 ?? 0, 'functions' => $functions[2] ?? '', 'count' => 3],
 
-                    ['dpcr_id' => $secondDpcrId, 'opcr_id'  => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->strategic_mfo4 ?? 0, 'count' => 4],
-                    ['dpcr_id' => $secondDpcrId, 'opcr_id'  => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->strategic_mfo5 ?? 0, 'count' => 5],
+                    ['dpcr_id' => $secondId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->strategic_mfo4 ?? 0, 'functions' => $functions[3] ?? '', 'count' => 4],
+                    ['dpcr_id' => $secondId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->strategic_mfo5 ?? 0, 'functions' => $functions[4] ?? '', 'count' => 5],
 
-                    ['dpcr_id' => $thirdDpcrId, 'opcr_id'  => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->support_mfo4 ?? 0, 'count' => 6],
-                    ['dpcr_id' => $thirdDpcrId, 'opcr_id'  => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->support_mfo5 ?? 0, 'count' => 7],
+                    ['dpcr_id' => $thirdId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->support_mfo4 ?? 0, 'functions' => $functions[5] ?? '', 'count' => 6],
+                    ['dpcr_id' => $thirdId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->support_mfo5 ?? 0, 'functions' => $functions[6] ?? '', 'count' => 7],
                 ];
-
-                foreach ($dpcrMfo as &$entry) {
-                    $entry['functions'] = '';
-                }
 
                 DpcrMfo::insert($dpcrMfo);
 
-                // Signatories
                 $asignatories = [
                     ['empid' => 'EMP0001', 'suffixes' => "Ph.D.", 'designation' => 'SUC President II', 'label' => 'Discussed with:'],
                     ['empid' => 'EMP0131', 'suffixes' => "Ph.D.", 'designation' => 'Director, Quality Assurance', 'label' => 'Assessed by:'],
@@ -501,12 +493,12 @@ class OpcrController extends Controller
 
                 foreach ($asignatories as $asignatory) {
                     SpmsAsignatory::create([
-                        'pr_number' => $prNumber,
-                        'empid' => $asignatory['empid'],
-                        'suffixes' => $asignatory['suffixes'],
+                        'pr_number'   => $prNumber,
+                        'empid'       => $asignatory['empid'],
+                        'suffixes'    => $asignatory['suffixes'],
                         'designation' => $asignatory['designation'],
-                        'spms_type' => 'OPCR',
-                        'label' => $asignatory['label'],
+                        'spms_type'   => 'OPCR',
+                        'label'       => $asignatory['label'],
                     ]);
                 }
             }
@@ -516,9 +508,8 @@ class OpcrController extends Controller
                 ->where('dpcr_mfos.count', $count)
                 ->select('dpcr_mfos.*')
                 ->first();
-            
-            // Create DpcrMfoData
-            if ($opcrmfodata) {
+
+            if ($opcrmfodata && $dpcrmfofind) {
                 $data = $opcrmfodata->toArray();
                 unset($data['id']);
 
@@ -530,12 +521,11 @@ class OpcrController extends Controller
                 $exists = DpcrMfoData::where('user_id', $empid)
                             ->where('opcr_mfo_data_id', $id)
                             ->exists();
-  
+
                 if (!$exists) {
                     DpcrMfoData::create($data);
                 }
             }
-
         }
 
         return redirect()->back()->with('success', 'Assigned successfully!');

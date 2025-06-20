@@ -176,6 +176,9 @@
             @foreach($filteredOpcrMfoDatas as $opcrmfodata)
                 @php
                     $relatedSubordinates = $datasdpcr->where('opcr_mfo_data_id', $opcrmfodata->id);
+                    $allHaveEvidence = $relatedSubordinates->every(function ($sub) {
+                        return !empty($sub->evidence_file);
+                    });
                 @endphp
 
                 <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
@@ -183,7 +186,7 @@
                     <td class="text-left pl-1">
                         {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
                     </td>
-                    <td class="text-left pl-2" width="205" onclick="event.stopPropagation();">
+                    <td class="text-left pl-2" width="210" onclick="event.stopPropagation();">
                         @foreach ($relatedSubordinates as $index => $sub)
                             @php
                                 $hasEvidence = !empty($sub->evidence_file);
@@ -220,7 +223,15 @@
                     <td class="text-center">{!! displayValue($opcrmfodata->t_score) !!}</td>
                     <td class="text-center">{!! displayValue($opcrmfodata->average) !!}</td>
                     <td class="text-center">{!! displayValue($opcrmfodata->remarks) !!}</td>
-                    <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
+                    <td class="text-center">
+                        @if ($allHaveEvidence)
+                            <span class="badge badge-success rounded-circle">
+                                <i class="fas fa-check"></i>
+                            </span>
+                        @else
+                            <span class="badge badge-danger rounded-circle">X</span>
+                        @endif
+                    </td>
                 </tr>
             @endforeach
         @endforeach
@@ -288,11 +299,14 @@
             @foreach($filteredopcrmfodatas as $opcrmfodata)
                 @php
                     $relatedSubordinates = $datasdpcr->where('opcr_mfo_data_id', $opcrmfodata->id);
+                    $allHaveEvidence = $relatedSubordinates->every(function ($sub) {
+                        return !empty($sub->evidence_file);
+                    });
                 @endphp
                 <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->opcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
                     <td class="text-left align-top" width="210">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
-                    <td class="text-left pl-2" width="205" onclick="event.stopPropagation();">
+                    <td class="text-left pl-2" width="210" onclick="event.stopPropagation();">
                         @foreach ($relatedSubordinates as $index => $sub)
                             @php
                                 $hasEvidence = !empty($sub->evidence_file);
@@ -329,7 +343,15 @@
                     <td class="text-center">{!! displayValue($opcrmfodata->t_score) !!}</td>
                     <td class="text-center">{!! displayValue($opcrmfodata->average) !!}</td>
                     <td class="text-center">{!! displayValue($opcrmfodata->remarks) !!}</td>
-                    <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
+                    <td class="text-center">
+                        @if ($allHaveEvidence)
+                            <span class="badge badge-success rounded-circle">
+                                <i class="fas fa-check"></i>
+                            </span>
+                        @else
+                            <span class="badge badge-danger rounded-circle">X</span>
+                        @endif
+                    </td>
                 </tr>
             @endforeach
         @endforeach
@@ -394,11 +416,14 @@
             @foreach($filteredopcrmfodatas as $opcrmfodata)
                 @php
                     $relatedSubordinates = $datasdpcr->where('opcr_mfo_data_id', $opcrmfodata->id);
+                    $allHaveEvidence = $relatedSubordinates->every(function ($sub) {
+                        return !empty($sub->evidence_file);
+                    });
                 @endphp
                 <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
                     <td class="text-left align-top" width="210">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
-                    <td class="text-left pl-2" width="205" onclick="event.stopPropagation();">
+                    <td class="text-left pl-2" width="210" onclick="event.stopPropagation();">
                         @foreach ($relatedSubordinates as $index => $sub)
                             @php
                                 $hasEvidence = !empty($sub->evidence_file);
@@ -435,7 +460,15 @@
                     <td class="text-center">{!! displayValue($opcrmfodata->t_score) !!}</td>
                     <td class="text-center">{!! displayValue($opcrmfodata->average) !!}</td>
                     <td class="text-center">{!! displayValue($opcrmfodata->remarks) !!}</td>
-                    <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
+                    <td class="text-center">
+                        @if ($allHaveEvidence)
+                            <span class="badge badge-success rounded-circle">
+                                <i class="fas fa-check"></i>
+                            </span>
+                        @else
+                            <span class="badge badge-danger rounded-circle">X</span>
+                        @endif
+                    </td>
                 </tr>
             @endforeach
         @endforeach
