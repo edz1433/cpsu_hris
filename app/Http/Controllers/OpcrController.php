@@ -530,5 +530,4 @@ class OpcrController extends Controller
 
         return redirect()->back()->with('success', 'Assigned successfully!');
     }
-
 }

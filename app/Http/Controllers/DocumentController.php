@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Employee;
+use App\Models\Setting;
 use App\Models\DocuFolder; 
 use App\Models\Document;
 use App\Models\Dpipop;
@@ -14,6 +15,7 @@ use App\Models\OpcrMfoData;
 use App\Models\Dpcr;
 use App\Models\DpcrMfo;
 use App\Models\DpcrMfoData;
+use App\Models\SpmsPersonnel;
 
 class DocumentController extends Controller
 {
@@ -121,10 +123,23 @@ class DocumentController extends Controller
         $guard = $this->getGuard();
         $dempid = $this->shortDecrypt($empid);
         $dprnumber = $this->shortDecrypt($prnumber);
-
+        $setting = Setting::first();
         $dempid = ($empid) ? $dempid : auth()->guard($guard)->user()->id;
+        
+        $employees = SpmsPersonnel::join('employees', 'employees.id', '=', 'spms_personnels.empid')
+            ->where('employees.emp_status', 1)
+            ->where('employees.id', '!=', $setting->suc_pres)
+            ->whereIn('spms_personnels.category', [2, 3, 4, 5])
+            ->select(
+                'spms_personnels.*',
+                'employees.id as emp_id',
+                'employees.fname',
+                'employees.lname',
+                'employees.mname',
+                'employees.prefix'
+            )
+            ->get();
 
-        $employees = Employee::where('emp_status', 1)->get();
         $employee = Employee::find($dempid);
 
         $fullname = $employee
@@ -179,8 +194,10 @@ class DocumentController extends Controller
 
         $dempid = ($empid) ? $dempid : auth()->guard($guard)->user()->id;
 
-        $employees = Employee::where('emp_status', 1)->get();
+
         $employee = Employee::find($dempid);
+
+        $employees = Employee::where('emp_dept', $employee->emp_dept)->where('emp_status', 1)->get();
 
         $fullname = $employee
             ? $employee->fname . ' ' .

@@ -44,7 +44,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <iframe src="{{ asset('Uploads/spms-rating.pdf') }}" frameborder="0" style="width: 100%; height: 80vh;"></iframe>
+                <iframe src="{{ route('dpcrPdf', ['prnumber' => $prnumber, 'userid' => $empid ?? auth()->guard($guard)->user()->id]) }}" frameborder="0" style="width: 100%; height: 80vh;"></iframe>
             </div>
         </div>
     </div>
@@ -70,9 +70,13 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modal-rating">
+        {{-- <button type="submit" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modal-rating">
             <i class="fas fa-star"></i> Rating
-        </button>
+        </button> --}}
+
+        <a class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modal-rating">
+            <i class="fas fa-file-pdf"></i>
+        </a>
     </div>
 </div>
 
@@ -175,7 +179,9 @@
             @foreach($filteredDpcrMfoDatas as $dpcrmfodata)
             <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
                 <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
-                <td class="text-left pl-1">{!! displayValue($dpcrmfodata->target) !!}</td>
+                <td class="text-left pl-1">
+                    {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
+                </td>
                 <td class="text-center">
                     @if($dpcrmfodata->evidence_file)
                         <div class="d-flex justify-content-between gap-1">
@@ -287,8 +293,10 @@
 
             @foreach($filtereddpcrmfodatas as $dpcrmfodata)
                 <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $strat->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
-                    <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
-                    <td class="text-left pl-1">{!! displayValue($dpcrmfodata->target) !!}</td>
+                <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
+                <td class="text-left pl-1">
+                    {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
+                </td>
                 <td class="text-center">
                     @if($dpcrmfodata->evidence_file)
                         <div class="d-flex justify-content-between gap-1">
@@ -397,8 +405,10 @@
 
             @foreach($filtereddpcrmfodatas as $dpcrmfodata)
                 <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $supp->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
-                    <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
-                    <td class="text-left pl-1">{!! displayValue($dpcrmfodata->target) !!}</td>
+                <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
+                <td class="text-left pl-1">
+                    {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
+                </td>
                 <td class="text-center">
                     @if($dpcrmfodata->evidence_file)
                         <div class="d-flex justify-content-between gap-1">
@@ -599,7 +609,7 @@
                 $('#opcr-mfo-id').val(mfoid);
 
                 $.ajax({
-                    url: `{{ route('opcrmfoEditData', ':id') }}`.replace(':id', id),
+                    url: `{{ route('dpcrmfoEditData', ':id') }}`.replace(':id', id),
                     method: 'GET',
                     success: function (data) {
                         $('#category').val(data.category);

@@ -72,7 +72,7 @@
                                     <label class="text-success1">QUARTER</label>
                                     <select type="text" class="form-control" name="category" id="category">
                                         <option value="All">All</option>
-                                        <option value="1">1ST HALF</option>
+                                        <option value="1" selected>1ST HALF</option>
                                         <option value="2">2ND HALF</option>
                                     </select>
                                 </div>
@@ -155,7 +155,7 @@
             <form method="POST" action="{{ route('assignOpcr') }}">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title" id="opcrModalLabel">Asign (OPCR)</h5>
+                    <h5 class="modal-title" id="opcrModalLabel">Asign</h5>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body text-center">
@@ -165,15 +165,16 @@
                         <option value="C:2">All Dean</option>
                         <option value="C:3">All Campus Ad</option>
                         <option value="C:4">All Office Head</option>
-                        <option value="C:5">All Director</option>
-                        <option value="C:6">All Staff</option>
-                        <option value="C:7">All Faculty</option>
+                        <option value="C:5">All Director</option> 
+                        {{-- <option value="C:6">All Staff</option>
+                        <option value="C:7">All Faculty</option> --}}
                         @foreach($employees as $emp)
-                            <option value="{{ $emp->id }}" @if(isset($employee) && $employee && $emp->emp_ID == $employee->emp_ID) selected @endif>
+                            <option value="{{ $emp->emp_id }}" 
+                                @if(isset($employee) && $employee && $emp->emp_id == $employee->emp_ID) selected @endif>
                                 {{ $emp->lname }}
                                 {{ $emp->prefix }}
                                 {{ $emp->fname }}
-                                {{ isset($emp->mname) ?substr($emp->mname, 0, 1).'.' : '' }}
+                                {{ isset($emp->mname) ? substr($emp->mname, 0, 1).'.' : '' }}
                             </option>
                         @endforeach
                     </select>

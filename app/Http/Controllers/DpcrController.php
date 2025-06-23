@@ -80,9 +80,10 @@ class DpcrController extends Controller
                 ]);
             }
         } else {
-            $opcrData = DpcrMfoData::find($dpcrdataId);
-            if ($opcrData) {
-                $opcrData->update([
+            // dd($dpcrdataId);
+            $dpcrData = DpcrMfoData::find($dpcrdataId);
+            if ($dpcrData) {
+                $dpcrData->update([
                     'mfo' => $request->input('mfo'),
                     'target' => $request->input('target'),
                     'measure' => $request->input('measure'),
@@ -101,5 +102,35 @@ class DpcrController extends Controller
         }
 
         return redirect()->back()->with('success', 'MFO data saved successfully!');
+    }
+
+    public function dpcrmfoEditData($id){
+        $dpcrMfoData = DpcrMfoData::find($id);
+        if ($dpcrMfoData) {
+            return response()->json($dpcrMfoData);
+        } else {
+            return response()->json(['error' => 'DPCR MFO Data not found!'], 404);
+        }
+    }
+
+    public function dpcrPdf(Request $request)
+    {
+        $customPaper = [0, 0, 612, 936];
+        $data = [];
+        $pdf = \PDF::loadView('drive.dpcr-pdf', compact('data'))
+            ->setPaper($customPaper, 'portrait')
+            ->setOptions([
+                'margin-top' => 0,
+                'margin-right' => 10,
+                'margin-bottom' => 10,
+                'margin-left' => 10,
+            ])
+            ->setCallbacks([
+                'before_render' => function ($domPdf) {
+                    $domPdf->getCanvas()->page_text(10, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, [0, 0, 0]);
+                },
+            ]);
+
+        return $pdf->stream();
     }
 }

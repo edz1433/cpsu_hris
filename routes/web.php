@@ -103,6 +103,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/dpcr-data', [DpcrController::class, 'dpcrData'])->name('dpcrData');
         Route::get('/dpcrmfo-edit-data/{id}', [DpcrController::class, 'dpcrmfoEditData'])->name('dpcrmfoEditData');
         Route::post('/dpcrmfo-delete-data/{id}', [DpcrController::class, 'dpcrmfoDeleteData'])->name('dpcrmfoDeleteData');
+        Route::get('/dpcr-pdf/{prnumber}/{userid}', [DpcrController::class, 'dpcrPdf'])->name('dpcrPdf');
 
         //Evidence
         Route::post('/upload-evidence', [EvidenceController::class, 'uploadEvidence'])->name('uploadEvidence');

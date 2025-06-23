@@ -39,12 +39,13 @@
         return strtolower(trim($value ?? '')) === 'n/a' ? '' : $value;
     }
 @endphp
+
 @include('drive.modal-mfo')
 <div class="modal fade" id="modal-rating" tabindex="-1" role="dialog" aria-labelledby="modal-prform" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <iframe src="{{ asset('Uploads/spms-rating.pdf') }}" frameborder="0" style="width: 100%; height: 80vh;"></iframe>
+                <iframe src="{{ route('dpcrPdf', ['prnumber' => $prnumber, 'userid' => $empid ?? auth()->guard($guard)->user()->id]) }}" frameborder="0" style="width: 100%; height: 80vh;"></iframe>
             </div>
         </div>
     </div>
@@ -71,9 +72,13 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modal-rating">
+        {{-- <button type="submit" class="btn btn-info btn-sm mr-1" data-toggle="modal" data-target="#modal-rating">
             <i class="fas fa-star"></i> Rating
-        </button>
+        </button> --}}
+        
+        <a class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modal-rating">
+            <i class="fas fa-file-pdf"></i>
+        </a>
     </div>
 </div>
 
@@ -305,7 +310,9 @@
                 @endphp
                 <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->opcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
                     <td class="text-left align-top" width="210">{!! displayValue($opcrmfodata->mfo) !!}</td>
-                    <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
+                    <td class="text-left pl-1">
+                        {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
+                    </td>
                     <td class="text-left pl-2" width="210" onclick="event.stopPropagation();">
                         @foreach ($relatedSubordinates as $index => $sub)
                             @php
@@ -422,7 +429,9 @@
                 @endphp
                 <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
                     <td class="text-left align-top" width="210">{!! displayValue($opcrmfodata->mfo) !!}</td>
-                    <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
+                    <td class="text-left pl-1">
+                        {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
+                    </td>
                     <td class="text-left pl-2" width="210" onclick="event.stopPropagation();">
                         @foreach ($relatedSubordinates as $index => $sub)
                             @php
