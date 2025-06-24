@@ -188,7 +188,6 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        App\Providers\TelescopeServiceProvider::class,
         
         // ✅ Add your line here:
         App\Providers\GlobalViewServiceProvider::class,
