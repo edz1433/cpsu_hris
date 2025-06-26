@@ -113,14 +113,93 @@ class DpcrController extends Controller
         }
     }
 
+    public function dpcrData(Request $request)
+    {
+        $cat = $request->input('cat');
+        $id = $request->input('id');
+
+        $data = DpcrMfo::where('dpcr_id', $id)->get();
+        $prSetting = PrSetting::find(1);
+
+        if($cat == 1){
+            $prPercent = $prSetting->core_sum;
+        }elseif($cat == 2){
+            $prPercent = $prSetting->strat_sum;
+        }else{
+            $prPercent = $prSetting->support_sum;
+        }
+
+        // Calculate total percent from the data collection
+        $totalPercent = $data->sum('percent');
+
+        // Determine if inputs should be disabled (true if totalPercent != 100)
+        $disablePercentInput = ($prPercent == $totalPercent) ? 'readonly' : '';
+
+        $html = '
+            <div class="form-row mb-1">
+                <div class="form-group col-md-2 d-flex align-items-center" style="margin-bottom: -6px;">
+                    <label class="text-success1">MFO\'s</label>
+                </div>
+                <div class="form-group col-md-8" style="margin-bottom: -6px;">
+                    <label class="text-success1">FUNCTIONS</label>
+                </div>
+                <div class="form-group col-md-2" style="margin-bottom: -6px;">
+                    <label class="text-success1">PERCENT</label>
+                </div>
+        ';
+
+        foreach ($data as $item) {
+            $mfo = e($item->mfo);
+            $function = $item->functions ?? '';
+            $percent = $item->percent ?? 0;
+
+            $html .= '
+                    <div class="form-group col-md-2">
+                        <input type="text" name="mfo[]" class="form-control form-control-sm text-center"
+                            style="height: 52px; font-size: 20px;" value="' . $mfo . '" readonly>
+                    </div>
+                    <div class="form-group col-md-8">
+                        <textarea name="functions[]" rows="2" class="form-control form-control-sm" placeholder="function">' . $function . '</textarea>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="text" name="percent[]" class="form-control form-control-sm text-center"
+                            style="height: 52px; font-size: 25px;" value="' . $percent . '" ' . $disablePercentInput . '>
+                    </div>
+                </div>
+            ';
+        }
+
+        return response()->json(['html' => $html]);
+    }
+
     public function dpcrPdf(Request $request)
     {
         $customPaper = [0, 0, 612, 936];
+
+        function imgBase64($filename) {
+            $path = public_path("Uploads/$filename");
+            if (!file_exists($path)) return null;
+            $mime = mime_content_type($path);
+            $data = base64_encode(file_get_contents($path));
+            return "data:$mime;base64,$data";
+        }
+
+        $images = [
+            'header' => imgBase64('leave-report-header.png'),
+            'img1' => imgBase64('weight-allocation-1.jpg'),
+            'img2' => imgBase64('weight-allocation-2.jpg'),
+            'img3' => imgBase64('weight-allocation-3.jpg'),
+            'img4' => imgBase64('weight-allocation-4.jpg'),
+        ];
+
         $data = [];
-        $pdf = \PDF::loadView('drive.dpcr-pdf', compact('data'))
+
+        $customPaper = [0, 0, 612, 970];
+
+        $pdf = \PDF::loadView('drive.dpcr-pdf', compact('images', 'data'))
             ->setPaper($customPaper, 'portrait')
             ->setOptions([
-                'margin-top' => 0,
+                'margin-top' => 10,
                 'margin-right' => 10,
                 'margin-bottom' => 10,
                 'margin-left' => 10,
@@ -133,4 +212,5 @@ class DpcrController extends Controller
 
         return $pdf->stream();
     }
+
 }

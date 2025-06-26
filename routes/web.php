@@ -78,7 +78,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         
         // Upload File
         Route::post('/upload/{id}', [DocumentController::class, 'storeFile'])->name('document-store');
-        Route::post('/update-file', [DocumentControllfilteredOpcrMfoDatasprer::class, 'updateFile'])->name('document-update');
+        Route::post('/update-file', [DocumentController::class, 'updateFile'])->name('document-update');
         Route::get('/delete-file/{id}', [DocumentController::class, 'deleteFile'])->name('delete-file');
          
         //performance rating
@@ -93,8 +93,6 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/opcr-data', [OpcrController::class, 'opcrData'])->name('opcrData');
         Route::get('/opcrmfo-edit-ata/{id}', [OpcrController::class, 'opcrmfoEditData'])->name('opcrmfoEditData');
         Route::post('/opcrmfo-delete-data/{id}', [OpcrController::class, 'opcrmfoDeleteData'])->name('opcrmfoDeleteData');
-
-        //Assign OPCR
         Route::post('/assign-opcr', [OpcrController::class, 'assignOpcr'])->name('assignOpcr');
 
         //Dpcr
@@ -104,9 +102,13 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/dpcrmfo-edit-data/{id}', [DpcrController::class, 'dpcrmfoEditData'])->name('dpcrmfoEditData');
         Route::post('/dpcrmfo-delete-data/{id}', [DpcrController::class, 'dpcrmfoDeleteData'])->name('dpcrmfoDeleteData');
         Route::get('/dpcr-pdf/{prnumber}/{userid}', [DpcrController::class, 'dpcrPdf'])->name('dpcrPdf');
+        Route::post('/assign-dpcr', [DpcrController::class, 'assignDpcr'])->name('assignDpcr');
 
         //Evidence
         Route::post('/upload-evidence', [EvidenceController::class, 'uploadEvidence'])->name('uploadEvidence');
+
+        //Asignatories
+        Route::post('/update-asignatories', [DocumentController::class, 'updateAsignatories'])->name('updateAsignatories');
     });
 
     Route::prefix('spms-set')->group(function() {

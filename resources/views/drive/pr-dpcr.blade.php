@@ -30,7 +30,7 @@
     }
 </style>
 @php
-    $selectedEmployees = \App\Models\SpmsAsignatory::where('pr_number', 0001)
+    $selectedEmployees = \App\Models\SpmsAsignatory::where('pr_number', $dprnumber)
         ->join('employees', 'spms_asignatories.empid', '=', 'employees.emp_ID')
         ->select('employees.fname', 'employees.lname', 'employees.mname', 'spms_asignatories.*')
         ->get();
@@ -44,11 +44,13 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <iframe src="{{ route('dpcrPdf', ['prnumber' => $prnumber, 'userid' => $empid ?? auth()->guard($guard)->user()->id]) }}" frameborder="0" style="width: 100%; height: 80vh;"></iframe>
+                <!-- Placeholder iframe without src initially -->
+                <iframe id="rating-iframe" frameborder="0" style="width: 100%; height: 80vh;"></iframe>
             </div>
         </div>
     </div>
 </div>
+
 <div class="d-flex justify-content-between align-items-center gap-3 mb-3 flex-wrap">
     {{-- Full Name on the Left --}}
     <div class="d-flex align-items-center ml-2">
@@ -74,9 +76,15 @@
             <i class="fas fa-star"></i> Rating
         </button> --}}
 
-        <a class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modal-rating">
-            <i class="fas fa-file-pdf"></i>
-        </a>
+        <div class="dropdown d-inline">
+            <button class="btn btn-danger btn-sm dropdown-toggle" type="button" id="pdfDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-file-pdf"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="pdfDropdown">
+                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#modal-rating">Cover Page</a>
+                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#modal-ipcr">DPCR</a>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -135,6 +143,7 @@
                     data-toggle="modal"
                     data-cat="1"
                     data-id="{{ $prs[0]->id }}"
+                    data-folder="{{ $folder }}"
                     data-target="#createOpcrMfoModal">
                     </i>
                 </td>
@@ -254,6 +263,7 @@
                     data-toggle="modal"
                     data-cat="2"
                     data-id="{{ $prs[1]->id }}"
+                    data-folder="{{ $folder }}"
                     data-target="#createOpcrMfoModal">
                     </i>
                 </td>
@@ -369,6 +379,7 @@
                     data-toggle="modal"
                     data-cat="3"
                     data-id="{{ $prs[2]->id }}"
+                    data-folder="{{ $folder }}"
                     data-target="#createOpcrMfoModal">
                     </i>
                 </td>
@@ -471,12 +482,12 @@
                 @php
                     $fullName = $asignatory->fname . ' ' .
                                 ($asignatory->mname ? strtoupper(substr($asignatory->mname, 0, 1)) . '. ' : '') .
-                                $asignatory->lname ;
+                                $asignatory->lname;
                 @endphp
                 <div class="col text-center">
                     <div><strong>_________________________________</strong></div>
                     <div><strong>{{ $fullName ?? 'N/A' }}{{ ($asignatory->suffixes) ? ', '.$asignatory->suffixes : '' }}</strong></div>
-                    <div>{{ $asignatory->designation ?? 'N/A' }}</div>
+                    <div>{{ ucwords(strtolower($asignatory->designation)) ?? 'N/A' }}</div>
                 </div>
             @endforeach
         </div>
@@ -509,7 +520,7 @@
         $('#form-data').empty();
 
         $.ajax({
-            url: '{{ route('opcrData') }}',
+            url: '{{ route('dpcrData') }}',
             method: 'POST',
             data: {
                 cat: cat,
@@ -543,25 +554,21 @@
     $(document).ready(function () {
         $('#employee').select2();
 
-        const groupValues = ['Deans', 'Campus Ad', 'Heads'];
+        const groupValues = ['C:2', 'C:3', 'C:4', 'C:5', 'C:6', 'C:7'];
 
         $('#employee').on('change', function () {
             const selected = $(this).val() || [];
 
-            // Check if any group value is selected
             const hasGroup = selected.some(val => groupValues.includes(val));
+            const hasIndividual = selected.some(val => !groupValues.includes(val));
 
-            if (hasGroup) {
-                // If group is selected, remove individual selections
+            if (hasGroup && hasIndividual) {
+                // Prefer groups: remove individual selections
                 const filtered = selected.filter(val => groupValues.includes(val));
-                $('#employee').val(filtered).trigger('change.select2');
-            } else {
-                // If individuals are selected, ensure group options are deselected
-                const filtered = selected.filter(val => !groupValues.includes(val));
-                $('#employee').val(filtered).trigger('change.select2');
+                $(this).val(filtered).trigger('change.select2');
             }
 
-            console.log('Currently selected:', $('#employee').val());
+            console.log('Currently selected:', $(this).val());
         });
     });
 </script>
@@ -757,5 +764,24 @@ function handlePdfUpload(input) {
     input.value = "";
     currentEvidenceId = null;
 }
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('modal-rating');
+        const iframe = document.getElementById('rating-iframe');
+
+        // Define the URL with Blade
+        const iframeSrc = "{{ route('dpcrPdf', ['prnumber' => $prnumber, 'userid' => $empid ?? auth()->guard($guard)->user()->id]) }}";
+
+        // Listen for modal show event
+        $('#modal-rating').on('show.bs.modal', function () {
+            iframe.src = iframeSrc;
+        });
+
+        // Optionally clear the iframe src on modal hide
+        $('#modal-rating').on('hidden.bs.modal', function () {
+            iframe.src = '';
+        });
+    });
 </script>
 @endsection

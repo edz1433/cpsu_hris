@@ -428,25 +428,21 @@
     $(document).ready(function () {
         $('#employee').select2();
 
-        const groupValues = ['Deans', 'Campus Ad', 'Heads'];
+        const groupValues = ['C:2', 'C:3', 'C:4', 'C:5', 'C:6', 'C:7'];
 
         $('#employee').on('change', function () {
             const selected = $(this).val() || [];
 
-            // Check if any group value is selected
             const hasGroup = selected.some(val => groupValues.includes(val));
+            const hasIndividual = selected.some(val => !groupValues.includes(val));
 
-            if (hasGroup) {
-                // If group is selected, remove individual selections
+            if (hasGroup && hasIndividual) {
+                // Prefer groups: remove individual selections
                 const filtered = selected.filter(val => groupValues.includes(val));
-                $('#employee').val(filtered).trigger('change.select2');
-            } else {
-                // If individuals are selected, ensure group options are deselected
-                const filtered = selected.filter(val => !groupValues.includes(val));
-                $('#employee').val(filtered).trigger('change.select2');
+                $(this).val(filtered).trigger('change.select2');
             }
 
-            console.log('Currently selected:', $('#employee').val());
+            console.log('Currently selected:', $(this).val());
         });
     });
 </script>

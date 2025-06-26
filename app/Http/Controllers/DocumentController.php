@@ -16,6 +16,8 @@ use App\Models\Dpcr;
 use App\Models\DpcrMfo;
 use App\Models\DpcrMfoData;
 use App\Models\SpmsPersonnel;
+use App\Models\SpmsAsignatory;
+use Illuminate\Support\Facades\DB;
 
 class DocumentController extends Controller
 {
@@ -119,19 +121,25 @@ class DocumentController extends Controller
 
     public function perRatingOpcr($cat, $empid, $prnumber)
     {
-        $folder = 1;
+        $startTime = microtime(true); // For benchmarking
+
         $guard = $this->getGuard();
         $dempid = $this->shortDecrypt($empid);
         $dprnumber = $this->shortDecrypt($prnumber);
-        $setting = Setting::first();
-        $dempid = ($empid) ? $dempid : auth()->guard($guard)->user()->id;
-        
+
+        $setting = Setting::select('suc_pres')->first(); // fetch only needed column
+
+        // Fallback if no empid
+        $dempid = $empid ? $dempid : auth()->guard($guard)->user()->id;
+
+        // Only fetch required columns
         $employees = SpmsPersonnel::join('employees', 'employees.id', '=', 'spms_personnels.empid')
             ->where('employees.emp_status', 1)
             ->where('employees.id', '!=', $setting->suc_pres)
             ->whereIn('spms_personnels.category', [2, 3, 4, 5])
             ->select(
-                'spms_personnels.*',
+                'spms_personnels.id',
+                'spms_personnels.empid',
                 'employees.id as emp_id',
                 'employees.fname',
                 'employees.lname',
@@ -139,37 +147,57 @@ class DocumentController extends Controller
                 'employees.prefix'
             )
             ->get();
+        
+        $employeesreg = Employee::where('emp_status', 1)->get();
 
-        $employee = Employee::find($dempid);
+        // Only get needed name fields
+        $employee = Employee::select('fname', 'mname', 'lname')->find($dempid);
 
         $fullname = $employee
-            ? $employee->fname . ' ' . 
-                ($employee->mname ? strtoupper(substr($employee->mname, 0, 1)) . '.' : '') . 
+            ? $employee->fname . ' ' .
+                ($employee->mname ? strtoupper(substr($employee->mname, 0, 1)) . '.' : '') .
                 ' ' . $employee->lname
             : '';
 
-        // Fetch OPCR data
+        // Get all 3 types of OPCRs in one go
         $prs = Opcr::where('user_id', $dempid)
             ->where('pr_number', $dprnumber)
+            ->orderBy('id') // assumes order = core, strat, support
+            ->take(3)
             ->get();
 
-        $cores = $prs->get(0) ? OpcrMfo::where('opcr_id', $prs[0]->id)->get() : collect();
-        $strats = $prs->get(1) ? OpcrMfo::where('opcr_id', $prs[1]->id)->get() : collect();
-        $supports = $prs->get(2) ? OpcrMfo::where('opcr_id', $prs[2]->id)->get() : collect();
+        $prsByIndex = $prs->keyBy(function ($item, $key) {
+            return $key; // 0 = core, 1 = strat, 2 = support
+        });
 
-        $datas = OpcrMfoData::all();
+        // Preload OPCR MFOs in one query
+        $opcrIds = $prs->pluck('id');
+        $opcrMfos = OpcrMfo::whereIn('opcr_id', $opcrIds)->get()->groupBy('opcr_id');
 
-        // Include DPCR-related data (if still needed for the OPCR view)
-        $datasdpcr = \DB::table('dpcr_mfo_data')
+        $cores = $prsByIndex->has(0) ? $opcrMfos[$prsByIndex[0]->id] ?? collect() : collect();
+        $strats = $prsByIndex->has(1) ? $opcrMfos[$prsByIndex[1]->id] ?? collect() : collect();
+        $supports = $prsByIndex->has(2) ? $opcrMfos[$prsByIndex[2]->id] ?? collect() : collect();
+
+        // Optimize data loading
+        $datas = OpcrMfoData::select([
+            'id', 'opcr_mfo_id', 'mfo', 'target', 'measure', 'in_support',
+            'div_account', 'quality', 'q_score', 'efficiency', 'e_score',
+            'timeliness', 't_score', 'average', 'remarks', 'category'
+        ])->get();
+
+        // Optimize DPCR join
+        $datasdpcr = DB::table('dpcr_mfo_data')
             ->join('employees', 'dpcr_mfo_data.user_id', '=', 'employees.id')
             ->leftJoin('evidence', function ($join) {
                 $join->on('dpcr_mfo_data.id', '=', 'evidence.data_id')
-                    ->where('evidence.category', '=', 2); // Category 2 assumed for DPCR
+                    ->where('evidence.category', '=', 2);
             })
             ->select(
-                'dpcr_mfo_data.*',
+                'dpcr_mfo_data.id',
+                'dpcr_mfo_data.opcr_mfo_data_id',
+                'dpcr_mfo_data.user_id',
                 'evidence.evidence as evidence_file',
-                \DB::raw("CONCAT(employees.fname, ' ', 
+                DB::raw("CONCAT(employees.fname, ' ', 
                     IF(employees.mname IS NOT NULL AND employees.mname != '', 
                         CONCAT(UPPER(LEFT(employees.mname, 1)), '.'), 
                         ''
@@ -179,11 +207,17 @@ class DocumentController extends Controller
             )
             ->get();
 
+        $folder = 1;
+
+        $endTime = microtime(true);
+        $elapsed = round($endTime - $startTime, 3);
+
         return view('drive.pr', compact(
-            'guard', 'datas', 'prs', 'cores', 'strats', 'supports', 'folder',
-            'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'datasdpcr'
+            'guard', 'datas', 'prs', 'cores', 'strats', 'supports', 'folder', 'employeesreg',
+            'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'datasdpcr', 'dprnumber'
         ));
     }
+
     
     public function perRatingDpcr($cat, $empid, $prnumber)
     {
@@ -194,10 +228,10 @@ class DocumentController extends Controller
 
         $dempid = ($empid) ? $dempid : auth()->guard($guard)->user()->id;
 
-
         $employee = Employee::find($dempid);
 
         $employees = Employee::where('emp_dept', $employee->emp_dept)->where('emp_status', 1)->get();
+        $employeesreg = Employee::where('emp_status', 1)->get();
 
         $fullname = $employee
             ? $employee->fname . ' ' .
@@ -233,11 +267,10 @@ class DocumentController extends Controller
                 ) AS fullname")
             )
             ->get();
-            
 
         return view('drive.pr-dpcr', compact(
-            'guard', 'datas', 'prs', 'cores', 'strats', 'supports', 'folder',
-            'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber'
+            'guard', 'datas', 'prs', 'cores', 'strats', 'supports', 'folder', 'employeesreg',
+            'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'dprnumber'
         ));
     }
 
@@ -333,5 +366,27 @@ class DocumentController extends Controller
     
         return response()->json(['success' => 'File deleted successfully']);
     }
-  
+
+    public function updateAsignatories(Request $request)
+    {
+        $employeeInputs = $request->input('employee', []);
+        $designationInputs = $request->input('designation', []);
+
+        foreach ($employeeInputs as $id => $empId) {
+            $designation = $designationInputs[$id] ?? null;
+
+            if ($empId && $designation) {
+                $asignatory = SpmsAsignatory::find($id);
+
+                if ($asignatory) {
+                    $asignatory->empid = $empId;
+                    $asignatory->designation = $designation;
+                    $asignatory->save();
+                }
+            }
+        }
+
+        return redirect()->back()->with('success', 'Signatories updated successfully!');
+    }
+
 }

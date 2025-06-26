@@ -15,6 +15,7 @@ use App\Models\Dpcr;
 use App\Models\DpcrMfo;
 use App\Models\DpcrMfoData;
 use App\Models\SpmsPersonnel;
+use App\Models\Office;
 
 class OpcrController extends Controller
 {
@@ -382,7 +383,7 @@ class OpcrController extends Controller
     }
 
     public function assignOpcr(Request $request)
-    {
+    { 
         $setting = Setting::first();
         $id = $request->opcrid;
         $empIds = $request->empid;
@@ -390,6 +391,11 @@ class OpcrController extends Controller
         $prnumber = $request->prnumber;
 
         $finalEmpIds = [];
+
+        $sucpresData = Employee::join('spms_personnels', 'employees.id', '=', 'spms_personnels.empid')
+            ->where('employees.id', $setting->suc_pres)
+            ->select('employees.emp_ID', 'employees.suffix', 'spms_personnels.designation')
+            ->first();
 
         if (!empty($empIds) && str_contains(implode(',', $empIds), 'C:')) {
             $categoryIds = [];
@@ -419,6 +425,15 @@ class OpcrController extends Controller
             if (!is_numeric($empid)) continue;
 
             $employee = Employee::find($empid);
+            $empoffice = Office::find($employee->emp_dept);
+
+            $offheadData = Employee::join('spms_personnels', 'employees.id', '=', 'spms_personnels.empid')
+                ->where('employees.id', $employee->supervisor)
+                ->select('employees.emp_ID', 'employees.suffix', 'spms_personnels.designation', 'employees.emp_dept')
+                ->first();
+
+            $headoffice = Office::find($offheadData->emp_dept);
+
             if (!$employee) continue;
 
             $prSetting = PrSetting::find($employee->strat_function);
@@ -446,9 +461,9 @@ class OpcrController extends Controller
 
             if (!$exists) {
                 $dpcrRecords = [
-                    ['mfo' => 'CORE FUNCTIONS',      'percent' => $prSetting->core_sum],
-                    ['mfo' => 'STRATEGIC FUNCTIONS', 'percent' => $prSetting->strat_sum],
-                    ['mfo' => 'SUPPORT FUNCTIONS',   'percent' => $prSetting->support_sum],
+                    ['mfo' => 'CORE FUNCTIONS',      'percent' => $prSetting->core_sum ?? 0],
+                    ['mfo' => 'STRATEGIC FUNCTIONS', 'percent' => $prSetting->strat_sum ?? 0],
+                    ['mfo' => 'SUPPORT FUNCTIONS',   'percent' => $prSetting->support_sum ?? 0],
                 ];
 
                 $insertedIds = [];
@@ -483,12 +498,11 @@ class OpcrController extends Controller
                 DpcrMfo::insert($dpcrMfo);
 
                 $asignatories = [
-                    ['empid' => 'EMP0001', 'suffixes' => "Ph.D.", 'designation' => 'SUC President II', 'label' => 'Discussed with:'],
-                    ['empid' => 'EMP0131', 'suffixes' => "Ph.D.", 'designation' => 'Director, Quality Assurance', 'label' => 'Assessed by:'],
-                    ['empid' => 'EMP0202', 'suffixes' => "Ph.D.", 'designation' => 'Director, Planning and Development', 'label' => 'Reviewed by:'],
-                    ['empid' => 'EMP0003', 'suffixes' => "Ph.D.", 'designation' => 'Vice President for Academic Affairs', 'label' => 'Reviewed by:'],
-                    ['empid' => 'EMP0002', 'suffixes' => "Ph.D.", 'designation' => 'Vice President for Administration and Finance', 'label' => 'Reviewed by:'],
-                    ['empid' => 'EMP0001', 'suffixes' => "Ph.D.", 'designation' => 'SUC President II', 'label' => 'Final Rating by:'],
+                    ['empid' => $employee->emp_ID, 'suffixes' => $employee->suffix, 'designation' => !empty($empoffice) && !empty($empoffice->office_name) ? 'Head, '.$empoffice->office_name : '', 'label' => 'Discussed with:'],
+                    ['empid' => $offheadData->emp_ID, 'suffixes' => $offheadData->suffix, 'designation' => !empty($headoffice) && !empty($headoffice->office_name) ? $headoffice->office_name : '', 'label' => 'Assessed by:'],
+                    ['empid' => 'EMP0131', 'suffixes' => "Ph.D.", 'designation' => 'Performance Management Team', 'label' => 'Reviewed by:'],
+                    ['empid' => 'EMP0202', 'suffixes' => "Ph.D.", 'designation' => 'Performance Management Team', 'label' => 'Reviewed by:'],
+                    ['empid' => $sucpresData->emp_ID, 'suffixes' => $sucpresData->suffix, 'designation' => 'President', 'label' => 'Approved:'],
                 ];
 
                 foreach ($asignatories as $asignatory) {

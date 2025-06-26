@@ -30,7 +30,7 @@
     }
 </style>
 @php
-    $selectedEmployees = \App\Models\SpmsAsignatory::where('pr_number', 0001)
+    $selectedEmployees = \App\Models\SpmsAsignatory::where('pr_number', $dprnumber)
         ->join('employees', 'spms_asignatories.empid', '=', 'employees.emp_ID')
         ->select('employees.fname', 'employees.lname', 'employees.mname', 'spms_asignatories.*')
         ->get();
@@ -45,7 +45,8 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <iframe src="{{ route('dpcrPdf', ['prnumber' => $prnumber, 'userid' => $empid ?? auth()->guard($guard)->user()->id]) }}" frameborder="0" style="width: 100%; height: 80vh;"></iframe>
+                <!-- Placeholder iframe without src initially -->
+                <iframe id="rating-iframe" frameborder="0" style="width: 100%; height: 80vh;"></iframe>
             </div>
         </div>
     </div>
@@ -76,9 +77,15 @@
             <i class="fas fa-star"></i> Rating
         </button> --}}
         
-        <a class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modal-rating">
-            <i class="fas fa-file-pdf"></i>
-        </a>
+        <div class="dropdown d-inline">
+            <button class="btn btn-danger btn-sm dropdown-toggle" type="button" id="pdfDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-file-pdf"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="pdfDropdown">
+                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#modal-rating">DPCR Cover Page</a>
+                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#modal-ipcr">OPCR</a>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -137,6 +144,7 @@
                     data-toggle="modal"
                     data-cat="1"
                     data-id="{{ $prs[0]->id }}"
+                    data-folder="{{ $folder }}"
                     data-target="#createOpcrMfoModal">
                     </i>
                 </td>
@@ -191,30 +199,42 @@
                     <td class="text-left pl-1">
                         {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
                     </td>
-                    <td class="text-left pl-2" width="210" onclick="event.stopPropagation();">
-                        @foreach ($relatedSubordinates as $index => $sub)
-                            @php
-                                $hasEvidence = !empty($sub->evidence_file);
-                                $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
-                                $evidenceUrl = $hasEvidence ? asset("storage/Evidence/{$sub->evidence_file}") : 'javascript:void(0)';
-                            @endphp
+                    <td class="text-left pl-2" width="210" 
+                        onmouseover="if(this.querySelector('.dropdown-menu')) this.querySelector('.dropdown-menu').classList.add('show');" 
+                        onmouseout="if(this.querySelector('.dropdown-menu')) this.querySelector('.dropdown-menu').classList.remove('show');"
+                        onclick="event.stopPropagation();">
+                        @php
+                            $withEvidenceCount = $relatedSubordinates->where('evidence_file', '!=', '')->count();
+                            $totalCount = $relatedSubordinates->count();
+                        @endphp
+                        @if($totalCount)
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-primary dropdown-toggle" style="width: 95%;" type="button" id="dropdownEvidence{{ $opcrmfodata->id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Evidence ({{ $withEvidenceCount }}/{{ $totalCount }})
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownEvidence{{ $opcrmfodata->id }}" style="max-height: 200px; overflow-y: auto;">
+                                    @foreach ($relatedSubordinates as $index => $sub)
+                                        @php
+                                            $hasEvidence = !empty($sub->evidence_file);
+                                            $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
+                                            $evidenceUrl = $hasEvidence ? asset("storage/Evidence/{$sub->evidence_file}") : 'javascript:void(0)';
+                                        @endphp
 
-                            @if ($hasEvidence)
-                                <a href="{{ $evidenceUrl }}" target="_blank" style="text-decoration: none;">
-                                    <i class="fas fa-check-circle {{ $iconClass }}"></i>
-                                    <b>{{ strtoupper($sub->fullname) }}</b>
-                                </a>
-                            @else
-                                <span style="text-decoration: none; cursor: default;">
-                                    <i class="fas fa-check-circle {{ $iconClass }}"></i>
-                                    <b>{{ strtoupper($sub->fullname) }}</b>
-                                </span>
-                            @endif
-                                
-                            @if (($index + 1) % 2 == 0)
-                                <br>
-                            @endif
-                        @endforeach
+                                        @if ($hasEvidence)
+                                            <a class="dropdown-item" href="{{ $evidenceUrl }}" target="_blank" style="text-decoration: none;">
+                                                <i class="fas fa-check-circle {{ $iconClass }}"></i>
+                                                <b>{{ strtoupper($sub->fullname) }}</b>
+                                            </a>
+                                        @else
+                                            <span class="dropdown-item" style="cursor: default;">
+                                                <i class="fas fa-check-circle {{ $iconClass }}"></i>
+                                                <b>{{ strtoupper($sub->fullname) }}</b>
+                                            </span>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </td>
                     <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
@@ -264,6 +284,7 @@
                     data-toggle="modal"
                     data-cat="2"
                     data-id="{{ $prs[1]->id }}"
+                    data-folder="{{ $folder }}"
                     data-target="#createOpcrMfoModal">
                     </i>
                 </td>
@@ -313,30 +334,42 @@
                     <td class="text-left pl-1">
                         {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
                     </td>
-                    <td class="text-left pl-2" width="210" onclick="event.stopPropagation();">
-                        @foreach ($relatedSubordinates as $index => $sub)
-                            @php
-                                $hasEvidence = !empty($sub->evidence_file);
-                                $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
-                                $evidenceUrl = $hasEvidence ? asset("storage/Evidence/{$sub->evidence_file}") : 'javascript:void(0)';
-                            @endphp
+                    <td class="text-left pl-2" width="210" 
+                        onmouseover="if(this.querySelector('.dropdown-menu')) this.querySelector('.dropdown-menu').classList.add('show');" 
+                        onmouseout="if(this.querySelector('.dropdown-menu')) this.querySelector('.dropdown-menu').classList.remove('show');"
+                        onclick="event.stopPropagation();">
+                        @php
+                            $withEvidenceCount = $relatedSubordinates->where('evidence_file', '!=', '')->count();
+                            $totalCount = $relatedSubordinates->count();
+                        @endphp
+                        @if($totalCount)
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-primary dropdown-toggle" style="width: 95%;" type="button" id="dropdownEvidence{{ $opcrmfodata->id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Evidence ({{ $withEvidenceCount }}/{{ $totalCount }})
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownEvidence{{ $opcrmfodata->id }}" style="max-height: 200px; overflow-y: auto;">
+                                    @foreach ($relatedSubordinates as $index => $sub)
+                                        @php
+                                            $hasEvidence = !empty($sub->evidence_file);
+                                            $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
+                                            $evidenceUrl = $hasEvidence ? asset("storage/Evidence/{$sub->evidence_file}") : 'javascript:void(0)';
+                                        @endphp
 
-                            @if ($hasEvidence)
-                                <a href="{{ $evidenceUrl }}" target="_blank" style="text-decoration: none;">
-                                    <i class="fas fa-check-circle {{ $iconClass }}"></i>
-                                    <b>{{ strtoupper($sub->fullname) }}</b>
-                                </a>
-                            @else
-                                <span style="text-decoration: none; cursor: default;">
-                                    <i class="fas fa-check-circle {{ $iconClass }}"></i>
-                                    <b>{{ strtoupper($sub->fullname) }}</b>
-                                </span>
-                            @endif
-
-                            @if (($index + 1) % 2 == 0)
-                                <br>
-                            @endif
-                        @endforeach
+                                        @if ($hasEvidence)
+                                            <a class="dropdown-item" href="{{ $evidenceUrl }}" target="_blank" style="text-decoration: none;">
+                                                <i class="fas fa-check-circle {{ $iconClass }}"></i>
+                                                <b>{{ strtoupper($sub->fullname) }}</b>
+                                            </a>
+                                        @else
+                                            <span class="dropdown-item" style="cursor: default;">
+                                                <i class="fas fa-check-circle {{ $iconClass }}"></i>
+                                                <b>{{ strtoupper($sub->fullname) }}</b>
+                                            </span>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </td>
                     <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
@@ -386,6 +419,7 @@
                     data-toggle="modal"
                     data-cat="3"
                     data-id="{{ $prs[2]->id }}"
+                    data-folder="{{ $folder }}"
                     data-target="#createOpcrMfoModal">
                     </i>
                 </td>
@@ -432,30 +466,42 @@
                     <td class="text-left pl-1">
                         {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
                     </td>
-                    <td class="text-left pl-2" width="210" onclick="event.stopPropagation();">
-                        @foreach ($relatedSubordinates as $index => $sub)
-                            @php
-                                $hasEvidence = !empty($sub->evidence_file);
-                                $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
-                                $evidenceUrl = $hasEvidence ? asset("storage/Evidence/{$sub->evidence_file}") : 'javascript:void(0)';
-                            @endphp
+                    <td class="text-left pl-2" width="210" 
+                        onmouseover="if(this.querySelector('.dropdown-menu')) this.querySelector('.dropdown-menu').classList.add('show');" 
+                        onmouseout="if(this.querySelector('.dropdown-menu')) this.querySelector('.dropdown-menu').classList.remove('show');"
+                        onclick="event.stopPropagation();">
+                        @php
+                            $withEvidenceCount = $relatedSubordinates->where('evidence_file', '!=', '')->count();
+                            $totalCount = $relatedSubordinates->count();
+                        @endphp
+                        @if($totalCount)
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-primary dropdown-toggle" style="width: 95%;" type="button" id="dropdownEvidence{{ $opcrmfodata->id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Evidence ({{ $withEvidenceCount }}/{{ $totalCount }})
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownEvidence{{ $opcrmfodata->id }}" style="max-height: 200px; overflow-y: auto;">
+                                    @foreach ($relatedSubordinates as $index => $sub)
+                                        @php
+                                            $hasEvidence = !empty($sub->evidence_file);
+                                            $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
+                                            $evidenceUrl = $hasEvidence ? asset("storage/Evidence/{$sub->evidence_file}") : 'javascript:void(0)';
+                                        @endphp
 
-                            @if ($hasEvidence)
-                                <a href="{{ $evidenceUrl }}" target="_blank" style="text-decoration: none;">
-                                    <i class="fas fa-check-circle {{ $iconClass }}"></i>
-                                    <b>{{ strtoupper($sub->fullname) }}</b>
-                                </a>
-                            @else
-                                <span style="text-decoration: none; cursor: default;">
-                                    <i class="fas fa-check-circle {{ $iconClass }}"></i>
-                                    <b>{{ strtoupper($sub->fullname) }}</b>
-                                </span>
-                            @endif
-
-                            @if (($index + 1) % 2 == 0)
-                                <br>
-                            @endif
-                        @endforeach
+                                        @if ($hasEvidence)
+                                            <a class="dropdown-item" href="{{ $evidenceUrl }}" target="_blank" style="text-decoration: none;">
+                                                <i class="fas fa-check-circle {{ $iconClass }}"></i>
+                                                <b>{{ strtoupper($sub->fullname) }}</b>
+                                            </a>
+                                        @else
+                                            <span class="dropdown-item" style="cursor: default;">
+                                                <i class="fas fa-check-circle {{ $iconClass }}"></i>
+                                                <b>{{ strtoupper($sub->fullname) }}</b>
+                                            </span>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </td>
                     <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
@@ -566,25 +612,21 @@
     $(document).ready(function () {
         $('#employee').select2();
 
-        const groupValues = ['Deans', 'Campus Ad', 'Heads'];
+        const groupValues = ['C:2', 'C:3', 'C:4', 'C:5', 'C:6', 'C:7'];
 
         $('#employee').on('change', function () {
             const selected = $(this).val() || [];
 
-            // Check if any group value is selected
             const hasGroup = selected.some(val => groupValues.includes(val));
+            const hasIndividual = selected.some(val => !groupValues.includes(val));
 
-            if (hasGroup) {
-                // If group is selected, remove individual selections
+            if (hasGroup && hasIndividual) {
+                // Prefer groups: remove individual selections
                 const filtered = selected.filter(val => groupValues.includes(val));
-                $('#employee').val(filtered).trigger('change.select2');
-            } else {
-                // If individuals are selected, ensure group options are deselected
-                const filtered = selected.filter(val => !groupValues.includes(val));
-                $('#employee').val(filtered).trigger('change.select2');
+                $(this).val(filtered).trigger('change.select2');
             }
 
-            console.log('Currently selected:', $('#employee').val());
+            console.log('Currently selected:', $(this).val());
         });
     });
 </script>
@@ -663,7 +705,7 @@
         // Show the modal
         $('#opcrMfoData').modal('show');
     }
-
+    
     function confirmDeleteOpcrData(id,mfoid) {
         Swal.fire({
             title: 'Delete this entry?',
@@ -723,6 +765,24 @@
         $('#efficiency').val('');
         $('#timeliness').val('');
     });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('modal-rating');
+        const iframe = document.getElementById('rating-iframe');
 
+        // Define the URL with Blade
+        const iframeSrc = "{{ route('dpcrPdf', ['prnumber' => $prnumber, 'userid' => $empid ?? auth()->guard($guard)->user()->id]) }}";
+
+        // Listen for modal show event
+        $('#modal-rating').on('show.bs.modal', function () {
+            iframe.src = iframeSrc;
+        });
+
+        // Optionally clear the iframe src on modal hide
+        $('#modal-rating').on('hidden.bs.modal', function () {
+            iframe.src = '';
+        });
+    });
 </script>
 @endsection

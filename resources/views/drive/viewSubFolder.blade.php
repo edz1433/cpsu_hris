@@ -84,7 +84,7 @@
                                     $fullName = Str::upper("{$employee->fname} {$employee->mname} {$employee->lname}");
                                     $year = $employee->year;
                                 @endphp
-                                <tr onclick="showForm('{{ shortEncrypt($employee->empid) }}', '{{ shortEncrypt($employee->pr_number) }}')">
+                                <tr onclick="showForm('{{ shortEncrypt($employee->empid) }}', '{{ shortEncrypt($employee->pr_number) }}')" style="cursor:pointer;">
                                     @php
                                         $profileFile = $employee->profile ?? '';
                                         $sex = $employee->sex ?? 'Male';
@@ -109,6 +109,7 @@
                                             <b>{{ $item->mfo }} (<span class="text-danger">{{ $item->percent }}%</span>)</b>
                                         </td>
                                     @endforeach
+                                    <td><span class="badge badge-warning">Ongoing...</span></td>
                                 </tr>
                             @endforeach
                         </tbody>                        

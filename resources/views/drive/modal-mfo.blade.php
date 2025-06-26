@@ -162,20 +162,27 @@
                     <input type="hidden" name="opcrid" id="opcr-mfo-data-id">
                     <input type="hidden" name="count" id="count">
                     <select class="form-control form-control-sm select2" name="empid[]" id="employee" required multiple>
-                        <option value="C:2">All Dean</option>
-                        <option value="C:3">All Campus Ad</option>
-                        <option value="C:4">All Office Head</option>
-                        <option value="C:5">All Director</option> 
-                        {{-- <option value="C:6">All Staff</option>
-                        <option value="C:7">All Faculty</option> --}}
+                        @if($folder == 1)
+                            <option value="C:2">All Dean</option>
+                            <option value="C:3">All Campus Ad</option>
+                            <option value="C:4">All Office Head</option>
+                            <option value="C:5">All Director</option> 
+                        @else
+                            @if($guard == "web" || in_array($userid, $pmtsmember ?? []))
+                                {{-- <option value="C:6">All Staff</option>
+                                <option value="C:7">All Faculty</option> --}}
+                            @endif
+                        @endif
                         @foreach($employees as $emp)
-                            <option value="{{ $emp->emp_id }}" 
-                                @if(isset($employee) && $employee && $emp->emp_id == $employee->emp_ID) selected @endif>
-                                {{ $emp->lname }}
-                                {{ $emp->prefix }}
-                                {{ $emp->fname }}
-                                {{ isset($emp->mname) ? substr($emp->mname, 0, 1).'.' : '' }}
-                            </option>
+                            @if($emp->emp_id != $dempid)
+                                <option value="{{ $emp->emp_id }}" 
+                                    @if(isset($employee) && $employee && $emp->emp_id == $employee->emp_ID) selected @endif>
+                                    {{ $emp->lname }}
+                                    {{ $emp->prefix }}
+                                    {{ $emp->fname }}
+                                    {{ isset($emp->mname) ? substr($emp->mname, 0, 1).'.' : '' }}
+                                </option>
+                            @endif
                         @endforeach
                     </select>
                     <div class="form-row">
@@ -194,13 +201,15 @@
     <div class="modal-dialog modal-md" style="width: 900px !important;" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="setupModalLabel">Setup Asignatories</h5>
+                <h5 class="modal-title" id="setupModalLabel">Asignatories</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form id="setupForm">
+                <form id="setupForm" action="{{ route('updateAsignatories') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="pr_number" value="{{ $selectedEmployees->first()->pr_number ?? '' }}">
                     <div class="row">
                         @php
                             $groupedAsignatories = $selectedEmployees->groupBy('label');
@@ -208,12 +217,15 @@
                         @foreach ($groupedAsignatories as $label => $asignatories)
                             <div class="col-md-12 mb-3">
                                 <label>{{ $label ?? 'Employee' }}</label>
-                                @foreach ($asignatories as $index => $asignatory)
+                                @foreach ($asignatories as $asignatory)
+                                    @php
+                                        $rowId = $asignatory->id;
+                                    @endphp
                                     <div class="row mb-2">
                                         <div class="col-md-4">
-                                            <select class="form-control form-control-sm select2" name="employee{{ $loop->parent->index + $index + 1 }}" id="employee{{ $loop->parent->index + $index + 1 }}" required>
+                                            <select class="form-control form-control-sm select2" name="employee[{{ $rowId }}]" id="employee{{ $rowId }}" required>
                                                 <option value="">Select Employee</option>
-                                                @foreach($employees as $emp)
+                                                @foreach($employeesreg as $emp)
                                                     @php
                                                         $fullName = $emp->fname . ' ' .
                                                         ($emp->mname ? strtoupper(substr($emp->mname, 0, 1)) . '. ' : '') .
@@ -222,24 +234,26 @@
                                                     @endphp
                                                     <option value="{{ $emp->emp_ID }}" 
                                                         @if($emp->emp_ID == $asignatory->empid) selected @endif>
-                                                        {{ $fullName }}
+                                                        {{ ucwords(strtolower($fullName)) }} 
                                                     </option>
                                                 @endforeach
                                             </select>
                                         </div>
                                         <div class="col-md-8">
-                                            <input type="text" class="form-control form-control-sm" name="designation{{ $loop->parent->index + $index + 1 }}" id="designation{{ $loop->parent->index + $index + 1 }}" value="{{ $asignatory->designation ?? '' }}" placeholder="Designation">
+                                            <input type="text" class="form-control form-control-sm" 
+                                                name="designation[{{ $rowId }}]" 
+                                                value="{{ ucwords(strtolower($asignatory->designation)) }}" 
+                                                placeholder="Designation" autocomplete="off">
                                         </div>
                                     </div>
                                 @endforeach
                             </div>
                         @endforeach
                     </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Save changes</button>
+                    </div>
                 </form>
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-success" onclick="saveSetup()">Save changes</button>
             </div>
         </div>
     </div>
