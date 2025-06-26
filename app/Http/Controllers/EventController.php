@@ -159,7 +159,7 @@ class EventController extends Controller
         ->get();
     
     
-        $chunkedEvents = $events->chunk(35);
+        $chunkedEvents = $events->chunk(33);
     
         $customPaper = [0, 0, 612, 792];
     
