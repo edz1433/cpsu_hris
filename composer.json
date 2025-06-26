@@ -17,6 +17,7 @@
         "picqer/php-barcode-generator": "^2.0",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
+        "simplesoftwareio/simple-qrcode": "^4.2",
         "smalot/pdfparser": "^2.11"
     },
     "require-dev": {

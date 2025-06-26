@@ -639,6 +639,11 @@ class EmployeeController extends Controller
         return redirect()->back()->with('success', 'Official time saved successfully.');
     }    
     
+    public function empQr(){
+        $employees = Employee::select('emp_ID', 'fname', 'lname')->get();
+
+        return view('emp.qr-code', compact('employees'));
+    }
     
     // public function updateEmployeePasswords()
     // {

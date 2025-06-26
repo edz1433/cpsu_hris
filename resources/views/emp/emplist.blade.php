@@ -16,6 +16,9 @@
                 <div class="card-body">
                     <div class="card-header">
                         <div class="card-tools">
+                            <a href="{{ route('empQr') }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-qrcode"></i> 
+                            </a>
                             <a href="{{ route('genEmp') }}" target="_blank" class="btn btn-outline-danger btn-sm">
                                 <i class="fas fa-file-pdf"></i> 
                             </a>
