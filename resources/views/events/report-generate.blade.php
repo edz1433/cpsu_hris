@@ -88,20 +88,20 @@
       <thead>
         <tr>
           <td class="text-center" rowspan="2" colspan="2">NAME</td>
-          <td class="text-center" rowspan="2">POSITION/<br>DESIGNATION/<br>FUNCTIONAL AREA</td>
-          <td class="text-center" rowspan="2">CAMPUS</td>
+          <td class="text-center" rowspan="2" width="200">POSITION/<br>DESIGNATION/<br>FUNCTIONAL AREA</td>
+          <td class="text-center" rowspan="2" width="65">CAMPUS</td>
           <td class="text-center" colspan="2">SIGNATURE</td>
         </tr>
         <tr>
-          <td class="text-center">IN</td>
-          <td class="text-center">OUT</td>
+          <td class="text-center" width="46">IN</td>
+          <td class="text-center" width="46">OUT</td>
         </tr>
       </thead>
       <tbody>
         @foreach($events as $event)
           <tr>
-            <td class="text-center">{{ $loop->iteration }}</td>
-            <td width="140">{{ strtoupper($event->lname).' '.strtoupper($event->fname).' '. strtoupper($event->suffix) }}</td>
+            <td class="text-center" width="30">{{ $loop->iteration }}</td>
+            <td width="140">{{ strtoupper($event->lname).' '.strtoupper($event->fname) }}</td>
             <td width="130" class="text-left pl-2">{{ ($event->emp_status == 1) ? strtoupper($event->position) : 'OFFICE STAFF'}}</td>
             <td class="text-center">{{ strtoupper($event->campus_name) }}</td>
             
