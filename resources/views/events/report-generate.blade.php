@@ -100,7 +100,7 @@
       <tbody>
         @foreach($events as $event)
           <tr>
-            <td class="text-center" width="30">{{ $loop->iteration }}</td>
+            <td class="text-center" width="20">{{ $loop->iteration }}</td>
             <td width="140">{{ strtoupper($event->lname).' '.strtoupper($event->fname) }}</td>
             <td width="130" class="text-left pl-2">{{ ($event->emp_status == 1) ? strtoupper($event->position) : 'OFFICE STAFF'}}</td>
             <td class="text-center">{{ strtoupper($event->campus_name) }}</td>
