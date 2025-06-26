@@ -640,7 +640,11 @@ class EmployeeController extends Controller
     }    
     
     public function empQr(){
-        $employees = Employee::select('emp_ID', 'fname', 'lname')->get();
+        $employees = Employee::select('emp_ID', 'fname', 'lname', 'emp_dept', 'camp_id')
+            ->where('camp_id', 1)
+            ->orderBy('emp_dept')
+            ->orderBy('lname')
+            ->get();
 
         return view('emp.qr-code', compact('employees'));
     }
