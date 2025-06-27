@@ -40,27 +40,37 @@
                                     <label class="badge badge-secondary lbel">Middle Name</label><br>
                                     <input type="text" value="{{ $employee->mname }}" name="mname" data-column-id="{{ $empid }}" data-column-name="mname" name="mname" class="form-control form-control-sm update-field"  placeholder="N/A" required>
                                 </div>
-                                <div class="col-md-3">
+                                                                <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Suffix</label><br>
-                                    <input type="text" value="{{ $employee->suffix }}" name="suffix" data-column-id="{{ $empid }}" data-column-name="suffix" name="suffix" class="form-control form-control-sm update-field"  placeholder="N/A" required>
+                                    <select class="form-control form-control-sm update-field" name="suffix" required>
+                                        <option disabled selected> Select </option>
+                                        <option value="Jr." data-column-id="{{ $empid }}" data-column-name="suffix" @if($employee->suffix == "Jr.") selected @endif>Jr.</option>
+                                        <option value="Sr." data-column-id="{{ $empid }}" data-column-name="suffix" @if($employee->suffix == "Sr.") selected @endif>Sr.</option>
+                                        <option value="I" data-column-id="{{ $empid }}" data-column-name="suffix" @if($employee->suffix == "I") selected @endif>I</option>
+                                        <option value="II" data-column-id="{{ $empid }}" data-column-name="suffix" @if($employee->suffix == "II") selected @endif>II</option>
+                                        <option value="III" data-column-id="{{ $empid }}" data-column-name="suffix" @if($employee->suffix == "III") selected @endif>III</option>
+                                        <option value="IV" data-column-id="{{ $empid }}" data-column-name="suffix" @if($employee->suffix == "IV") selected @endif>IV</option>
+                                        <option value="V" data-column-id="{{ $empid }}" data-column-name="suffix" @if($employee->suffix == "V") selected @endif>V</option>
+                                        <option value="" data-column-id="{{ $empid }}" data-column-name="suffix" @if($employee->suffix == "") selected @endif>N/A</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Prefix</label><br>
                                     <select class="form-control form-control-sm update-field" name="prefix" required>
-                                        <option disabled selected>Select</option>
-                                        <option value="Mr." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "Mr.") selected @endif>Mr.</option>
-                                        <option value="Mrs." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "Mrs.") selected @endif>Mrs.</option>
-                                        <option value="Ms." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "Ms.") selected @endif>Ms.</option>
-                                        <option value="Miss" data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "Miss") selected @endif>Miss</option>
+                                        <option disabled selected> Select </option>
+                                        <option value="Ph.D." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "Ph.D.") selected @endif>Ph.D.</option>
+                                        <option value="Atty." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "Atty.") selected @endif>Atty.</option>
                                         <option value="Dr." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "Dr.") selected @endif>Dr.</option>
                                         <option value="Eng." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "Eng.") selected @endif>Eng.</option>
-                                        <option value="Prof." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "Prof.") selected @endif>Prof.</option>
-                                        <option value="Atty." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "Atty.") selected @endif>Atty.</option>
-                                        <option value="Hon." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "Hon.") selected @endif>Hon.</option>
+                                        <option value="J.D." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "J.D.") selected @endif>J.D.</option>
+                                        <option value="M.S.W." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "M.S.W.") selected @endif>M.S.W.</option>
+                                        <option value="C.P.A." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "C.P.A.") selected @endif>C.P.A.</option>
+                                        <option value="C.L.E.A." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "C.L.E.A.") selected @endif>C.L.E.A.</option>
+                                        <option value="DIT." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "DIT.") selected @endif>DIT.</option>
                                         <option value="" data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "") selected @endif>N/A</option>
                                     </select>                                    
-                                </div>
-                           
+                                </div>   
+                                                             
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Title Prefix</label><br>
                                     <select class="form-control form-control-sm update-field" name="title_prefix" data-column-id="{{ $empid }}" data-column-name="title_prefix">
