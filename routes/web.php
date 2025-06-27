@@ -85,8 +85,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/opcr/{cat}/{empid?}/{prnumber}', [DocumentController::class, 'perRatingOpcr'])->name('perRatingOpcr');
         Route::get('/dpcr/{cat}/{empid?}/{prnumber}', [DocumentController::class, 'perRatingDpcr'])->name('perRatingDpcr');
         Route::get('/ipcr/{cat}/{empid?}/{prnumber}', [DocumentController::class, 'perRatingIpcr'])->name('perRatingIpcr');
-        
-        // opcr mfo's
+
+        //opcr mfo's
         Route::post('/create-opcr', [OpcrController::class, 'createOpcr'])->name('create-opcr');
         Route::post('/update-opcr-mfo', [OpcrController::class, 'updateOpcrMfo'])->name('update-opcr-mfo');
         Route::post('/create-opcr-mfo-data', [OpcrController::class, 'createOpcrMfoData'])->name('create-opcr-mfo-data');
@@ -94,6 +94,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/opcrmfo-edit-ata/{id}', [OpcrController::class, 'opcrmfoEditData'])->name('opcrmfoEditData');
         Route::post('/opcrmfo-delete-data/{id}', [OpcrController::class, 'opcrmfoDeleteData'])->name('opcrmfoDeleteData');
         Route::post('/assign-opcr', [OpcrController::class, 'assignOpcr'])->name('assignOpcr');
+
+        Route::post('/update-rating/{prnumber}', [OpcrController::class, 'updateRatingStatus'])->name('updateRatingStatus');
 
         //Dpcr
         Route::post('/update-dpcr-mfo', [DpcrController::class, 'updateDpcrMfo'])->name('update-dpcr-mfo');
@@ -103,6 +105,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/dpcrmfo-delete-data/{id}', [DpcrController::class, 'dpcrmfoDeleteData'])->name('dpcrmfoDeleteData');
         Route::get('/dpcr-pdf/{prnumber}/{userid}', [DpcrController::class, 'dpcrPdf'])->name('dpcrPdf');
         Route::post('/assign-dpcr', [DpcrController::class, 'assignDpcr'])->name('assignDpcr');
+        
 
         //Evidence
         Route::post('/upload-evidence', [EvidenceController::class, 'uploadEvidence'])->name('uploadEvidence');

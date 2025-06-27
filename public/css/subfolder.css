@@ -157,3 +157,24 @@
 .folder-item:hover .file-icon::before {
     opacity: 1;
 }
+.dropdown-hover:hover .dropdown-menu,
+.dropdown-hover:focus-within .dropdown-menu {
+    display: block;
+    margin-top: 0;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.dropdown-hover .dropdown-menu {
+    display: block;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    width: 100% !important;
+    min-width: 100% !important;
+}
+.dropdown-hover .badge {
+    vertical-align: middle;
+}

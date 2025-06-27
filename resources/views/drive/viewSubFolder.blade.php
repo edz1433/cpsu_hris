@@ -78,30 +78,44 @@
                 <div class="card-body table-responsive p-0" style="height: 400px;">
                     <table class="table table-head-fixed text-nowrap">
                         <tbody>
+                            @php
+                                // Get the first row's pr_number from $opcrs
+                                $firstRow = $opcrs->first();
+                                $prnumber = $firstRow ? $firstRow->first()->pr_number : null;
+                                $status = $firstRow ? $firstRow->first()->status : null;
+
+                                $statusLabels = [
+                                    0 => ['label' => 'Ongoing...', 'class' => 'badge-warning'],
+                                    1 => ['label' => 'Request Review', 'class' => 'badge-info'],
+                                    2 => ['label' => 'Reviewing', 'class' => 'badge-primary'],
+                                    3 => ['label' => 'Done', 'class' => 'badge-success'],
+                                    5 => ['label' => 'Returned', 'class' => 'badge-danger'],
+                                ];
+                            @endphp
                             @foreach ($opcrs as $key => $mfoItems)
                                 @php
                                     $employee = $mfoItems->first();
                                     $fullName = Str::upper("{$employee->fname} {$employee->mname} {$employee->lname}");
                                     $year = $employee->year;
+                                    $status = $employee->status ?? 0;
+                                    $profileFile = $employee->profile ?? '';
+                                    $sex = $employee->sex ?? 'Male';
+                                    $profilePath = public_path('Profile/Employee/' . $profileFile);
+
+                                    if (!empty($profileFile) && file_exists($profilePath)) {
+                                        $image = asset('Profile/Employee/' . $profileFile);
+                                    } else {
+                                        $defaultImage = $sex === 'Female' ? 'default-female.png' : 'default.png';
+                                        $image = asset('Profile/Employee/' . $defaultImage);
+                                    }
+
+                                    $currentStatus = $statusLabels[$status] ?? $statusLabels[0];
                                 @endphp
+
                                 <tr onclick="showForm('{{ shortEncrypt($employee->empid) }}', '{{ shortEncrypt($employee->pr_number) }}')" style="cursor:pointer;">
-                                    @php
-                                        $profileFile = $employee->profile ?? '';
-                                        $sex = $employee->sex ?? 'Male';
-                                        $profilePath = public_path('Profile/Employee/' . $profileFile);
-
-                                        if (!empty($profileFile) && file_exists($profilePath)) {
-                                            $image = asset('Profile/Employee/' . $profileFile);
-                                        } else {
-                                            $defaultImage = $sex === 'Female' ? 'default-female.png' : 'default.png';
-                                            $image = asset('Profile/Employee/' . $defaultImage);
-                                        }
-                                    @endphp
-
                                     <td width="40">
                                         <img src="{{ $image }}" alt="User Image" class="profile-image">
                                     </td>
-
                                     <td><b>{{ $fullName }}</b></td>
                                     <td><b>{{ $foldercat.' '.strtoupper($year) }}</b> </td>
                                     @foreach ($mfoItems as $item)
@@ -109,10 +123,31 @@
                                             <b>{{ $item->mfo }} (<span class="text-danger">{{ $item->percent }}%</span>)</b>
                                         </td>
                                     @endforeach
-                                    <td><span class="badge badge-warning">Ongoing...</span></td>
+                                    <td onclick="event.stopPropagation();">
+                                        <div class="btn-group btn-group-sm dropdown-hover align-items-center" style="width: 100%;">
+                                            <span class="badge {{ $currentStatus['class'] }} align-middle" style="font-size: 100%; padding: 0.2em 0.8em;">
+                                                {{ $currentStatus['label'] }}
+                                            </span>
+                                            <button type="button" class="btn btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="false" style="padding: 0.25em 0.5em; vertical-align: middle;">
+                                                <span class="sr-only"></span>
+                                            </button>
+                                            <div class="dropdown-menu" role="menu" style="width: 100%;">
+                                                @foreach($statusLabels as $val => $label)
+                                                    @if($status != $val && $val != 1)
+                                                        <a href="" 
+                                                           class="dropdown-item"
+                                                           style="font-size: 100%; width: 100%; padding: 0.1em 1em;"
+                                                           onclick="event.stopPropagation();">
+                                                            <span class="badge {{ $label['class'] }}" style="font-size: 100%;">{{ $label['label'] }}</span>
+                                                        </a>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </td>
                                 </tr>
                             @endforeach
-                        </tbody>                        
+                        </tbody>
                     </table>
                 </div>
             </div>  
