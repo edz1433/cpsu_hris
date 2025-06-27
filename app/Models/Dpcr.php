@@ -9,6 +9,6 @@ class Dpcr extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'user_id', 'opcr_id', 'folder_id', 'pr_number', 'op_pr_number', 'mfo', 'percent', 'year'
+        'user_id', 'opcr_id', 'folder_id', 'pr_number', 'op_pr_number', 'mfo', 'percent', 'year', 'status'
     ];
 }
