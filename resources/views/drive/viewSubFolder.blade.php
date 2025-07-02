@@ -78,6 +78,7 @@
                 <div class="card-body table-responsive p-0" style="height: 400px;">
                     <table class="table table-head-fixed text-nowrap">
                         <tbody>
+                            
                             @php
                                 // Get the first row's pr_number from $opcrs
                                 $firstRow = $opcrs->first();
@@ -89,8 +90,8 @@
                                     1 => ['label' => 'Assigned', 'class' => 'badge-info'],
                                     2 => ['label' => 'Reviewing', 'class' => 'badge-primary'],
                                     3 => ['label' => 'Done', 'class' => 'badge-success'],
-                                    5 => ['label' => 'Returned', 'class' => 'badge-danger'],
-                                    6 => ['label' => 'Request Review', 'class' => 'badge-primary'],
+                                    4 => ['label' => 'Returned', 'class' => 'badge-danger'],
+                                    5 => ['label' => 'Request Review', 'class' => 'badge-primary'],
                                 ];
                             @endphp
                             @foreach ($opcrs as $key => $mfoItems)
@@ -112,8 +113,15 @@
 
                                     $currentStatus = $statusLabels[$status] ?? $statusLabels[0];
                                 @endphp
-
-                                <tr @if($guard == 'web' || ($status != 0 && in_array($userid, $pmtsmember ?? []))) onclick="showForm('{{ shortEncrypt($employee->empid) }}', '{{ shortEncrypt($employee->pr_number) }}')" style="cursor:pointer;" @endif><td width="40">
+                                <tr 
+                                    @if(
+                                        ($guard != 'web' && $employee->status != 0) 
+                                        || ($guard == 'web')
+                                    )
+                                        onclick="showForm('{{ shortEncrypt($employee->empid) }}', '{{ shortEncrypt($employee->pr_number) }}')" 
+                                        style="cursor:pointer;" 
+                                    @endif
+                                ><td width="40">
                                         <img src="{{ $image }}" alt="User Image" class="profile-image">
                                     </td>
                                     <td><b>{{ $fullName }}</b></td>
@@ -123,8 +131,8 @@
                                             <b>{{ $item->mfo }} (<span class="text-danger">{{ $item->percent }}%</span>)</b>
                                         </td>
                                     @endforeach
-                                    @if($id != 1)
-                                        <td @if($status != 0) onclick="event.stopPropagation();" @endif>
+                                    @if((in_array($userid, $pmtsmember) || $guard == 'web') && $id !== 1)
+                                        <td onclick="event.stopPropagation();">
                                             <div class="btn-group btn-group-sm dropdown-hover align-items-center" style="width: 100%;">
                                                 <span class="badge {{ $currentStatus['class'] }} align-middle" style="font-size: 100%; padding: 0.2em 0.8em;">
                                                     {{ $currentStatus['label'] }}
@@ -134,7 +142,7 @@
                                                 </button>
                                                 <div class="dropdown-menu" role="menu" style="width: 100%;">
                                                     @foreach($statusLabels as $val => $label)
-                                                        @if($status != $val && $val != 6)
+                                                        @if($status != $val && $val != 5)
                                                             <a href="" 
                                                             class="dropdown-item"
                                                             style="font-size: 100%; width: 100%; padding: 0.1em 1em;"
@@ -145,6 +153,10 @@
                                                     @endforeach
                                                 </div>
                                             </div>
+                                        </td>
+                                    @else
+                                        <td>
+                                            <span class="badge {{ $currentStatus['class'] }}">{{ $currentStatus['label'] }}</span>
                                         </td>
                                     @endif
                                 </tr>

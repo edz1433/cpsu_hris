@@ -143,6 +143,7 @@ class DocumentFolderController extends Controller
                 "$table.mfo",
                 "$table.percent",
                 "$table.year",
+                "$table.status",
                 'employees.fname',
                 'employees.lname',
                 'employees.mname',
