@@ -86,10 +86,11 @@
 
                                 $statusLabels = [
                                     0 => ['label' => 'Ongoing...', 'class' => 'badge-warning'],
-                                    1 => ['label' => 'Request Review', 'class' => 'badge-info'],
+                                    1 => ['label' => 'Assigned', 'class' => 'badge-info'],
                                     2 => ['label' => 'Reviewing', 'class' => 'badge-primary'],
                                     3 => ['label' => 'Done', 'class' => 'badge-success'],
                                     5 => ['label' => 'Returned', 'class' => 'badge-danger'],
+                                    6 => ['label' => 'Request Review', 'class' => 'badge-primary'],
                                 ];
                             @endphp
                             @foreach ($opcrs as $key => $mfoItems)
@@ -112,8 +113,7 @@
                                     $currentStatus = $statusLabels[$status] ?? $statusLabels[0];
                                 @endphp
 
-                                <tr onclick="showForm('{{ shortEncrypt($employee->empid) }}', '{{ shortEncrypt($employee->pr_number) }}')" style="cursor:pointer;">
-                                    <td width="40">
+                                <tr @if($guard == 'web' || ($status != 0 && in_array($userid, $pmtsmember ?? []))) onclick="showForm('{{ shortEncrypt($employee->empid) }}', '{{ shortEncrypt($employee->pr_number) }}')" style="cursor:pointer;" @endif><td width="40">
                                         <img src="{{ $image }}" alt="User Image" class="profile-image">
                                     </td>
                                     <td><b>{{ $fullName }}</b></td>
@@ -123,28 +123,30 @@
                                             <b>{{ $item->mfo }} (<span class="text-danger">{{ $item->percent }}%</span>)</b>
                                         </td>
                                     @endforeach
-                                    <td onclick="event.stopPropagation();">
-                                        <div class="btn-group btn-group-sm dropdown-hover align-items-center" style="width: 100%;">
-                                            <span class="badge {{ $currentStatus['class'] }} align-middle" style="font-size: 100%; padding: 0.2em 0.8em;">
-                                                {{ $currentStatus['label'] }}
-                                            </span>
-                                            <button type="button" class="btn btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="false" style="padding: 0.25em 0.5em; vertical-align: middle;">
-                                                <span class="sr-only"></span>
-                                            </button>
-                                            <div class="dropdown-menu" role="menu" style="width: 100%;">
-                                                @foreach($statusLabels as $val => $label)
-                                                    @if($status != $val && $val != 1)
-                                                        <a href="" 
-                                                           class="dropdown-item"
-                                                           style="font-size: 100%; width: 100%; padding: 0.1em 1em;"
-                                                           onclick="event.stopPropagation();">
-                                                            <span class="badge {{ $label['class'] }}" style="font-size: 100%;">{{ $label['label'] }}</span>
-                                                        </a>
-                                                    @endif
-                                                @endforeach
+                                    @if($id != 1)
+                                        <td @if($status != 0) onclick="event.stopPropagation();" @endif>
+                                            <div class="btn-group btn-group-sm dropdown-hover align-items-center" style="width: 100%;">
+                                                <span class="badge {{ $currentStatus['class'] }} align-middle" style="font-size: 100%; padding: 0.2em 0.8em;">
+                                                    {{ $currentStatus['label'] }}
+                                                </span>
+                                                <button type="button" class="btn btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="false" style="padding: 0.25em 0.5em; vertical-align: middle;">
+                                                    <span class="sr-only"></span>
+                                                </button>
+                                                <div class="dropdown-menu" role="menu" style="width: 100%;">
+                                                    @foreach($statusLabels as $val => $label)
+                                                        @if($status != $val && $val != 6)
+                                                            <a href="" 
+                                                            class="dropdown-item"
+                                                            style="font-size: 100%; width: 100%; padding: 0.1em 1em;"
+                                                            onclick="event.stopPropagation();">
+                                                                <span class="badge {{ $label['class'] }}" style="font-size: 100%;">{{ $label['label'] }}</span>
+                                                            </a>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
+                                        </td>
+                                    @endif
                                 </tr>
                             @endforeach
                         </tbody>
