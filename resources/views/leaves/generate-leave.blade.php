@@ -336,7 +336,19 @@
             </tr>
             <tr>
                 <td colspan="6">
-                    <center><span class="font1" style="width: 28%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->president_fname) }} {{ isset($leaveApplication->president_mname) ? substr($leaveApplication->president_mname, 0, 1) : '' }} {{ strtoupper($leaveApplication->president_lname) }} {{ strtoupper($leaveApplication->president_suffix) }}{{ isset($leaveApplication->pres_prefix) ? strtoupper(', '.$leaveApplication->pres_prefix) : '' }}</b></span></center>
+                    <center>
+                        <span class="font1" style="width: 28%; display: inline-block; border-bottom: 1px solid black;">
+                            <b>
+                                {{
+                                    strtoupper($leaveApplication->president_fname) . ' ' .
+                                    (isset($leaveApplication->president_mname) ? strtoupper(substr($leaveApplication->president_mname, 0, 1)) . '. ' : '') .
+                                    strtoupper($leaveApplication->president_lname) .
+                                    (!empty($leaveApplication->president_suffix) ? ' ' . $leaveApplication->president_suffix : '') .
+                                    (!empty($leaveApplication->pres_prefix) ? ', ' . $leaveApplication->pres_prefix : '')
+                                }}
+                            </b>
+                        </span>
+                    </center>
                     <center>SUC President II</center>
                 </td>
             </tr>
