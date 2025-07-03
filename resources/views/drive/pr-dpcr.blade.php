@@ -191,13 +191,24 @@
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
                 </td>
-                <td class="text-center">{!! displayValue($dpcrmfodata->in_support) !!}</td>
+                <td class="text-center">
+                    @php
+                        $inSupportValue = displayValue($dpcrmfodata->in_support);
+                    @endphp
+                    @if($inSupportValue)
+                        <a href="{{ $inSupportValue }}" target="_blank" class="text-primary" style="text-decoration: none;">
+                            <i class="fas fa-globe fa-2x"></i>
+                        </a>
+                    @else
+                        <span class="text-muted"><i class="fas fa-globe fa-2x"></i></span>
+                    @endif
+                </td>
                 <td class="text-center">
                     @if($dpcrmfodata->evidence_file)
                         <div class="d-flex justify-content-between gap-1">
                             {{-- View link on the left --}}
                             <a 
-                                href="{{ $dpcrmfodata->evidence_file ?? NULL }}" 
+                                href="{{ $dpcrmfodata->evidence_file }}" 
                                 target="_blank"
                                 class="badge bg-success text-white flex-fill text-decoration-none"
                             >
@@ -307,13 +318,24 @@
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
                 </td>
-                <td class="text-center">{!! displayValue($dpcrmfodata->in_support) !!}</td>
+                <td class="text-center">
+                    @php
+                        $inSupportValue = displayValue($dpcrmfodata->in_support);
+                    @endphp
+                    @if($inSupportValue)
+                        <a href="{{ $inSupportValue }}" target="_blank" class="text-primary" style="text-decoration: none;">
+                            <i class="fas fa-globe fa-2x"></i>
+                        </a>
+                    @else
+                        <span class="text-muted"><i class="fas fa-globe fa-2x"></i></span>
+                    @endif
+                </td>
                 <td class="text-center">
                     @if($dpcrmfodata->evidence_file)
                         <div class="d-flex justify-content-between gap-1">
                             {{-- View link on the left --}}
                             <a 
-                                href="{{ $dpcrmfodata->evidence_file ?? NULL }}" 
+                                href="{{ $dpcrmfodata->evidence_file }}" 
                                 target="_blank"
                                 class="badge bg-success text-white flex-fill text-decoration-none"
                             >
@@ -420,13 +442,24 @@
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
                 </td>
-                <td class="text-center">{!! displayValue($dpcrmfodata->in_support) !!}</td>
+                <td class="text-center">
+                    @php
+                        $inSupportValue = displayValue($dpcrmfodata->in_support);
+                    @endphp
+                    @if($inSupportValue)
+                        <a href="{{ $inSupportValue }}" target="_blank" class="text-primary" style="text-decoration: none;">
+                            <i class="fas fa-globe fa-2x"></i>
+                        </a>
+                    @else
+                        <span class="text-muted"><i class="fas fa-globe fa-2x"></i></span>
+                    @endif
+                </td>
                 <td class="text-center">
                     @if($dpcrmfodata->evidence_file)
                         <div class="d-flex justify-content-between gap-1">
                             {{-- View link on the left --}}
                             <a 
-                                href="{{ $dpcrmfodata->evidence_file ?? NULL }}" 
+                                href="{{ $dpcrmfodata->evidence_file }}" 
                                 target="_blank"
                                 class="badge bg-success text-white flex-fill text-decoration-none"
                             >
@@ -717,8 +750,8 @@ function uploadEvidence(id) {
     Swal.fire({
         title: 'Attach Evidence URL',
         input: 'url',
-        inputLabel: 'Enter the URL of the evidence (PDF link, Google Drive, etc.)',
-        inputPlaceholder: 'https://example.com/document.pdf',
+        inputLabel: 'Enter the SharePoint/Teams evidence URL (paste the full link to the file in your folder)',
+        inputPlaceholder: 'https://yourcompany.sharepoint.com/sites/...',
         showCancelButton: true,
         confirmButtonText: 'Attach',
         cancelButtonText: 'Cancel',
