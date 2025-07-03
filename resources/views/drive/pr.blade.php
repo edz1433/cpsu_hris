@@ -199,6 +199,18 @@
                     <td class="text-left pl-1">
                         {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
                     </td>
+                    <td class="text-center">
+                        @php
+                            $inSupportValue = displayValue($opcrmfodata->in_support);
+                        @endphp
+                        @if($inSupportValue)
+                            <a href="{{ $inSupportValue }}" target="_blank" class="text-primary" style="text-decoration: none;">
+                                <i class="fas fa-globe fa-2x"></i>
+                            </a>
+                        @else
+                            <span class="text-muted"><i class="fas fa-globe fa-2x"></i></span>
+                        @endif
+                    </td>
                     <td class="text-left pl-2" width="210" 
                         onmouseover="if(this.querySelector('.dropdown-menu')) this.querySelector('.dropdown-menu').classList.add('show');" 
                         onmouseout="if(this.querySelector('.dropdown-menu')) this.querySelector('.dropdown-menu').classList.remove('show');"
@@ -236,7 +248,6 @@
                             </div>
                         @endif
                     </td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
                     <td class="text-center"></td>
                     <td class="text-center">{!! displayValue($opcrmfodata->div_account) !!}</td>
@@ -334,6 +345,18 @@
                     <td class="text-left pl-1">
                         {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
                     </td>
+                    <td class="text-center">
+                        @php
+                            $inSupportValue = displayValue($opcrmfodata->in_support);
+                        @endphp
+                        @if($inSupportValue)
+                            <a href="{{ $inSupportValue }}" target="_blank" class="text-primary" style="text-decoration: none;">
+                                <i class="fas fa-globe fa-2x"></i>
+                            </a>
+                        @else
+                            <span class="text-muted"><i class="fas fa-globe fa-2x"></i></span>
+                        @endif
+                    </td>
                     <td class="text-left pl-2" width="210" 
                         onmouseover="if(this.querySelector('.dropdown-menu')) this.querySelector('.dropdown-menu').classList.add('show');" 
                         onmouseout="if(this.querySelector('.dropdown-menu')) this.querySelector('.dropdown-menu').classList.remove('show');"
@@ -371,7 +394,6 @@
                             </div>
                         @endif
                     </td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
                     <td class="text-center"></td>
                     <td class="text-center">{!! displayValue($opcrmfodata->div_account) !!}</td>
@@ -466,6 +488,18 @@
                     <td class="text-left pl-1">
                         {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
                     </td>
+                    <td class="text-center">
+                        @php
+                            $inSupportValue = displayValue($opcrmfodata->in_support);
+                        @endphp
+                        @if($inSupportValue)
+                            <a href="{{ $inSupportValue }}" target="_blank" class="text-primary" style="text-decoration: none;">
+                                <i class="fas fa-globe fa-2x"></i>
+                            </a>
+                        @else
+                            <span class="text-muted"><i class="fas fa-globe fa-2x"></i></span>
+                        @endif
+                    </td>
                     <td class="text-left pl-2" width="210" 
                         onmouseover="if(this.querySelector('.dropdown-menu')) this.querySelector('.dropdown-menu').classList.add('show');" 
                         onmouseout="if(this.querySelector('.dropdown-menu')) this.querySelector('.dropdown-menu').classList.remove('show');"
@@ -503,7 +537,6 @@
                             </div>
                         @endif
                     </td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
                     <td class="text-center"></td>
                     <td class="text-center">{!! displayValue($opcrmfodata->div_account) !!}</td>

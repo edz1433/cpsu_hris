@@ -191,12 +191,13 @@
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
                 </td>
+                <td class="text-center">{!! displayValue($dpcrmfodata->in_support) !!}</td>
                 <td class="text-center">
                     @if($dpcrmfodata->evidence_file)
                         <div class="d-flex justify-content-between gap-1">
                             {{-- View link on the left --}}
                             <a 
-                                href="{{ asset('storage/Evidence/' . $dpcrmfodata->evidence_file) }}" 
+                                href="{{ $dpcrmfodata->evidence_file ?? NULL }}" 
                                 target="_blank"
                                 class="badge bg-success text-white flex-fill text-decoration-none"
                             >
@@ -223,7 +224,6 @@
                         </span>
                     @endif
                 </td>
-                <td class="text-center">{!! displayValue($dpcrmfodata->in_support) !!}</td>
                 <td class="text-center"></td>
                 <td class="text-center"></td>
                 <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
@@ -307,12 +307,13 @@
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
                 </td>
+                <td class="text-center">{!! displayValue($dpcrmfodata->in_support) !!}</td>
                 <td class="text-center">
                     @if($dpcrmfodata->evidence_file)
                         <div class="d-flex justify-content-between gap-1">
                             {{-- View link on the left --}}
                             <a 
-                                href="{{ asset('storage/Evidence/' . $dpcrmfodata->evidence_file) }}" 
+                                href="{{ $dpcrmfodata->evidence_file ?? NULL }}" 
                                 target="_blank"
                                 class="badge bg-success text-white flex-fill text-decoration-none"
                             >
@@ -339,7 +340,6 @@
                         </span>
                     @endif
                 </td>
-                    <td class="text-center">{!! displayValue($dpcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
                     <td class="text-center"></td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
@@ -420,12 +420,13 @@
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
                 </td>
+                <td class="text-center">{!! displayValue($dpcrmfodata->in_support) !!}</td>
                 <td class="text-center">
                     @if($dpcrmfodata->evidence_file)
                         <div class="d-flex justify-content-between gap-1">
                             {{-- View link on the left --}}
                             <a 
-                                href="{{ asset('storage/Evidence/' . $dpcrmfodata->evidence_file) }}" 
+                                href="{{ $dpcrmfodata->evidence_file ?? NULL }}" 
                                 target="_blank"
                                 class="badge bg-success text-white flex-fill text-decoration-none"
                             >
@@ -452,7 +453,6 @@
                         </span>
                     @endif
                 </td>
-                    <td class="text-center">{!! displayValue($dpcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
                     <td class="text-center"></td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
@@ -714,24 +714,37 @@
 let currentEvidenceId = null;
 
 function uploadEvidence(id) {
-    currentEvidenceId = id;
-    document.getElementById('pdfUploader').click();
+    Swal.fire({
+        title: 'Attach Evidence URL',
+        input: 'url',
+        inputLabel: 'Enter the URL of the evidence (PDF link, Google Drive, etc.)',
+        inputPlaceholder: 'https://example.com/document.pdf',
+        showCancelButton: true,
+        confirmButtonText: 'Attach',
+        cancelButtonText: 'Cancel',
+        inputValidator: (value) => {
+            if (!value) {
+                return 'You must enter a URL!';
+            }
+            // Optional: Basic validation for URL format
+            const pattern = /^(https?:\/\/)[^\s$.?#].[^\s]*$/gm;
+            if (!pattern.test(value)) {
+                return 'Please enter a valid URL.';
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            attachEvidenceURL(id, result.value);
+        }
+    });
 }
 
-function handlePdfUpload(input) {
-    const file = input.files[0];
-
-    if (!file || file.type !== "application/pdf") {
-        console.warn("Invalid PDF file.");
-        input.value = "";
-        return;
-    }
-
+function attachEvidenceURL(id, url) {
     const formData = new FormData();
     formData.append('empid', '{{ $dempid }}'); // Blade variable
     formData.append('category', 2);            // Adjust as needed
-    formData.append('data_id', currentEvidenceId);
-    formData.append('evidence[]', file);       // As an array, since PHP expects index [0]
+    formData.append('data_id', id);
+    formData.append('evidence_url', url);
 
     fetch("{{ route('uploadEvidence') }}", {
         method: "POST",
@@ -744,25 +757,21 @@ function handlePdfUpload(input) {
         const text = await res.text();
         if (!res.ok) {
             console.error("Error response from Laravel controller:");
-            console.error(text); // Show server error
+            console.error(text);
         } else {
-            console.log("Evidence uploaded successfully:", text);
             Swal.fire({
                 title: 'Success',
-                text: 'Evidence uploaded successfully.',
+                text: 'Evidence URL attached successfully.',
                 icon: 'success',
                 confirmButtonText: 'OK'
             }).then(() => {
-                location.reload(); // Reload the page to reflect changes
+                location.reload();
             });
         }
     })
     .catch(err => {
         console.error("JavaScript fetch failed:", err);
     });
-
-    input.value = "";
-    currentEvidenceId = null;
 }
 </script>
 <script>

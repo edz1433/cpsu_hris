@@ -94,7 +94,7 @@
                                         oninput="this.value = this.value.replace(/[^\d\n.,]/g, '');"></textarea>
                                 </div>
                                 <div class="form-group col-md-3">
-                                    <label class="text-success1">INDIVIDUAL SUPPORT DOCUMENTS</label>
+                                    <label class="text-success1">Link to Source</label>
                                     <textarea name="in_support" rows="3" class="form-control form-control-sm" id="in_support" autocomplete="off"></textarea>
                                 </div>
                                 <div class="form-group col-md-3">
