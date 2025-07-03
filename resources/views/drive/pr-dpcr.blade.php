@@ -809,12 +809,13 @@ function attachEvidenceURL(id, url) {
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Display prnumber and empid using console.log
         const modal = document.getElementById('modal-rating');
         const iframe = document.getElementById('rating-iframe');
 
         // Define the URL with Blade
-        const iframeSrc = "{{ route('dpcrPdf', ['prnumber' => $prnumber, 'userid' => $empid ?? auth()->guard($guard)->user()->id]) }}";
-
+        const iframeSrc = "{{ route('dpcrPdf', ['prnumber' => $prnumber, 'userid' => $empid ?? auth()->guard($guard)->user()->id, 'category' => $cat]) }}";
+        
         // Listen for modal show event
         $('#modal-rating').on('show.bs.modal', function () {
             iframe.src = iframeSrc;
@@ -824,6 +825,7 @@ function attachEvidenceURL(id, url) {
         $('#modal-rating').on('hidden.bs.modal', function () {
             iframe.src = '';
         });
+        
     });
 </script>
 @endsection

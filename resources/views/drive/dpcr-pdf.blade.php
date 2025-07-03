@@ -74,14 +74,34 @@
         </div>
 
         <p style="text-align: justify; line-height: 1.7;">
-            I, <span class="underline bold">MICHAEL A. BALIVIA</span>, HEAD of <span class="underline">MIS Office</span> commit to
+            I, <span class="underline bold">
+            {{ strtoupper($employee->fname) }}
+            @if(!empty($employee->mname))
+                {{ strtoupper(substr($employee->mname,0,1)) }}.
+            @endif
+            {{ strtoupper($employee->lname) }} {{  strtoupper($employee->suffix) }}
+            </span>, HEAD of <span class="underline">{{ strtoupper($office->office_abbr) }}</span> commit to
             deliver and agree to be rated on the attainment of the following targets in accordance with the
-            indicated measures for the period <span class="underline bold">JANUARY – JUNE</span> , <span class="underline bold">2025</span>.
+            indicated measures for the period 
+            <span class="underline bold">
+            @if($category == 1 || $category == 0)
+                JANUARY – JUNE
+            @elseif($category == 2)
+                JULY – DECEMBER
+            @endif
+            </span>
+            , <span class="underline bold">2025</span>.
         </p>
 
         <div class="f-right">
             <div class="name-block center bold underline">
-                MICHAEL A. BALIVIA
+                {{
+                    strtoupper($employee->fname) . ' ' .
+                    (isset($employee->mname) ? strtoupper(substr($employee->mname, 0, 1)) . '. ' : '') .
+                    strtoupper($employee->lname) .
+                    (!empty($employee->suffix) ? ' ' . $employee->suffix : '') .
+                    (!empty($employee->prefix) ? ', ' . $employee->prefix : '')
+                }}
             </div>
             <div class="center">Ratee</div>
         </div>
@@ -91,7 +111,14 @@
         <div class="section">
             <div class="bold">Recommending Approval:</div>
             <div class="name-block bold underline">
-                ENGR. MARC ALEXEI CAESAR B. BADAJOS, Ph.D.
+                {{-- MARC ALEXEI CAESAR B. BADAJOS, Ph.D. --}}
+                {{
+                    strtoupper($supervisor->fname) . ' ' .
+                    (isset($supervisor->mname) ? strtoupper(substr($supervisor->mname, 0, 1)) . '. ' : '') .
+                    strtoupper($supervisor->lname) .
+                    (!empty($supervisor->suffix) ? ' ' . $supervisor->suffix : '') .
+                    (!empty($supervisor->prefix) ? ', ' . $supervisor->prefix : '')
+                }}
             </div>
             <div>Immediate Supervisor</div>
             <div class="label">Date:</div>
@@ -101,15 +128,33 @@
             <div class="bold">Reviewed:</div>
 
             <div class="name-block bold underline">
-                MARIA CRISTINA I. CANSON-BADAJOS
+                {{-- MARIA CRISTINA I. CANSON-BADAJOS --}}
+                {{
+                    strtoupper($reviewsby[1]->fname) . ' ' .
+                    (isset($reviewsby[1]->mname) ? strtoupper(substr($reviewsby[1]->mname, 0, 1)) . '. ' : '') .
+                    strtoupper($reviewsby[1]->lname) .
+                    (!empty($reviewsby[1]->suffix) ? ' ' . $reviewsby[1]->suffix : '') .
+                    (!empty($reviewsby[1]->prefix) ? ', ' . $reviewsby[1]->prefix : '')
+                }}
             </div>
-            <div>Performance Management Team</div>
+            <div>
+                Performance Management Team
+            </div>
             <div class="label">Date:</div>
 
             <div class="name-block bold underline" style="margin-top: 30px;">
-                GRENNY I. JUNCO, Ph. D.
+                {{-- GRENNY I. JUNCO, Ph. D. --}}
+                {{
+                    strtoupper($reviewsby[0]->fname) . ' ' .
+                    (isset($reviewsby[0]->mname) ? strtoupper(substr($reviewsby[0]->mname, 0, 1)) . '. ' : '') .
+                    strtoupper($reviewsby[0]->lname) .
+                    (!empty($reviewsby[0]->suffix) ? ' ' . $reviewsby[0]->suffix : '') .
+                    (!empty($reviewsby[0]->prefix) ? ', ' . $reviewsby[0]->prefix : '')
+                }}
             </div>
-            <div>Performance Management Team</div>
+            <div>
+                Performance Management Team
+            </div>
             <div class="label">Date:</div>
         </div>
 
@@ -117,7 +162,14 @@
             <div class="bold" style="margin-left: -43%; margin-bottom: -3.5%;">APPROVED:</div>
 
             <div class="name-block bold underline">
-                ALADINO C. MORACA, Ph.D.
+                {{-- ALADINO C. MORACA, Ph.D. --}}
+                {{
+                    strtoupper($approveby[0]->fname) . ' ' .
+                    (isset($approveby[0]->mname) ? strtoupper(substr($approveby[0]->mname, 0, 1)) . '. ' : '') .
+                    strtoupper($approveby[0]->lname) .
+                    (!empty($approveby[0]->suffix) ? ' ' . $approveby[0]->suffix : '') .
+                    (!empty($approveby[0]->prefix) ? ', ' . $approveby[0]->prefix : '')
+                }}
             </div>
             <div>President</div>
             <div class="label" style="margin-left: -3.5%;">Date:</div>

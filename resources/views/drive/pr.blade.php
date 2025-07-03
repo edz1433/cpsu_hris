@@ -805,8 +805,8 @@
         const iframe = document.getElementById('rating-iframe');
 
         // Define the URL with Blade
-        const iframeSrc = "{{ route('dpcrPdf', ['prnumber' => $prnumber, 'userid' => $empid ?? auth()->guard($guard)->user()->id]) }}";
-
+        const iframeSrc = "{{ route('dpcrPdf', ['prnumber' => $prnumber, 'userid' => $empid ?? auth()->guard($guard)->user()->id, 'category' => $cat]) }}";
+        
         // Listen for modal show event
         $('#modal-rating').on('show.bs.modal', function () {
             iframe.src = iframeSrc;

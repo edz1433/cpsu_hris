@@ -10,11 +10,12 @@ use App\Models\OpcrMfo;
 use App\Models\OpcrMfoData;
 use App\Models\Setting;
 use App\Models\PrSetting;
-use App\Models\SpmsAsignatory;
 use App\Models\Dpcr;
 use App\Models\DpcrMfo;
 use App\Models\DpcrMfoData;
 use App\Models\SpmsPersonnel;
+use App\Models\Office;
+use App\Models\SpmsAsignatory;
 
 class DpcrController extends Controller
 {
@@ -172,8 +173,27 @@ class DpcrController extends Controller
         return response()->json(['html' => $html]);
     }
 
-    public function dpcrPdf(Request $request)
+    public function dpcrPdf($prnumber, $userid, $category)
     {
+        $prnumber = $this->shortDecrypt($prnumber);
+        $userid = $this->shortDecrypt($userid);
+        
+        $employee = Employee::select('fname', 'lname', 'mname', 'suffix', 'prefix', 'supervisor', 'emp_dept')->find($userid);
+        $office = Office::select('office_name', 'office_abbr', 'office_head_id')->find($employee->emp_dept);
+        $reviewsby = SpmsAsignatory::where('pr_number', $prnumber)
+            ->where('label', 'Reviewed by:')
+            ->join('employees', 'spms_asignatories.empid', '=', 'employees.emp_ID')
+            ->select('spms_asignatories.*', 'employees.fname', 'employees.lname', 'employees.mname', 'employees.suffix', 'employees.prefix')
+            ->get();
+        
+        $approveby = SpmsAsignatory::where('pr_number', $prnumber)
+        ->where('label', 'Approved:')
+        ->join('employees', 'spms_asignatories.empid', '=', 'employees.emp_ID')
+        ->select('spms_asignatories.*', 'employees.fname', 'employees.lname', 'employees.mname', 'employees.suffix', 'employees.prefix')
+        ->get();
+
+        $supervisor = Employee::select('fname', 'lname', 'mname', 'suffix', 'prefix', 'supervisor', 'emp_dept')->where('id', $employee->supervisor)->first();
+
         $customPaper = [0, 0, 612, 936];
 
         function imgBase64($filename) {
@@ -196,7 +216,7 @@ class DpcrController extends Controller
 
         $customPaper = [0, 0, 612, 970];
 
-        $pdf = \PDF::loadView('drive.dpcr-pdf', compact('images', 'data'))
+        $pdf = \PDF::loadView('drive.dpcr-pdf', compact('images', 'data', 'category', 'employee', 'supervisor', 'office', 'reviewsby', 'approveby'))
             ->setPaper($customPaper, 'portrait')
             ->setOptions([
                 'margin-top' => 10,
