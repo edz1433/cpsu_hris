@@ -131,33 +131,42 @@
                                             <b>{{ $item->mfo }} (<span class="text-danger">{{ $item->percent }}%</span>)</b>
                                         </td>
                                     @endforeach
-                                    @if((in_array($userid, $pmtsmember) || $guard == 'web') && $id !== 1)
-                                        <td onclick="event.stopPropagation();">
-                                            <div class="btn-group btn-group-sm dropdown-hover align-items-center" style="width: 100%;">
-                                                <span class="badge {{ $currentStatus['class'] }} align-middle" style="font-size: 100%; padding: 0.2em 0.8em;">
-                                                    {{ $currentStatus['label'] }}
-                                                </span>
-                                                <button type="button" class="btn btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="false" style="padding: 0.25em 0.5em; vertical-align: middle;">
-                                                    <span class="sr-only"></span>
-                                                </button>
-                                                <div class="dropdown-menu" role="menu" style="width: 100%;">
-                                                    @foreach($statusLabels as $val => $label)
-                                                        @if($status != $val && $val != 5)
-                                                            <a href="" 
-                                                            class="dropdown-item"
-                                                            style="font-size: 100%; width: 100%; padding: 0.1em 1em;"
-                                                            onclick="event.stopPropagation();">
-                                                                <span class="badge {{ $label['class'] }}" style="font-size: 100%;">{{ $label['label'] }}</span>
-                                                            </a>
-                                                        @endif
-                                                    @endforeach
+                                    @if($id != 1)
+                                        @if((in_array($userid, $pmtsmember) || $guard == 'web'))
+                                            <td onclick="event.stopPropagation();">
+                                                <div class="btn-group btn-group-sm dropdown-hover align-items-center" style="width: 100%;">
+                                                    <span class="badge {{ $currentStatus['class'] }} align-middle" style="font-size: 100%; padding: 0.2em 0.8em;">
+                                                        {{ $currentStatus['label'] }}
+                                                    </span>
+                                                    <button type="button" class="btn btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="false" style="padding: 0.25em 0.5em; vertical-align: middle;">
+                                                        <span class="sr-only"></span>
+                                                    </button>
+                                                    <div class="dropdown-menu" role="menu" style="width: 100%;">
+                                                        @foreach($statusLabels as $val => $label)
+                                                            @if($status != $val && $val != 5)
+                                                                <form action="{{ route('updateStat') }}" method="POST" style="display:inline;">
+                                                                    @csrf
+                                                                    <input type="hidden" name="prnumber" value="{{ $employee->pr_number }}">
+                                                                    <input type="hidden" name="stat" value="{{ $val }}">
+                                                                    <button type="submit"
+                                                                            class="dropdown-item"
+                                                                            style="font-size: 100%; width: 100%; padding: 0.1em 1em;"
+                                                                            onclick="event.stopPropagation();">
+                                                                        <span class="badge {{ $label['class'] }}" style="font-size: 100%;">{{ $label['label'] }}</span>
+                                                                    </button>
+                                                                </form>
+                                                            @endif
+                                                        @endforeach
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
+                                            </td>
+                                        @else
+                                            <td>
+                                                <span class="badge {{ $currentStatus['class'] }}">{{ $currentStatus['label'] }}</span>
+                                            </td>
+                                        @endif
                                     @else
-                                        <td>
-                                            <span class="badge {{ $currentStatus['class'] }}">{{ $currentStatus['label'] }}</span>
-                                        </td>
+                                            
                                     @endif
                                 </tr>
                             @endforeach

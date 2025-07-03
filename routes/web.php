@@ -51,7 +51,7 @@ Route::get('/', function () {
 });
 
 //login
-// Route::get('/login/a/d/m/i/n',[LoginAuthController::class,'getLoginAdmin'])->name('getLoginAdmin');
+Route::get('/admin/login',[LoginAuthController::class,'getLoginAdmin'])->name('getLoginAdmin');
 Route::get('/login',[LoginAuthController::class,'getLogin'])->name('getLogin')->middleware([NoCacheMiddleware::class]);
 Route::post('/login',[LoginAuthController::class,'postLogin'])->name('postLogin');
 // Route::get('/update-pass', [EmployeeController::class, 'updateEmployeePasswords']);
@@ -94,6 +94,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/opcrmfo-edit-ata/{id}', [OpcrController::class, 'opcrmfoEditData'])->name('opcrmfoEditData');
         Route::post('/opcrmfo-delete-data/{id}', [OpcrController::class, 'opcrmfoDeleteData'])->name('opcrmfoDeleteData');
         Route::post('/assign-opcr', [OpcrController::class, 'assignOpcr'])->name('assignOpcr');
+        Route::post('/update-opcr-stat', [DocumentFolderController::class, 'updateStat'])->name('updateStat');
+        
 
         Route::post('/update-rating/{prnumber}', [OpcrController::class, 'updateRatingStatus'])->name('updateRatingStatus');
 

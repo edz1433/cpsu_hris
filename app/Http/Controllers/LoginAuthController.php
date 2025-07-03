@@ -18,7 +18,7 @@ class LoginAuthController extends Controller
             return redirect()->route('drive');
         }
 
-        return view('landing-page');
+        return view('login-page');
     }
 
     public function getLogin()
