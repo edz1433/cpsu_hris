@@ -268,5 +268,29 @@ class DocumentFolderController extends Controller
     
         return response()->json(['success' => 'Folder deleted successfully']);
     }
+
+    public function updateStat(Request $request){
+        $prnumber = $request->prnumber;
+        $status = $request->stat;
+
+        if (strpos($prnumber, 'O-') === 0) {
+            $model = \App\Models\Opcr::where('pr_number', $prnumber)->first();
+        } elseif (strpos($prnumber, 'D-') === 0) {
+            $model = \App\Models\Dpcr::where('pr_number', $prnumber)->first();
+        } elseif (strpos($prnumber, 'I-') === 0) {
+            $model = \App\Models\Ipcr::where('pr_number', $prnumber)->first();
+        } else {
+            return response()->json(['error' => 'Invalid prnumber format'], 400);
+        }
+
+        if ($model) {
+            $model->update([
+                'status' => $status,
+            ]);
+            return redirect()->back()->with('success', 'Status updated successfully');
+        } else {
+            return redirect()->back()->with('error', 'Record not found');
+        }
+    }
     
 }
