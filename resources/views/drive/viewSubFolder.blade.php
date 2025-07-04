@@ -117,6 +117,7 @@
                                     @if(
                                         ($guard != 'web' && $employee->status != 0) 
                                         || ($guard == 'web')
+                                        || in_array($userid, $pmtsmember)
                                     )
                                         onclick="showForm('{{ shortEncrypt($employee->empid) }}', '{{ shortEncrypt($employee->pr_number) }}')" 
                                         style="cursor:pointer;" 
