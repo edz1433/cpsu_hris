@@ -95,7 +95,7 @@
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">Link to Source</label>
-                                    <textarea name="in_support" rows="3" class="form-control form-control-sm" id="in_support" autocomplete="off"></textarea>
+                                    <textarea name="in_support" rows="3" class="form-control form-control-sm" id="in_support" autocomplete="off" {{ (in_array($userid, $pmtsmember) || $guard == 'web') ? '' : 'readonly' }}></textarea>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">REPORT OF SUPERVISOR / OTHER OFFICES</label>
