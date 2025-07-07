@@ -200,6 +200,7 @@ class OpcrController extends Controller
         $opcrId = $request->input('opcr-id');
         $functionArray = $request->input('functions');
         $percentArray = $request->input('percent');
+        $countArray = $request->input('counts');
 
         $totalPercent = array_sum($percentArray);
 
@@ -213,7 +214,7 @@ class OpcrController extends Controller
         } else {
             $expectedPercentSum = $prSetting->support_sum;
         }
-
+        
         // Compare actual total to expected total
         if ($totalPercent != $expectedPercentSum) {
             return redirect()->back()
@@ -222,13 +223,18 @@ class OpcrController extends Controller
         }
 
         foreach ($request->input('mfo') as $key => $mfo) {
-            $existingMfo = OpcrMfo::where('opcr_id', $opcrId)->where('count', $key + 1)->first();
+            $count = $countArray[$key];
+            $functionValue = $functionArray[$key] ?? '';
+            $percentValue = $percentArray[$key];
 
-            if ($existingMfo) {
-                $functionValue = $functionArray[$key] ?? '';
+            $matchingMfos = OpcrMfo::where('opcr_id', $opcrId)
+                ->where('count', $count)
+                ->get();
+
+            foreach ($matchingMfos as $existingMfo) {
                 $existingMfo->update([
-                    'functions' => $functionValue,  // <- FIXED
-                    'percent' => $percentArray[$key],
+                    'functions' => $functionValue,
+                    'percent' => $percentValue,
                 ]);
             }
         }
@@ -346,8 +352,12 @@ class OpcrController extends Controller
             $mfo = e($item->mfo);
             $function = $item->functions ?? '';
             $percent = $item->percent ?? 0;
+            $count = $item->count; // Get actual count from the DB
 
             $html .= '
+                <div class="form-row">
+                    <input type="hidden" name="counts[]" value="' . $count . '"> <!-- Add this line -->
+
                     <div class="form-group col-md-2">
                         <input type="text" name="mfo[]" class="form-control form-control-sm text-center"
                             style="height: 52px; font-size: 20px;" value="' . $mfo . '" readonly>
