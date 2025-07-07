@@ -195,7 +195,7 @@ class OpcrController extends Controller
             'percent' => 'required|array',
             'percent.*' => 'numeric|min:0|max:100'
         ]);
-
+        
         $cat = $request->input('opcr-cat');
         $opcrId = $request->input('opcr-id');
         $functionArray = $request->input('functions');
