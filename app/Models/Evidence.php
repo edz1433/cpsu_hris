@@ -11,5 +11,5 @@ class Evidence extends Model
 
     protected $table = 'evidence';
 
-    protected $fillable = ['empid', 'category', 'data_id', 'evidence'];
+    protected $fillable = ['empid', 'category', 'data_id', 'title', 'evidence'];
 }

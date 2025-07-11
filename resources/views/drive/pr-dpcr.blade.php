@@ -81,8 +81,8 @@
                 <i class="fas fa-file-pdf"></i>
             </button>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="pdfDropdown">
-                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#modal-rating">Cover Page</a>
-                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#modal-ipcr">DPCR</a>
+                <a class="dropdown-item" href="#" data-toggle="modal" data-cat="1" data-target="#modal-rating">Cover Page</a>
+                <a class="dropdown-item" href="#" data-toggle="modal" data-cat="2" data-target="#modal-rating">DPCR</a>
             </div>
         </div>
     </div>
@@ -98,7 +98,7 @@
             <th colspan="2" class="text-center" >Evidence</th>
             <th rowspan="3" class="text-center" >Allotted<br>Budget</th>
             <th rowspan="3" class="text-center">Division/<br>Individuals<br>Accountable</th>
-            <th rowspan="2"colspan="7" class="text-center border-b-n" ></th>
+            <th rowspan="2"colspan="7" class="text-center border-b-n" >Rating Guide/Accomplishment</th>
             <th class="text-center">Remarks/ Accomplishment</th>
             <th rowspan="2"></th>
         </tr>
@@ -748,36 +748,61 @@ let currentEvidenceId = null;
 
 function uploadEvidence(id) {
     Swal.fire({
-        title: 'Attach Evidence URL',
-        input: 'url',
-        inputLabel: 'Enter the SharePoint/Teams evidence URL (paste the full link to the file in your folder)',
-        inputPlaceholder: 'https://yourcompany.sharepoint.com/sites/...',
+        title: 'Attach Evidence',
+        html: `
+            <input id="evidence-title" 
+                   class="swal2-input" 
+                   placeholder="Enter evidence title" 
+                   style="width: 100%; margin: 1em 0; box-sizing: border-box;">
+            <input id="evidence-url" 
+                   class="swal2-input" 
+                   placeholder="https://mscpsueduph.sharepoint.com/" 
+                   style="width: 100%; margin: 1em 0; box-sizing: border-box;">
+        `,
+        focusConfirm: false,
         showCancelButton: true,
         confirmButtonText: 'Attach',
         cancelButtonText: 'Cancel',
-        inputValidator: (value) => {
-            if (!value) {
-                return 'You must enter a URL!';
+        customClass: {
+            popup: 'swal-wide'
+        },
+        preConfirm: () => {
+            const title = document.getElementById('evidence-title').value.trim();
+            const url = document.getElementById('evidence-url').value.trim();
+
+            if (!title) {
+                Swal.showValidationMessage('Title is required.');
+                return false;
             }
-            // Optional: Basic validation for URL format
+
+            if (!url) {
+                Swal.showValidationMessage('URL is required.');
+                return false;
+            }
+
             const pattern = /^(https?:\/\/)[^\s$.?#].[^\s]*$/gm;
-            if (!pattern.test(value)) {
-                return 'Please enter a valid URL.';
+            if (!pattern.test(url)) {
+                Swal.showValidationMessage('Please enter a valid URL.');
+                return false;
             }
+
+            return { title, url };
         }
     }).then((result) => {
-        if (result.isConfirmed) {
-            attachEvidenceURL(id, result.value);
+        if (result.isConfirmed && result.value) {
+            const { title, url } = result.value;
+            attachEvidenceURL(id, title, url);
         }
     });
 }
 
-function attachEvidenceURL(id, url) {
+function attachEvidenceURL(id, title, url) {
     const formData = new FormData();
     formData.append('empid', '{{ $dempid }}'); // Blade variable
     formData.append('category', 2);            // Adjust as needed
     formData.append('data_id', id);
-    formData.append('evidence_url', url);
+    formData.append('evidence_title', title);  // ✅ Add title
+    formData.append('evidence_url', url);      // ✅ Keep URL
 
     fetch("{{ route('uploadEvidence') }}", {
         method: "POST",
@@ -794,7 +819,7 @@ function attachEvidenceURL(id, url) {
         } else {
             Swal.fire({
                 title: 'Success',
-                text: 'Evidence URL attached successfully.',
+                text: 'Evidence attached successfully.',
                 icon: 'success',
                 confirmButtonText: 'OK'
             }).then(() => {
@@ -809,23 +834,36 @@ function attachEvidenceURL(id, url) {
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Display prnumber and empid using console.log
         const modal = document.getElementById('modal-rating');
         const iframe = document.getElementById('rating-iframe');
 
-        // Define the URL with Blade
-        const iframeSrc = "{{ route('dpcrPdf', ['prnumber' => $prnumber, 'userid' => $empid ?? auth()->guard($guard)->user()->id, 'category' => $cat]) }}";
-        
-        // Listen for modal show event
-        $('#modal-rating').on('show.bs.modal', function () {
-            iframe.src = iframeSrc;
+        // Define the URLs with Blade
+        const iframeSrc = "{{ route('dpcrPdf', ['prnumber' => $prnumber, 'userid' => $empid ?? auth()->guard($guard)->user()->id, 'category' => 1]) }}";
+        const iframeSrc1 = "{{ route('generateDpcrPdf', ['prnumber' => $prnumber, 'empid' => $empid ?? auth()->guard($guard)->user()->id, 'category' => 1]) }}";
+
+        let selectedCat = null;
+
+        // Capture clicked link's data-cat value
+        document.querySelectorAll('.dropdown-item[data-toggle="modal"]').forEach(link => {
+            link.addEventListener('click', function () {
+                selectedCat = this.getAttribute('data-cat');
+            });
         });
 
-        // Optionally clear the iframe src on modal hide
+        // Listen for modal show event
+        $('#modal-rating').on('show.bs.modal', function () {
+            if (selectedCat === '2') {
+                iframe.src = iframeSrc1;
+            } else {
+                iframe.src = iframeSrc;
+            }
+        });
+
+        // Clear iframe src on modal hide
         $('#modal-rating').on('hidden.bs.modal', function () {
             iframe.src = '';
         });
-        
     });
 </script>
+
 @endsection

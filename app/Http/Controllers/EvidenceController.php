@@ -12,13 +12,15 @@ class EvidenceController extends Controller
     public function uploadEvidence(Request $request)
     {
         $request->validate([
-            'empid'        => 'required|exists:employees,id',
-            'category'     => 'required|integer',
-            'data_id'      => 'required|integer',
-            'evidence_url' => 'required|url',
+            'empid'          => 'required|exists:employees,id',
+            'category'       => 'required|integer',
+            'data_id'        => 'required|integer',
+            'evidence_url'   => 'required|url',
+            'evidence_title' => 'required|string|max:255',
         ]);
 
-        $url = $request->evidence_url;
+        $url   = $request->evidence_url;
+        $title = $request->evidence_title;
 
         $evidence = Evidence::where([
             'empid'    => $request->empid,
@@ -27,27 +29,29 @@ class EvidenceController extends Controller
         ])->first();
 
         if ($evidence) {
-            // Overwrite existing URL or clear old file reference
             $evidence->evidence = $url;
+            $evidence->title    = $title;
             $evidence->save();
 
             return response()->json([
-                'message' => 'Evidence URL updated successfully',
-                'url' => $url
+                'message' => 'Evidence updated successfully',
+                'url'     => $url,
+                'title'   => $title
             ]);
         }
 
-        // Create new evidence entry
         $newEvidence = Evidence::create([
             'empid'    => $request->empid,
             'category' => $request->category,
             'data_id'  => $request->data_id,
             'evidence' => $url,
+            'title'    => $title,
         ]);
 
         return response()->json([
-            'message' => 'Evidence URL attached successfully',
-            'url' => $url
+            'message' => 'Evidence attached successfully',
+            'url'     => $url,
+            'title'   => $title
         ]);
     }
 

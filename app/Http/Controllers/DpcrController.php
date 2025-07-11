@@ -233,4 +233,72 @@ class DpcrController extends Controller
         return $pdf->stream();
     }
 
+    public function generateDpcrPdf($prnumber, $empid, $cat)
+    {
+        $folder = 2;
+        $guard = $this->getGuard();
+        $dempid = $this->shortDecrypt($empid);
+        $dprnumber = $this->shortDecrypt($prnumber);
+
+        $dempid = ($empid) ? $dempid : auth()->guard($guard)->user()->id;
+        
+        $employee = Employee::find($dempid);
+
+        $employees = Employee::where('emp_dept', $employee->emp_dept)->where('emp_status', 1)->get();
+        $employeesreg = Employee::where('emp_status', 1)->get();
+
+        $fullname = $employee
+            ? $employee->fname . ' ' .
+                ($employee->mname ? strtoupper(substr($employee->mname, 0, 1)) . '.' : '') .
+                ' ' . $employee->lname
+            : '';
+
+        // Fetch DPCR data
+        $prs = Dpcr::where('user_id', $dempid)
+            ->where('pr_number', $dprnumber)
+            ->get();
+
+        $cores = $prs->get(0) ? DpcrMfo::where('dpcr_id', $prs[0]->id)->get() : collect();
+        $strats = $prs->get(1) ? DpcrMfo::where('dpcr_id', $prs[1]->id)->get() : collect();
+        $supports = $prs->get(2) ? DpcrMfo::where('dpcr_id', $prs[2]->id)->get() : collect();
+
+        // Assign joined DPCR data directly to $datas
+        $datas = \DB::table('dpcr_mfo_data')
+            ->join('employees', 'dpcr_mfo_data.user_id', '=', 'employees.id')
+            ->leftJoin('evidence', function ($join) {
+                $join->on('dpcr_mfo_data.id', '=', 'evidence.data_id')
+                    ->where('evidence.category', '=', 2); // Category 2 for DPCR
+            })
+            ->select(
+                'dpcr_mfo_data.*',
+                'evidence.evidence as evidence_file',
+                \DB::raw("CONCAT(employees.fname, ' ', 
+                    IF(employees.mname IS NOT NULL AND employees.mname != '', 
+                        CONCAT(UPPER(LEFT(employees.mname, 1)), '.'), 
+                        ''
+                    ), 
+                    ' ', employees.lname
+                ) AS fullname")
+            )
+            ->get();
+
+        $customPaper = [0, 0, 1008, 684];
+
+        $pdf = \PDF::loadView('drive.dpcr-pdf-rating', compact('guard', 'datas', 'prs', 'cores', 'folder', 'strats', 'supports', 'employeesreg',
+            'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'dprnumber'))
+            ->setPaper($customPaper, 'portrait')
+            ->setOptions([
+                'margin-top' => 10,
+                'margin-right' => 10,
+                'margin-bottom' => 10,
+                'margin-left' => 10,
+            ])
+            ->setCallbacks([
+                'before_render' => function ($domPdf) {
+                    $domPdf->getCanvas()->page_text(10, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, [0, 0, 0]);
+                },
+            ]);
+
+        return $pdf->stream();
+    }
 }

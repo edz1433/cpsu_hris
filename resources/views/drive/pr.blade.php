@@ -82,7 +82,7 @@
                 <i class="fas fa-file-pdf"></i>
             </button>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="pdfDropdown">
-                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#modal-rating">DPCR Cover Page</a>
+                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#modal-rating">Cover Page</a>
                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#modal-ipcr">OPCR</a>
             </div>
         </div>
@@ -99,7 +99,7 @@
             <th colspan="2" class="text-center" >Evidence</th>
             <th rowspan="3" class="text-center" >Allotted<br>Budget</th>
             <th rowspan="3" class="text-center">Division/<br>Individuals<br>Accountable</th>
-            <th rowspan="2"colspan="7" class="text-center border-b-n" ></th>
+            <th rowspan="2"colspan="7" class="text-center border-b-n" >Rating Guide/Accomplishment</th>
             <th class="text-center">Remarks/ Accomplishment</th>
             <th rowspan="2"></th>
         </tr>

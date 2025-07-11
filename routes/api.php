@@ -3,6 +3,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\DtrController;
 use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\FaceController;
 
 Route::post('/dtrs', [DtrController::class, 'syncDtr'])->name('api.syncDtr');
 Route::post('/dtrs-batch', [DtrController::class, 'syncDtrBatch'])->name('api.syncDtrBatch');
@@ -15,4 +16,11 @@ Route::prefix('app')->group(function() {
     Route::get('/authcheck', [DtrController::class, 'appdtrauthCheck'])->name('appdtrauthcheck');
     Route::get('/authlogin', [DtrController::class, 'appdtrauthLogin'])->name('appdtrauthLogin');
     Route::get('/check-coordinates', [DtrController::class, 'checkCoordinates'])->name('checkCoordinates');
+
+    Route::get('/health', function () {
+        return response()->json(['status' => 'ok']);
+    });
+    // ✅ add this line for your face verification:
+    Route::post('/faceverify', [FaceController::class, 'verify'])->name('app.faceverify');
+    Route::post('/faceregister', [FaceController::class, 'register']);
 });
