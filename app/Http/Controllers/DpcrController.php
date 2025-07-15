@@ -177,6 +177,10 @@ class DpcrController extends Controller
     {
         $prnumber = $this->shortDecrypt($prnumber);
         $userid = $this->shortDecrypt($userid);
+            
+        $prs = Dpcr::where('user_id', $userid)
+        ->where('pr_number', $prnumber)
+        ->get();
         
         $employee = Employee::select('fname', 'lname', 'mname', 'suffix', 'prefix', 'supervisor', 'emp_dept')->find($userid);
         $office = Office::select('office_name', 'office_abbr', 'office_head_id')->find($employee->emp_dept);
@@ -185,7 +189,7 @@ class DpcrController extends Controller
             ->join('employees', 'spms_asignatories.empid', '=', 'employees.emp_ID')
             ->select('spms_asignatories.*', 'employees.fname', 'employees.lname', 'employees.mname', 'employees.suffix', 'employees.prefix')
             ->get();
-        
+
         $approveby = SpmsAsignatory::where('pr_number', $prnumber)
         ->where('label', 'Approved:')
         ->join('employees', 'spms_asignatories.empid', '=', 'employees.emp_ID')
@@ -216,7 +220,7 @@ class DpcrController extends Controller
 
         $customPaper = [0, 0, 612, 970];
 
-        $pdf = \PDF::loadView('drive.dpcr-pdf', compact('images', 'data', 'category', 'employee', 'supervisor', 'office', 'reviewsby', 'approveby'))
+        $pdf = \PDF::loadView('drive.dpcr-pdf', compact('prs', 'images', 'data', 'category', 'employee', 'supervisor', 'office', 'reviewsby', 'approveby'))
             ->setPaper($customPaper, 'portrait')
             ->setOptions([
                 'margin-top' => 10,
@@ -288,6 +292,8 @@ class DpcrController extends Controller
             'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'dprnumber'))
             ->setPaper($customPaper, 'portrait')
             ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
                 'margin-top' => 10,
                 'margin-right' => 10,
                 'margin-bottom' => 10,

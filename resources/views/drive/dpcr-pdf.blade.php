@@ -90,7 +90,7 @@
                 JULY – DECEMBER
             @endif
             </span>
-            , <span class="underline bold">2025</span>.
+            , <span class="underline bold">{{ $prs[0]->year }}</span>.
         </p>
 
         <div class="f-right">

@@ -108,4 +108,14 @@ class FaceController extends Controller
         }
         return sqrt($sum);
     }
+
+    public function listEmployees()
+    {
+        $employees = DB::table('employees')
+            ->select('emp_ID', DB::raw("CONCAT(fname, ' ', COALESCE(mname, ''), ' ', lname) AS name"))
+            ->orderBy('lname')
+            ->get();
+
+        return response()->json($employees);
+    }
 }

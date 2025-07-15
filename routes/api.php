@@ -23,4 +23,5 @@ Route::prefix('app')->group(function() {
     // ✅ add this line for your face verification:
     Route::post('/faceverify', [FaceController::class, 'verify'])->name('app.faceverify');
     Route::post('/faceregister', [FaceController::class, 'register']);
+    Route::get('/employees', [FaceController::class, 'listEmployees']);
 });

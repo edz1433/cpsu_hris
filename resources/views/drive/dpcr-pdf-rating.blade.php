@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEPARTMENT PERFORMANCE COMMITMENT AND REVIEW</title>
+    <title>DPCR</title>
     <style>
+        .header{
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 9px;
+        }
         /* Web view wrapper for responsive scroll */
         .table-wrapper {
             overflow-x: auto;
@@ -102,6 +106,17 @@
     @endphp
 </head>
 <body>
+    <div style="text-align: center; margin-top: -7px;" class="header">
+        <img src="{{ asset('Uploads/spms-header.jpg') }}" width="25%" alt="Header Image"><br><br>
+        <b>DEPARTMENT PERFORMANCE COMMITMENT AND REVIEW (DPCR)</b><br>
+        For the Rating Period:@if($cat == 1 || $cat == 0)
+                January – June
+            @elseif($cat == 2)
+                July – December
+            @endif
+            </span>
+            , <span class="underline bold">{{ $prs[0]->year }}</span>.<br>
+    </div>
     <div class="table-wrapper">
         <table class="table-form">
             <thead>
