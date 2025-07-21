@@ -244,6 +244,8 @@ class DocumentController extends Controller
             ->where('pr_number', $dprnumber)
             ->get();
 
+        $status = $prs->first()->status;
+
         $cores = $prs->get(0) ? DpcrMfo::where('dpcr_id', $prs[0]->id)->get() : collect();
         $strats = $prs->get(1) ? DpcrMfo::where('dpcr_id', $prs[1]->id)->get() : collect();
         $supports = $prs->get(2) ? DpcrMfo::where('dpcr_id', $prs[2]->id)->get() : collect();
@@ -270,7 +272,7 @@ class DocumentController extends Controller
 
         return view('drive.pr-dpcr', compact(
             'guard', 'datas', 'prs', 'cores', 'strats', 'supports', 'folder', 'employeesreg',
-            'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'dprnumber'
+            'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'dprnumber', 'status'
         ));
     }
 

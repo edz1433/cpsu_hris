@@ -22,7 +22,6 @@ use Carbon\Carbon;
 
 class MasterController extends Controller
 {
-
     public function getGuard()
     {
         if(\Auth::guard('web')->check()) {
@@ -137,5 +136,29 @@ class MasterController extends Controller
         return redirect()->route('getLogin')
                          ->with('error', 'No authenticated user to log out');
     }
+
+    public function dataPrivacy()
+    {
+        $guard = $this->getGuard();
+        $customPaper = [0, 0, 684, 1050];
+        $pdf = \PDF::loadView('data-privacy', compact('guard'))
+            ->setPaper($customPaper, 'portrait')
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+                'margin-top' => 10,
+                'margin-right' => 10,
+                'margin-bottom' => 10,
+                'margin-left' => 10,
+            ])
+            ->setCallbacks([
+                'before_render' => function ($domPdf) {
+                    $domPdf->getCanvas()->page_text(10, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, [0, 0, 0]);
+                },
+            ]);
+
+        return $pdf->stream(); // stream to iframe
+    }
+
 
 }

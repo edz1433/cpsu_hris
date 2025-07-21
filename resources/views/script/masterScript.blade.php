@@ -412,3 +412,22 @@ $(document).ready(function() {
     });
 });
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const iframe = document.getElementById('privacy-iframe');
+        const modal = document.getElementById('dataPrivacyModal');
+
+        // Laravel route to Privacy Policy (should return full HTML)
+        const privacyPolicyUrl = "{{ route('dataPrivacy') }}#toolbar=0";
+
+        // Load iframe only when modal shows
+        $('#dataPrivacyModal').on('show.bs.modal', function () {
+            iframe.src = privacyPolicyUrl;
+        });
+
+        // Clear iframe when modal hides
+        $('#dataPrivacyModal').on('hidden.bs.modal', function () {
+            iframe.src = '';
+        });
+    });
+</script>

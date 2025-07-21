@@ -59,31 +59,61 @@
         </span>
     </div>
 
-    {{-- Filter & Button on the Right --}}
-    <div class="d-flex align-items-center gap-2">
-        <div class="input-group" style="width: auto;">
-            <select class="form-control form-control-sm" id="categorySelect">
-                <option value="0" {{ ($cat == 0) ? 'selected' : '' }}>All</option>
-                <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>1st Quarter</option>
-                <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>2nd Quarter</option>
-            </select>
-            <div class="input-group-append" style="margin-right: 5px;">
-                <span class="input-group-text"><i class="fas fa-filter"></i></span>
-            </div>
-        </div>
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 px-2">
+        {{-- Right Buttons: Request Review, PDF Dropdown, Filter --}}
+        <div class="d-flex align-items-center flex-wrap gap-2 ms-auto">
 
-        {{-- <button type="submit" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modal-rating">
-            <i class="fas fa-star"></i> Rating
-        </button> --}}
+            {{-- Request for Review Button --}}
+            @if($status == 1 && !in_array($userid, $pmtsmember ?? []) && $guard == "employee")
+                <form id="requestReviewForm" action="{{ route('updateStat') }}" method="POST" style="display:inline;">
+                    @csrf
+                    <input type="hidden" name="stat" value="5">
+                    <input type="hidden" name="prnumber" value="{{ $dprnumber }}">
+                    <button type="button" class="btn btn-success btn-sm mr-1" onclick="confirmRequestReview()">
+                        <i class="fas fa-paper-plane me-1"></i> Request for Review
+                    </button>
+                </form>
+            @endif
 
-        <div class="dropdown d-inline">
-            <button class="btn btn-danger btn-sm dropdown-toggle" type="button" id="pdfDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-file-pdf"></i>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="pdfDropdown">
-                <a class="dropdown-item" href="#" data-toggle="modal" data-cat="1" data-target="#modal-rating">Cover Page</a>
-                <a class="dropdown-item" href="#" data-toggle="modal" data-cat="2" data-target="#modal-rating">DPCR</a>
+            {{-- PDF Dropdown --}}
+            <div class="dropdown mr-1">
+                <button class="btn btn-danger btn-sm dropdown-toggle" type="button" id="pdfDropdown"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-file-pdf"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="pdfDropdown">
+
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-cat="1" data-target="#modal-rating">
+                        Cover Page
+                    </a>
+                    
+                    @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
+                        @if($status == 3)
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-cat="2" data-target="#modal-rating">DPCR</a>
+                        @else
+                            <a class="dropdown-item text-muted" href="javascript:void(0);" title="Not yet available"
+                            style="cursor: not-allowed; pointer-events: none; color: #6c757d !important; background-color: transparent !important;">
+                                <i class="fas fa-lock me-1 text-secondary fa-sm"></i> DPCR
+                            </a>
+                        @endif
+                    @else
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-cat="2" data-target="#modal-rating">DPCR</a>
+                    @endif
+                </div>
             </div>
+
+            {{-- Category Filter --}}
+            <div class="input-group input-group-sm" style="width: auto;">
+                <select class="form-control" id="categorySelect">
+                    <option value="0" {{ ($cat == 0) ? 'selected' : '' }}>All</option>
+                    <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>1st Quarter</option>
+                    <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>2nd Quarter</option>
+                </select>
+                <div class="input-group-append">
+                    <span class="input-group-text"><i class="fas fa-filter"></i></span>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -138,15 +168,29 @@
             <td></td>
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             @if(isset($prs[0]))
-                <td class="b-none text-center">
-                    <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
-                    data-toggle="modal"
-                    data-cat="1"
-                    data-id="{{ $prs[0]->id }}"
-                    data-folder="{{ $folder }}"
-                    data-target="#createOpcrMfoModal">
-                    </i>
-                </td>
+                @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
+                    @if(!in_array($status, [1, 5]))
+                    <td class="b-none text-center">
+                        <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
+                        data-toggle="modal"
+                        data-cat="1"
+                        data-id="{{ $prs[0]->id }}"
+                        data-folder="{{ $folder }}"
+                        data-target="#createOpcrMfoModal">
+                        </i>
+                    </td>
+                    @endif
+                @else
+                    <td class="b-none text-center">
+                        <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
+                        data-toggle="modal"
+                        data-cat="1"
+                        data-id="{{ $prs[0]->id }}"
+                        data-folder="{{ $folder }}"
+                        data-target="#createOpcrMfoModal">
+                        </i>
+                    </td>
+                @endif
             @else 
                 <td class="b-none text-center"></td>
             @endif
@@ -269,15 +313,29 @@
             <td></td>
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             @if(isset($prs[1]))
-                <td class="b-none text-center">
-                    <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
-                    data-toggle="modal"
-                    data-cat="2"
-                    data-id="{{ $prs[1]->id }}"
-                    data-folder="{{ $folder }}"
-                    data-target="#createOpcrMfoModal">
-                    </i>
-                </td>
+                @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
+                    @if(!in_array($status, [1, 5]))
+                        <td class="b-none text-center">
+                            <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
+                            data-toggle="modal"
+                            data-cat="2"
+                            data-id="{{ $prs[1]->id }}"
+                            data-folder="{{ $folder }}"
+                            data-target="#createOpcrMfoModal">
+                            </i>
+                        </td>
+                    @endif
+                @else
+                    <td class="b-none text-center">
+                        <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
+                        data-toggle="modal"
+                        data-cat="2"
+                        data-id="{{ $prs[1]->id }}"
+                        data-folder="{{ $folder }}"
+                        data-target="#createOpcrMfoModal">
+                        </i>
+                    </td>
+                @endif
             @else
                 <td class="b-none text-center"></td>
             @endif
@@ -396,15 +454,29 @@
             <td></td>
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             @if(isset($prs[2]))
-                <td class="b-none text-center">
-                    <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
-                    data-toggle="modal"
-                    data-cat="3"
-                    data-id="{{ $prs[2]->id }}"
-                    data-folder="{{ $folder }}"
-                    data-target="#createOpcrMfoModal">
-                    </i>
-                </td>
+                @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
+                    @if(!in_array($status, [1, 5]))
+                        <td class="b-none text-center">
+                            <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
+                            data-toggle="modal"
+                            data-cat="3"
+                            data-id="{{ $prs[2]->id }}"
+                            data-folder="{{ $folder }}"
+                            data-target="#createOpcrMfoModal">
+                            </i>
+                        </td>
+                    @endif
+                @else
+                    <td class="b-none text-center">
+                        <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
+                        data-toggle="modal"
+                        data-cat="3"
+                        data-id="{{ $prs[2]->id }}"
+                        data-folder="{{ $folder }}"
+                        data-target="#createOpcrMfoModal">
+                        </i>
+                    </td>
+                @endif
             @endif
         </tr>
         @foreach($supports as $supp)
@@ -864,6 +936,27 @@ function attachEvidenceURL(id, title, url) {
             iframe.src = '';
         });
     });
+
+    function confirmRequestReview() {
+        Swal.fire({
+            title: 'Send for Review?',
+            text: "This action cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, submit',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            customClass: {
+                confirmButton: 'btn btn-success mx-1',
+                cancelButton: 'btn btn-secondary mx-1'
+            },
+            buttonsStyling: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('requestReviewForm').submit();
+            }
+        });
+    }
 </script>
 
 @endsection

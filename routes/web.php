@@ -66,8 +66,9 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     Route::get('/system-performance', [PerformanceController::class, 'systemPerformance'])->name('systemPerformance');
     // Dashboard
     Route::get('/dashboard', [MasterController::class, 'dashboard'])->name('dashboard');
-    
-    // Drive
+    Route::get('/data-privacy', [MasterController::class, 'dataPrivacy'])->name('dataPrivacy');
+
+    // Drive 
     Route::prefix('spms')->group(function() {
         Route::get('/', [MasterController::class, 'drive'])->name('drive');
         Route::get('/{id}', [DocumentFolderController::class, 'subFolder'])->name('sub-folder');

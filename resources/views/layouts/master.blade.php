@@ -159,13 +159,43 @@
         </aside>
         <!-- /.control-sidebar -->
 
-        <!-- Main Footer -->
-        <footer class="main-footer">
-            <div class="float-right d-none d-sm-inline">
-                Maintained and Managed by <a href="https://www.facebook.com/cpsumiso.main" target="_blank">MIS</a>.
+        <!-- Privacy Modal -->
+        <div id="dataPrivacyModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dataPrivacyModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-body p-0">
+                        <iframe
+                            id="privacy-iframe"
+                            src=""
+                            frameborder="0"
+                            width="100%"
+                            height="600"
+                            style="display: block;"></iframe>
+                    </div>
+                </div>
             </div>
-            <strong>All rights reserved.</strong>
+        </div>
+
+        <!-- Main Footer -->
+        <footer class="main-footer" style="padding: 15px 20px; background-color: #f8f9fa; border-top: 1px solid #dee2e6; font-size: 14px; color: #495057;">
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>All rights reserved.</strong>
+                    &nbsp;|&nbsp;
+                    <a href="#" id="openPrivacyPolicy" data-toggle="modal" data-target="#dataPrivacyModal" style="text-decoration: none; color: #007bff;">
+                        Data Privacy Policy
+                    </a>
+                </div>
+                <div class="d-none d-sm-inline" style="margin-top: 5px;">
+                    Maintained and Managed by 
+                    <a href="https://www.facebook.com/cpsumiso.main" target="_blank" style="text-decoration: none; color: #007bff;">
+                        MIS
+                    </a>.
+                </div>
+            </div>
         </footer>
+
+
     </div>
 
 @include('script.masterScript')

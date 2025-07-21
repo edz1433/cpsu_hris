@@ -269,28 +269,31 @@ class DocumentFolderController extends Controller
         return response()->json(['success' => 'Folder deleted successfully']);
     }
 
-    public function updateStat(Request $request){
+    public function updateStat(Request $request)
+    {
         $prnumber = $request->prnumber;
         $status = $request->stat;
 
         if (strpos($prnumber, 'O-') === 0) {
-            $model = \App\Models\Opcr::where('pr_number', $prnumber)->first();
+            $models = \App\Models\Opcr::where('pr_number', $prnumber)->get();
         } elseif (strpos($prnumber, 'D-') === 0) {
-            $model = \App\Models\Dpcr::where('pr_number', $prnumber)->first();
+            $models = \App\Models\Dpcr::where('pr_number', $prnumber)->get();
         } elseif (strpos($prnumber, 'I-') === 0) {
-            $model = \App\Models\Ipcr::where('pr_number', $prnumber)->first();
+            $models = \App\Models\Ipcr::where('pr_number', $prnumber)->get();
         } else {
             return response()->json(['error' => 'Invalid prnumber format'], 400);
         }
 
-        if ($model) {
-            $model->update([
-                'status' => $status,
-            ]);
-            return redirect()->back()->with('success', 'Status updated successfully');
+        if ($models->isNotEmpty()) {
+            foreach ($models as $model) {
+                $model->update(['status' => $status]);
+            }
+            $message = ($status == 5) ? 'Request submitted successfully' : 'Status updated successfully';
+            return redirect()->back()->with('success', $message);
         } else {
-            return redirect()->back()->with('error', 'Record not found');
+            return redirect()->back()->with('error', 'No records found to update');
         }
     }
+
     
 }
