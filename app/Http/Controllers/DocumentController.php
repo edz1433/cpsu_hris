@@ -229,6 +229,19 @@ class DocumentController extends Controller
         $dempid = ($empid) ? $dempid : auth()->guard($guard)->user()->id;
 
         $employee = Employee::find($dempid);
+        $dpcrcheck = Dpcr::where('pr_number', $dprnumber)->get();
+        
+        if (!$employee || !$dprnumber) {
+            return redirect()->back()->with('error', 'Access Denied.');
+        }
+
+        $pmt = SpmsPersonnel::where('empid', auth()->guard($guard)->user()->id)->where('category', 1)->count();
+
+        if($dempid != auth()->guard($guard)->user()->id) {
+            if ($pmt == 0 && $guard == 'employee') {
+                return redirect()->back()->with('error', 'Access Denied.');
+            }
+        }
 
         $employees = Employee::where('emp_dept', $employee->emp_dept)->where('emp_status', 1)->get();
         $employeesreg = Employee::where('emp_status', 1)->get();
@@ -243,6 +256,10 @@ class DocumentController extends Controller
         $prs = Dpcr::where('user_id', $dempid)
             ->where('pr_number', $dprnumber)
             ->get();
+
+        if($prs->isEmpty()){
+            return redirect()->back()->with('error', 'No DPCR records found.');
+        }
 
         $status = $prs->first()->status;
 

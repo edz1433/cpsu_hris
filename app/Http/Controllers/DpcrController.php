@@ -307,4 +307,20 @@ class DpcrController extends Controller
 
         return $pdf->stream();
     }
+
+    public function dpcrmfoDeleteData(Request $request, $id)
+    {
+        $entry = DpcrMfoData::find($id);
+
+        if (!$entry) {
+            return response()->json(['error' => 'OPCR MFO Data not found!'], 404);
+        }
+
+        try {
+            $entry->delete();
+            return response()->json(['success' => 'Entry deleted successfully!']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete entry.'], 500);
+        }
+    }
 }

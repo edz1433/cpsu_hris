@@ -117,7 +117,7 @@
     </ul>
 
     <p>
-    The <strong>Management Information System (MIS) Office</strong> ensures that your data—such as name, employee ID, attendance records, performance ratings, and uploaded digital signature images—is securely processed in accordance with CPSU’s internal data protection standards and relevant legal requirements.
+    The <strong>Management Information System (MIS) Office</strong> ensures that your data such as name, employee ID, attendance records, performance ratings, and uploaded digital signature images is securely processed in accordance with CPSU’s internal data protection standards and relevant legal requirements.
     </p>
 
     <p><strong>Your Consent Matters</strong></p>
@@ -127,7 +127,7 @@
     </p>
 
     <p>
-    This includes the uploading and use of your digital signature image for generating and verifying official HR-related documents. CPSU remains committed to protecting your personal data—retaining it only for as long as necessary and safeguarding it from unauthorized access or misuse.
+    This includes the uploading and use of your digital signature image for generating and verifying official HR-related documents. CPSU remains committed to protecting your personal data retaining it only for as long as necessary and safeguarding it from unauthorized access or misuse.
     </p>
 
   </div>

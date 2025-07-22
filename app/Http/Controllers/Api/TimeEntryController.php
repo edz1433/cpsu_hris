@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class FaceController extends Controller
+class TimeEntryController extends Controller
 {
     private $embeddingLimit = 9; // keep only last 9 embeddings
 
@@ -117,5 +117,18 @@ class FaceController extends Controller
             ->get();
 
         return response()->json($employees);
+    }
+
+    public function listLogZones()
+    {
+        $zones = DB::table('logzones')->get()->map(function ($zone) {
+            return [
+                'id' => (int) $zone->id,
+                'label' => $zone->label,
+                'points' => json_decode($zone->points),
+            ];
+        });
+
+        return response()->json($zones);
     }
 }

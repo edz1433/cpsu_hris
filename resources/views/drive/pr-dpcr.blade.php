@@ -169,7 +169,7 @@
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             @if(isset($prs[0]))
                 @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
-                    @if(!in_array($status, [1, 5]))
+                    @if(!in_array($status, [2, 5]))
                     <td class="b-none text-center">
                         <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
                         data-toggle="modal"
@@ -218,9 +218,19 @@
                 <td class="text-center">{{ displayValue($core->a) }}</td>
                 <td class="text-center">{{ displayValue($core->remarks) }}</td>
                 <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
-                <td class="b-none text-center">
-                    <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;" data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></i>
-                </td>
+                @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
+                    @if(!in_array($status, [2, 5]))
+                        <td class="b-none text-center">
+                            <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
+                            data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></i>
+                        </td>
+                    @endif
+                @else
+                    <td class="b-none text-center">
+                        <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
+                        data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></i>
+                    </td>
+                @endif
             </tr>
             
             @php
@@ -230,8 +240,18 @@
             @endphp
 
             @foreach($filteredDpcrMfoDatas as $dpcrmfodata)
-            <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
-                <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
+            <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}"
+                @if(!in_array($userid, $pmtsmember ?? []) && $guard == 'employee')
+                    @if(!in_array($status, [2, 5]))
+                        onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})"
+                        style="cursor: pointer;"
+                    @endif
+                @else
+                    onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})"
+                    style="cursor: pointer;"
+                @endif
+            >
+            <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
                 </td>
@@ -314,7 +334,7 @@
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             @if(isset($prs[1]))
                 @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
-                    @if(!in_array($status, [1, 5]))
+                    @if(!in_array($status, [2, 5]))
                         <td class="b-none text-center">
                             <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
                             data-toggle="modal"
@@ -359,9 +379,19 @@
                 <td class="text-center">{{ displayValue($strat->a) }}</td>
                 <td class="text-center">{{ displayValue($strat->remarks) }}</td>
                 <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
-                <td class="b-none text-center">
-                    <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;" data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i>
-                </td>
+                @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
+                    @if(!in_array($status, [2, 5]))
+                        <td class="b-none text-center">
+                            <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
+                            data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i>
+                        </td>
+                    @endif
+                @else
+                    <td class="b-none text-center">
+                        <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
+                        data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i>
+                    </td>
+                @endif
             </tr>
 
             @php
@@ -455,7 +485,7 @@
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             @if(isset($prs[2]))
                 @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
-                    @if(!in_array($status, [1, 5]))
+                    @if(!in_array($status, [2, 5]))
                         <td class="b-none text-center">
                             <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
                             data-toggle="modal"
@@ -497,9 +527,19 @@
                 <td class="text-center">{{ displayValue($supp->a) }}</td>
                 <td class="text-center">{{ displayValue($supp->remarks) }}</td>
                 <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
-                <td class="b-none text-center">
-                    <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;" data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i>
-                </td>
+                @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
+                    @if(!in_array($status, [2, 5]))
+                        <td class="b-none text-center">
+                            <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
+                            data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i>
+                        </td>
+                    @endif
+                @else
+                    <td class="b-none text-center">
+                        <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
+                        data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i>
+                    </td>
+                @endif
             </tr>
 
             @php
@@ -741,7 +781,7 @@
                     }
                 });
             } else if (result.dismiss === Swal.DismissReason.cancel) {
-                confirmDeleteOpcrData(id, mfoid);
+                confirmDeleteDpcrData(id, mfoid);
             }
         });
     }
@@ -755,7 +795,7 @@
         $('#opcrMfoData').modal('show');
     }
 
-    function confirmDeleteOpcrData(id,mfoid) {
+    function confirmDeleteDpcrData(id,mfoid) {
         Swal.fire({
             title: 'Delete this entry?',
             text: 'This action cannot be undone.',
@@ -766,7 +806,7 @@
         }).then((result) => {
             if (!result.isConfirmed) return;
 
-            const url = `{{ route('opcrmfoDeleteData', ':id') }}`
+            const url = `{{ route('dpcrmfoDeleteData', ':id') }}`
                         .replace(':id', id);
 
             fetch(url, {

@@ -84,14 +84,14 @@
                                 $firstRow = $opcrs->first();
                                 $prnumber = $firstRow ? $firstRow->first()->pr_number : null;
                                 $status = $firstRow ? $firstRow->first()->status : null;
-
+                                $requestreview = (in_array($userid, $pmtsmember) || $guard == 'web') ? ['label' => 'Request Review', 'class' => 'badge-primary'] : ['label' => 'Waiting...', 'class' => 'badge-warning'];
                                 $statusLabels = [
-                                    0 => ['label' => 'Ongoing...', 'class' => 'badge-warning'],
+                                    0 => ['label' => 'Ongoing', 'class' => 'badge-warning'],
                                     1 => ['label' => 'Assigned', 'class' => 'badge-info'],
                                     2 => ['label' => 'Reviewing', 'class' => 'badge-primary'],
                                     3 => ['label' => 'Done', 'class' => 'badge-success'],
                                     4 => ['label' => 'Returned', 'class' => 'badge-danger'],
-                                    5 => ['label' => 'Request Review', 'class' => 'badge-primary'],
+                                    5 => $requestreview,
                                 ];
                             @endphp
                             @foreach ($opcrs as $key => $mfoItems)
@@ -136,7 +136,7 @@
                                         @if((in_array($userid, $pmtsmember) || $guard == 'web'))
                                             <td onclick="event.stopPropagation();">
                                                 <div class="btn-group btn-group-sm dropdown-hover align-items-center" style="width: 100%;">
-                                                    <span class="badge {{ $currentStatus['class'] }} align-middle" style="font-size: 100%; padding: 0.2em 0.8em;">
+                                                    <span class="badge {{ $currentStatus['class'] }} align-middle" style="font-size: 100%; padding: 0.2em 0.8em; width: 100%;">
                                                         {{ $currentStatus['label'] }}
                                                     </span>
                                                     <button type="button" class="btn btn-sm dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="false" style="padding: 0.25em 0.5em; vertical-align: middle;">
@@ -151,9 +151,9 @@
                                                                     <input type="hidden" name="stat" value="{{ $val }}">
                                                                     <button type="submit"
                                                                             class="dropdown-item"
-                                                                            style="font-size: 100%; width: 100%; padding: 0.1em 1em;"
+                                                                            style="font-size: 100%; padding: 0.1em 1em;"
                                                                             onclick="event.stopPropagation();">
-                                                                        <span class="badge {{ $label['class'] }}" style="font-size: 100%;">{{ $label['label'] }}</span>
+                                                                        <span class="badge {{ $label['class'] }}" style="font-size: 100%; width:100%;">{{ $label['label'] }}</span>
                                                                     </button>
                                                                 </form>
                                                             @endif

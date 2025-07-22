@@ -3,7 +3,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\DtrController;
 use App\Http\Controllers\Api\EventController;
-use App\Http\Controllers\Api\FaceController;
+use App\Http\Controllers\Api\TimeEntryController;
 
 Route::post('/dtrs', [DtrController::class, 'syncDtr'])->name('api.syncDtr');
 Route::post('/dtrs-batch', [DtrController::class, 'syncDtrBatch'])->name('api.syncDtrBatch');
@@ -17,11 +17,10 @@ Route::prefix('app')->group(function() {
     Route::get('/authlogin', [DtrController::class, 'appdtrauthLogin'])->name('appdtrauthLogin');
     Route::get('/check-coordinates', [DtrController::class, 'checkCoordinates'])->name('checkCoordinates');
 
-    Route::get('/health', function () {
-        return response()->json(['status' => 'ok']);
-    });
-    // ✅ add this line for your face verification:
-    Route::post('/faceverify', [FaceController::class, 'verify'])->name('app.faceverify');
-    Route::post('/faceregister', [FaceController::class, 'register']);
-    Route::get('/employees', [FaceController::class, 'listEmployees']);
+    // Time Entry
+    Route::get('/health', function () { return response()->json(['status' => 'ok']); });
+    Route::post('/faceverify', [TimeEntryController::class, 'verify'])->name('app.faceverify');
+    Route::post('/faceregister', [TimeEntryController::class, 'register']);
+    Route::get('/employees', [TimeEntryController::class, 'listEmployees']);
+    Route::get('/logzones', [TimeEntryController::class, 'listLogZones'])->name('app.listLogZones');
 });
