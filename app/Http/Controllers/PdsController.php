@@ -29,6 +29,7 @@ use App\Models\GovId;
 use App\Models\Device;
 use PDF;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Crypt;
 
 class PdsController extends Controller
 {
@@ -74,7 +75,18 @@ class PdsController extends Controller
         $empid = ($id) ? $id : auth()->guard($guard)->user()->id;
         $employee = Employee::find($empid);
 
-        return view("emp.signature", compact('employee', 'guard', 'empid'));
+
+        $imageData = asset('Uploads/esign-default.jpg'); // fallback
+        if ($employee->esign) {
+            try {
+                $decrypted = Crypt::decrypt($employee->esign);
+                $imageData = 'data:image/png;base64,' . base64_encode($decrypted);
+            } catch (\Exception $e) {
+                // fallback stays default
+            }
+        }
+
+        return view("emp.signature", compact('employee', 'guard', 'empid', 'imageData'));
     }
 
     public function uploadSignature(Request $request, $id = null)
@@ -82,28 +94,36 @@ class PdsController extends Controller
         $request->validate([
             'signature' => 'required|image|mimes:png|max:2048',
         ]);
-        
+
         $employee = Employee::findOrFail($id);
-    
+
         if ($request->hasFile('signature')) {
-            $file = $request->file('signature');
-            $filename = time() . '.' . $file->getClientOriginalExtension();
-            $path = public_path('Uploads/Signature');
-            $file->move($path, $filename);
-    
-            $employee->esign = 'Uploads/Signature/' . $filename;    
-            $employee->save();
-    
-            return response()->json([
-                'success' => true,
-                'image_url' => asset('Uploads/Signature/' . $filename)
-            ]);
+            try {
+                $file = $request->file('signature');
+                $binaryContent = file_get_contents($file->getRealPath());
+
+                $encryptedContent = Crypt::encrypt($binaryContent);
+                $employee->esign = $encryptedContent;
+                $employee->save();
+
+                $imageUrl = 'data:image/png;base64,' . base64_encode($binaryContent);
+
+                return response()->json([
+                    'success' => true,
+                    'image_url' => $imageUrl,
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage() // for debugging only
+                ], 500);
+            }
         }
-    
+
         return response()->json([
             'success' => false,
             'message' => 'No file selected or upload failed'
-        ]);
+        ], 400);
     }
 
     public function empPDS(){

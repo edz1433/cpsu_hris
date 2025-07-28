@@ -20,7 +20,7 @@ class GoogleAuthController extends Controller
 
     // public function handleGoogleCallback()
     // {
-    //     try {
+    //     // try {
     //         $google_user = Socialite::driver('google')->user();
     //         $email = $google_user->getEmail();
 
@@ -117,12 +117,11 @@ class GoogleAuthController extends Controller
     //         session()->flash('email', $recipient->username);
     //         return redirect()->route('verify');
 
-    //     } catch (\Exception $e) {
-    //         Log::error('Google OAuth error: ' . $e->getMessage());
-    //         return redirect()->back()->with('error', 'There was an issue with Google OAuth. Please try again.');
-    //     }
+    //     // } catch (\Exception $e) {
+    //     //     Log::error('Google OAuth error: ' . $e->getMessage());
+    //     //     return redirect()->back()->with('error', 'There was an issue with Google OAuth. Please try again.');
+    //     // }
     // }
-
 
     public function handleGoogleCallback()
     {
@@ -167,7 +166,6 @@ class GoogleAuthController extends Controller
             return redirect()->back()->with('error', 'There was an issue with Google OAuth. Please try again.');
         }
     }
-       
     
     public function verifyForm(Request $request)
     {

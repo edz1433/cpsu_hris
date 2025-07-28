@@ -8,7 +8,59 @@ use Illuminate\Support\Facades\DB;
 
 class TimeEntryController extends Controller
 {
+    public function listEmployees()
+    {
+        $employees = DB::table('employees')
+            ->select('emp_ID', DB::raw("CONCAT(fname, ' ', COALESCE(mname, ''), ' ', lname) AS name"))
+            ->orderBy('lname')
+            ->get();
+
+        return response()->json($employees);
+    }
+    
     private $embeddingLimit = 9; // keep only last 9 embeddings
+    public function register(Request $request)
+    {
+        $empId = $request->input('emp_ID');
+        $embedding = $request->input('embedding'); // single embedding
+        $embeddings = $request->input('embeddings'); // multiple embeddings
+
+        if (!$empId) {
+            return response()->json(['error' => 'Missing emp_ID'], 400);
+        }
+
+        $employee = DB::table('employees')->where('emp_ID', $empId)->first();
+        if (!$employee) {
+            return response()->json(['error' => 'Employee not found'], 404);
+        }
+
+        $existing = json_decode($employee->face_embeddings ?? '[]', true);
+
+        if ($embeddings && is_array($embeddings)) {
+            // push multiple
+            foreach ($embeddings as $e) {
+                if (count($e) == 128) $existing[] = $e;
+            }
+        } elseif ($embedding && count($embedding) == 128) {
+            // push single
+            $existing[] = $embedding;
+        } else {
+            return response()->json(['error' => 'Invalid embedding(s)'], 400);
+        }
+
+        // limit
+        $existing = array_slice($existing, -$this->embeddingLimit);
+
+        DB::table('employees')
+            ->where('emp_ID', $empId)
+            ->update(['face_embeddings' => json_encode($existing)]);
+
+        return response()->json([
+            'success' => true,
+            'emp_ID' => $empId,
+            'total_embeddings' => count($existing)
+        ]);
+    }
 
     public function verify(Request $request)
     {
@@ -56,49 +108,6 @@ class TimeEntryController extends Controller
         return response()->json(['match' => false, 'distance' => $minDistance]);
     }
 
-    public function register(Request $request)
-    {
-        $empId = $request->input('emp_ID');
-        $embedding = $request->input('embedding'); // single embedding
-        $embeddings = $request->input('embeddings'); // multiple embeddings
-
-        if (!$empId) {
-            return response()->json(['error' => 'Missing emp_ID'], 400);
-        }
-
-        $employee = DB::table('employees')->where('emp_ID', $empId)->first();
-        if (!$employee) {
-            return response()->json(['error' => 'Employee not found'], 404);
-        }
-
-        $existing = json_decode($employee->face_embeddings ?? '[]', true);
-
-        if ($embeddings && is_array($embeddings)) {
-            // push multiple
-            foreach ($embeddings as $e) {
-                if (count($e) == 128) $existing[] = $e;
-            }
-        } elseif ($embedding && count($embedding) == 128) {
-            // push single
-            $existing[] = $embedding;
-        } else {
-            return response()->json(['error' => 'Invalid embedding(s)'], 400);
-        }
-
-        // limit
-        $existing = array_slice($existing, -$this->embeddingLimit);
-
-        DB::table('employees')
-            ->where('emp_ID', $empId)
-            ->update(['face_embeddings' => json_encode($existing)]);
-
-        return response()->json([
-            'success' => true,
-            'emp_ID' => $empId,
-            'total_embeddings' => count($existing)
-        ]);
-    }
-
     private function l2Distance($a, $b)
     {
         $sum = 0;
@@ -107,16 +116,6 @@ class TimeEntryController extends Controller
             $sum += $diff * $diff;
         }
         return sqrt($sum);
-    }
-
-    public function listEmployees()
-    {
-        $employees = DB::table('employees')
-            ->select('emp_ID', DB::raw("CONCAT(fname, ' ', COALESCE(mname, ''), ' ', lname) AS name"))
-            ->orderBy('lname')
-            ->get();
-
-        return response()->json($employees);
     }
 
     public function listLogZones()

@@ -15,14 +15,14 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-center">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="p-1" style="border: 1px solid rgb(249, 237, 237);">
-                                <img id="signature-preview" src="{{ (isset($employee->esign)) ? asset($employee->esign) : asset('Uploads/esign-default.jpg') }}" alt="E-SIGNATURE" width="100%" style="cursor: pointer;" data-toggle="modal" data-target="#uploadModal">
-                                <label class="badge badge-secondary lbel w-100 text-center">E-SIGNATURE</label><br>
+                                <img id="signature-preview" src="{{ $imageData }}" alt="E-SIGNATURE" width="100%" style="cursor: pointer;">
+                                <label class="badge badge-secondary lbel w-100 text-center">E-SIGNATURE</label>
                             </div>
                         </div>
                     </div>
-                    <input type="file" id="signature-file" accept="image/*" style="display: none;">
+                    <input type="file" id="signature-file" accept="image/png" style="display: none;">
                 </div>
             </div>                        
         </div>
