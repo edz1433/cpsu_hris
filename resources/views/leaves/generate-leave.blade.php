@@ -84,6 +84,10 @@
 </head>
 <body style="margin-top: -10px">
     <img src="{{ asset('Uploads/leave-header.png') }}" style="width: 100%; margin-bottom: 8px;">
+
+    {{-- 
+    <img src="{{ $leaveApplication->president_esign }}" class="signature" alt="Floating image" style="position: fixed; top: 83.7%; left: 45%; transform: translate(-50%, -50%); width: 350px; z-index: 9999;"> --}}
+
     <table class="table">
         <thead>
             <tr><td colspan="6" class="bordered"></td></tr>
@@ -232,11 +236,18 @@
                 </td>
                 <td colspan="3" class="bordered details vlt" width="100">
                     <span>6.D COMMUTATION</span><br>
-                    <div style="font-size: 8px !important; margin-bottom: 0px; margin-top: 3px; margin-left: 14px;">
-                        <input type="checkbox" class="checkbox1" @if($leaveApplication->leave_purpose !== 7 && $leaveApplication->leave_purpose !== 8) checked @endif> Not Requested<br>
-                        <input type="checkbox" class="checkbox1" @if($leaveApplication->leave_purpose == 7 || $leaveApplication->leave_purpose == 8) checked @endif> Requested<br>                        
-                        <center>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="width: 94%; display: inline-block;  margin-bottom: -14px;  border-bottom: 1px solid black;"></span></center>
-                        <center>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>(Signature of Applicant)</center>
+                    <div style="position: relative;">
+                        <div style="position: relative;">
+                            <div style="font-size: 8px !important; margin-bottom: 0px; margin-top: 3px; margin-left: 14px;">
+                                <input type="checkbox" class="checkbox1" @if($leaveApplication->leave_purpose !== 7 && $leaveApplication->leave_purpose !== 8) checked @endif> Not Requested<br>
+                                <input type="checkbox" class="checkbox1" @if($leaveApplication->leave_purpose == 7 || $leaveApplication->leave_purpose == 8) checked @endif> Requested<br>                        
+                                <center>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="width: 94%; display: inline-block;  margin-bottom: -14px;  border-bottom: 1px solid black;"></span></center>
+                                @if($leaveApplication->emp_esign == 2)
+                                    <img src="{{ $leaveApplication->employee_esign }}" class="signature" width="115" style="position: absolute; top: 26px; left: 50%; transform: translateX(-50%); z-index: 10;">
+                                @endif
+                                <center>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>(Signature of Applicant)</center>
+                            </div>
+                        </div>
                     </div>
                 </td>
             </tr>
@@ -264,6 +275,9 @@
                      </span>
                     </div>
                     <div style="margin-top: 2.45%">
+                        @if($leaveApplication->hr_sign == 2)
+                            <img src="{{ $leaveApplication->hr_esign }}" class="signature" width="115" style="position: absolute; top: 71.5%; left: 77%; transform: translateX(-50%); z-index: 10;">
+                        @endif
                         <center><span class="font1" style="width: 90%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->hr_fname) }} {{ isset($leaveApplication->hr_mname) ? substr($leaveApplication->hr_mname, 0, 1).'.' : ''}} {{ strtoupper($leaveApplication->hr_lname) }} {{ strtoupper($leaveApplication->hr_suffix) }}{{ ($leaveApplication->hr_prefix) ? strtoupper(', '.$leaveApplication->hr_prefix) : '' }}</b></span></center>
                         <center>Human Resource Management Officer</center>
                     </div>
@@ -288,6 +302,9 @@
                         <div style="margin-top: 2px; margin-left: 33px;"><span style="width: 95.7%; display: inline-block;  border-bottom: 1px solid black;"><span style="color: white;">.</span> {{ ($nextSixWords && $leaveApplication->remarks_stat !== 0) ? $nextSixWords : '' }}</span></div>
                         <div style="margin-top: 2px; margin-left: 33px;"><span style="width: 95.7%; display: inline-block;  border-bottom: 1px solid black;"><span style="color: white;">.</span> {{ ($thirdSixWords && $leaveApplication->remarks_stat !== 0) ? $thirdSixWords : '' }}</span></div>
                         <div style="margin-top: 7px; margin-left: 33px;"><span style="width: 95.7%; display: inline-block;  border-bottom: 1px solid black;"><span style="color: white;">.</span> {{ ($remainingWords && $leaveApplication->remarks_stat !== 0) ? $remainingWords : '' }}</span></div>
+                        @if($leaveApplication->sup_sign == 2)
+                            <img src="{{ $leaveApplication->supervisor_esign }}" class="signature" width="115" style="position: absolute; top: 71.5%; left: 77%; transform: translateX(-50%); z-index: 10;">
+                        @endif
                         <div style="margin-top: 12px; margin-left: 33px;"><span class="font1" style="width: 95.7%; display: inline-block;  border-bottom: 1px solid black;"><center><span style="color: white;">.</span><b><span style="padding-right: 26px;">{{ strtoupper($leaveApplication->supervisor_fname) }} {{ isset($leaveApplication->supervisor_mname) ? substr($leaveApplication->supervisor_mname, 0, 1).'.' : '' }} {{ strtoupper($leaveApplication->supervisor_lname) }} {{ strtoupper($leaveApplication->supervisor_suffix) }}{{ ($leaveApplication->supervisor_prefix) ? strtoupper(', '.$leaveApplication->supervisor_prefix) : '' }}</span></b></span></center></div>
                         <center>Immediate Supervisor</center>
                         <center>(Signature over Printed Name)</center>
@@ -336,6 +353,9 @@
             </tr>
             <tr>
                 <td colspan="6">
+                    @if($leaveApplication->pres_sign == 2)
+                        <img src="{{ $leaveApplication->president_esign }}" class="signature" width="115" style="position: absolute; top: 88.8%; left: 50%; transform: translateX(-50%); z-index: 10;">
+                    @endif
                     <center>
                         <span class="font1" style="width: 28%; display: inline-block; border-bottom: 1px solid black;">
                             <b>
@@ -382,7 +402,7 @@
             </tr>
         </table>
         <span style="font-size: 9px; text-align: center; margin-left: 26%; margin-top: -5px; opacity: 0.8">Doc Control Code: CPSU-F-HRMO-15 REV-01 Effective Date: 08/31/2022 Page No. <b>1</b> of <b>2</b><br>
-            <img src="{{ asset($leaveApplication->transnum.'.png') }}" style="width: 100px; margin-left: 5px; margin-top: -6%; height: 20px;"></span>
+            {{-- <img src="{{ asset($leaveApplication->transnum.'.png') }}" style="width: 100px; margin-left: 5px; margin-top: -6%; height: 20px;"></span> --}}
     </div>
     
     <div class="back-page">

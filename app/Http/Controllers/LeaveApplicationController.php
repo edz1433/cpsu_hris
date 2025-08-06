@@ -12,7 +12,7 @@ use App\Models\Setting;
 use Carbon\Carbon;
 use Picqer\Barcode\BarcodeGeneratorPNG;
 use Illuminate\Support\Facades\File;
-
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
 
 class LeaveApplicationController extends Controller
@@ -107,7 +107,7 @@ class LeaveApplicationController extends Controller
             'module' => 'leave',
         ]);
         
-        $this->genApplication($leaveApplication->id);
+        // $this->genApplication($leaveApplication->id);
         
         return redirect()->back()->with('success', 'Submitted successfully');
     }
@@ -285,7 +285,7 @@ class LeaveApplicationController extends Controller
             'module' => 'leave',
         ]);
 
-        $this->genApplication($leaveApplication->id);
+        // $this->genApplication($leaveApplication->id);
         
         return response()->json([
             'success' => true,
@@ -296,19 +296,203 @@ class LeaveApplicationController extends Controller
         ]);
     }
     
+    // public function leaveApprove(Request $request)
+    // {
+    //     $request->validate([
+    //         'id' => 'required|integer|exists:leave_applications,id',
+    //         'by' => 'required|integer|min:0|max:3',
+    //         'day_wpay' => 'nullable|numeric',
+    //         // 'file' => 'required|file|mimes:pdf'
+    //     ]);
+        
+    //     $leaveApplication = LeaveApplication::find($request->id);
+    //     $currdate = Carbon::now('Asia/Manila')->toDateTimeString();
+    //     $currdate1 = Carbon::now('Asia/Manila')->format('F j, Y h:i A');
+    
+    //     $status = 1;
+    //     switch ($request->by) {
+    //         case 0:
+    //             $emp_esign = 2;
+    //             break;
+    //         case 1:
+    //             $status = 2;
+    //             break;
+    //         case 2:
+    //             $status = 3;
+    //             break;
+    //         case 3:
+    //             $status = 4;
+    //             break;
+    //     }
+    
+    //     if ($request->hasFile('file')) {
+    //         // Delete the old file if it exists
+    //         if ($leaveApplication->gen_app && Storage::exists('public/' . $leaveApplication->gen_app)) {
+    //             Storage::delete('public/' . $leaveApplication->gen_app);
+    //         }
+            
+    //         $storagePath = 'public/Leaveapplication';
+            
+    //         // Generate a new random filename
+    //         $randomNumber = mt_rand(100000, 999999);
+    //         $fileName = $randomNumber . '_leave_application_' . $leaveApplication->id . '.pdf';
+        
+    //         // Store the new file
+    //         $newFilePath = $request->file('file')->storeAs($storagePath, $fileName);
+        
+    //         // Save the new filename in the database
+    //         $leaveApplication->gen_app = str_replace('public/', '', $newFilePath);
+    //         $leaveApplication->save();
+    //     }
+        
+    //     $leave = [
+    //         1 => 'vl',
+    //         2 => 'vl',
+    //         3 => 'sl'
+    //     ];
+
+    //     $leaveTypes = [
+    //         1 => 'Vacation Leave',
+    //         2 => 'Mandatory/Forced Leave',
+    //         3 => 'Sick Leave',
+    //         4 => 'Maternity Leave',
+    //         5 => 'Paternity Leave',
+    //         6 => 'Special Privilege Leave',
+    //         7 => 'Solo Parent Leave',
+    //         8 => 'Study Leave',
+    //         9 => '10-Day VAWC Leave',
+    //         10 => 'Rehabilitation Privilege',
+    //         11 => 'Special Leave Benefits for Women',
+    //         12 => 'Special Emergency (Calamity) Leave',
+    //         13 => 'Adoption Leave',
+    //         14 => 'Vacation Service Credit'
+    //     ];
+        
+    //     if($request->by == 0){
+    //         $leaveApplication->emp_esign = $emp_esign;
+    //         $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
+    //         $employeeName = ucwords(strtolower($employee->fname . ' ' . $employee->lname));
+
+    //         Notification::create([
+    //             'empid' => $leaveApplication->empid,
+    //             'lapp_id' => $leaveApplication->id,
+    //             'category' => 2,
+    //             'utype' => 'hr',
+    //             'module' => 'leave',
+    //         ]);
+
+    //         Notification::where('lapp_id', $leaveApplication->id)->where('category', 1)->where('module', '=', 'leave')->where('utype', '=', 'employee')->update(['status' => 1]);
+    //     }
+        
+    //     if($request->by == 1){
+    //         $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
+    //         $leaveApplication->hr_sdate = Carbon::now();
+
+    //         Notification::create([
+    //             'empid' => $leaveApplication->empid,
+    //             'lapp_id' => $leaveApplication->id,
+    //             'esign_id' => $employee->supervisor ?? 0,
+    //             'category' => 3,
+    //             'utype' => 'supervisor',
+    //             'module' => 'leave',
+    //         ]);
+            
+    //         Notification::where('lapp_id', $leaveApplication->id)->where('category', 2)->where('module', '=', 'leave')->where('utype', '=', 'hr')->update(['status' => 1]);
+    //     }
+
+    //     if($request->by == 2){
+    //         $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
+    //         $leaveApplication->sup_sdate= Carbon::now();
+
+    //         $daysdeduct = ($leaveApplication->days ?? 0) - ($leaveApplication->day_wpay ?? 0);
+
+    //         $employee->vl = $employee->vl ?? 0;
+    //         $employee->sl = $employee->sl ?? 0;
+    
+    //         if (in_array($leaveApplication->leave_type, [1, 2])){
+    //             $employee->vl -= $leaveApplication->less_vl;
+    //         }if($leaveApplication->leave_type == 3){
+    //             $employee->vl -= $leaveApplication->less_vl;
+    //             $employee->sl -= $leaveApplication->less_sl;
+    //         }if($leaveApplication->leave_type == 6){
+    //             $employee->special_pl -= ($leaveApplication->days - $leaveApplication->day_wpay);
+    //         }if($leaveApplication->leave_type == 14){
+    //             $employee->servcred_leave -= ($leaveApplication->days - $leaveApplication->day_wpay);
+    //         }
+        
+    //         $employee->save();
+        
+    //         $leaveApplication->save();
+
+    //         Notification::create([
+    //             'empid' => $leaveApplication->empid,
+    //             'lapp_id' => $leaveApplication->id,
+    //             'esign_id' => $employee->supervisor ?? 0,
+    //             'category' => 4,
+    //             'utype' => 'president',
+    //             'module' => 'leave',
+    //         ]);
+
+    //         Notification::where('lapp_id', $leaveApplication->id)->where('category', 3)->where('module', '=', 'leave')->where('utype', '=', 'supervisor')->update(['status' => 1]);
+    //     }
+
+    //     if ($request->by == 3) {
+    //         $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
+    //         $leaveApplication->pres_sdate = Carbon::now();
+
+    //         // $daysdeduct = ($leaveApplication->days ?? 0) - ($leaveApplication->day_wpay ?? 0);
+
+    //         // $employee->vl = $employee->vl ?? 0;
+    //         // $employee->sl = $employee->sl ?? 0;
+    
+    //         // if (in_array($leaveApplication->leave_type, [1, 2])){
+    //         //     $employee->vl -= $leaveApplication->less_vl;
+    //         // }if($leaveApplication->leave_type == 3){
+    //         //     $employee->vl -= $leaveApplication->less_vl;
+    //         //     $employee->sl -= $leaveApplication->less_sl;
+    //         // }if($leaveApplication->leave_type == 6){
+    //         //     $employee->special_pl -= ($leaveApplication->days - $leaveApplication->day_wpay);
+    //         // }if($leaveApplication->leave_type == 14){
+    //         //     $employee->servcred_leave -= ($leaveApplication->days - $leaveApplication->day_wpay);
+    //         // }
+        
+    //         // $employee->save();
+        
+    //         $leaveApplication->history = 2;
+    //         $leaveApplication->save();
+
+    //         Notification::create([
+    //             'empid' => $leaveApplication->empid,
+    //             'lapp_id' => $leaveApplication->id,
+    //             'category' => 2,
+    //             'utype' => 'employee',
+    //             'module' => 'leave',
+    //         ]);
+
+    //         Notification::where('lapp_id', $leaveApplication->id)->where('category', 4)->where('module', '=', 'leave')->where('utype', '=', 'president')->update(['status' => 1]);
+    //     }        
+        
+    //     $leaveApplication->status = $status ?? 1;
+    //     $leaveApplication->save();
+    
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Leave approved successfully.',
+    //         'datetime' => $currdate1,
+    //     ]);
+    // }
+
     public function leaveApprove(Request $request)
     {
         $request->validate([
             'id' => 'required|integer|exists:leave_applications,id',
             'by' => 'required|integer|min:0|max:3',
             'day_wpay' => 'nullable|numeric',
-            // 'file' => 'required|file|mimes:pdf'
         ]);
         
         $leaveApplication = LeaveApplication::find($request->id);
-        $currdate = Carbon::now('Asia/Manila')->toDateTimeString();
         $currdate1 = Carbon::now('Asia/Manila')->format('F j, Y h:i A');
-    
+
         $status = 1;
         switch ($request->by) {
             case 0:
@@ -324,27 +508,7 @@ class LeaveApplicationController extends Controller
                 $status = 4;
                 break;
         }
-    
-        if ($request->hasFile('file')) {
-            // Delete the old file if it exists
-            if ($leaveApplication->gen_app && Storage::exists('public/' . $leaveApplication->gen_app)) {
-                Storage::delete('public/' . $leaveApplication->gen_app);
-            }
-            
-            $storagePath = 'public/Leaveapplication';
-            
-            // Generate a new random filename
-            $randomNumber = mt_rand(100000, 999999);
-            $fileName = $randomNumber . '_leave_application_' . $leaveApplication->id . '.pdf';
-        
-            // Store the new file
-            $newFilePath = $request->file('file')->storeAs($storagePath, $fileName);
-        
-            // Save the new filename in the database
-            $leaveApplication->gen_app = str_replace('public/', '', $newFilePath);
-            $leaveApplication->save();
-        }
-        
+
         $leave = [
             1 => 'vl',
             2 => 'vl',
@@ -371,7 +535,6 @@ class LeaveApplicationController extends Controller
         if($request->by == 0){
             $leaveApplication->emp_esign = $emp_esign;
             $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
-            $employeeName = ucwords(strtolower($employee->fname . ' ' . $employee->lname));
 
             Notification::create([
                 'empid' => $leaveApplication->empid,
@@ -381,12 +544,17 @@ class LeaveApplicationController extends Controller
                 'module' => 'leave',
             ]);
 
-            Notification::where('lapp_id', $leaveApplication->id)->where('category', 1)->where('module', '=', 'leave')->where('utype', '=', 'employee')->update(['status' => 1]);
+            Notification::where('lapp_id', $leaveApplication->id)
+                ->where('category', 1)
+                ->where('module', 'leave')
+                ->where('utype', 'employee')
+                ->update(['status' => 1]);
         }
-        
+
         if($request->by == 1){
             $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
             $leaveApplication->hr_sdate = Carbon::now();
+            $leaveApplication->hr_sign = 2;
 
             Notification::create([
                 'empid' => $leaveApplication->empid,
@@ -396,32 +564,37 @@ class LeaveApplicationController extends Controller
                 'utype' => 'supervisor',
                 'module' => 'leave',
             ]);
-            
-            Notification::where('lapp_id', $leaveApplication->id)->where('category', 2)->where('module', '=', 'leave')->where('utype', '=', 'hr')->update(['status' => 1]);
+
+            Notification::where('lapp_id', $leaveApplication->id)
+                ->where('category', 2)
+                ->where('module', 'leave')
+                ->where('utype', 'hr')
+                ->update(['status' => 1]);
         }
 
         if($request->by == 2){
             $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
-            $leaveApplication->sup_sdate= Carbon::now();
-
-            $daysdeduct = ($leaveApplication->days ?? 0) - ($leaveApplication->day_wpay ?? 0);
+            $leaveApplication->sup_sdate = Carbon::now();
+            $leaveApplication->sup_sign = 2;
 
             $employee->vl = $employee->vl ?? 0;
             $employee->sl = $employee->sl ?? 0;
-    
+
             if (in_array($leaveApplication->leave_type, [1, 2])){
                 $employee->vl -= $leaveApplication->less_vl;
-            }if($leaveApplication->leave_type == 3){
+            }
+            if($leaveApplication->leave_type == 3){
                 $employee->vl -= $leaveApplication->less_vl;
                 $employee->sl -= $leaveApplication->less_sl;
-            }if($leaveApplication->leave_type == 6){
+            }
+            if($leaveApplication->leave_type == 6){
                 $employee->special_pl -= ($leaveApplication->days - $leaveApplication->day_wpay);
-            }if($leaveApplication->leave_type == 14){
+            }
+            if($leaveApplication->leave_type == 14){
                 $employee->servcred_leave -= ($leaveApplication->days - $leaveApplication->day_wpay);
             }
-        
+
             $employee->save();
-        
             $leaveApplication->save();
 
             Notification::create([
@@ -433,31 +606,17 @@ class LeaveApplicationController extends Controller
                 'module' => 'leave',
             ]);
 
-            Notification::where('lapp_id', $leaveApplication->id)->where('category', 3)->where('module', '=', 'leave')->where('utype', '=', 'supervisor')->update(['status' => 1]);
+            Notification::where('lapp_id', $leaveApplication->id)
+                ->where('category', 3)
+                ->where('module', 'leave')
+                ->where('utype', 'supervisor')
+                ->update(['status' => 1]);
         }
 
         if ($request->by == 3) {
             $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
             $leaveApplication->pres_sdate = Carbon::now();
-
-            // $daysdeduct = ($leaveApplication->days ?? 0) - ($leaveApplication->day_wpay ?? 0);
-
-            // $employee->vl = $employee->vl ?? 0;
-            // $employee->sl = $employee->sl ?? 0;
-    
-            // if (in_array($leaveApplication->leave_type, [1, 2])){
-            //     $employee->vl -= $leaveApplication->less_vl;
-            // }if($leaveApplication->leave_type == 3){
-            //     $employee->vl -= $leaveApplication->less_vl;
-            //     $employee->sl -= $leaveApplication->less_sl;
-            // }if($leaveApplication->leave_type == 6){
-            //     $employee->special_pl -= ($leaveApplication->days - $leaveApplication->day_wpay);
-            // }if($leaveApplication->leave_type == 14){
-            //     $employee->servcred_leave -= ($leaveApplication->days - $leaveApplication->day_wpay);
-            // }
-        
-            // $employee->save();
-        
+            $leaveApplication->pres_sign = 2;
             $leaveApplication->history = 2;
             $leaveApplication->save();
 
@@ -469,12 +628,16 @@ class LeaveApplicationController extends Controller
                 'module' => 'leave',
             ]);
 
-            Notification::where('lapp_id', $leaveApplication->id)->where('category', 4)->where('module', '=', 'leave')->where('utype', '=', 'president')->update(['status' => 1]);
-        }        
-        
+            Notification::where('lapp_id', $leaveApplication->id)
+                ->where('category', 4)
+                ->where('module', 'leave')
+                ->where('utype', 'president')
+                ->update(['status' => 1]);
+        }
+
         $leaveApplication->status = $status ?? 1;
         $leaveApplication->save();
-    
+
         return response()->json([
             'success' => true,
             'message' => 'Leave approved successfully.',
@@ -590,10 +753,13 @@ class LeaveApplicationController extends Controller
                 }
                 $this->genApplication($id);
                 break;
+                $leaveApplication->emp_esign = 1;
             case 2:
+                $leaveApplication->hr_sign = null;
                 $leaveApplication->status = 1;
                 break;
             case 3:
+                $leaveApplication->sup_sign = null;
                 $leaveApplication->status = 2;
                 
                 $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
@@ -755,28 +921,63 @@ class LeaveApplicationController extends Controller
     public function previewLeave($id){
         $guard = $this->getGuard();
         $leaveApplication = LeaveApplication::with(['office:id,office_name,office_abbr'])
-        ->join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
-        ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
-        ->join('employees as pres', 'pres.id', '=', 'leave_applications.president')
-        ->select('leave_applications.*', 
-            'leave_applications.id as lid', 
-            'employees.lname', 
-            'employees.fname', 
-            'employees.mname', 
-            'employees.suffix',          
-            'sup.lname as supervisor_lname', 
-            'sup.fname as supervisor_fname', 
-            'sup.mname as supervisor_mname', 
-            'sup.suffix as supervisor_suffix', 
-            'sup.prefix as supervisor_prefix',
-            'pres.lname as president_lname', 
-            'pres.fname as president_fname', 
-            'pres.mname as president_mname', 
-            'pres.suffix as president_suffix', 
-            'pres.prefix as president_prefix',
-        )
-        ->where('leave_applications.id', $id)
-        ->first();
+            ->join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
+            ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
+            ->join('employees as pres', 'pres.id', '=', 'leave_applications.president')
+            ->join('employees as hrhead', 'hrhead.id', '=', 'leave_applications.hr') // <--- add this
+            ->select(
+                'leave_applications.*', 
+                'leave_applications.id as lid', 
+                'employees.lname', 
+                'employees.fname', 
+                'employees.mname', 
+                'employees.suffix',       
+                'employees.esign as employee_esign',    
+
+                'sup.lname as supervisor_lname', 
+                'sup.fname as supervisor_fname', 
+                'sup.mname as supervisor_mname', 
+                'sup.suffix as supervisor_suffix', 
+                'sup.prefix as supervisor_prefix',
+                'sup.esign as supervisor_esign',
+
+                'pres.lname as president_lname', 
+                'pres.fname as president_fname', 
+                'pres.mname as president_mname', 
+                'pres.suffix as president_suffix', 
+                'pres.prefix as president_prefix',
+                'pres.esign as president_esign',
+
+                'hrhead.lname as hr_lname',
+                'hrhead.fname as hr_fname',
+                'hrhead.mname as hr_mname',
+                'hrhead.suffix as hr_suffix',
+                'hrhead.prefix as hr_prefix',
+                'hrhead.esign as hr_esign',
+            )
+            ->where('leave_applications.id', $id)
+            ->first();
+
+
+        if ($leaveApplication->employee_esign) {
+            $decrypted = Crypt::decrypt($leaveApplication->employee_esign);
+            $leaveApplication->employee_esign = 'data:image/png;base64,' . base64_encode($decrypted);
+        }
+
+        if ($leaveApplication->supervisor_esign) {
+            $decrypted = Crypt::decrypt($leaveApplication->supervisor_esign);
+            $leaveApplication->supervisor_esign = 'data:image/png;base64,' . base64_encode($decrypted);
+        }
+
+        if ($leaveApplication->president_esign) {
+            $decrypted = Crypt::decrypt($leaveApplication->president_esign);
+            $leaveApplication->president_esign = 'data:image/png;base64,' . base64_encode($decrypted);
+        }
+
+        if ($leaveApplication->hr_esign) {
+            $decrypted = Crypt::decrypt($leaveApplication->hr_esign);
+            $leaveApplication->hr_esign = 'data:image/png;base64,' . base64_encode($decrypted);
+        }
     
         $customPaper = array(0, 0, 595.28, 841.89);
         $pdf = \PDF::loadView('leaves.generate-leave', compact('leaveApplication'))->setPaper($customPaper, 'portrait');

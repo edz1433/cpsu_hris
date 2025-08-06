@@ -395,7 +395,7 @@
     $('.return-leave').on('click', function(){
         var id = $(this).data('id');
         var to = $(this).data('to');
-
+        alert(to);
         var returnUrl = "{{ route('leaveReturn') }}";
 
         Swal.fire({
@@ -636,44 +636,145 @@
     });
 </script>
 <script>
+    // $('.approve-leave').on('click', function() {
+    //     var id = $(this).data('id');
+    //     var by = $(this).data('by');
+    //     var approveUrl = "{{ route('leaveApprove') }}";
+    //     var btnapp = (by == 0) ? 'Yes, Submit it!' : 'Yes, approve it!';
+    //     var errortext = (by == 0) ? 'uploading' : 'approving';
+
+    //     Swal.fire({
+    //         title: 'Are you sure?',
+    //         text: "You want to approve this request!",
+    //         icon: 'warning',
+    //         showCancelButton: true,
+    //         confirmButtonColor: '#28a745',
+    //         cancelButtonColor: '#d33',
+    //         confirmButtonText: btnapp,
+    //         html: `
+    //             <input type="file" id="pdf-file" class="swal2-input" accept=".pdf" style="width: calc(85% - 16px);">
+    //         `,
+    //         preConfirm: () => {
+    //             var file = document.getElementById('pdf-file').files[0];
+
+    //             if (!file) {
+    //                 Swal.showValidationMessage('Please attach the signed application form.');
+    //                 return false;
+    //             }
+
+    //             return { file };
+    //         }
+    //     }).then((result) => {
+    //         if (result.isConfirmed) {
+    //             // Show the loading spinner
+    //             $('#loading-spinner').show();
+
+    //             var formData = new FormData();
+    //             formData.append('id', id);
+    //             formData.append('by', by);
+    //             formData.append('file', result.value.file);
+    //             formData.append('_token', $('meta[name="csrf-token"]').attr('content'));  // Ensure CSRF token is added
+
+    //             $.ajax({
+    //                 type: "POST",
+    //                 url: approveUrl,
+    //                 data: formData,
+    //                 contentType: false,
+    //                 processData: false,
+    //                 success: function(response) {
+    //                     Swal.fire({
+    //                         title: 'Approved!',
+    //                         text: 'The request has been approved.',
+    //                         icon: 'success',
+    //                         showConfirmButton: false,
+    //                         timer: 1000
+    //                     });
+
+    //                     // Handle actions based on 'by' value
+    //                     if (by == 0) {
+    //                         $('#action-button0' + id).fadeOut(1000, function() {
+    //                             $(this).remove();
+    //                         });
+    //                     }
+    //                     if (by == 1) {
+    //                         $('#action-button' + id).fadeOut(1000, function() {
+    //                             $(this).remove();
+    //                         });
+    //                         $('#status-icon' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
+    //                         $('.time-sup' + id).html(response.datetime);
+    //                     } else if (by == 2) {
+    //                         $('#action-button1' + id).fadeOut(1000, function() {
+    //                             $(this).remove();
+    //                         });
+    //                         $('#status-icon1' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
+    //                         $('.time-hr' + id).html(response.datetime);
+    //                     } else if (by == 3) {
+    //                         $('#action-button2' + id).fadeOut(1000, function() {
+    //                             $(this).remove();
+    //                         });
+    //                         $('#status-icon2' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
+    //                         $('#status-icon3' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
+    //                         $('.time-pres' + id).html(response.datetime);
+    //                         $('#preview' + id).removeClass('bg-secondary').addClass('bg-danger');
+    //                         $('#preview' + id).attr('href', "{{ route('previewLeave', ':id') }}".replace(':id', id));
+    //                     }
+    //                 },
+    //                 error: function(xhr, status, error) {
+    //                     var response = xhr.responseJSON;
+    //                     if (xhr.status === 400 && response && response.error === 'Insufficient leave credits') {
+    //                         Swal.fire({
+    //                             title: 'Error!',
+    //                             text: 'Insufficient leave credits. Please check available credits.',
+    //                             icon: 'error',
+    //                             showConfirmButton: true,
+    //                         });
+    //                     } else {
+    //                         Swal.fire({
+    //                             title: 'Error!',
+    //                             text: 'An error occurred while '+ errortext +' the leave form.',
+    //                             icon: 'error',
+    //                             showConfirmButton: true,
+    //                         });
+    //                     }
+    //                 },
+    //                 complete: function() {
+    //                     // Hide the loading spinner once the AJAX call is complete
+    //                     $('#loading-spinner').hide();
+    //                 }
+    //             });
+    //         }
+    //     });
+    // });
+
     $('.approve-leave').on('click', function() {
         var id = $(this).data('id');
         var by = $(this).data('by');
         var approveUrl = "{{ route('leaveApprove') }}";
-        var btnapp = (by == 0) ? 'Yes, Submit it!' : 'Yes, approve it!';
-        var errortext = (by == 0) ? 'uploading' : 'approving';
+
+        // var btnapp = (by == 0) ? 'Yes, sign it!' : 'Yes, approve it!';
+        // var errortext = (by == 0) ? 'signing' : 'approving';
+        // var actionText = (by == 0) ? 'Do you wish to formally sign this leave application?' : 'You want to approve this leave request';
+        
+        var btnapp = (by == 0 || by == 2 || by == 3) ? 'Yes, sign it!' : 'Yes, approve it!';
+        var errortext = (by == 0 || by == 2 || by == 3) ? 'signing' : 'approving';
+        var actionText = (by == 0 || by == 2 || by == 3) ? 'Do you wish to formally sign this leave application?' : 'You want to approve this leave request';
 
         Swal.fire({
             title: 'Are you sure?',
-            text: "You want to approve this request!",
+            text: actionText,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#28a745',
             cancelButtonColor: '#d33',
-            confirmButtonText: btnapp,
-            html: `
-                <input type="file" id="pdf-file" class="swal2-input" accept=".pdf" style="width: calc(85% - 16px);">
-            `,
-            preConfirm: () => {
-                var file = document.getElementById('pdf-file').files[0];
-
-                if (!file) {
-                    Swal.showValidationMessage('Please attach the signed application form.');
-                    return false;
-                }
-
-                return { file };
-            }
+            confirmButtonText: btnapp
         }).then((result) => {
             if (result.isConfirmed) {
-                // Show the loading spinner
                 $('#loading-spinner').show();
 
                 var formData = new FormData();
                 formData.append('id', id);
                 formData.append('by', by);
-                formData.append('file', result.value.file);
-                formData.append('_token', $('meta[name="csrf-token"]').attr('content'));  // Ensure CSRF token is added
+                formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
 
                 $.ajax({
                     type: "POST",
@@ -683,14 +784,14 @@
                     processData: false,
                     success: function(response) {
                         Swal.fire({
-                            title: 'Approved!',
-                            text: 'The request has been approved.',
+                            title: (by == 0 ? 'Signed!' : 'Approved!'),
+                            text: 'The request has been ' + (by == 0 ? 'signed' : 'approved') + '.',
                             icon: 'success',
                             showConfirmButton: false,
                             timer: 1000
                         });
 
-                        // Handle actions based on 'by' value
+                        // DOM updates based on 'by'
                         if (by == 0) {
                             $('#action-button0' + id).fadeOut(1000, function() {
                                 $(this).remove();
@@ -700,20 +801,20 @@
                             $('#action-button' + id).fadeOut(1000, function() {
                                 $(this).remove();
                             });
-                            $('#status-icon' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
+                            $('#status-icon' + id).removeClass('fa-times bg-danger bg-secondary').addClass('fa-check bg-success');
                             $('.time-sup' + id).html(response.datetime);
                         } else if (by == 2) {
                             $('#action-button1' + id).fadeOut(1000, function() {
                                 $(this).remove();
                             });
-                            $('#status-icon1' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
+                            $('#status-icon1' + id).removeClass('fa-times bg-danger bg-secondary').addClass('fa-check bg-success');
                             $('.time-hr' + id).html(response.datetime);
                         } else if (by == 3) {
                             $('#action-button2' + id).fadeOut(1000, function() {
                                 $(this).remove();
                             });
-                            $('#status-icon2' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
-                            $('#status-icon3' + id).removeClass('fa-times bg-danger').removeClass('fa-times bg-secondary').addClass('fa-check bg-success');
+                            $('#status-icon2' + id).removeClass('fa-times bg-danger bg-secondary').addClass('fa-check bg-success');
+                            $('#status-icon3' + id).removeClass('fa-times bg-danger bg-secondary').addClass('fa-check bg-success');
                             $('.time-pres' + id).html(response.datetime);
                             $('#preview' + id).removeClass('bg-secondary').addClass('bg-danger');
                             $('#preview' + id).attr('href', "{{ route('previewLeave', ':id') }}".replace(':id', id));
@@ -731,14 +832,13 @@
                         } else {
                             Swal.fire({
                                 title: 'Error!',
-                                text: 'An error occurred while '+ errortext +' the leave form.',
+                                text: 'An error occurred while ' + errortext + ' the leave form.',
                                 icon: 'error',
                                 showConfirmButton: true,
                             });
                         }
                     },
                     complete: function() {
-                        // Hide the loading spinner once the AJAX call is complete
                         $('#loading-spinner').hide();
                     }
                 });
@@ -967,30 +1067,47 @@ $(document).ready(function() {
     });
 </script>
 <script>
+// $(document).ready(function() {
+//     $('#pdfModal').on('show.bs.modal', function(event) {
+//         var button = $(event.relatedTarget);
+//         var leaveId = button.data('id');
+//         $.ajax({
+//             url: "{{ route('getPdfPath') }}",
+//             type: 'POST',
+//             data: {
+//                 id: leaveId,
+//                 _token: '{{ csrf_token() }}'
+//             },
+//             success: function(response) {
+//                 if (response.path) {
+//                     var fullPath = "{{ url('/') }}" + response.path;
+//                     $('#pdfIframe').attr('src', fullPath);
+//                 } else {
+//                     console.error('PDF path not found');
+//                 }
+//             },
+//             error: function(xhr, status, error) {
+//                 console.error('Error loading PDF:', error);
+//                 $('#pdfIframe').attr('src', '');
+//             }
+//         });
+//     });
+
+//     $('#pdfModal').on('hidden.bs.modal', function() {
+//         $('#pdfIframe').attr('src', '');
+//     });
+// });
+
 $(document).ready(function() {
     $('#pdfModal').on('show.bs.modal', function(event) {
         var button = $(event.relatedTarget);
         var leaveId = button.data('id');
-        $.ajax({
-            url: "{{ route('getPdfPath') }}",
-            type: 'POST',
-            data: {
-                id: leaveId,
-                _token: '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                if (response.path) {
-                    var fullPath = "{{ url('/') }}" + response.path;
-                    $('#pdfIframe').attr('src', fullPath);
-                } else {
-                    console.error('PDF path not found');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error loading PDF:', error);
-                $('#pdfIframe').attr('src', '');
-            }
-        });
+
+        // Use route name to generate base URL in Blade, then append the ID dynamically
+        var baseUrl = "{{ route('previewLeave', ['id' => '__ID__']) }}";
+        var previewUrl = baseUrl.replace('__ID__', leaveId);
+
+        $('#pdfIframe').attr('src', previewUrl);
     });
 
     $('#pdfModal').on('hidden.bs.modal', function() {

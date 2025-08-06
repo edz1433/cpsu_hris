@@ -109,7 +109,12 @@
                                                                 {{-- <button type="button" class="btn btn-warning btn-sm cancelLeave" value="{{ $leaves->id }}" ><i class="fas fa-times"></i> Cancel</button> --}}
                                                                 
 
-                                                                <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="0" data-max="{{ $leaves->days }}"><i class="fas fa-upload"></i> Upload</button>
+                                                                {{-- <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="0" data-max="{{ $leaves->days }}"><i class="fas fa-upload"></i> Upload</button> --}}
+                                                                @if(auth()->guard($guard)->user()->esign == NULL)
+                                                                    <a href="{{ url('pds/signature') }}">Click here to upload your e-signature</a>
+                                                                @else
+                                                                    <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="0" data-max="{{ $leaves->days }}"><i class="fas fa-signature"></i> E-sign</button>
+                                                                @endif
                                                             </div>
                                                         @elseif($leaves->emp_esign == 0 && $leaves->hr_sign == null)
                                                             {{-- <div class="float-right">
@@ -118,7 +123,7 @@
                                                         @endif
                                                     </div>
                                                     @if($leaves->emp_esign == 2 && $leaves->status == 1)
-                                                        <button class="btn btn-primary btn-sm undo-leave text-black float-right" data-id="{{ $leaves->id }}" data-to="1"><i class="fas fa-undo"></i> Undo</button>
+                                                        {{-- <button class="btn btn-primary btn-sm undo-leave text-black float-right" data-id="{{ $leaves->id }}" data-to="1"><i class="fas fa-undo"></i> Undo</button> --}}
                                                     @endif
                                                 @endif
                                                 @if($guard == "web")
@@ -151,7 +156,7 @@
                                                 @if($leaves->status == 2)
                                                     <div class="timeline-footer mb-4" id="action-button{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
-                                                            <button class="btn btn-primary btn-sm undo-leave text-black" data-id="{{ $leaves->id }}" data-to="2"><i class="fas fa-undo"></i> Undo</button>
+                                                            {{-- <button class="btn btn-primary btn-sm undo-leave text-black" data-id="{{ $leaves->id }}" data-to="2"><i class="fas fa-undo"></i> Undo</button> --}}
                                                         </div>
                                                     </div>
                                                 @endif
@@ -192,21 +197,25 @@
                                                 @if($leaves->supervisor == auth()->guard($guard)->user()->id && $leaves->status == 2 && $leaves->remarks_stat !== 2 && $leaves->emp_esign == 2)
                                                     <div class="timeline-footer mb-4" id="action-button1{{ $leaves->id }}">
                                                         <div class="float-right">
-                                                            <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="2"><i class="fas fa-undo"></i> Return</button>
-                                                            <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
-                                                            <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="2"><i class="fas fa-ban"></i> Disapprove</button>
+                                                            @if(auth()->guard($guard)->user()->esign == NULL)
+                                                                <a href="{{ url('pds/signature') }}">Click here to upload your e-signature</a>
+                                                            @else
+                                                                <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="2"><i class="fas fa-undo"></i> Return</button>
+                                                                <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
+                                                                <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="2"><i class="fas fa-ban"></i> Disapprove</button>
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 @endif
                                             @endif
                                             {{-- @if($guard == "web" && $leaves->supervisor == $leaves->president && $leaves->status == 2) --}}
-                                            @if($guard == "web" && $leaves->status == 2)
+                                            {{-- @if($guard == "web" && $leaves->status == 2)
                                                 <div class="timeline-footer mb-4" id="action-button1{{ $leaves->id }}">
                                                     <div class="float-right">
                                                         <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
                                                     </div>
                                                 </div>
-                                            @endif
+                                            @endif --}}
                                         </div>
                                     </div>     
                         
@@ -353,7 +362,7 @@
                                             @if($guard == "employee" && $leaves->status == 3 && $leaves->supervisor == auth()->guard($guard)->user()->id)
                                                 <div class="timeline-footer mb-4" id="action-button{{ $leaves->id }}" style="margin-top: -15px;">
                                                     <div class="float-right">
-                                                        <button class="btn btn-primary btn-sm undo-leave text-black" data-id="{{ $leaves->id }}" data-to="3"><i class="fas fa-undo"></i> Undo</button>
+                                                        {{-- <button class="btn btn-primary btn-sm undo-leave text-black" data-id="{{ $leaves->id }}" data-to="3"><i class="fas fa-undo"></i> Undo</button> --}}
                                                     </div>
                                                 </div>
                                             @endif
@@ -361,9 +370,13 @@
                                                 @if($leaves->supervisor == auth()->guard($guard)->user()->id && $leaves->status == 2 && $leaves->remarks_stat !== 2 && $leaves->emp_esign == 2)
                                                     <div class="timeline-footer mb-4" id="action-button1{{ $leaves->id }}">
                                                         <div class="float-right">
-                                                            <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="2"><i class="fas fa-undo"></i> Return</button>
-                                                            <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
-                                                            <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="2"><i class="fas fa-ban"></i> Disapprove</button>
+                                                            @if(auth()->guard($guard)->user()->esign == NULL)
+                                                                <a href="{{ url('pds/signature') }}">Click here to upload your e-signature</a>
+                                                            @else
+                                                                <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="2"><i class="fas fa-undo"></i> Return</button>
+                                                                <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
+                                                                <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="2"><i class="fas fa-ban"></i> Disapprove</button>
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 @endif
