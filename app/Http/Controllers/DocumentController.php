@@ -17,6 +17,7 @@ use App\Models\DpcrMfo;
 use App\Models\DpcrMfoData;
 use App\Models\SpmsPersonnel;
 use App\Models\SpmsAsignatory;
+use App\Models\SpmsComment;
 use Illuminate\Support\Facades\DB;
 
 class DocumentController extends Controller
@@ -218,13 +219,21 @@ class DocumentController extends Controller
         ));
     }
 
-    
     public function perRatingDpcr($cat, $empid, $prnumber)
     {
         $folder = 2;
         $guard = $this->getGuard();
         $dempid = $this->shortDecrypt($empid);
         $dprnumber = $this->shortDecrypt($prnumber);
+
+        $comments = SpmsComment::select(
+            'spms_comments.*',
+            'employees.lname',
+            'employees.fname'
+        )
+        ->leftJoin('employees', 'spms_comments.checkby', '=', 'employees.id')
+        ->where('spms_comments.pr_number', $dprnumber)
+        ->get();
 
         $dempid = ($empid) ? $dempid : auth()->guard($guard)->user()->id;
 
@@ -288,7 +297,7 @@ class DocumentController extends Controller
             ->get();
 
         return view('drive.pr-dpcr', compact(
-            'guard', 'datas', 'prs', 'cores', 'strats', 'supports', 'folder', 'employeesreg',
+            'guard', 'datas', 'prs', 'cores', 'strats', 'supports', 'folder', 'employeesreg', 'comments',
             'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'dprnumber', 'status'
         ));
     }

@@ -23,4 +23,5 @@ Route::prefix('app')->group(function() {
     Route::post('/faceregister', [TimeEntryController::class, 'register']);
     Route::get('/employees', [TimeEntryController::class, 'listEmployees']);
     Route::get('/logzones', [TimeEntryController::class, 'listLogZones'])->name('app.listLogZones');
+    Route::post('/attendance', [TimeEntryController::class, 'logAttendance']);
 });

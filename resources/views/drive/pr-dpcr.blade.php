@@ -62,9 +62,8 @@
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 px-2">
         {{-- Right Buttons: Request Review, PDF Dropdown, Filter --}}
         <div class="d-flex align-items-center flex-wrap gap-2 ms-auto">
-
             {{-- Request for Review Button --}}
-            @if($status == 1 && !in_array($userid, $pmtsmember ?? []) && $guard == "employee")
+            @if(in_array($status, [1,4]) && !in_array($userid, $pmtsmember ?? []) && $guard == "employee")
                 <form id="requestReviewForm" action="{{ route('updateStat') }}" method="POST" style="display:inline;">
                     @csrf
                     <input type="hidden" name="stat" value="5">
@@ -74,6 +73,45 @@
                     </button>
                 </form>
             @endif
+
+            @php
+                $unreadComments = $comments->where('status', 0);
+            @endphp
+
+            <div class="dropdown d-inline mr-1 position-relative">
+                <button class="btn btn-info btn-sm dropdown-toggle open-comments" 
+                        type="button" 
+                        id="notifDropdown" 
+                        data-toggle="dropdown" 
+                        aria-haspopup="true" 
+                        aria-expanded="false"
+                        data-prnumber="{{ $dprnumber }}">
+                    <i class="fas fa-comment"></i>
+                    @if($unreadComments->count() > 0)
+                        <span class="badge badge-warning navbar-badge" id="unreadCount">{{ $unreadComments->count() }}</span>
+                    @endif
+                </button>
+                <div class="dropdown-menu dropdown-menu-right mt-2 shadow animated--fade-in" 
+                    aria-labelledby="notifDropdown" 
+                    style="min-width: 500px; max-height: 400px; overflow-y: auto;">
+                    
+                    <div class="dropdown-header">{{ $comments->count() }} Notifications</div>
+                    <div class="dropdown-divider"></div>
+
+                    @forelse($comments as $comment)
+                        <a href="#" class="dropdown-item {{ $comment->status == 0 ? 'bg-light' : '' }}">
+                            <div>
+                                <strong>{{ ucfirst(strtolower($comment->lname)) }} {{ ucfirst(strtolower($comment->fname)) }}</strong>
+                            </div>
+                            <div class="text-wrap text-break">{{ $comment->comment }}</div>
+                            <span class="float-right text-muted text-sm">{{ $comment->created_at->diffForHumans() }}</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                    @empty
+                        <span class="dropdown-item text-muted">No notifications</span>
+                    @endforelse
+                </div>
+            </div>
 
             {{-- PDF Dropdown --}}
             <div class="dropdown mr-1">
@@ -113,7 +151,6 @@
                     <span class="input-group-text"><i class="fas fa-filter"></i></span>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
@@ -998,5 +1035,29 @@ function attachEvidenceURL(id, title, url) {
         });
     }
 </script>
-
+<script>
+    $(document).ready(function () {
+        $('.open-comments').on('click', function () {
+            const prNumber = $(this).data('prnumber');
+            
+            $.ajax({
+                url: "{{ route('markAsRead') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    pr_number: prNumber
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $('#unreadCount').text('0');
+                        // Optional: add more logic to clear or gray out the list
+                    }
+                },
+                error: function () {
+                    console.error('Failed to update comment status');
+                }
+            });
+        });
+    });
+</script>
 @endsection

@@ -1013,6 +1013,20 @@ class LeaveApplicationController extends Controller
         $leave = LeaveApplication::find($id);
     
         if ($leave) {
+            // if($leave->status == 3){
+            //     $employee = Employee::where('emp_ID', $leave->empid)->first();
+            //     if($leave->type == 1){
+            //         $employee->vl += $employee->vl ?? 0;
+            //     }
+            //     if($leave->type == 2){
+            //         $employee->sl += $employee->sl ?? 0;
+            //     }
+            //     if($leave->type == 3){
+            //         $employee->sl += $employee->sl ?? 0;
+            //     }
+                
+            // }
+
             $empid = $leave->empid;
     
             $leave->delete();

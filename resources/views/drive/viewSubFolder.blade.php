@@ -90,7 +90,7 @@
                                     1 => ['label' => 'Assigned', 'class' => 'badge-info'],
                                     2 => ['label' => 'Reviewing', 'class' => 'badge-primary'],
                                     3 => ['label' => 'Done', 'class' => 'badge-success'],
-                                    4 => ['label' => 'Returned', 'class' => 'badge-danger'],
+                                    4 => ['label' => 'Returned', 'class' => 'badge-danger btn-status-with-comment'],
                                     5 => $requestreview,
                                 ];
                             @endphp
@@ -145,17 +145,34 @@
                                                     <div class="dropdown-menu" role="menu" style="width: 100%;">
                                                         @foreach($statusLabels as $val => $label)
                                                             @if($status != $val && $val != 5)
-                                                                <form action="{{ route('updateStat') }}" method="POST" style="display:inline;">
-                                                                    @csrf
-                                                                    <input type="hidden" name="prnumber" value="{{ $employee->pr_number }}">
-                                                                    <input type="hidden" name="stat" value="{{ $val }}">
-                                                                    <button type="submit"
-                                                                            class="dropdown-item"
-                                                                            style="font-size: 100%; padding: 0.1em 1em;"
-                                                                            onclick="event.stopPropagation();">
-                                                                        <span class="badge {{ $label['class'] }}" style="font-size: 100%; width:100%;">{{ $label['label'] }}</span>
+                                                                @php $hasComment = strpos($label['class'], 'btn-status-with-comment') !== false; @endphp
+
+                                                                @if($hasComment)
+                                                                    <button type="button"
+                                                                            class="dropdown-item btn-status-with-comment"
+                                                                            data-prnumber="{{ $employee->pr_number }}"
+                                                                            data-stat="{{ $val }}"
+                                                                            data-label="{{ $label['label'] }}"
+                                                                            style="font-size: 100%; padding: 0.1em 1em;">
+                                                                        <span class="badge {{ $label['class'] }}" style="font-size: 100%; width:100%;">
+                                                                            {{ $label['label'] }}
+                                                                        </span>
                                                                     </button>
-                                                                </form>
+                                                                @else
+                                                                    <form action="{{ route('updateStat') }}" method="POST" style="display:inline;">
+                                                                        @csrf
+                                                                        <input type="hidden" name="prnumber" value="{{ $employee->pr_number }}">
+                                                                        <input type="hidden" name="stat" value="{{ $val }}">
+                                                                        <button type="submit"
+                                                                                class="dropdown-item"
+                                                                                style="font-size: 100%; padding: 0.1em 1em;"
+                                                                                onclick="event.stopPropagation();">
+                                                                            <span class="badge {{ $label['class'] }}" style="font-size: 100%; width:100%;">
+                                                                                {{ $label['label'] }}
+                                                                            </span>
+                                                                        </button>
+                                                                    </form>
+                                                                @endif
                                                             @endif
                                                         @endforeach
                                                     </div>

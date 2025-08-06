@@ -16,6 +16,7 @@ use App\Models\DpcrMfoData;
 use App\Models\SpmsPersonnel;
 use App\Models\Office;
 use App\Models\SpmsAsignatory;
+use App\Models\SpmsComment;
 
 class DpcrController extends Controller
 {
@@ -306,6 +307,17 @@ class DpcrController extends Controller
             ]);
 
         return $pdf->stream();
+    }
+
+    public function markAsRead(Request $request)
+    {
+        $prNumber = $request->pr_number;
+
+        SpmsComment::where('pr_number', $prNumber)
+            ->where('status', 0)
+            ->update(['status' => 1]);
+
+        return response()->json(['success' => true]);
     }
 
     public function dpcrmfoDeleteData(Request $request, $id)

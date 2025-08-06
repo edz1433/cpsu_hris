@@ -60,6 +60,15 @@
         background-color: #28a745 !important;
         border-color: #28a745 !important;
     }
+    body.modal-open {
+        overflow: hidden;   
+    }
+    .privacy-container h3 {
+        margin-top: 1.5rem;
+    }
+    .privacy-container ul {
+        padding-left: 20px;
+    }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed sidebar-collapse layout-navbar-fixed text-sm">
@@ -91,8 +100,12 @@
                         <img src="{{ file_exists($profilePath) && isset(auth()->guard($guard)->user()->profile) ? $profileUrl : asset('Profile/Employee/default.png') }}" alt="User Image" class="profile-image">
                     </a>                    
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                        {{-- <a class="dropdown-item" href="{{ route('myAccount') }}"><i class="fas fa-key fa-xs"></i> My Account</a> --}}
-                        <a class="dropdown-item" href="{{ route('logout') }}"><i class="fas fa-power-off fa-xs"></i> Sign Out</a>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="dropdown-item">
+                                <i class="fas fa-power-off fa-xs"></i> Sign Out
+                            </button>
+                        </form>
                     </div>
                 </li>
             </ul>
@@ -159,18 +172,51 @@
         </aside>
         <!-- /.control-sidebar -->
 
-        <!-- Privacy Modal -->
+        @if($guard == "employee" && auth()->guard($guard)->user()->dpn == 0)
+            <div class="modal fade show" id="dpnModal" tabindex="-1" aria-modal="true" role="dialog" style="display: block; background: rgba(0,0,0,0.5);">
+                <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                    <div class="modal-content shadow">
+                        <div class="modal-body px-4 py-3">
+                            @include('data-privacy') 
+                        </div>
+
+                        <div class="modal-footer justify-content-between px-4 py-3">
+                            <small class="text-muted">Central Philippines State University &copy; {{ now()->year }}</small>
+
+                            <div class="d-flex gap-2">
+                                <form method="POST" action="{{ route('dataPrivacyNotice') }}">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success px-4 mr-1">
+                                        I Accept
+                                    </button>
+                                </form>
+
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-danger px-4">
+                                        Decline
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                document.body.classList.add('modal-open');
+            </script>
+        @endif
+
         <div id="dataPrivacyModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dataPrivacyModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-body p-0">
-                        <iframe
-                            id="privacy-iframe"
-                            src=""
-                            frameborder="0"
-                            width="100%"
-                            height="600"
-                            style="display: block;"></iframe>
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content shadow">
+                    <div class="modal-body px-4 py-3">
+                        @include('data-privacy') 
+                    </div>
+
+                    <div class="modal-footer justify-content-between px-4 py-3">
+                        <small class="text-muted">Central Philippines State University &copy; {{ now()->year }}</small>
                     </div>
                 </div>
             </div>
@@ -182,7 +228,7 @@
                 <div>
                     <strong>All rights reserved.</strong>
                     &nbsp;|&nbsp;
-                    <a href="#" id="openPrivacyPolicy" data-toggle="modal" data-target="#dataPrivacyModal" style="text-decoration: none; color: #007bff;">
+                    <a href="#" data-toggle="modal" data-target="#dataPrivacyModal" style="text-decoration: none; color: #007bff;">
                         Data Privacy Policy
                     </a>
                 </div>

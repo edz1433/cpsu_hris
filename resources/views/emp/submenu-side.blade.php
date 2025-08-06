@@ -184,12 +184,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ ($guard == 'web') ? route('signature', $employee->id) : route('signature') }}" target="_blank" class="nav-link">
-                        <i class="text-muted pr-2 fas fa-signature" style="width: 20px;"></i>
-                        <span class="text-muted text-bold">E-Signature</span>
+                    <a href="{{ ($guard == 'web') ? route('signature', $employee->id) : route('signature') }}" class="nav-link">
+                        <i class="{{ request()->is('pds/signature') || request()->is('pds/signature/*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-signature" style="width: 20px;"></i>
+                        <span class="{{ request()->is('pds/signature') || request()->is('pds/signature/*') ? 'text-dark' : 'text-muted' }} text-bold">E-Signature</span>
                     </a>
                 </li>
-            </ul>
+            </ul> 
         </div>
     </div>
 </div>

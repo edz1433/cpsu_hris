@@ -413,21 +413,56 @@ $(document).ready(function() {
 });
 </script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const iframe = document.getElementById('privacy-iframe');
-        const modal = document.getElementById('dataPrivacyModal');
+$(document).ready(function () {
+    $('.btn-status-with-comment').on('click', function () {
+        const prnumber = $(this).data('prnumber');
+        const stat = $(this).data('stat');
+        const label = $(this).data('label');
 
-        // Laravel route to Privacy Policy (should return full HTML)
-        const privacyPolicyUrl = "{{ route('dataPrivacy') }}#toolbar=0";
+        Swal.fire({
+            title: label + ' Reason',
+            input: 'textarea',
+            inputLabel: 'Please enter a reason for "' + label + '"',
+            inputPlaceholder: 'Type your reason here...',
+            showCancelButton: true,
+            confirmButtonText: 'Submit',
+            cancelButtonText: 'Dismiss',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'A reason is required!';
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = $('<form>', {
+                    method: 'POST',
+                    action: "{{ route('updateStat') }}"
+                });
 
-        // Load iframe only when modal shows
-        $('#dataPrivacyModal').on('show.bs.modal', function () {
-            iframe.src = privacyPolicyUrl;
-        });
+                form.append($('<input>', {
+                    type: 'hidden',
+                    name: '_token',
+                    value: '{{ csrf_token() }}'
+                }));
+                form.append($('<input>', {
+                    type: 'hidden',
+                    name: 'prnumber',
+                    value: prnumber
+                }));
+                form.append($('<input>', {
+                    type: 'hidden',
+                    name: 'stat',
+                    value: stat
+                }));
+                form.append($('<input>', {
+                    type: 'hidden',
+                    name: 'comment',
+                    value: result.value
+                }));
 
-        // Clear iframe when modal hides
-        $('#dataPrivacyModal').on('hidden.bs.modal', function () {
-            iframe.src = '';
+                form.appendTo('body').submit();
+            }
         });
     });
+});
 </script>

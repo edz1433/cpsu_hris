@@ -125,7 +125,7 @@ class GoogleAuthController extends Controller
 
     public function handleGoogleCallback()
     {
-        try {
+        // try {
             $google_user = Socialite::driver('google')->user();
             $email = $google_user->getEmail();
         
@@ -162,9 +162,9 @@ class GoogleAuthController extends Controller
     
             return redirect()->route('verify');
     
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'There was an issue with Google OAuth. Please try again.');
-        }
+        // } catch (\Exception $e) {
+        //     return redirect()->back()->with('error', 'There was an issue with Google OAuth. Please try again.');
+        // }
     }
     
     public function verifyForm(Request $request)

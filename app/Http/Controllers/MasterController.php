@@ -160,5 +160,14 @@ class MasterController extends Controller
         return $pdf->stream(); // stream to iframe
     }
 
+    public function dataPrivacyNotice(Request $request)
+    {
+        $guard = $this->getGuard();
+        $user = Employee::find(auth()->guard($guard)->user()->id);
+        $user->dpn = 1; 
+        $user->save();
+
+        return redirect()->back();
+    }
 
 }

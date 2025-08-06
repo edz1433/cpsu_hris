@@ -1,140 +1,50 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Data Privacy Notice</title>
-  <style>
-    body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f9f9f9;
-      color: #333;
-    }
+<div class="privacy-container" style="
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #ffffff;
+    padding: 24px 28px;
+    border-radius: 8px;
+    color: #2d2d2d;
+    font-size: 15px;
+    line-height: 1.7;
+">
 
-    .header img, .footer img {
-      width: 75%; 
-      text-align: left; 
-      margin-top: -15px; 
-      margin-left: -16px;
-      display: block;
-    }
+  <h2 style="text-align: center; font-size: 24px; color: #1a202c; margin-bottom: 20px;">
+    Data Privacy Notice
+  </h2>
 
-    .footer img {
-        width: 100% !important;
-    }
+  <p>
+    In compliance with <strong><a href="https://privacy.gov.ph/data-privacy-act/" target="_blank">Republic Act No. 10173</a></strong>, also known as the <strong>Data Privacy Act of 2012</strong>,
+    <strong>Central Philippines State University (CPSU)</strong> recognizes its responsibility to respect and protect the
+    personal data of its clients. CPSU is committed to ensuring the security and confidentiality of all personal
+    information collected through its Human Resource Management System.
+  </p>
 
-    .privacy-container {
-      max-width: 800px;
-      margin: 0 auto;
-      background: white;
-      padding: 30px 30px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      box-sizing: border-box;
-    }
+  <h4 style="color: #00695c; margin-top: 25px; font-size: 18px;">Purpose of Data Collection</h4>
 
-    h1 {
-      text-align: center;
-      font-size: 28px;
-      color: #2c3e50;
-      margin-bottom: 25px;
-    }
+  <p>The information collected, including your name and signature, will be used for the following purposes:</p>
+  <ul style="margin-left: 20px; margin-top: 10px;">
+    <li>Updating and maintaining the official records of CPSU personnel in the HRIS Portal</li>
+    <li>Monitoring, tracking, and managing official documents within the university</li>
+    <li>Ensuring accountability and transparency in document processing and handling</li>
+    <li>Serving as official records for audits, internal assessments, and accreditations</li>
+  </ul>
 
-    p {
-      line-height: 1.8;
-      font-size: 16px;
-      margin-bottom: 15px;
-    }
+  <p>
+    All collected data will be securely archived and maintained by the <strong>Human Resource Management Office</strong>
+    and the <strong>Management Information Systems Office</strong> in accordance with CPSU’s data retention policies and applicable legal standards.
+  </p>
 
-    ul {
-      margin: 10px 0 20px 20px;
-      padding-left: 15px;
-    }
+  <h4 style="color: #00695c; margin-top: 25px; font-size: 18px;">Consent and Acknowledgment</h4>
 
-    ul li {
-      margin-bottom: 8px;
-    }
+  <p>
+    By submitting your personal information through this system or form, you voluntarily and expressly consent to the
+    collection, recording, organization, updating, use, consolidation, storage, and processing of your personal data
+    for the purposes stated above.
+  </p>
 
-    strong {
-      color: #2c3e50;
-    }
+  <p>
+    You understand that your data shall be retained only as long as necessary for these purposes and shall be protected
+    from unauthorized access, disclosure, or misuse.
+  </p>
 
-    .btn-container {
-      text-align: center;
-      margin-top: 30px;
-    }
-
-    .btn-accept {
-      background-color: #28a745;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 6px;
-      font-size: 15px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .btn-accept:hover {
-      background-color: #218838;
-    }
-  </style>
-</head>
-<body>
-
-    <div class="header">
-        <img src="{{ asset('Uploads/spms-header.jpg') }}" alt="Header Image">
-    </div>
-  <hr>
-  <div class="privacy-container">
-    <h1>Data Privacy Compliance</h1>
-
-    <p><strong>Gentle Reminder:</strong> In compliance with <strong>Republic Act No. 10173</strong>, or the <strong>Data Privacy Act of 2012</strong>, the <strong>Central Philippines State University (CPSU)</strong> reaffirms its commitment to protect and respect your personal data.</p>
-
-    <p>
-      All data collected through the <strong>Human Resource Information System (HRIS)</strong> is managed with strict confidentiality, integrity, and security.
-    </p>
-
-    <p><strong>HRIS Modules include:</strong></p>
-    <ul>
-      <li>Leave Application</li>
-      <li>Daily Time Record (DTR)</li>
-      <li>Employee List Management</li>
-      <li>Digital Signature Upload</li>
-      <li>Leave Form Generation</li>
-      <li>Strategic Performance Management System (SPMS)</li>
-    </ul>
-
-    <p><strong>Your personal data may be used to:</strong></p>
-    <ul>
-    <li>Facilitate leave application and approvals</li>
-    <li>Monitor attendance and generate DTR reports</li>
-    <li>Update and manage employee records</li>
-    <li>Upload and store digital signature images for use in official HR documents</li>
-    <li>Support employee performance evaluation by attaching uploaded signatures to official forms</li>
-    <li>Generate official HR forms and support audits, compliance, and assessments</li>
-    </ul>
-
-    <p>
-    The <strong>Management Information System (MIS) Office</strong> ensures that your data such as name, employee ID, attendance records, performance ratings, and uploaded digital signature images is securely processed in accordance with CPSU’s internal data protection standards and relevant legal requirements.
-    </p>
-
-    <p><strong>Your Consent Matters</strong></p>
-
-    <p>
-    By continuing to use the HRIS and submitting your information, you acknowledge and consent that your data may be collected and used to support HR functions such as attendance tracking, leave management, and performance evaluation.
-    </p>
-
-    <p>
-    This includes the uploading and use of your digital signature image for generating and verifying official HR-related documents. CPSU remains committed to protecting your personal data retaining it only for as long as necessary and safeguarding it from unauthorized access or misuse.
-    </p>
-
-  </div>
-
-  <div class="footer">
-    <img src="{{ asset('Uploads/dpa-footer.png') }}" alt="Footer Image">
-  </div>
-
-</body>
-</html>
+</div>

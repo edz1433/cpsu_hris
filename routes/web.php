@@ -63,6 +63,8 @@ Route::post('/verify', [GoogleAuthController::class, 'verify'])->name('verify.co
 
 Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], function() {
     //Performance
+    Route::post('/data-privacy-notice', [MasterController::class, 'dataPrivacyNotice'])->name('dataPrivacyNotice');
+    //Performance
     Route::get('/system-performance', [PerformanceController::class, 'systemPerformance'])->name('systemPerformance');
     // Dashboard
     Route::get('/dashboard', [MasterController::class, 'dashboard'])->name('dashboard');
@@ -110,6 +112,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/assign-dpcr', [DpcrController::class, 'assignDpcr'])->name('assignDpcr');  
         Route::get('/pdf/dpcr/{prnumber}/{empid}/{category}', [DpcrController::class, 'generateDpcrPdf'])->name('generateDpcrPdf');
 
+        Route::post('/update-comment-status', [DpcrController::class, 'markAsRead'])->name('markAsRead');
         //Evidence
         Route::post('/upload-evidence', [EvidenceController::class, 'uploadEvidence'])->name('uploadEvidence');
 
@@ -369,7 +372,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
     
     Route::get('/leave/disapprove', [LeaveApplicationController::class, 'leaveDisapprove']);
-    Route::get('/logout', [MasterController::class, 'logout'])->name('logout');
+    Route::post('/logout', [MasterController::class, 'logout'])->name('logout');
 });
 
 
