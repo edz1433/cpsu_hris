@@ -146,7 +146,7 @@
                                                 </div>
                                             @endif
                                         </td>
-                                        <td>
+                                        <td class="text-center">
                                             @if($guard == "web")
                                                 <button type="button" class="btn btn-warning btn-sm @if($leaves->remarks_stat !== 0) cancel @endif disapprove-leave" data-id="{{ $leaves->id }}" data-by="4" @if($leaves->remarks_stat !== 0) disabled @endif><i class="fas fa-times"></i></button>
                                             @endif
