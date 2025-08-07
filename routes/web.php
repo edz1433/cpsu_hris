@@ -281,7 +281,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/update-references', [PdsReferencesController::class, 'update'])->name('update.references');
 
         //Government ID
-        Route::get('/government-id/{id?}', [GovIdController::class, 'govids'])->name('govids');
+        Route::get('/government-id/{id?}', [GovIdController::class, 'govids'])->name('govids'); 
         Route::post('/update-govids', [GovIdController::class, 'update'])->name('update.govids');
         
         //Signature

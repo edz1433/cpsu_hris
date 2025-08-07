@@ -272,11 +272,11 @@
                     <div style="margin-top: -2.10%">
                     <span style="font-size: 7px;  margin-top: -2.35%; float: right; margin-right: 10px;">
                         <em>Total earned  and balances are for reconciliation.</em>
-                     </span>
+                    </span>
                     </div>
                     <div style="margin-top: 2.45%">
                         @if($leaveApplication->hr_sign == 2)
-                            <img src="{{ $leaveApplication->hr_esign }}" class="signature" width="100" style="position: absolute; top: 71.5%; left: 26.7%; transform: translateX(-50%); z-index: 10;">
+                            <img src="{{ $leaveApplication->hr_esign }}" class="signature" width="100" style="position: absolute; top: 67.5%; left: 26.7%; transform: translateX(-50%); z-index: 10;">
                         @endif
                         <center><span class="font1" style="width: 90%; display: inline-block; margin-top:7.3;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->hr_fname) }} {{ isset($leaveApplication->hr_mname) ? substr($leaveApplication->hr_mname, 0, 1).'.' : ''}} {{ strtoupper($leaveApplication->hr_lname) }} {{ strtoupper($leaveApplication->hr_suffix) }}{{ ($leaveApplication->hr_prefix) ? strtoupper(', '.$leaveApplication->hr_prefix) : '' }}</b></span></center>
                         <center>Human Resource Management Officer</center>
