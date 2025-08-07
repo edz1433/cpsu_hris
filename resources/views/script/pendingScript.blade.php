@@ -48,3 +48,20 @@
     });
 
 </script>
+<script>
+$(document).ready(function() {
+    $('#pdfModalPending').on('show.bs.modal', function(event) {
+        var button = $(event.relatedTarget);
+        var leaveId = button.data('id');
+        var urlTemplate = button.data('url-template');
+
+        var previewUrl = urlTemplate.replace('__ID__', leaveId);
+
+        $('#pdfIframe').attr('src', previewUrl);
+    });
+
+    $('#pdfModalPending').on('hidden.bs.modal', function() {
+        $('#pdfIframe').attr('src', '');
+    });
+});
+</script>

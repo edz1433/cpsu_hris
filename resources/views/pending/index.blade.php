@@ -354,12 +354,21 @@
 
                                     <td class="text-center">
                                         <!-- Action Button -->
-                                        <a href="#" data-id="{{ $emp->id }}" data-toggle="modal" data-target="#pdfModal" 
+                                        <a href="#" data-id="{{ $emp->id }}" data-url-template="{{ url('leave/preview-leave/__ID__') }}" 
+                                            data-toggle="modal" data-target="#pdfModalPending" 
                                             id="preview{{ $emp->id }}"
                                             class="btn btn-danger btn-sm" 
                                             style="width: 30px; padding: 0px !important;" >
                                             <i class="fas fa-file-pdf" style="font-size: 0.75rem;"></i>
                                         </a>
+                                        {{-- <button type="button"
+                                                class="btn btn-danger btn-round btn-sm"
+                                                data-id="{{ $emp->id }}"
+                                                data-url-template="{{ url('leave/preview-leave/__ID__') }}"
+                                                data-toggle="modal"
+                                                data-target="#pdfModalPending">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </button> --}}
                                         <a href="{{ route('leaveStatus', $emp->employid) }}" 
                                         target="_blank" 
                                         class="btn btn-{{ (in_array($emp->emp_esign, [1, 2])) ? 'success' : 'info' }} btn-sm" 
@@ -408,7 +417,7 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+<div class="modal fade" id="pdfModalPending" tabindex="-1" role="dialog" aria-labelledby="pdfModalPendingLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-body">
