@@ -354,7 +354,7 @@
             <tr>
                 <td colspan="6">
                     @if($leaveApplication->pres_sign == 2)
-                        <img src="{{ $leaveApplication->president_esign }}" class="signature" width="100" height="40" style="border: 1px solid black; position: absolute; top: 86.5%; left: 50%; transform: translateX(-50%); z-index: 10;">
+                        <img src="{{ $leaveApplication->president_esign }}" class="signature" width="100" height="40" style="position: absolute; top: 86.5%; left: 50%; transform: translateX(-50%); z-index: 10;">
                     @endif
                     <center>
                         <span class="font1" style="width: 28%; display: inline-block; border-bottom: 1px solid black;">
