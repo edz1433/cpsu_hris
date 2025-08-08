@@ -28,6 +28,14 @@ class OpcrController extends Controller
         }
     }
     
+    function shortDecrypt($encrypted)
+    {
+        $key = 'fA7xB93kL0pTzWmQ';
+        $cipher = 'AES-128-ECB';
+        $encrypted = strtr($encrypted, '-_', '+/');
+        return openssl_decrypt(base64_decode($encrypted), $cipher, $key, 0);
+    }
+    
     public function createOpcr(Request $request)
     {
         $request->validate([
@@ -392,6 +400,141 @@ class OpcrController extends Controller
         }
     }
 
+    public function opcrPdf($prnumber, $userid, $category)
+    {
+        $prnumber = $this->shortDecrypt($prnumber);
+        $userid = $this->shortDecrypt($userid);
+            
+        $prs = Opcr::where('user_id', $userid)
+        ->where('pr_number', $prnumber)
+        ->get();
+        
+        $employee = Employee::select('fname', 'lname', 'mname', 'suffix', 'prefix', 'supervisor', 'emp_dept')->find($userid);
+        $office = Office::select('office_name', 'office_abbr', 'office_head_id')->find($employee->emp_dept);
+        $reviewsby = SpmsAsignatory::where('pr_number', $prnumber)
+            ->where('label', 'Reviewed by:')
+            ->join('employees', 'spms_asignatories.empid', '=', 'employees.emp_ID')
+            ->select('spms_asignatories.*', 'employees.fname', 'employees.lname', 'employees.mname', 'employees.suffix', 'employees.prefix')
+            ->get();
+
+        $approveby = SpmsAsignatory::where('pr_number', $prnumber)
+        ->where('label', 'Approved:')
+        ->join('employees', 'spms_asignatories.empid', '=', 'employees.emp_ID')
+        ->select('spms_asignatories.*', 'employees.fname', 'employees.lname', 'employees.mname', 'employees.suffix', 'employees.prefix')
+        ->get();
+
+        $supervisor = Employee::select('fname', 'lname', 'mname', 'suffix', 'prefix', 'supervisor', 'emp_dept')->where('id', $employee->supervisor)->first();
+
+        $customPaper = [0, 0, 612, 936];
+
+        function imgBase64($filename) {
+            $path = public_path("Uploads/$filename");
+            if (!file_exists($path)) return null;
+            $mime = mime_content_type($path);
+            $data = base64_encode(file_get_contents($path));
+            return "data:$mime;base64,$data";
+        }
+
+        $images = [
+            'header' => imgBase64('leave-report-header.png'),
+            'img1' => imgBase64('weight-allocation-1.jpg'),
+            'img2' => imgBase64('weight-allocation-2.jpg'),
+            'img3' => imgBase64('weight-allocation-3.jpg'),
+            'img4' => imgBase64('weight-allocation-4.jpg'),
+        ];
+
+        $data = [];
+
+        $customPaper = [0, 0, 612, 970];
+
+        $pdf = \PDF::loadView('drive.opcr-pdf', compact('prs', 'images', 'data', 'category', 'employee', 'supervisor', 'office', 'reviewsby', 'approveby'))
+            ->setPaper($customPaper, 'portrait')
+            ->setOptions([
+                'margin-top' => 10,
+                'margin-right' => 10,
+                'margin-bottom' => 10,
+                'margin-left' => 10,
+            ])
+            ->setCallbacks([
+                'before_render' => function ($domPdf) {
+                    $domPdf->getCanvas()->page_text(10, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, [0, 0, 0]);
+                },
+            ]);
+
+        return $pdf->stream();
+    }
+
+    public function generateOpcrPdf($prnumber, $cat, $empid = null)
+    {
+        $folder = 2;
+        $guard = $this->getGuard();
+        $dempid = $this->shortDecrypt($empid);
+        $dprnumber = $this->shortDecrypt($prnumber);
+
+        $dempid = ($empid) ? $dempid : auth()->guard($guard)->user()->id;
+        
+        $employee = Employee::find($dempid);
+
+        $employees = Employee::where('emp_dept', $employee->emp_dept)->where('emp_status', 1)->get();
+        $employeesreg = Employee::where('emp_status', 1)->get();
+
+        $fullname = $employee
+            ? $employee->fname . ' ' .
+                ($employee->mname ? strtoupper(substr($employee->mname, 0, 1)) . '.' : '') .
+                ' ' . $employee->lname
+            : '';
+
+        // Fetch OPCR data
+        $prs = Opcr::where('user_id', $dempid)
+            ->where('pr_number', $dprnumber)
+            ->get();
+
+        $cores = $prs->get(0) ? OpcrMfo::where('opcr_id', $prs[0]->id)->get() : collect();
+        $strats = $prs->get(1) ? OpcrMfo::where('opcr_id', $prs[1]->id)->get() : collect();
+        $supports = $prs->get(2) ? OpcrMfo::where('opcr_id', $prs[2]->id)->get() : collect();
+
+        // Assign joined OPCR data directly to $datas
+        $datas = \DB::table('opcr_mfo_data')
+            ->join('employees', 'opcr_mfo_data.user_id', '=', 'employees.id')
+            ->leftJoin('evidence', function ($join) {
+                $join->on('opcr_mfo_data.id', '=', 'evidence.data_id')
+                    ->where('evidence.category', '=', 2); // Category 2 for OPCR
+            })
+            ->select(
+                'opcr_mfo_data.*',
+                'evidence.evidence as evidence_file',
+                \DB::raw("CONCAT(employees.fname, ' ', 
+                    IF(employees.mname IS NOT NULL AND employees.mname != '', 
+                        CONCAT(UPPER(LEFT(employees.mname, 1)), '.'), 
+                        ''
+                    ), 
+                    ' ', employees.lname
+                ) AS fullname")
+            )
+            ->get();
+
+        $customPaper = [0, 0, 1008, 684];
+
+        $pdf = \PDF::loadView('drive.opcr-pdf-rating', compact('guard', 'datas', 'prs', 'cores', 'folder', 'strats', 'supports', 'employeesreg',
+            'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'dprnumber'))
+            ->setPaper($customPaper, 'portrait')
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+                'margin-top' => 10,
+                'margin-right' => 10,
+                'margin-bottom' => 10,
+                'margin-left' => 10,
+            ])
+            ->setCallbacks([
+                'before_render' => function ($domPdf) {
+                    $domPdf->getCanvas()->page_text(10, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, [0, 0, 0]);
+                },
+            ]);
+
+        return $pdf->stream();
+    }
+
     public function assignOpcr(Request $request)
     { 
         $setting = Setting::first();
@@ -494,15 +637,15 @@ class OpcrController extends Controller
                 [$firstId, $secondId, $thirdId] = $insertedIds;
 
                 $dpcrMfo = [
-                    ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 1', 'percent' => $prSetting->core_mfo1 ?? 0, 'functions' => $functions[0] ?? '', 'count' => 1],
-                    ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 2', 'percent' => $prSetting->core_mfo2 ?? 0, 'functions' => $functions[1] ?? '', 'count' => 2],
-                    ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 3', 'percent' => $prSetting->core_mfo3 ?? 0, 'functions' => $functions[2] ?? '', 'count' => 3],
+                    ['opcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 1', 'percent' => $prSetting->core_mfo1 ?? 0, 'functions' => $functions[0] ?? '', 'count' => 1],
+                    ['opcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 2', 'percent' => $prSetting->core_mfo2 ?? 0, 'functions' => $functions[1] ?? '', 'count' => 2],
+                    ['opcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 3', 'percent' => $prSetting->core_mfo3 ?? 0, 'functions' => $functions[2] ?? '', 'count' => 3],
 
-                    ['dpcr_id' => $secondId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->strategic_mfo4 ?? 0, 'functions' => $functions[3] ?? '', 'count' => 4],
-                    ['dpcr_id' => $secondId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->strategic_mfo5 ?? 0, 'functions' => $functions[4] ?? '', 'count' => 5],
+                    ['opcr_id' => $secondId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->strategic_mfo4 ?? 0, 'functions' => $functions[3] ?? '', 'count' => 4],
+                    ['opcr_id' => $secondId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->strategic_mfo5 ?? 0, 'functions' => $functions[4] ?? '', 'count' => 5],
 
-                    ['dpcr_id' => $thirdId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->support_mfo4 ?? 0, 'functions' => $functions[5] ?? '', 'count' => 6],
-                    ['dpcr_id' => $thirdId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->support_mfo5 ?? 0, 'functions' => $functions[6] ?? '', 'count' => 7],
+                    ['opcr_id' => $thirdId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->support_mfo4 ?? 0, 'functions' => $functions[5] ?? '', 'count' => 6],
+                    ['opcr_id' => $thirdId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->support_mfo5 ?? 0, 'functions' => $functions[6] ?? '', 'count' => 7],
                 ];
 
                 DpcrMfo::insert($dpcrMfo);
@@ -527,10 +670,10 @@ class OpcrController extends Controller
                 }
             }
 
-            $dpcrmfofind = DpcrMfo::join('dpcrs', 'dpcr_mfos.dpcr_id', '=', 'dpcrs.id')
+            $dpcrmfofind = DpcrMfo::join('dpcrs', 'opcr_mfos.opcr_id', '=', 'dpcrs.id')
                 ->where('dpcrs.user_id', $empid)
-                ->where('dpcr_mfos.count', $count)
-                ->select('dpcr_mfos.*')
+                ->where('opcr_mfos.count', $count)
+                ->select('opcr_mfos.*')
                 ->first();
 
             if ($opcrmfodata && $dpcrmfofind) {
@@ -538,7 +681,7 @@ class OpcrController extends Controller
                 unset($data['id']);
 
                 $data['pr_number'] = $opcrmfo->pr_number ?? null;
-                $data['dpcr_mfo_id'] = $dpcrmfofind->id;
+                $data['opcr_mfo_id'] = $dpcrmfofind->id;
                 $data['opcr_mfo_data_id'] = $id;
                 $data['user_id'] = $empid;
 

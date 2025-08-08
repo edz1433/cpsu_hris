@@ -83,7 +83,7 @@
             </button>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="pdfDropdown">
                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#modal-rating">Cover Page</a>
-                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#modal-ipcr">OPCR</a>
+                <a class="dropdown-item" href="#" data-toggle="modal" data-cat="2" data-target="#modal-rating">OPCR</a>
             </div>
         </div>
     </div>
@@ -804,15 +804,29 @@
         const modal = document.getElementById('modal-rating');
         const iframe = document.getElementById('rating-iframe');
 
-        // Define the URL with Blade
-        const iframeSrc = "{{ route('dpcrPdf', ['prnumber' => $prnumber, 'userid' => $empid ?? auth()->guard($guard)->user()->id, 'category' => $cat]) }}";
-        
-        // Listen for modal show event
-        $('#modal-rating').on('show.bs.modal', function () {
-            iframe.src = iframeSrc;
+        // Define the URLs with Blade
+        const iframeSrc = "{{ route('opcrPdf', ['prnumber' => $prnumber, 'userid' => $empid ?? auth()->guard($guard)->user()->id, 'category' => 1]) }}";
+        const iframeSrc1 = "{{ route('generateOpcrPdf', ['prnumber' => $prnumber, 'empid' => $empid ?? auth()->guard($guard)->user()->id, 'category' => 1]) }}";
+
+        let selectedCat = null;
+
+        // Capture clicked link's data-cat value
+        document.querySelectorAll('.dropdown-item[data-toggle="modal"]').forEach(link => {
+            link.addEventListener('click', function () {
+                selectedCat = this.getAttribute('data-cat');
+            });
         });
 
-        // Optionally clear the iframe src on modal hide
+        // Listen for modal show event
+        $('#modal-rating').on('show.bs.modal', function () {
+            if (selectedCat === '2') {
+                iframe.src = iframeSrc1;
+            } else {
+                iframe.src = iframeSrc;
+            }
+        });
+
+        // Clear iframe src on modal hide
         $('#modal-rating').on('hidden.bs.modal', function () {
             iframe.src = '';
         });
