@@ -103,7 +103,7 @@
                                             @if($guard == "web")
                                                 <button type="button" class="btn btn-warning btn-sm @if($leaves->remarks_stat !== 0) cancel @endif disapprove-leave" data-id="{{ $leaves->id }}" data-by="4" @if($leaves->remarks_stat !== 0) disabled @endif><i class="fas fa-times"></i></button>
                                             @endif
-                                            <button type="button" class="btn btn-danger btn-sm" title="view" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal"><i class="fas fa-file-pdf"></i></button>
+                                            <button type="button" class="btn btn-danger btn-sm" title="view" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModalHistory"><i class="fas fa-file-pdf"></i></button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -150,7 +150,7 @@
                                             @if($guard == "web")
                                                 <button type="button" class="btn btn-warning btn-sm @if($leaves->remarks_stat !== 0) cancel @endif disapprove-leave" data-id="{{ $leaves->id }}" data-by="4" @if($leaves->remarks_stat !== 0) disabled @endif><i class="fas fa-times"></i></button>
                                             @endif
-                                            <button type="button" class="btn btn-danger btn-sm" title="view" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal"><i class="fas fa-file-pdf"></i></button>
+                                            <button type="button" class="btn btn-danger btn-sm" title="view" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModalHistory"><i class="fas fa-file-pdf"></i></button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -167,6 +167,15 @@
         <div class="modal-content">
             <div class="modal-body">
                 <iframe id="pdfIframe" src="" width="100%" height="600px" style="border:none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="pdfModalHistory" tabindex="-1" role="dialog" aria-labelledby="pdfModalHistoryLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <iframe id="pdfIframeHistory" src="" width="100%" height="600px" style="border:none;"></iframe>
             </div>
         </div>
     </div>

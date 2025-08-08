@@ -208,14 +208,15 @@
                                                     </div>
                                                 @endif
                                             @endif
-                                            {{-- @if($guard == "web" && $leaves->supervisor == $leaves->president && $leaves->status == 2) --}}
-                                            {{-- @if($guard == "web" && $leaves->status == 2)
-                                                <div class="timeline-footer mb-4" id="action-button1{{ $leaves->id }}">
-                                                    <div class="float-right">
-                                                        <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
+                                            @if($guard == "web" && $leaves->supervisor == $leaves->president && $leaves->status == 2)
+                                                @if($guard == "web" && $leaves->status == 2)
+                                                    <div class="timeline-footer mb-4" id="action-button1{{ $leaves->id }}">
+                                                        <div class="float-right">
+                                                            <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            @endif --}}
+                                                @endif
+                                            @endif
                                         </div>
                                     </div>     
                         
@@ -242,7 +243,7 @@
                                                     <div class="timeline-footer mb-4" id="action-button2{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
                                                             <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="3"><i class="fas fa-undo"></i> Return</button>
-                                                            <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="3" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
+                                                            <button class="btn btn-success btn-sm approve-leave-pres" data-id="{{ $leaves->id }}" data-by="3" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
                                                             <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="3"><i class="fas fa-ban"></i> Disapprove</button>
                                                         </div>
                                                     </div>
@@ -407,7 +408,7 @@
                                                     <div class="timeline-footer mb-4" id="action-button2{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
                                                             <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="3"><i class="fas fa-undo"></i> Return</button>
-                                                            <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="3" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
+                                                            <button class="btn btn-success btn-sm approve-leave-pres" data-id="{{ $leaves->id }}" data-by="3" data-max="{{ $leaves->days }}"><i class="fas fa-check"></i> Approve</button>
                                                             <button class="btn btn-danger btn-sm disapprove-leave" data-id="{{ $leaves->id }}" data-by="3"><i class="fas fa-ban"></i> Disapprove</button>
                                                         </div>
                                                     </div>

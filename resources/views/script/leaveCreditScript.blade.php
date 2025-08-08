@@ -746,6 +746,81 @@
     //     });
     // });
 
+    $('.approve-leave-pres').on('click', function() {
+        var id = $(this).data('id');
+        var by = $(this).data('by');
+        var approveUrl = "{{ route('leaveApprovePres') }}";
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You want to approve this request as President!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, approve it!',
+            html: `
+                <input type="file" id="pdf-file" class="swal2-input" accept=".pdf" style="width: calc(85% - 16px);">
+            `,
+            preConfirm: () => {
+                var file = document.getElementById('pdf-file').files[0];
+                if (!file) {
+                    Swal.showValidationMessage('Please attach the signed application form.');
+                    return false;
+                }
+                return { file };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('#loading-spinner').show();
+
+                var formData = new FormData();
+                formData.append('id', id);
+                formData.append('by', by);
+                formData.append('file', result.value.file);
+                formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+
+                $.ajax({
+                    type: "POST",
+                    url: approveUrl,
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        Swal.fire({
+                            title: 'Approved!',
+                            text: 'The request has been approved by the President.',
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 1000
+                        });
+
+                        // Update UI for case 3
+                        $('#action-button2' + id).fadeOut(1000, function() {
+                            $(this).remove();
+                        });
+                        $('#status-icon2' + id).removeClass('fa-times bg-danger fa-times bg-secondary').addClass('fa-check bg-success');
+                        $('#status-icon3' + id).removeClass('fa-times bg-danger fa-times bg-secondary').addClass('fa-check bg-success');
+                        $('.time-pres' + id).html(response.datetime);
+                        $('#preview' + id).removeClass('bg-secondary').addClass('bg-danger');
+                        $('#preview' + id).attr('href', "{{ route('previewLeave', ':id') }}".replace(':id', id));
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred while approving the leave form.',
+                            icon: 'error',
+                            showConfirmButton: true,
+                        });
+                    },
+                    complete: function() {
+                        $('#loading-spinner').hide();
+                    }
+                });
+            }
+        });
+    });
+
     $('.approve-leave').on('click', function() {
         var id = $(this).data('id');
         var by = $(this).data('by');
@@ -1067,49 +1142,48 @@ $(document).ready(function() {
     });
 </script>
 <script>
-// $(document).ready(function() {
-//     $('#pdfModal').on('show.bs.modal', function(event) {
-//         var button = $(event.relatedTarget);
-//         var leaveId = button.data('id');
-//         $.ajax({
-//             url: "{{ route('getPdfPath') }}",
-//             type: 'POST',
-//             data: {
-//                 id: leaveId,
-//                 _token: '{{ csrf_token() }}'
-//             },
-//             success: function(response) {
-//                 if (response.path) {
-//                     var fullPath = "{{ url('/') }}" + response.path;
-//                     $('#pdfIframe').attr('src', fullPath);
-//                 } else {
-//                     console.error('PDF path not found');
-//                 }
-//             },
-//             error: function(xhr, status, error) {
-//                 console.error('Error loading PDF:', error);
-//                 $('#pdfIframe').attr('src', '');
-//             }
-//         });
-//     });
+$(document).ready(function() {
+    $('#pdfModalHistory').on('show.bs.modal', function(event) {
+        var button = $(event.relatedTarget);
+        var leaveId = button.data('id');
+        $.ajax({
+            url: "{{ route('getPdfPath') }}",
+            type: 'POST',
+            data: {
+                id: leaveId,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.path) {
+                    var fullPath = "{{ url('/') }}" + response.path;
+                    $('#pdfIframeHistory').attr('src', fullPath);
+                } else {
+                    console.error('PDF path not found');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error loading PDF:', error);
+                $('#pdfIframeHistory').attr('src', '');
+            }
+        });
+    });
 
-//     $('#pdfModal').on('hidden.bs.modal', function() {
-//         $('#pdfIframe').attr('src', '');
-//     });
-// });
+    $('#pdfModalHistory').on('hidden.bs.modal', function() {
+        $('#pdfIframeHistory').attr('src', '');
+    });
+});
 
 $(document).ready(function() {
     $('#pdfModal').on('show.bs.modal', function(event) {
         var button = $(event.relatedTarget);
         var leaveId = button.data('id');
 
-        // Use route name to generate base URL in Blade, then append the ID dynamically
         var baseUrl = "{{ route('previewLeave', ['id' => '__ID__']) }}";
         var previewUrl = baseUrl.replace('__ID__', leaveId);
 
         $('#pdfIframe').attr('src', previewUrl);
     });
-
+    
     $('#pdfModal').on('hidden.bs.modal', function() {
         $('#pdfIframe').attr('src', '');
     });

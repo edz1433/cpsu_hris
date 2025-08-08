@@ -645,6 +645,68 @@ class LeaveApplicationController extends Controller
         ]);
     }
 
+    public function leaveApprovePres(Request $request)
+    {
+        $request->validate([
+            'id'   => 'required|integer|exists:leave_applications,id',
+            'by'   => 'required|integer|in:3', // only allow president approval
+            'file' => 'nullable|file|mimes:pdf'
+        ]);
+
+        $leaveApplication = LeaveApplication::find($request->id);
+        $currdate1 = Carbon::now('Asia/Manila')->format('F j, Y h:i A');
+
+        // Handle uploaded file if provided
+        if ($request->hasFile('file')) {
+            // Delete old file if it exists
+            if ($leaveApplication->gen_app && Storage::exists('public/' . $leaveApplication->gen_app)) {
+                Storage::delete('public/' . $leaveApplication->gen_app);
+            }
+
+            $storagePath = 'public/Leaveapplication';
+
+            // Generate a new random filename
+            $randomNumber = mt_rand(100000, 999999);
+            $fileName = $randomNumber . '_leave_application_' . $leaveApplication->id . '.pdf';
+
+            // Store the new file
+            $newFilePath = $request->file('file')->storeAs($storagePath, $fileName);
+
+            // Save the new filename in the database
+            $leaveApplication->gen_app = str_replace('public/', '', $newFilePath);
+        }
+
+        // President approval logic (case 3 only)
+        $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
+        $leaveApplication->pres_sdate = Carbon::now();
+        $leaveApplication->pres_sign = 2;
+        $leaveApplication->history = 2; // mark in history
+        $leaveApplication->status = 4;  // President-approved
+        $leaveApplication->save();
+
+        // Notify employee about final approval
+        Notification::create([
+            'empid'   => $leaveApplication->empid,
+            'lapp_id' => $leaveApplication->id,
+            'category'=> 2,
+            'utype'   => 'employee',
+            'module'  => 'leave',
+        ]);
+
+        // Mark president notification as read
+        Notification::where('lapp_id', $leaveApplication->id)
+            ->where('category', 4)
+            ->where('module', 'leave')
+            ->where('utype', 'president')
+            ->update(['status' => 1]);
+
+        return response()->json([
+            'success'  => true,
+            'message'  => 'Leave approved by President successfully.',
+            'datetime' => $currdate1,
+        ]);
+    }
+
     public function leaveDisapprove(Request $request)
     {
         $request->validate([
