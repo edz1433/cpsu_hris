@@ -354,13 +354,22 @@
 
                                     <td class="text-center">
                                         <!-- Action Button -->
-                                        <a href="#" data-id="{{ $emp->id }}" data-url-template="{{ url('leave/preview-leave/__ID__') }}" 
-                                            data-toggle="modal" data-target="#pdfModalPending" 
-                                            id="preview{{ $emp->id }}"
-                                            class="btn btn-danger btn-sm" 
-                                            style="width: 30px; padding: 0px !important;" >
-                                            <i class="fas fa-file-pdf" style="font-size: 0.75rem;"></i>
-                                        </a>
+                                        @if($emp->status != 4)
+                                            <a href="#" data-id="{{ $emp->id }}" data-url-template="{{ url('leave/preview-leave/__ID__') }}" 
+                                                data-toggle="modal" data-target="#pdfModalPending" 
+                                                id="preview{{ $emp->id }}"
+                                                class="btn btn-danger btn-sm" 
+                                                style="width: 30px; padding: 0px !important;" >
+                                                <i class="fas fa-file-pdf" style="font-size: 0.75rem;"></i>
+                                            </a>
+                                        @else
+                                            <a href="#" data-id="{{ $emp->id }}" data-toggle="modal" data-target="#pdfModalHistory"
+                                                id="preview{{ $emp->id }}"
+                                                class="btn btn-danger btn-sm" 
+                                                style="width: 30px; padding: 0px !important;" >
+                                                <i class="fas fa-file-pdf" style="font-size: 0.75rem;"></i>
+                                            </a>
+                                        @endif
                                         {{-- <button type="button"
                                                 class="btn btn-danger btn-round btn-sm"
                                                 data-id="{{ $emp->id }}"
@@ -422,6 +431,15 @@
         <div class="modal-content">
             <div class="modal-body">
                 <iframe id="pdfIframe" src="" width="100%" height="600px" style="border:none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="pdfModalHistory" tabindex="-1" role="dialog" aria-labelledby="pdfModalHistoryLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <iframe id="pdfIframeHistory" src="" width="100%" height="600px" style="border:none;"></iframe>
             </div>
         </div>
     </div>
