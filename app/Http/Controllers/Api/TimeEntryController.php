@@ -10,25 +10,24 @@ use Illuminate\Support\Facades\Cache;
 
 class TimeEntryController extends Controller
 {    
-    public function listEmployees()
+    public function fetchEmployees()
     {
         $employees = DB::table('employees')
             ->select('emp_ID', 'fname', 'mname', 'lname')
-            ->where('stat_1', 1) // Only employees where stat_1 = 1
+            ->where('stat_1', 1)
             ->orderBy('lname')
             ->get()
             ->map(function ($emp) {
-                // Build full name without double spaces
                 $parts = array_filter([$emp->fname, $emp->mname, $emp->lname]);
                 $emp->name = implode(' ', $parts);
-                unset($emp->fname, $emp->mname, $emp->lname); // Remove original fields if not needed
+                unset($emp->fname, $emp->mname, $emp->lname);
                 return $emp;
             });
 
-        return response()->json($employees);
+        return response()->json($employees); // same JSON as before
     }
     private $embeddingLimit = 9; // keep only last 9 embeddings
-    public function register(Request $request)
+    public function faceRegister(Request $request)
     {
         $empId = $request->input('emp_ID');
         $embedding = $request->input('embedding'); // single embedding
@@ -73,7 +72,7 @@ class TimeEntryController extends Controller
             'total_embeddings' => count($existing)
         ]);
     }
-    public function verify(Request $request)
+    public function faceVerify(Request $request)
     {
         $embedding = $request->input('embedding');
         if (!$embedding || count($embedding) != 128) {
@@ -125,17 +124,21 @@ class TimeEntryController extends Controller
         }
         return sqrt($sum);
     }
-    public function listLogZones()
+    public function fetchLogzones()
     {
         $zones = DB::table('logzones')->get()->map(function ($zone) {
+            $points = json_decode($zone->points, true);
+            if (!is_array($points)) { // ensure always an array
+                $points = [];
+            }
             return [
                 'id' => (int) $zone->id,
                 'label' => $zone->label,
-                'points' => json_decode($zone->points),
+                'points' => $points,
             ];
         });
         return response()->json($zones);
-    }    
+    }
     public function logAttendance(Request $request)
     {
         try {
@@ -144,22 +147,25 @@ class TimeEntryController extends Controller
                 'zone_id' => 'required|string',
                 'action'  => 'required|integer|in:1,2,3', // 1=in, 2=out, 3=over
             ]);
-            $empId = $validated['emp_id'];
-            $employee = DB::table('employees')
-            ->select('emp_ID')
-            ->where('emp_ID', $empId)
-            ->first();
-        if (!$employee) {
-            return response()->json(['error' => 'Unknown emp_ID'], 404);
-        }
-            // Preserve actual casing from DB
-            $empId = $employee->emp_ID;
+
+            // Validate employee exists and preserve DB casing
+            $empRow = DB::table('employees')
+                ->select('emp_ID')
+                ->where('emp_ID', $validated['emp_id'])
+                ->first();
+            if (!$empRow) {
+                return response()->json(['error' => 'Unknown emp_ID'], 404);
+            }
+
+            $empId    = $empRow->emp_ID;
             $zoneId   = strtolower($validated['zone_id']);
-            $action   = $validated['action'];
+            $action   = (int) $validated['action'];
             $deviceId = $zoneId;
-            $now      = now();
-            $date     = $now->toDateString();
-            $time     = $now->format('H:i:s');
+
+            $now   = now();
+            $date  = $now->toDateString();
+            $time  = $now->format('H:i:s'); // keep seconds precision (no schema change)
+
             $timeField = match ($action) {
                 1 => 'time_in',
                 2 => 'time_out',
@@ -170,33 +176,54 @@ class TimeEntryController extends Controller
                 2 => 'device_id_out',
                 3 => 'device_id_over',
             };
+
             $allowed     = true;
             $waitSeconds = 0;
+            $didUpdate   = false;
+
             $record = Dtr::where('emp_ID', $empId)->where('date', $date)->first();
+
             if ($record) {
                 $existingTimes   = $record->$timeField ? explode(',', $record->$timeField) : [];
                 $existingDevices = $record->$deviceField ? explode(',', $record->$deviceField) : [];
-                // Handle TIME IN specific logic (11PM time-out check)
+
+                // TIME IN rule: block if first OUT >= threshold was <60s ago
                 if ($action === 1 && !empty($record->time_out)) {
-                    $existingOuts = explode(',', $record->time_out);
-                    $validOuts = array_filter($existingOuts, fn($t) => strtotime($t) >= strtotime('11:00:00'));
+                    $outs = array_map('trim', explode(',', $record->time_out));
+
+                    // Choose your threshold: '11:00:00' (11 AM) or '23:00:00' (11 PM)
+                    $threshold = '11:00:00'; // <-- set as needed
+
+                    // Keep only OUTs at/after threshold (same day, HH:mm:ss)
+                    $validOuts = array_values(array_filter($outs, fn($t) => strtotime($t) >= strtotime($threshold)));
+
                     if (!empty($validOuts)) {
-                        $firstLateOut = reset($validOuts);
-                        $lastTime = \Carbon\Carbon::createFromFormat('H:i:s', $firstLateOut);
-                        $diffSec = $now->diffInSeconds($lastTime, false);
-                        if ($diffSec < 60) {
-                            $allowed = false;
-                            $waitSeconds = 60 - $diffSec;
+                        // Use the FIRST qualifying OUT (index 0), not the latest
+                        $firstQualOut = $validOuts[0];
+
+                        // Parse and compute elapsed seconds since that first qualifying OUT
+                        $lastTime = \Carbon\Carbon::createFromFormat('H:i:s', $firstQualOut);
+                        $elapsed  = $lastTime->diffInSeconds($now); // always >= 0
+
+                        if ($elapsed < 60) {
+                            $allowed     = false;
+                            $waitSeconds = 60 - $elapsed; // 1..59
                         }
                     }
                 }
-                if ($allowed && !in_array($time, $existingTimes)) {
+
+
+
+                // Append only if allowed and not an exact duplicate second
+                if ($allowed && !in_array($time, $existingTimes, true)) {
                     $existingTimes[]   = $time;
                     $existingDevices[] = $deviceId;
+
                     $record->update([
                         $timeField   => implode(',', $existingTimes),
                         $deviceField => implode(',', $existingDevices),
                     ]);
+                    $didUpdate = true;
                 }
             } else {
                 Dtr::create([
@@ -205,25 +232,197 @@ class TimeEntryController extends Controller
                     $timeField   => $time,
                     $deviceField => $deviceId,
                 ]);
+                $didUpdate = true;
             }
+
+            // HTTP codes communicate effect:
+            // 200 = updated/created, 202 = no change (duplicate), 429 = not allowed (rate rule)
+            $status = $allowed ? ($didUpdate ? 200 : 202) : 429;
+
             return response()->json([
-                'success'      => true,
+                'success'      => $didUpdate,
+                'updated'      => $didUpdate,
                 'allowed'      => $allowed,
                 'wait_seconds' => $waitSeconds,
                 'time'         => $now->format('h:i:s A'),
-                'type'         => match ($action) {
-                    1 => 'TIME IN',
-                    2 => 'TIME OUT',
-                    3 => 'OVERTIME',
-                },
-                'emp_id'  => $empId,
-                'zone_id' => $zoneId,
-            ]);
-        } catch (\Exception $e) {
+                'type'         => match ($action) { 1=>'TIME IN', 2=>'TIME OUT', 3=>'OVERTIME' },
+                'emp_id'       => $empId,
+                'zone_id'      => $zoneId,
+            ], $status);
+        } catch (\Throwable $e) {
             return response()->json([
                 'error'   => 'Server error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
+    public function recentLogs(Request $request)
+    {
+        // Server-owned time window (adjust as needed; could also come from config('app.recent_logs_hours'))
+        $WINDOW_HOURS = 24;
+
+        $empId = $request->input('empId');
+        if (!$empId) {
+            return response()->json(['error' => 'Missing empId'], 400);
+        }
+
+        $cutoff = now()->subHours($WINDOW_HOURS);
+
+        $DEFAULT_ZONE_LABEL   = 'TBD';
+        $DEFAULT_DEVICE_LABEL = 'TBD';
+
+        // Map zone id -> label
+        $zoneById = \DB::table('logzones')->pluck('label', 'id')->toArray();
+
+        // Map device id -> label  (adjust table name if different, e.g. 'f_devices')
+        $deviceById = \DB::table('f_devices')->pluck('label', 'id')->toArray();
+
+        // Pull only likely dates to reduce scan
+        $minDate = $cutoff->copy()->subDay()->toDateString();
+
+        $rows = \DB::table('dtrs')
+            ->join('employees', 'dtrs.emp_ID', '=', 'employees.emp_ID')
+            ->where('dtrs.emp_ID', $empId)
+            ->where('dtrs.date', '>=', $minDate)
+            ->select('dtrs.*', 'employees.fname', 'employees.lname') // suffix omitted
+            ->orderBy('dtrs.date', 'desc')
+            ->get();
+
+        $pickPlace = function (?int $id) use ($deviceById, $zoneById, $DEFAULT_DEVICE_LABEL, $DEFAULT_ZONE_LABEL) {
+            if ($id === null) return $DEFAULT_ZONE_LABEL;
+            if ($id < 100) { // device
+                return $deviceById[$id] ?? $DEFAULT_DEVICE_LABEL;
+            }
+            // zone
+            return $zoneById[$id] ?? $DEFAULT_ZONE_LABEL;
+        };
+
+        $out = [];
+
+        foreach ($rows as $r) {
+            // TIME IN
+            $ins = array_filter(explode(',', (string) $r->time_in));
+            $zin = explode(',', (string) $r->device_id_in);
+            foreach ($ins as $i => $t) {
+                $dt = \Carbon\Carbon::parse($r->date.' '.$t);
+                if ($dt->lt($cutoff)) continue;
+
+                $zRaw   = trim($zin[$i] ?? '');
+                $id     = $zRaw === '' ? null : (int) $zRaw;
+                $label  = $pickPlace($id);
+
+                $out[] = [
+                    'type'       => 'time_in',
+                    'date'       => $r->date,
+                    'time'       => $t,
+                    'fname'      => $r->fname,
+                    'lname'      => $r->lname,
+                    'zone_id'    => $id,
+                    'zone_label' => $label,
+                    'ts'         => $dt->toIso8601String(),
+                ];
+            }
+
+            // TIME OUT
+            $outs = array_filter(explode(',', (string) $r->time_out));
+            $zout = explode(',', (string) $r->device_id_out);
+            foreach ($outs as $i => $t) {
+                $dt = \Carbon\Carbon::parse($r->date.' '.$t);
+                if ($dt->lt($cutoff)) continue;
+
+                $zRaw   = trim($zout[$i] ?? '');
+                $id     = $zRaw === '' ? null : (int) $zRaw;
+                $label  = $pickPlace($id);
+
+                $out[] = [
+                    'type'       => 'time_out',
+                    'date'       => $r->date,
+                    'time'       => $t,
+                    'fname'      => $r->fname,
+                    'lname'      => $r->lname,
+                    'zone_id'    => $id,
+                    'zone_label' => $label,
+                    'ts'         => $dt->toIso8601String(),
+                ];
+            }
+
+            // TIME OVER (OVERTIME)
+            $overs = array_filter(explode(',', (string) $r->time_over));
+            $zover = explode(',', (string) $r->device_id_over);
+            foreach ($overs as $i => $t) {
+                $dt = \Carbon\Carbon::parse($r->date.' '.$t);
+                if ($dt->lt($cutoff)) continue;
+
+                $zRaw   = trim($zover[$i] ?? '');
+                $id     = $zRaw === '' ? null : (int) $zRaw;
+                $label  = $pickPlace($id);
+
+                $out[] = [
+                    'type'       => 'time_over',
+                    'date'       => $r->date,
+                    'time'       => $t,
+                    'fname'      => $r->fname,
+                    'lname'      => $r->lname,
+                    'zone_id'    => $id,
+                    'zone_label' => $label,
+                    'ts'         => $dt->toIso8601String(),
+                ];
+            }
+        }
+
+        usort($out, fn($a,$b) => strcmp($b['ts'], $a['ts'])); // newest first
+        foreach ($out as &$row) unset($row['ts']); // don’t expose sort key
+
+        // Optional: include the server-defined window for transparency/debugging (frontend can ignore)
+        return response()->json([
+            'window_hours' => $WINDOW_HOURS,
+            'logs' => $out
+        ], 200);
+    }
+
+    public function verifyAdmin(Request $request)
+    {
+        $embedding = $request->input('embedding');
+        if (!$embedding || count($embedding) != 128) {
+            return response()->json(['error' => 'Invalid embedding'], 400);
+        }
+
+        // 1) Reuse the same matching logic you already have (can call a private method if you extract it).
+        $cachedEmployees = Cache::remember('face_embeddings_cache', 300, function () {
+            return DB::table('employees')
+                ->select('emp_ID', 'fname', 'mname', 'lname', 'face_embeddings')
+                ->whereNotNull('face_embeddings')
+                ->get();
+        });
+
+        $closestEmployee = null;
+        $minDistance = PHP_FLOAT_MAX;
+
+        foreach ($cachedEmployees as $employee) {
+            $embeddings = json_decode($employee->face_embeddings, true) ?? [];
+            foreach ($embeddings as $storedEmbedding) {
+                if (count($storedEmbedding) !== 128) continue;
+                $d = $this->l2Distance($embedding, $storedEmbedding);
+                if ($d < $minDistance) { $minDistance = $d; $closestEmployee = $employee; if ($d < 0.4) break 2; }
+            }
+        }
+
+        if (!$closestEmployee || $minDistance >= 0.75) {
+            return response()->json(['match' => false, 'is_admin' => false, 'distance' => $minDistance]);
+        }
+
+        // 2) Read hr_kiosk once from DB (no cache needed)
+        $hrKioskCsv = DB::table('settings')->value('hr_kiosk'); // "EMP0039,EMP0033,..."
+        $ids = array_filter(array_map('trim', explode(',', (string)$hrKioskCsv)));
+        $isAdmin = in_array($closestEmployee->emp_ID, $ids, true);
+
+        return response()->json([
+            'match'    => true,
+            'is_admin' => $isAdmin,
+            'emp_id'   => $closestEmployee->emp_ID,
+            'name'     => trim("{$closestEmployee->fname} {$closestEmployee->mname} {$closestEmployee->lname}"),
+            'distance' => $minDistance,
+        ]);
+    }
+
 }

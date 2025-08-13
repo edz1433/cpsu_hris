@@ -267,6 +267,8 @@ class OpcrController extends Controller
             'opcr_by' => 'required',
         ]);
 
+        $setting = Setting::first();
+        
         $opcrId = $request->input('opcr_mfo_id');
         $opcrdataId = $request->input('opcrdata_id');
         $categories = $request->input('category') === 'All' ? [1, 2] : [$request->input('category')];
@@ -286,6 +288,7 @@ class OpcrController extends Controller
                     'timeliness' => $request->input('timeliness'),
                     'category' => $category,
                     'opcr_by' => $request->input('opcr_by'),
+                    'user_id' => $setting->suc_pres,
                 ]);
             }
         } else {
@@ -637,15 +640,15 @@ class OpcrController extends Controller
                 [$firstId, $secondId, $thirdId] = $insertedIds;
 
                 $dpcrMfo = [
-                    ['opcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 1', 'percent' => $prSetting->core_mfo1 ?? 0, 'functions' => $functions[0] ?? '', 'count' => 1],
-                    ['opcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 2', 'percent' => $prSetting->core_mfo2 ?? 0, 'functions' => $functions[1] ?? '', 'count' => 2],
-                    ['opcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 3', 'percent' => $prSetting->core_mfo3 ?? 0, 'functions' => $functions[2] ?? '', 'count' => 3],
+                    ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 1', 'percent' => $prSetting->core_mfo1 ?? 0, 'functions' => $functions[0] ?? '', 'count' => 1],
+                    ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 2', 'percent' => $prSetting->core_mfo2 ?? 0, 'functions' => $functions[1] ?? '', 'count' => 2],
+                    ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 3', 'percent' => $prSetting->core_mfo3 ?? 0, 'functions' => $functions[2] ?? '', 'count' => 3],
 
-                    ['opcr_id' => $secondId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->strategic_mfo4 ?? 0, 'functions' => $functions[3] ?? '', 'count' => 4],
-                    ['opcr_id' => $secondId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->strategic_mfo5 ?? 0, 'functions' => $functions[4] ?? '', 'count' => 5],
+                    ['dpcr_id' => $secondId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->strategic_mfo4 ?? 0, 'functions' => $functions[3] ?? '', 'count' => 4],
+                    ['dpcr_id' => $secondId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->strategic_mfo5 ?? 0, 'functions' => $functions[4] ?? '', 'count' => 5],
 
-                    ['opcr_id' => $thirdId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->support_mfo4 ?? 0, 'functions' => $functions[5] ?? '', 'count' => 6],
-                    ['opcr_id' => $thirdId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->support_mfo5 ?? 0, 'functions' => $functions[6] ?? '', 'count' => 7],
+                    ['dpcr_id' => $thirdId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->support_mfo4 ?? 0, 'functions' => $functions[5] ?? '', 'count' => 6],
+                    ['dpcr_id' => $thirdId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->support_mfo5 ?? 0, 'functions' => $functions[6] ?? '', 'count' => 7],
                 ];
 
                 DpcrMfo::insert($dpcrMfo);
@@ -670,18 +673,19 @@ class OpcrController extends Controller
                 }
             }
 
-            $dpcrmfofind = DpcrMfo::join('dpcrs', 'opcr_mfos.opcr_id', '=', 'dpcrs.id')
-                ->where('dpcrs.user_id', $empid)
-                ->where('opcr_mfos.count', $count)
-                ->select('opcr_mfos.*')
-                ->first();
+$dpcrmfofind = DpcrMfo::join('dpcrs', 'dpcr_mfos.dpcr_id', '=', 'dpcrs.id')
+    ->where('dpcrs.user_id', $empid)
+    ->where('dpcr_mfos.count', $count)
+    ->select('dpcr_mfos.*')
+    ->first();
 
+// dd($dpcrmfofind);
             if ($opcrmfodata && $dpcrmfofind) {
                 $data = $opcrmfodata->toArray();
                 unset($data['id']);
 
                 $data['pr_number'] = $opcrmfo->pr_number ?? null;
-                $data['opcr_mfo_id'] = $dpcrmfofind->id;
+                $data['dpcr_mfo_id'] = $dpcrmfofind->id;
                 $data['opcr_mfo_data_id'] = $id;
                 $data['user_id'] = $empid;
 

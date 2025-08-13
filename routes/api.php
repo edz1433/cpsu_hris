@@ -18,10 +18,17 @@ Route::prefix('app')->group(function() {
     Route::get('/check-coordinates', [DtrController::class, 'checkCoordinates'])->name('checkCoordinates');
 
     // Time Entry
-    Route::get('/health', function () { return response()->json(['status' => 'ok']); });
-    Route::post('/faceverify', [TimeEntryController::class, 'verify'])->name('app.faceverify');
-    Route::post('/faceregister', [TimeEntryController::class, 'register']);
-    Route::get('/employees', [TimeEntryController::class, 'listEmployees']);
-    Route::get('/logzones', [TimeEntryController::class, 'listLogZones'])->name('app.listLogZones');
-    Route::post('/attendance', [TimeEntryController::class, 'logAttendance']);
+    Route::post('/health', function (Request $request) { return response()->noContent(); });
+    
+    Route::post('/face-verify', [TimeEntryController::class, 'faceVerify']);
+    Route::post('/log-attendance', [TimeEntryController::class, 'logAttendance']);
+    
+    Route::post('/fetch-logzones', [TimeEntryController::class, 'fetchLogzones']);
+   
+
+    Route::post('/fetch-employees', [TimeEntryController::class, 'fetchEmployees']);
+    Route::post('/face-register', [TimeEntryController::class, 'faceRegister']);
+
+    Route::post('/recent-logs', [TimeEntryController::class, 'recentLogs']);
+    Route::post('/verify-admin', [TimeEntryController::class, 'verifyAdmin']);
 });

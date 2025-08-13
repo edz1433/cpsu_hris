@@ -67,7 +67,7 @@
 
 <div style="max-height: 500px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.25rem; padding: 10px;">
 <table id="table-form">
-    <thead>
+    <thead>  
         <tr>
             <th rowspan="3" class="text-center">MFO/PAPs</th>
             <th class="text-center" width="180">Success Indicators</th>

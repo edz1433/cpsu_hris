@@ -60,6 +60,7 @@ Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->n
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
 Route::get('/verify', [GoogleAuthController::class, 'verifyForm'])->name('verify');
 Route::post('/verify', [GoogleAuthController::class, 'verify'])->name('verify.code');
+Route::get('/convert-esign', [PdsController::class, 'convertEsign'])->name('convertEsign');
 
 Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], function() {
     //Performance
