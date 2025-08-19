@@ -223,6 +223,9 @@
         
     public function syncDtr(Request $request)
     {
+        set_time_limit(180);
+        ini_set('max_execution_time', 180);
+
         $data = json_decode($request->getContent(), true);
 
         if (!is_array($data)) {
