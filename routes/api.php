@@ -30,5 +30,5 @@ Route::prefix('app')->group(function() {
     Route::post('/face-register', [TimeEntryController::class, 'faceRegister']);
 
     Route::post('/recent-logs', [TimeEntryController::class, 'recentLogs']);
-    Route::post('/verify-admin', [TimeEntryController::class, 'verifyAdmin']);
+    Route::post('/admin-face-verify', [TimeEntryController::class, 'adminFaceVerify']);
 });

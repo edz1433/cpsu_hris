@@ -673,13 +673,13 @@ class OpcrController extends Controller
                 }
             }
 
-$dpcrmfofind = DpcrMfo::join('dpcrs', 'dpcr_mfos.dpcr_id', '=', 'dpcrs.id')
-    ->where('dpcrs.user_id', $empid)
-    ->where('dpcr_mfos.count', $count)
-    ->select('dpcr_mfos.*')
-    ->first();
+            $dpcrmfofind = DpcrMfo::join('dpcrs', 'dpcr_mfos.dpcr_id', '=', 'dpcrs.id')
+                ->where('dpcrs.user_id', $empid)
+                ->where('dpcr_mfos.count', $count)
+                ->select('dpcr_mfos.*')
+                ->first();
 
-// dd($dpcrmfofind);
+            // dd($dpcrmfofind);
             if ($opcrmfodata && $dpcrmfofind) {
                 $data = $opcrmfodata->toArray();
                 unset($data['id']);

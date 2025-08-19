@@ -379,8 +379,7 @@ class TimeEntryController extends Controller
             'logs' => $out
         ], 200);
     }
-
-    public function verifyAdmin(Request $request)
+    public function adminFaceVerify(Request $request)
     {
         $embedding = $request->input('embedding');
         if (!$embedding || count($embedding) != 128) {
@@ -424,5 +423,4 @@ class TimeEntryController extends Controller
             'distance' => $minDistance,
         ]);
     }
-
 }
