@@ -367,7 +367,7 @@
     });
 </script>
 @endif
-<script>
+{{-- <script>
 $(document).ready(function() {
     var page = 1;
     var loading = false;
@@ -411,7 +411,7 @@ $(document).ready(function() {
         }
     });
 });
-</script>
+</script> --}}
 <script>
 $(document).ready(function () {
     $('.btn-status-with-comment').on('click', function () {
