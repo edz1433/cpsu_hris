@@ -822,7 +822,7 @@
                     <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[4]) ? trim($otherinfo_recognition[4]) : ''; }}<</th>
                     <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[4]) ? trim($otherinfo_mem_org[4]) : ''; }}<</th>
                 </tr>  
-                <tr>
+                {{-- <tr>
                     <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[5]) ? trim($otherinfo_skills_hob[5]) : ''; }}<</th>
                     <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[5]) ? trim($otherinfo_recognition[5]) : ''; }}<</th>
                     <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[5]) ? trim($otherinfo_mem_org[5]) : ''; }}<</th>
@@ -831,7 +831,7 @@
                     <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[6]) ? trim($otherinfo_skills_hob[6]) : ''; }}<</th>
                     <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[6]) ? trim($otherinfo_recognition[6]) : ''; }}<</th>
                     <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[6]) ? trim($otherinfo_mem_org[6]) : ''; }}<</th>
-                </tr>  
+                </tr>   --}}
 
                 <tr>
                     <td colspan="6" class="vcenter text-red" style="height: 10px !important;">(Continue on separate sheet if necessary)</td>
