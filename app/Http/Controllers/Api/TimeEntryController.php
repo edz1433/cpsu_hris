@@ -9,7 +9,154 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 
 class TimeEntryController extends Controller
-{    
+{
+    // ==== CONFIG ====
+    private int   $embeddingLimit = 7;            // keep only latest embeddings (post-dedupe)
+    // Squared thresholds (avoid sqrt in hot path)
+    private float $dedupeThr2     = 0.28 * 0.28;  // drop near-duplicates on register
+    private float $earlyExitThr2  = 0.40 * 0.40;  // early-accept boundary for centroid pass
+    private float $acceptThr2     = 0.75 * 0.75;  // match acceptance threshold    
+    // Helpers (embeddings & matching)
+    private function l2Normalize(array $v): array {
+        $sum = 0.0;
+        foreach ($v as $x) { $sum += $x * $x; }
+        $norm = sqrt(max($sum, 1e-12));
+        foreach ($v as $i => $x) { $v[$i] = $x / $norm; }
+        return $v;
+    }
+    // L2 **squared** distance (faster; no sqrt)
+    private function l2Distance2(array $a, array $b): float {
+        $s = 0.0;
+        for ($i = 0; $i < 128; $i++) {
+            $d = $a[$i] - $b[$i];
+            $s += $d * $d;
+        }
+        return $s;
+    }
+    // Keep order; drop vectors closer than $dedupeThr2 to any kept vector. Inputs expected normalized.
+    private function dedupeEmbeddings(array $embs): array {
+        $out = [];
+        foreach ($embs as $e) {
+            if (!is_array($e) || count($e) !== 128) continue;
+            $keep = true;
+            foreach ($out as $x) {
+                if ($this->l2Distance2($e, $x) < $this->dedupeThr2) { $keep = false; break; }
+            }
+            if ($keep) $out[] = $e;
+        }
+        return $out;
+    }
+    private function centroid(array $embs): ?array {
+        $n = count($embs);
+        if ($n === 0) return null;
+        $acc = array_fill(0, 128, 0.0);
+        foreach ($embs as $e) {
+            if (!is_array($e) || count($e) !== 128) continue;
+            for ($i = 0; $i < 128; $i++) { $acc[$i] += $e[$i]; }
+        }
+        for ($i = 0; $i < 128; $i++) { $acc[$i] /= max($n, 1); }
+        return $this->l2Normalize($acc);
+    }
+    // Strict new-schema reader. Expects: {"vecs":[[128],...], "centroid":[128]|null}
+    // Returns ['vecs'=>array, 'centroid'=>array|null].
+    private function readEmbObj(?string $json): array {
+        if (!$json) return ['vecs' => [], 'centroid' => null];
+        $raw  = json_decode($json, true);
+        $vecs = $raw['vecs'] ?? [];
+        $cent = $raw['centroid'] ?? null;
+        // Light shape checks (defensive)
+        $vecs = array_values(array_filter($vecs, fn($v) => is_array($v) && count($v) === 128));
+        if (!(is_array($cent) && count($cent) === 128)) $cent = null;
+        return ['vecs' => $vecs, 'centroid' => $cent];
+    }    
+    // Cache decoded & normalized embeddings + centroid.
+    // Cache objects: (emp_ID, fname, mname, lname, vecs[], centroid[])
+    private function getCachedEmployees() {
+        return Cache::remember('face_embeddings_cache', 300, function () {
+            return DB::table('employees')
+                ->select('emp_ID', 'fname', 'mname', 'lname', 'face_embeddings')
+                ->whereNotNull('face_embeddings')
+                ->get()
+                ->map(function ($e) {
+                    $p    = $this->readEmbObj($e->face_embeddings);
+                    $vecs = array_map(fn($v) => $this->l2Normalize($v), $p['vecs']);
+                    $cent = $p['centroid'];
+                    $cent = $cent ? $this->l2Normalize($cent) : $this->centroid($vecs);
+
+                    // Optionally skip malformed/empty rows
+                    if (empty($vecs)) {
+                        \Log::warning('Empty vecs for employee; skipping cache entry', ['emp_ID' => $e->emp_ID]);
+                        return null;
+                    }
+
+                    return (object)[
+                        'emp_ID'   => $e->emp_ID,
+                        'fname'    => $e->fname,
+                        'mname'    => $e->mname,
+                        'lname'    => $e->lname,
+                        'vecs'     => $vecs,
+                        'centroid' => $cent,
+                    ];
+                })
+                ->filter() // drop nulls
+                ->values();
+        });
+    }
+    // Shared matcher (squared distances). Returns [closestEmployeeObj|null, minDistanceSquared(float)]
+    private function findClosestEmployee(array $probe): array {
+        $probe = $this->l2Normalize($probe);
+        $employees = $this->getCachedEmployees();
+
+        $closest = null;
+        $minD2   = PHP_FLOAT_MAX;
+
+        // 1) Fast centroid pass
+        foreach ($employees as $emp) {
+            if ($emp->centroid) {
+                $d2 = $this->l2Distance2($probe, $emp->centroid);
+                if ($d2 < $minD2) { $minD2 = $d2; $closest = $emp; }
+                if ($minD2 < $this->earlyExitThr2) break;
+            }
+        }
+
+        // 2) Fine pass on closest's vectors if still near boundary
+        if ($closest && $minD2 >= $this->earlyExitThr2) {
+            foreach ($closest->vecs as $v) {
+                $d2 = $this->l2Distance2($probe, $v);
+                if ($d2 < $minD2) { $minD2 = $d2; }
+                if ($minD2 < $this->earlyExitThr2) break;
+            }
+        }
+
+        return [$closest, $minD2];
+    }
+    // ==================== APIs ====================
+    public function adminFaceVerify(Request $request)
+    {
+        $embedding = $request->input('embedding');
+        if (!is_array($embedding) || count($embedding) != 128) {
+            return response()->json(['error' => 'Invalid embedding'], 400);
+        }
+
+        [$closest, $minD2] = $this->findClosestEmployee($embedding);
+
+        if (!$closest || $minD2 >= $this->acceptThr2) {
+            return response()->json(['match' => false, 'is_admin' => false, 'distance' => sqrt($minD2)]);
+        }
+
+        // Admin set (read once, no cache)
+        $hrKioskCsv = DB::table('settings')->value('hr_kiosk'); // e.g. "EMP0039,EMP0033,..."
+        $ids = array_filter(array_map('trim', explode(',', (string) $hrKioskCsv)));
+        $isAdmin = in_array($closest->emp_ID, $ids, true);
+
+        return response()->json([
+            'match'    => true,
+            'is_admin' => $isAdmin,
+            'emp_id'   => $closest->emp_ID,
+            'name'     => trim("{$closest->fname} {$closest->mname} {$closest->lname}"),
+            'distance' => sqrt($minD2),
+        ]);
+    }
     public function fetchEmployees()
     {
         $employees = DB::table('employees')
@@ -24,116 +171,85 @@ class TimeEntryController extends Controller
                 return $emp;
             });
 
-        return response()->json($employees); // same JSON as before
+        return response()->json($employees);
     }
-    private $embeddingLimit = 9; // keep only last 9 embeddings
     public function faceRegister(Request $request)
     {
-        $empId = $request->input('emp_ID');
-        $embedding = $request->input('embedding'); // single embedding
-        $embeddings = $request->input('embeddings'); // multiple embeddings
+        $empId      = $request->input('emp_ID');
+        $embedding  = $request->input('embedding');   // [128]
+        $embeddings = $request->input('embeddings');  // [[128],...]
 
-        if (!$empId) {
-            return response()->json(['error' => 'Missing emp_ID'], 400);
-        }
+        if (!$empId) return response()->json(['error' => 'Missing emp_ID'], 400);
 
         $employee = DB::table('employees')->where('emp_ID', $empId)->first();
-        if (!$employee) {
-            return response()->json(['error' => 'Employee not found'], 404);
-        }
+        if (!$employee) return response()->json(['error' => 'Employee not found'], 404);
 
-        $existing = json_decode($employee->face_embeddings ?? '[]', true);
+        // Read existing (new schema only)
+        $parsed   = $this->readEmbObj($employee->face_embeddings);
+        $existing = array_map(fn($e) => $this->l2Normalize($e), $parsed['vecs']);
 
-        if ($embeddings && is_array($embeddings)) {
-            // push multiple
+        // Collect incoming (normalize)
+        $incoming = [];
+        if (is_array($embeddings)) {
             foreach ($embeddings as $e) {
-                if (count($e) == 128) $existing[] = $e;
+                if (is_array($e) && count($e) === 128) $incoming[] = $this->l2Normalize($e);
             }
-        } elseif ($embedding && count($embedding) == 128) {
-            // push single
-            $existing[] = $embedding;
+        } elseif (is_array($embedding) && count($embedding) === 128) {
+            $incoming[] = $this->l2Normalize($embedding);
         } else {
             return response()->json(['error' => 'Invalid embedding(s)'], 400);
         }
 
-        // limit
-        $existing = array_slice($existing, -$this->embeddingLimit);
+        // Append → dedupe → cap
+        $merged = array_merge($existing, $incoming);
+        $merged = $this->dedupeEmbeddings($merged);
+        $merged = array_slice($merged, -$this->embeddingLimit);
 
+        // Centroid
+        $cent = $this->centroid($merged);
+
+        // Store new schema
         DB::table('employees')
             ->where('emp_ID', $empId)
-            ->update(['face_embeddings' => json_encode($existing)]);
+            ->update(['face_embeddings' => json_encode(['vecs' => $merged, 'centroid' => $cent])]);
 
-        // 🚨 Clear face embedding cache to allow immediate verification
+        // Clear cache so new vectors are used immediately
         Cache::forget('face_embeddings_cache');
 
         return response()->json([
-            'success' => true,
-            'emp_ID' => $empId,
-            'total_embeddings' => count($existing)
+            'success'          => true,
+            'emp_ID'           => $empId,
+            'total_embeddings' => count($merged),
         ]);
     }
     public function faceVerify(Request $request)
     {
         $embedding = $request->input('embedding');
-        if (!$embedding || count($embedding) != 128) {
+        if (!is_array($embedding) || count($embedding) != 128) {
             return response()->json(['error' => 'Invalid embedding'], 400);
         }
 
-        $cachedEmployees = Cache::remember('face_embeddings_cache', 300, function () {
-            return DB::table('employees')
-                ->select('emp_ID', 'fname', 'mname', 'lname', 'face_embeddings')
-                ->whereNotNull('face_embeddings')
-                ->get();
-        });
+        [$closest, $minD2] = $this->findClosestEmployee($embedding);
 
-        $closestEmployee = null;
-        $minDistance = PHP_FLOAT_MAX;
-
-        foreach ($cachedEmployees as $employee) {
-            $embeddings = json_decode($employee->face_embeddings, true) ?? [];
-            foreach ($embeddings as $storedEmbedding) {
-                if (count($storedEmbedding) !== 128) continue;
-
-                $distance = $this->l2Distance($embedding, $storedEmbedding);
-                if ($distance < $minDistance) {
-                    $minDistance = $distance;
-                    $closestEmployee = $employee;
-
-                    if ($minDistance < 0.4) break 2; // early exit
-                }
-            }
-        }
-
-        if ($closestEmployee && $minDistance < 0.75) {
+        if ($closest && $minD2 < $this->acceptThr2) {
             return response()->json([
                 'match'    => true,
-                'emp_id'   => $closestEmployee->emp_ID,
-                'name'     => trim("{$closestEmployee->fname} {$closestEmployee->mname} {$closestEmployee->lname}"),
-                'distance' => $minDistance
+                'emp_id'   => $closest->emp_ID,
+                'name'     => trim("{$closest->fname} {$closest->mname} {$closest->lname}"),
+                'distance' => sqrt($minD2), // keep client-compatible semantics
             ]);
         }
 
-        return response()->json(['match' => false, 'distance' => $minDistance]);
+        return response()->json(['match' => false, 'distance' => sqrt($minD2)]);
     }    
-    private function l2Distance($a, $b)
-    {
-        $sum = 0;
-        for ($i = 0; $i < 128; $i++) {
-            $diff = $a[$i] - $b[$i];
-            $sum += $diff * $diff;
-        }
-        return sqrt($sum);
-    }
     public function fetchLogzones()
     {
         $zones = DB::table('logzones')->get()->map(function ($zone) {
             $points = json_decode($zone->points, true);
-            if (!is_array($points)) { // ensure always an array
-                $points = [];
-            }
+            if (!is_array($points)) $points = [];
             return [
-                'id' => (int) $zone->id,
-                'label' => $zone->label,
+                'id'     => (int) $zone->id,
+                'label'  => $zone->label,
                 'points' => $points,
             ];
         });
@@ -153,9 +269,7 @@ class TimeEntryController extends Controller
                 ->select('emp_ID')
                 ->where('emp_ID', $validated['emp_id'])
                 ->first();
-            if (!$empRow) {
-                return response()->json(['error' => 'Unknown emp_ID'], 404);
-            }
+            if (!$empRow) return response()->json(['error' => 'Unknown emp_ID'], 404);
 
             $empId    = $empRow->emp_ID;
             $zoneId   = strtolower($validated['zone_id']);
@@ -164,18 +278,10 @@ class TimeEntryController extends Controller
 
             $now   = now();
             $date  = $now->toDateString();
-            $time  = $now->format('H:i:s'); // keep seconds precision (no schema change)
+            $time  = $now->format('H:i:s'); // keep seconds precision
 
-            $timeField = match ($action) {
-                1 => 'time_in',
-                2 => 'time_out',
-                3 => 'time_over',
-            };
-            $deviceField = match ($action) {
-                1 => 'device_id_in',
-                2 => 'device_id_out',
-                3 => 'device_id_over',
-            };
+            $timeField = match ($action) { 1 => 'time_in', 2 => 'time_out', 3 => 'time_over' };
+            $deviceField = match ($action) { 1 => 'device_id_in', 2 => 'device_id_out', 3 => 'device_id_over' };
 
             $allowed     = true;
             $waitSeconds = 0;
@@ -190,29 +296,18 @@ class TimeEntryController extends Controller
                 // TIME IN rule: block if first OUT >= threshold was <60s ago
                 if ($action === 1 && !empty($record->time_out)) {
                     $outs = array_map('trim', explode(',', $record->time_out));
-
-                    // Choose your threshold: '11:00:00' (11 AM) or '23:00:00' (11 PM)
-                    $threshold = '11:00:00'; // <-- set as needed
-
-                    // Keep only OUTs at/after threshold (same day, HH:mm:ss)
+                    $threshold = '11:00:00'; // policy: 11 AM (adjust if needed)
                     $validOuts = array_values(array_filter($outs, fn($t) => strtotime($t) >= strtotime($threshold)));
-
                     if (!empty($validOuts)) {
-                        // Use the FIRST qualifying OUT (index 0), not the latest
                         $firstQualOut = $validOuts[0];
-
-                        // Parse and compute elapsed seconds since that first qualifying OUT
                         $lastTime = \Carbon\Carbon::createFromFormat('H:i:s', $firstQualOut);
-                        $elapsed  = $lastTime->diffInSeconds($now); // always >= 0
-
+                        $elapsed  = $lastTime->diffInSeconds($now);
                         if ($elapsed < 60) {
                             $allowed     = false;
-                            $waitSeconds = 60 - $elapsed; // 1..59
+                            $waitSeconds = 60 - $elapsed;
                         }
                     }
                 }
-
-
 
                 // Append only if allowed and not an exact duplicate second
                 if ($allowed && !in_array($time, $existingTimes, true)) {
@@ -235,8 +330,7 @@ class TimeEntryController extends Controller
                 $didUpdate = true;
             }
 
-            // HTTP codes communicate effect:
-            // 200 = updated/created, 202 = no change (duplicate), 429 = not allowed (rate rule)
+            // 200 = updated/created, 202 = no change, 429 = rate rule blocked
             $status = $allowed ? ($didUpdate ? 200 : 202) : 429;
 
             return response()->json([
@@ -245,10 +339,11 @@ class TimeEntryController extends Controller
                 'allowed'      => $allowed,
                 'wait_seconds' => $waitSeconds,
                 'time'         => $now->format('h:i:s A'),
-                'type'         => match ($action) { 1=>'TIME IN', 2=>'TIME OUT', 3=>'OVERTIME' },
+                'type'         => match ($action) { 1 => 'TIME IN', 2 => 'TIME OUT', 3 => 'OVERTIME' },
                 'emp_id'       => $empId,
                 'zone_id'      => $zoneId,
             ], $status);
+
         } catch (\Throwable $e) {
             return response()->json([
                 'error'   => 'Server error',
@@ -256,45 +351,35 @@ class TimeEntryController extends Controller
             ], 500);
         }
     }
-    public function recentLogs(Request $request)
+    public function fetchRecentLogs(Request $request)
     {
-        // Server-owned time window (adjust as needed; could also come from config('app.recent_logs_hours'))
         $WINDOW_HOURS = 24;
 
         $empId = $request->input('empId');
-        if (!$empId) {
-            return response()->json(['error' => 'Missing empId'], 400);
-        }
+        if (!$empId) return response()->json(['error' => 'Missing empId'], 400);
 
         $cutoff = now()->subHours($WINDOW_HOURS);
 
         $DEFAULT_ZONE_LABEL   = 'TBD';
         $DEFAULT_DEVICE_LABEL = 'TBD';
 
-        // Map zone id -> label
-        $zoneById = \DB::table('logzones')->pluck('label', 'id')->toArray();
-
-        // Map device id -> label  (adjust table name if different, e.g. 'f_devices')
+        $zoneById   = \DB::table('logzones')->pluck('label', 'id')->toArray();
         $deviceById = \DB::table('f_devices')->pluck('label', 'id')->toArray();
 
-        // Pull only likely dates to reduce scan
         $minDate = $cutoff->copy()->subDay()->toDateString();
 
         $rows = \DB::table('dtrs')
             ->join('employees', 'dtrs.emp_ID', '=', 'employees.emp_ID')
             ->where('dtrs.emp_ID', $empId)
             ->where('dtrs.date', '>=', $minDate)
-            ->select('dtrs.*', 'employees.fname', 'employees.lname') // suffix omitted
+            ->select('dtrs.*', 'employees.fname', 'employees.lname')
             ->orderBy('dtrs.date', 'desc')
             ->get();
 
         $pickPlace = function (?int $id) use ($deviceById, $zoneById, $DEFAULT_DEVICE_LABEL, $DEFAULT_ZONE_LABEL) {
             if ($id === null) return $DEFAULT_ZONE_LABEL;
-            if ($id < 100) { // device
-                return $deviceById[$id] ?? $DEFAULT_DEVICE_LABEL;
-            }
-            // zone
-            return $zoneById[$id] ?? $DEFAULT_ZONE_LABEL;
+            if ($id < 200) return $deviceById[$id] ?? $DEFAULT_DEVICE_LABEL; // device
+            return $zoneById[$id] ?? $DEFAULT_ZONE_LABEL; // zone
         };
 
         $out = [];
@@ -304,12 +389,12 @@ class TimeEntryController extends Controller
             $ins = array_filter(explode(',', (string) $r->time_in));
             $zin = explode(',', (string) $r->device_id_in);
             foreach ($ins as $i => $t) {
-                $dt = \Carbon\Carbon::parse($r->date.' '.$t);
+                $dt = \Carbon\Carbon::parse($r->date . ' ' . $t);
                 if ($dt->lt($cutoff)) continue;
 
-                $zRaw   = trim($zin[$i] ?? '');
-                $id     = $zRaw === '' ? null : (int) $zRaw;
-                $label  = $pickPlace($id);
+                $zRaw  = trim($zin[$i] ?? '');
+                $id    = $zRaw === '' ? null : (int) $zRaw;
+                $label = $pickPlace($id);
 
                 $out[] = [
                     'type'       => 'time_in',
@@ -327,12 +412,12 @@ class TimeEntryController extends Controller
             $outs = array_filter(explode(',', (string) $r->time_out));
             $zout = explode(',', (string) $r->device_id_out);
             foreach ($outs as $i => $t) {
-                $dt = \Carbon\Carbon::parse($r->date.' '.$t);
+                $dt = \Carbon\Carbon::parse($r->date . ' ' . $t);
                 if ($dt->lt($cutoff)) continue;
 
-                $zRaw   = trim($zout[$i] ?? '');
-                $id     = $zRaw === '' ? null : (int) $zRaw;
-                $label  = $pickPlace($id);
+                $zRaw  = trim($zout[$i] ?? '');
+                $id    = $zRaw === '' ? null : (int) $zRaw;
+                $label = $pickPlace($id);
 
                 $out[] = [
                     'type'       => 'time_out',
@@ -350,12 +435,12 @@ class TimeEntryController extends Controller
             $overs = array_filter(explode(',', (string) $r->time_over));
             $zover = explode(',', (string) $r->device_id_over);
             foreach ($overs as $i => $t) {
-                $dt = \Carbon\Carbon::parse($r->date.' '.$t);
+                $dt = \Carbon\Carbon::parse($r->date . ' ' . $t);
                 if ($dt->lt($cutoff)) continue;
 
-                $zRaw   = trim($zover[$i] ?? '');
-                $id     = $zRaw === '' ? null : (int) $zRaw;
-                $label  = $pickPlace($id);
+                $zRaw  = trim($zover[$i] ?? '');
+                $id    = $zRaw === '' ? null : (int) $zRaw;
+                $label = $pickPlace($id);
 
                 $out[] = [
                     'type'       => 'time_over',
@@ -370,57 +455,12 @@ class TimeEntryController extends Controller
             }
         }
 
-        usort($out, fn($a,$b) => strcmp($b['ts'], $a['ts'])); // newest first
+        usort($out, fn($a, $b) => strcmp($b['ts'], $a['ts'])); // newest first
         foreach ($out as &$row) unset($row['ts']); // don’t expose sort key
 
-        // Optional: include the server-defined window for transparency/debugging (frontend can ignore)
         return response()->json([
             'window_hours' => $WINDOW_HOURS,
-            'logs' => $out
+            'logs'         => $out
         ], 200);
-    }
-    public function adminFaceVerify(Request $request)
-    {
-        $embedding = $request->input('embedding');
-        if (!$embedding || count($embedding) != 128) {
-            return response()->json(['error' => 'Invalid embedding'], 400);
-        }
-
-        // 1) Reuse the same matching logic you already have (can call a private method if you extract it).
-        $cachedEmployees = Cache::remember('face_embeddings_cache', 300, function () {
-            return DB::table('employees')
-                ->select('emp_ID', 'fname', 'mname', 'lname', 'face_embeddings')
-                ->whereNotNull('face_embeddings')
-                ->get();
-        });
-
-        $closestEmployee = null;
-        $minDistance = PHP_FLOAT_MAX;
-
-        foreach ($cachedEmployees as $employee) {
-            $embeddings = json_decode($employee->face_embeddings, true) ?? [];
-            foreach ($embeddings as $storedEmbedding) {
-                if (count($storedEmbedding) !== 128) continue;
-                $d = $this->l2Distance($embedding, $storedEmbedding);
-                if ($d < $minDistance) { $minDistance = $d; $closestEmployee = $employee; if ($d < 0.4) break 2; }
-            }
-        }
-
-        if (!$closestEmployee || $minDistance >= 0.75) {
-            return response()->json(['match' => false, 'is_admin' => false, 'distance' => $minDistance]);
-        }
-
-        // 2) Read hr_kiosk once from DB (no cache needed)
-        $hrKioskCsv = DB::table('settings')->value('hr_kiosk'); // "EMP0039,EMP0033,..."
-        $ids = array_filter(array_map('trim', explode(',', (string)$hrKioskCsv)));
-        $isAdmin = in_array($closestEmployee->emp_ID, $ids, true);
-
-        return response()->json([
-            'match'    => true,
-            'is_admin' => $isAdmin,
-            'emp_id'   => $closestEmployee->emp_ID,
-            'name'     => trim("{$closestEmployee->fname} {$closestEmployee->mname} {$closestEmployee->lname}"),
-            'distance' => $minDistance,
-        ]);
     }
 }

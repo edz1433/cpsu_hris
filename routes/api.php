@@ -29,6 +29,6 @@ Route::prefix('app')->group(function() {
     Route::post('/fetch-employees', [TimeEntryController::class, 'fetchEmployees']);
     Route::post('/face-register', [TimeEntryController::class, 'faceRegister']);
 
-    Route::post('/recent-logs', [TimeEntryController::class, 'recentLogs']);
+    Route::post('/fetch-recent-logs', [TimeEntryController::class, 'fetchRecentLogs']);
     Route::post('/admin-face-verify', [TimeEntryController::class, 'adminFaceVerify']);
 });
