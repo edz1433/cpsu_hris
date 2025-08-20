@@ -211,7 +211,7 @@
     $last_non_matching_day = $countnmatch === 5 ? end($notnatch) : null;
 
 @endphp
-
+ 
 <body>
     
     <div class="column1"> 

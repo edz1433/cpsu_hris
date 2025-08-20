@@ -85,7 +85,7 @@ class TimeEntryController extends Controller
 
                     // Optionally skip malformed/empty rows
                     if (empty($vecs)) {
-                        \Log::warning('Empty vecs for employee; skipping cache entry', ['emp_ID' => $e->emp_ID]);
+                        // \Log::warning('Empty vecs for employee; skipping cache entry', ['emp_ID' => $e->emp_ID]);
                         return null;
                     }
 
@@ -241,19 +241,35 @@ class TimeEntryController extends Controller
         }
 
         return response()->json(['match' => false, 'distance' => sqrt($minD2)]);
-    }    
-    public function fetchLogzones()
+    }        
+    public function fetchLogzones(\Illuminate\Http\Request $request)
     {
-        $zones = DB::table('logzones')->get()->map(function ($zone) {
-            $points = json_decode($zone->points, true);
-            if (!is_array($points)) $points = [];
-            return [
-                'id'     => (int) $zone->id,
-                'label'  => $zone->label,
-                'points' => $points,
-            ];
+        $ttl = 5; // good with a 15s client poll
+        // Build payload from cache (DB touched at most once per $ttl)
+        $zones = \Cache::remember('logzones:payload', $ttl, function () {
+            return \DB::table('logzones')->get()->map(function ($zone) {
+                $points = json_decode($zone->points, true);
+                if (!is_array($points)) $points = [];
+                return [
+                    'id'     => (int) $zone->id,
+                    'label'  => (string) $zone->label,
+                    'points' => $points,
+                ];
+            })->values()->all(); // store as plain array
         });
-        return response()->json($zones);
+        // Derive an ETag directly from the cached payload
+        $etag = sha1(json_encode($zones, JSON_UNESCAPED_UNICODE));
+        // If client already has this version, short-circuit
+        if (in_array($etag, $request->getEtags() ?? [], true)) {
+            return response()
+                ->noContent(304)
+                ->setEtag($etag)
+                ->header('Cache-Control', 'public, max-age=15');
+        }
+        return response()
+            ->json($zones, 200, [], JSON_UNESCAPED_UNICODE)
+            ->setEtag($etag)
+            ->header('Cache-Control', 'public, max-age=15');
     }
     public function logAttendance(Request $request)
     {
