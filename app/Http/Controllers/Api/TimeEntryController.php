@@ -244,7 +244,7 @@ class TimeEntryController extends Controller
     }        
     public function fetchLogzones(\Illuminate\Http\Request $request)
     {
-        $ttl = 5; // good with a 15s client poll
+        $ttl = 5; // freshness
         // Build payload from cache (DB touched at most once per $ttl)
         $zones = \Cache::remember('logzones:payload', $ttl, function () {
             return \DB::table('logzones')->get()->map(function ($zone) {
