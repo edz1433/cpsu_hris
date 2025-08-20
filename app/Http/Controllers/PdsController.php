@@ -205,7 +205,7 @@ class PdsController extends Controller
             'province1' => $province1,
         ];
 
-       $customPaper = array(0, 0, 612, 970);
+       $customPaper = array(0, 0, 612, 980);
         $pdf = \PDF::loadView('emp.generate-pds', compact('datas'))->setPaper($customPaper, 'portrait');
 
         $pdf->setOption('margin-top', 0);
