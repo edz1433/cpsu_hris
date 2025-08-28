@@ -31,6 +31,7 @@ class JobHiringController extends Controller
             'title'             => 'required',
             'plantilla_item_no' => 'required|unique:job_hirings',
             'salary'            => 'required|numeric',
+            'assignment'     => 'nullable',
             'education'         => 'required',
             'eligibility'       => 'required',
             'training'          => 'nullable',
@@ -38,6 +39,7 @@ class JobHiringController extends Controller
             'competency'        => 'nullable',
             'posted_at'         => 'required',
             'expiration_at'     => 'required',
+            'status'     => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -68,6 +70,7 @@ class JobHiringController extends Controller
             'title'             => 'required',
             'plantilla_item_no' => 'required',
             'salary'            => 'required|numeric',
+            'assignment'     => 'nullable',
             'education'         => 'required',
             'eligibility'       => 'required',
             'training'          => 'nullable',
@@ -75,6 +78,7 @@ class JobHiringController extends Controller
             'competency'        => 'nullable',
             'posted_at'         => 'required',
             'expiration_at'     => 'required',
+            'status'     => 'required',
         ]);
 
         if ($validator->fails()) {

@@ -13,6 +13,7 @@ class JobHiring extends Model
         'title',
         'plantilla_item_no',
         'salary',
+        'assignment',
         'education',
         'eligibility',
         'training',

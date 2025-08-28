@@ -60,6 +60,11 @@
                             </div>
                         </div>
 
+                        {{-- Assignment --}}
+                        <div class="form-group">
+                            <textarea name="assignment" class="form-control form-control-sm" placeholder="Required Assignment">{{ $current_route == 'jEdit' ? $jEdit->assignment : '' }}</textarea>
+                        </div>
+
                         {{-- Education --}}
                         <div class="form-group">
                             <textarea name="education" class="form-control form-control-sm" placeholder="Required Education">{{ $current_route == 'jEdit' ? $jEdit->education : '' }}</textarea>
@@ -94,7 +99,13 @@
                             <label>Expiration At</label>
                             <input type="date" name="expiration_at" value="{{ $current_route == 'jEdit' ? $jEdit->expiration_at : '' }}" class="form-control form-control-sm" required>
                         </div>
-
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select type="text" name="status" class="form-control form-control-sm" required>
+                                <option value="Open">Open</option>
+                                <option value="Closed">Closed</option>
+                            </select>
+                        </div>
                         {{-- Save Button --}}
                         <div class="form-group">
                             <button type="submit" class="btn btn-success btn-sm">
@@ -112,21 +123,18 @@
                 <div class="card-body">
                     <div class="table-responsive">
                         <table id="example1" class="table table-bordered table-hover">
-                            <thead>
+                            <thead class="thead-light">
                                 <tr>
                                     <th>No</th>
                                     <th>Position Title</th>
                                     <th>Plantilla No.</th>
                                     <th>Salary</th>
-                                    <th>Education</th>
-                                    <th>Eligibility</th>
-                                    <th>Training</th>
-                                    <th>Experience</th>
-                                    <th>Competency</th>
+                                    <th>Assignment</th>
+                                    <th>Requirements</th>
                                     <th>Posted</th>
                                     <th>Expiration</th>
                                     <th>Status</th>
-                                    <th>Action</th>
+                                    <th class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="tbody">
@@ -136,24 +144,33 @@
                                     <td>{{ $no++ }}</td>
                                     <td>{{ $job->title }}</td>
                                     <td>{{ $job->plantilla_item_no }}</td>
-                                    <td>{{ number_format($job->salary, 2) }}</td>
-                                    <td>{{ $job->education }}</td>
-                                    <td>{{ $job->eligibility }}</td>
-                                    <td>{{ $job->training ?? '-' }}</td>
-                                    <td>{{ $job->experience ?? '-' }}</td>
-                                    <td>{{ $job->competency ?? '-' }}</td>
-                                    <td>{{ $job->posted_at }}</td>
-                                    <td>{{ $job->expiration_at }}</td>
+                                    <td>₱{{ number_format($job->salary, 2) }}</td>
+                                    <td>{{ $job->assignment }}</td>
+                                    {{-- Combine education, eligibility, training, experience, competency --}}
                                     <td>
-                                        <span class="badge {{ $job->status == 'Open' ? 'bg-success' : 'bg-secondary' }}">
+                                        <ul class="list-unstyled small mb-0">
+                                            <li><strong>Education:</strong> {{ $job->education }}</li>
+                                            <li><strong>Eligibility:</strong> {{ $job->eligibility }}</li>
+                                            <li><strong>Training:</strong> {{ $job->training ?? '-' }}</li>
+                                            <li><strong>Experience:</strong> {{ $job->experience ?? '-' }}</li>
+                                            <li><strong>Competency:</strong> {{ $job->competency ?? '-' }}</li>
+                                        </ul>
+                                    </td>
+
+                                    <td>{{ \Carbon\Carbon::parse($job->posted_at)->format('M d, Y') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($job->expiration_at)->format('M d, Y') }}</td>
+
+                                    <td>
+                                        <span class="badge {{ $job->status == 'Open' ? 'badge-success' : 'badge-secondary' }}">
                                             {{ $job->status }}
                                         </span>
                                     </td>
+
                                     <td class="text-center">
-                                        <a href="{{ route('jEdit', $job->id) }}" class="btn btn-info btn-xs">
+                                        <a href="{{ route('jEdit', $job->id) }}" class="btn btn-info btn-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button value="{{ $job->id }}" class="btn btn-danger btn-xs job-delete">
+                                        <button value="{{ $job->id }}" class="btn btn-danger btn-sm job-delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </td>
