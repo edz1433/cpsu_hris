@@ -40,6 +40,7 @@ use App\Http\Controllers\SpmsPersonnelController;
 use App\Http\Controllers\SpmsMfoPercentageController;
 use App\Http\Controllers\PerformanceController;
 use App\Http\Controllers\EvidenceController;
+use App\Http\Controllers\JobHiringController;
 
 Route::get('/', function () {
     if (Auth::guard('web')->check()) {
@@ -179,6 +180,18 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         // Route::get('/', [MyAccountController::class, 'myAccount']) ->name('myAccount');
         // Route::post('/update-account', [MyAccountController::class, 'updateAccount']) ->name('updateAccount');
     });
+
+    Route::prefix('job-hiring')->group(function () {
+        Route::get('/', [JobHiringController::class, 'jlist'])->name('jlist');
+        Route::post('/create', [JobHiringController::class, 'jCreate'])->name('jCreate');
+        Route::get('/edit/{id}', [JobHiringController::class, 'jEdit'])->name('jEdit');
+        Route::post('/update', [JobHiringController::class, 'jUpdate'])->name('jUpdate');
+        Route::post('/delete', [JobHiringController::class, 'jDelete'])->name('jDelete');
+
+        // optional extra route if applicants can apply directly
+        Route::post('/apply/{id}', [JobHiringController::class, 'apply'])->name('jApply');
+    });
+
 
     // Employee
     Route::prefix('employees')->group(function() {

@@ -81,6 +81,15 @@
             </a>
         </li>
 
+        @if($guard == "web")
+        <li class="nav-item">
+            <a href="{{ route('jlist') }}" class="nav-link text-success1 {{ request()->is('job-hiring*') ? 'active' : '' }}">
+                <i class="pt-1 nav-icon fas fa-briefcase"></i>
+                <p>Job Hiring</p>
+            </a>
+        </li>
+        @endif
+
         @if(auth()->guard($guard)->user()->role == "Administrator")
 
             <li class="nav-item">

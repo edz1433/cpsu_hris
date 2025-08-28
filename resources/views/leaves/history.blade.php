@@ -7,12 +7,10 @@
         background: rgba(255, 255, 255, 0.515);
         border: none;
         box-shadow: none;
-    }
-    
+    } 
     .modal-backdrop {
         background-color: transparent;
     }
-
     .vcenter{
         text-align: center;
         vertical-align: middle;

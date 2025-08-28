@@ -68,26 +68,29 @@ class TimeEntryController extends Controller
         $vecs = array_values(array_filter($vecs, fn($v) => is_array($v) && count($v) === 128));
         if (!(is_array($cent) && count($cent) === 128)) $cent = null;
         return ['vecs' => $vecs, 'centroid' => $cent];
-    }    
+    }
     // Cache decoded & normalized embeddings + centroid.
     // Cache objects: (emp_ID, fname, mname, lname, vecs[], centroid[])
     private function getCachedEmployees() {
         return Cache::remember('face_embeddings_cache', 300, function () {
             return DB::table('employees')
                 ->select('emp_ID', 'fname', 'mname', 'lname', 'face_embeddings')
+                ->where('stat_1', 1)
                 ->whereNotNull('face_embeddings')
                 ->get()
                 ->map(function ($e) {
-                    $p    = $this->readEmbObj($e->face_embeddings);
-                    $vecs = array_map(fn($v) => $this->l2Normalize($v), $p['vecs']);
-                    $cent = $p['centroid'];
-                    $cent = $cent ? $this->l2Normalize($cent) : $this->centroid($vecs);
+                    $p = $this->readEmbObj($e->face_embeddings);
 
-                    // Optionally skip malformed/empty rows
-                    if (empty($vecs)) {
-                        // \Log::warning('Empty vecs for employee; skipping cache entry', ['emp_ID' => $e->emp_ID]);
-                        return null;
-                    }
+                    // Drop any malformed / non-numeric vectors before normalizing
+                    $vecs = array_values(array_filter($p['vecs'], fn($v) => $this->isValidVec($v)));
+                    $vecs = array_map(fn($v) => $this->l2Normalize($v), $vecs);
+
+                    // Use stored centroid if valid; otherwise derive from filtered vecs
+                    $cent = (is_array($p['centroid']) && count($p['centroid']) === 128)
+                        ? $this->l2Normalize($p['centroid'])
+                        : $this->centroid($vecs);
+
+                    if (empty($vecs)) return null; // skip empty/malformed rows
 
                     return (object)[
                         'emp_ID'   => $e->emp_ID,
@@ -98,7 +101,7 @@ class TimeEntryController extends Controller
                         'centroid' => $cent,
                     ];
                 })
-                ->filter() // drop nulls
+                ->filter()
                 ->values();
         });
     }
@@ -130,18 +133,98 @@ class TimeEntryController extends Controller
 
         return [$closest, $minD2];
     }
+    private function isValidVec($v): bool {
+        if (!is_array($v) || count($v) !== 128) return false;
+        foreach ($v as $x) {
+            if (!is_numeric($x)) return false;
+            if (!is_finite((float)$x)) return false; // guard NaN/INF
+        }
+        return true;
+    }
     // ==================== APIs ====================
+    public function faceRegister(Request $request)
+    {
+        $empId      = $request->input('emp_ID');
+        $embedding  = $request->input('embedding');   // [128]
+        $embeddings = $request->input('embeddings');  // [[128],...]
+
+        if (!$empId) {
+            return response()->json(['error' => 'Missing emp_ID'], 400);
+        }
+
+        $employee = DB::table('employees')->where('emp_ID', $empId)->first();
+        if (!$employee) {
+            return response()->json(['error' => 'Employee not found'], 404);
+        }
+
+        // Collect incoming normalized embeddings using the shared validator
+        $incoming = [];
+        if (is_array($embeddings)) {
+            foreach ($embeddings as $e) {
+                if ($this->isValidVec($e)) $incoming[] = $this->l2Normalize($e);
+            }
+        } elseif ($this->isValidVec($embedding)) {
+            $incoming[] = $this->l2Normalize($embedding);
+        } else {
+            return response()->json(['error' => 'Invalid embedding(s)'], 400);
+        }
+
+        if (empty($incoming)) {
+            return response()->json(['error' => 'No valid embeddings'], 400);
+        }
+
+        $merged = [];
+
+        // Transaction & row lock to prevent lost updates
+        DB::transaction(function () use ($empId, $incoming, &$merged) {
+            $row = DB::table('employees')
+                ->where('emp_ID', $empId)
+                ->lockForUpdate()
+                ->first();
+
+            $parsed   = $this->readEmbObj($row->face_embeddings ?? null);
+
+            // Filter stored vecs too, before normalizing
+            $existingRaw = array_values(array_filter($parsed['vecs'], fn($v) => $this->isValidVec($v)));
+            $existing    = array_map(fn($e) => $this->l2Normalize($e), $existingRaw);
+
+            $merged = $this->dedupeEmbeddings(array_merge($existing, $incoming));
+            $merged = array_slice($merged, -$this->embeddingLimit);
+
+            $cent = $this->centroid($merged);
+
+            DB::table('employees')
+                ->where('emp_ID', $empId)
+                ->update([
+                    'face_embeddings' => json_encode(['vecs' => $merged, 'centroid' => $cent])
+                ]);
+        });
+
+        // Clear cache so new vectors are used immediately
+        Cache::forget('face_embeddings_cache');
+
+        return response()->json([
+            'success'          => true,
+            'emp_ID'           => $empId,
+            'total_embeddings' => count($merged),
+        ]);
+    }
     public function adminFaceVerify(Request $request)
     {
         $embedding = $request->input('embedding');
-        if (!is_array($embedding) || count($embedding) != 128) {
+        if (!$this->isValidVec($embedding)) {
             return response()->json(['error' => 'Invalid embedding'], 400);
         }
 
         [$closest, $minD2] = $this->findClosestEmployee($embedding);
 
-        if (!$closest || $minD2 >= $this->acceptThr2) {
-            return response()->json(['match' => false, 'is_admin' => false, 'distance' => sqrt($minD2)]);
+        // Clamp early on non-match / non-finite distance
+        if (!$closest || is_infinite($minD2) || is_nan($minD2) || $minD2 >= $this->acceptThr2) {
+            return response()->json([
+                'match'    => false,
+                'is_admin' => false,
+                'distance' => ($closest && !is_infinite($minD2) && !is_nan($minD2)) ? sqrt($minD2) : 2.0,
+            ]);
         }
 
         // Admin set (read once, no cache)
@@ -157,127 +240,40 @@ class TimeEntryController extends Controller
             'distance' => sqrt($minD2),
         ]);
     }
-    public function fetchEmployees()
-    {
-        $employees = DB::table('employees')
-            ->select('emp_ID', 'fname', 'mname', 'lname')
-            ->where('stat_1', 1)
-            ->orderBy('lname')
-            ->get()
-            ->map(function ($emp) {
-                $parts = array_filter([$emp->fname, $emp->mname, $emp->lname]);
-                $emp->name = implode(' ', $parts);
-                unset($emp->fname, $emp->mname, $emp->lname);
-                return $emp;
-            });
-
-        return response()->json($employees);
-    }
-    public function faceRegister(Request $request)
-    {
-        $empId      = $request->input('emp_ID');
-        $embedding  = $request->input('embedding');   // [128]
-        $embeddings = $request->input('embeddings');  // [[128],...]
-
-        if (!$empId) return response()->json(['error' => 'Missing emp_ID'], 400);
-
-        $employee = DB::table('employees')->where('emp_ID', $empId)->first();
-        if (!$employee) return response()->json(['error' => 'Employee not found'], 404);
-
-        // Read existing (new schema only)
-        $parsed   = $this->readEmbObj($employee->face_embeddings);
-        $existing = array_map(fn($e) => $this->l2Normalize($e), $parsed['vecs']);
-
-        // Collect incoming (normalize)
-        $incoming = [];
-        if (is_array($embeddings)) {
-            foreach ($embeddings as $e) {
-                if (is_array($e) && count($e) === 128) $incoming[] = $this->l2Normalize($e);
-            }
-        } elseif (is_array($embedding) && count($embedding) === 128) {
-            $incoming[] = $this->l2Normalize($embedding);
-        } else {
-            return response()->json(['error' => 'Invalid embedding(s)'], 400);
-        }
-
-        // Append → dedupe → cap
-        $merged = array_merge($existing, $incoming);
-        $merged = $this->dedupeEmbeddings($merged);
-        $merged = array_slice($merged, -$this->embeddingLimit);
-
-        // Centroid
-        $cent = $this->centroid($merged);
-
-        // Store new schema
-        DB::table('employees')
-            ->where('emp_ID', $empId)
-            ->update(['face_embeddings' => json_encode(['vecs' => $merged, 'centroid' => $cent])]);
-
-        // Clear cache so new vectors are used immediately
-        Cache::forget('face_embeddings_cache');
-
-        return response()->json([
-            'success'          => true,
-            'emp_ID'           => $empId,
-            'total_embeddings' => count($merged),
-        ]);
-    }
     public function faceVerify(Request $request)
     {
         $embedding = $request->input('embedding');
-        if (!is_array($embedding) || count($embedding) != 128) {
+        if (!$this->isValidVec($embedding)) {
             return response()->json(['error' => 'Invalid embedding'], 400);
         }
 
         [$closest, $minD2] = $this->findClosestEmployee($embedding);
 
-        if ($closest && $minD2 < $this->acceptThr2) {
+        // Clamp when there’s no candidate or distance is non-finite
+        if (!$closest || is_infinite($minD2) || is_nan($minD2)) {
+            // For unit-normalized vectors, max squared L2 is 4 -> sqrt(4)=2.0
+            return response()->json(['match' => false, 'distance' => 2.0]);
+        }
+
+        if ($minD2 < $this->acceptThr2) {
             return response()->json([
                 'match'    => true,
                 'emp_id'   => $closest->emp_ID,
                 'name'     => trim("{$closest->fname} {$closest->mname} {$closest->lname}"),
-                'distance' => sqrt($minD2), // keep client-compatible semantics
+                'distance' => sqrt($minD2),
             ]);
         }
 
         return response()->json(['match' => false, 'distance' => sqrt($minD2)]);
-    }        
-    public function fetchLogzones(\Illuminate\Http\Request $request)
-    {
-        $ttl = 5; // freshness
-        // Build payload from cache (DB touched at most once per $ttl)
-        $zones = \Cache::remember('logzones:payload', $ttl, function () {
-            return \DB::table('logzones')->get()->map(function ($zone) {
-                $points = json_decode($zone->points, true);
-                if (!is_array($points)) $points = [];
-                return [
-                    'id'     => (int) $zone->id,
-                    'label'  => (string) $zone->label,
-                    'points' => $points,
-                ];
-            })->values()->all(); // store as plain array
-        });
-        // Derive an ETag directly from the cached payload
-        $etag = sha1(json_encode($zones, JSON_UNESCAPED_UNICODE));
-        // If client already has this version, short-circuit
-        if (in_array($etag, $request->getEtags() ?? [], true)) {
-            return response()
-                ->noContent(304)
-                ->setEtag($etag)
-                ->header('Cache-Control', 'public, max-age=15');
-        }
-        return response()
-            ->json($zones, 200, [], JSON_UNESCAPED_UNICODE)
-            ->setEtag($etag)
-            ->header('Cache-Control', 'public, max-age=15');
     }
     public function logAttendance(Request $request)
     {
         try {
             $validated = $request->validate([
                 'emp_id'  => 'required|string',
-                'zone_id' => 'required|string',
-                'action'  => 'required|integer|in:1,2,3', // 1=in, 2=out, 3=over
+                // accept "-1", "-2", "3", etc.
+                'zone_id' => ['required','string','regex:/^-?\d+$/'],
+                'action'  => 'required|integer|in:1,2,3',
             ]);
 
             // Validate employee exists and preserve DB casing
@@ -288,7 +284,7 @@ class TimeEntryController extends Controller
             if (!$empRow) return response()->json(['error' => 'Unknown emp_ID'], 404);
 
             $empId    = $empRow->emp_ID;
-            $zoneId   = strtolower($validated['zone_id']);
+            $zoneId   = $validated['zone_id'];
             $action   = (int) $validated['action'];
             $deviceId = $zoneId;
 
@@ -367,6 +363,51 @@ class TimeEntryController extends Controller
             ], 500);
         }
     }
+    public function fetchEmployees()
+    {
+        $employees = DB::table('employees')
+            ->select('emp_ID', 'fname', 'mname', 'lname')
+            ->where('stat_1', 1)
+            ->orderBy('lname')
+            ->get()
+            ->map(function ($emp) {
+                $parts = array_filter([$emp->fname, $emp->mname, $emp->lname]);
+                $emp->name = implode(' ', $parts);
+                unset($emp->fname, $emp->mname, $emp->lname);
+                return $emp;
+            });
+
+        return response()->json($employees);
+    }
+    public function fetchLogzones(\Illuminate\Http\Request $request)
+    {
+        $ttl = 60; // freshness
+        // Build payload from cache (DB touched at most once per $ttl)
+        $zones = \Cache::remember('logzones:payload', $ttl, function () {
+            return \DB::table('logzones')->get()->map(function ($zone) {
+                $points = json_decode($zone->points, true);
+                if (!is_array($points)) $points = [];
+                return [
+                    'id'     => (int) $zone->id,
+                    'label'  => (string) $zone->label,
+                    'points' => $points,
+                ];
+            })->values()->all(); // store as plain array
+        });
+        // Derive an ETag directly from the cached payload
+        $etag = sha1(json_encode($zones, JSON_UNESCAPED_UNICODE));
+        // If client already has this version, short-circuit
+        if (in_array($etag, $request->getEtags() ?? [], true)) {
+            return response()
+                ->noContent(304)
+                ->setEtag($etag)
+                ->header('Cache-Control', 'public, max-age=15');
+        }
+        return response()
+            ->json($zones, 200, [], JSON_UNESCAPED_UNICODE)
+            ->setEtag($etag)
+            ->header('Cache-Control', 'public, max-age=15');
+    }
     public function fetchRecentLogs(Request $request)
     {
         $WINDOW_HOURS = 24;
@@ -394,7 +435,7 @@ class TimeEntryController extends Controller
 
         $pickPlace = function (?int $id) use ($deviceById, $zoneById, $DEFAULT_DEVICE_LABEL, $DEFAULT_ZONE_LABEL) {
             if ($id === null) return $DEFAULT_ZONE_LABEL;
-            if ($id < 200) return $deviceById[$id] ?? $DEFAULT_DEVICE_LABEL; // device
+            if ($id > 0) return $deviceById[$id] ?? $DEFAULT_DEVICE_LABEL; // device
             return $zoneById[$id] ?? $DEFAULT_ZONE_LABEL; // zone
         };
 

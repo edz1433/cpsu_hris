@@ -310,7 +310,7 @@
                             @endif
                         @endif
                     </td>
-
+                    
                     <!-- Afternoon Time Out -->
                     <td class="font1 center">
                         @if (($period == 0) || ($period == 3) || ($period == 1 && $day <= 15) || ($period == 2 && $day > 15))
