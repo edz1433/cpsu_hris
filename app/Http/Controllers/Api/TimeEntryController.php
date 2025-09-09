@@ -604,7 +604,7 @@ class TimeEntryController extends Controller
             ->header('Cache-Control', 'public, max-age=15');
     }    
     public function fetchLatestLogs(Request $request) {
-        $MAX_DATES = 15;
+        $MAX_DATES = 35;
         $empId = $request->input('empId');
         if (!$empId) return response()->json(['error' => 'Missing empId'], 400);
         // Atomic burst gate (per empId)
