@@ -21,17 +21,19 @@ Route::prefix('app')->group(function() {
     Route::get('/check-coordinates', [DtrController::class, 'checkCoordinates'])->name('checkCoordinates');
 
     // Time Entry
+    Route::post('/check-restriction-level', [TimeEntryController::class, 'checkRestrictionLevel']);
+
     Route::post('/health', function (Request $request) { return response()->noContent(); });
     
     Route::post('/face-verify', [TimeEntryController::class, 'faceVerify']);
     Route::post('/log-attendance', [TimeEntryController::class, 'logAttendance']);
     
-    Route::post('/fetch-logzones', [TimeEntryController::class, 'fetchLogzones']);
-   
+    Route::post('/fetch-logzones', [TimeEntryController::class, 'fetchLogzones']);   
 
     Route::post('/fetch-employees', [TimeEntryController::class, 'fetchEmployees']);
     Route::post('/face-register', [TimeEntryController::class, 'faceRegister']);
+    Route::post('/admin-pass-verify', [TimeEntryController::class, 'adminPassVerify']);
 
-    Route::post('/fetch-recent-logs', [TimeEntryController::class, 'fetchRecentLogs']);
-    Route::post('/admin-face-verify', [TimeEntryController::class, 'adminFaceVerify']);
+    Route::post('/fetch-latest-logs', [TimeEntryController::class, 'fetchLatestLogs']);
+    Route::post('/admin-face-verify', [TimeEntryController::class, 'adminFaceVerify']);    
 });

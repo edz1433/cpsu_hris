@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Employee;
 use App\Models\Dtr;
 use App\Models\Fdevice;
+use App\Models\Logzone;
 use App\Models\OfficialTime;
 use App\Models\Setting;
 use Carbon\Carbon; 
@@ -154,6 +155,241 @@ class DtrController extends Controller
         return $pdf->stream();
     }
 
+    // public function dtrLogs(Request $request)
+    // {
+    //     $guard = $this->getGuard();
+        
+    //     $acctstat = 0;
+    //     if (auth()->guard($guard)->user()->role == "employee") {
+    //         $setting = Setting::first();
+        
+    //         if ($setting) {
+    //             $accntlist = explode(',', $setting->dtr_acct);
+    //             $empid = auth()->guard($guard)->user()->emp_ID;
+        
+    //             $emp = Employee::where('emp_ID', $empid)->first();
+        
+    //             if (in_array($emp->id, $accntlist)) {
+    //                 $employeeall = Employee::where('camp_id', $emp->camp_id)->get();
+    //                 $acctstat = 1;
+    //             } else {
+    //                 $employeeall = Employee::where('emp_ID', $empid)->get();
+    //                 $acctstat = 0;
+    //             }
+    //         } else {
+    //             $employeeall = collect();
+    //             $acctstat = 0;
+    //         }
+    //     } else {
+    //         $employeeall = Employee::all();
+    //         $acctstat = 1;
+    //     }    
+    
+    //     $data = null;
+    
+    //     if ($request->isMethod('post')) {
+    //         $employeeId = $request->input('employee') ?? auth()->guard($guard)->user()->emp_ID;
+    //         $dateFrom = $request->input('date_from', null);
+    //         $dateTo = $request->input('date_to', null);
+    //         $overtime = $request->input('overtime', null);
+    
+    //         $dtrRecords = Dtr::where('emp_ID', $employeeId)
+    //             ->when($dateFrom && $dateTo, function ($query) use ($dateFrom, $dateTo) {
+    //                 return $query->whereBetween('date', [$dateFrom, $dateTo]);
+    //             })
+    //             ->get();
+    
+    //         $devices = Fdevice::all();
+    //         $deviceLabels = $devices->pluck('label', 'id')->toArray();
+    
+    //         $processedLogs = [];
+    //         foreach ($dtrRecords as $record) {
+    //             $date = $record->date;
+    
+    //             // Time IN
+    //             $timeInArray = explode(',', $record->time_in);
+    //             $deviceInArray = explode(',', $record->device_id_in ?? '');
+    
+    //             foreach ($timeInArray as $index => $timeIn) {
+    //                 if (!empty($timeIn)) {
+    //                     $deviceInId = $deviceInArray[$index] ?? null;
+    //                     $processedLogs[] = [
+    //                         'time' => $timeIn,
+    //                         'type' => 'time_in',
+    //                         'date' => $date,
+    //                         'device_label' => $deviceLabels[$deviceInId] ?? 'TBD',
+    //                     ];
+    //                 }
+    //             }
+    
+    //             // Time OUT
+    //             $timeOutArray = explode(',', $record->time_out);
+    //             $deviceOutArray = explode(',', $record->device_id_out ?? '');
+    
+    //             foreach ($timeOutArray as $index => $timeOut) {
+    //                 if (!empty($timeOut)) {
+    //                     $deviceOutId = $deviceOutArray[$index] ?? null;
+    //                     $processedLogs[] = [
+    //                         'time' => $timeOut,
+    //                         'type' => 'time_out',
+    //                         'date' => $date,
+    //                         'device_label' => $deviceLabels[$deviceOutId] ?? 'TBD',
+    //                     ];
+    //                 }
+    //             }
+    
+    //             // OVERTIME
+    //             $overtimeArray = explode(',', $record->time_over);
+    //             $deviceOverArray = explode(',', $record->device_id_over ?? '');
+    
+    //             foreach ($overtimeArray as $index => $timeOver) {
+    //                 if (!empty($timeOver)) {
+    //                     $deviceOverId = $deviceOverArray[$index] ?? null;
+    //                     $processedLogs[] = [
+    //                         'time' => $timeOver,
+    //                         'type' => 'overtime',
+    //                         'date' => $date,
+    //                         'device_label' => $deviceLabels[$deviceOverId] ?? 'TBD',
+    //                     ];
+    //                 }
+    //             }
+    //         }
+    
+    //         $data = [
+    //             "employeeId" => $employeeId,
+    //             "dateFrom" => $dateFrom,
+    //             "dateTo" => $dateTo,
+    //             "overtime" => $overtime,
+    //             "logs" => $processedLogs,
+    //         ];
+    //     }
+    
+    //     return view('dtr.log', compact('guard', 'employeeall', 'data', 'acctstat'));
+    // }  
+    // public function logDtrView($employeeId, $dateFrom = null, $dateTo = null, $overtime = null)
+    // {
+    //     $guard = $this->getGuard();
+    //     $currentDate = Carbon::now()->toDateString();
+    
+    //     $data = [
+    //         "employeeId" => $employeeId,
+    //         "dateFrom" => $dateFrom,
+    //         "dateTo" => $dateTo,
+    //         "overtime" => $overtime
+    //     ];
+    
+    //     // Fetch DTR records with necessary conditions
+    //     $dtrRecords = Dtr::join('employees', 'dtrs.emp_ID', '=', 'employees.emp_ID')
+    //         ->when(is_null($dateFrom) && is_null($dateTo), function ($query) use ($currentDate, $employeeId) {
+    //             return $query->whereDate('dtrs.date', $currentDate)
+    //                 ->where('dtrs.emp_ID', $employeeId);
+    //         })
+    //         ->when(!is_null($dateFrom) && !is_null($dateTo), function ($query) use ($employeeId, $dateFrom, $dateTo) {
+    //             return $query->where('dtrs.emp_ID', $employeeId)
+    //                 ->whereBetween('dtrs.date', [$dateFrom, $dateTo]);
+    //         })
+    //         ->select('dtrs.*', 'employees.lname', 'employees.fname', 'employees.suffix')
+    //         ->orderBy('dtrs.date', 'asc')
+    //         ->orderBy('dtrs.time_in', 'asc')
+    //         ->orderBy('dtrs.time_out', 'asc')
+    //         ->get();
+    
+    //     $groupedRecords = $dtrRecords->groupBy('emp_ID');
+    
+    //     $devices = Fdevice::all();
+    //     $deviceLabels = $devices->pluck('label', 'id')->toArray();
+    //     $deviceCampus = $devices->pluck('camp_id', 'id')->toArray();
+    
+    //     $processedLogs = [];
+    
+    //     foreach ($groupedRecords as $employeeId => $records) {
+    //         $logSessions = [];
+            
+    //         foreach ($records as $record) {
+    //             if($overtime == null){
+    //                 $timeInArray = explode(',', $record->time_in);
+    //                 $deviceInCampArray = explode(',', $record->device_id_in);
+        
+    //                 foreach ($timeInArray as $index => $timeIn) {
+    //                     $deviceInId = $deviceInCampArray[$index] ?? null;
+    //                     $logSessions[] = [
+    //                         'time' => $timeIn,
+    //                         'type' => 'time_in',
+    //                         'session' => $index == 0 ? 'Morning' : ($index == 1 ? 'Noon' : 'Afternoon'),
+    //                         'date' => $record->date,
+    //                         'lname' => $record->lname,
+    //                         'fname' => $record->fname,
+    //                         'suffix' => $record->suffix,
+    //                         'device_in_label' => $deviceLabels[$deviceInId] ?? 'TBD',
+    //                         'device_in_campus' => $deviceCampus[$deviceInId] ?? 'TBD',
+    //                     ];
+    //                 }
+        
+    //                 $timeOutArray = explode(',', $record->time_out);
+    //                 $deviceOutCampArray = explode(',', $record->device_id_out);
+        
+    //                 foreach ($timeOutArray as $index => $timeOut) {
+    //                     $deviceOutId = $deviceOutCampArray[$index] ?? null;
+    //                     $logSessions[] = [
+    //                         'time' => $timeOut,
+    //                         'type' => 'time_out',
+    //                         'session' => $index == 0 ? 'Morning' : ($index == 1 ? 'Afternoon' : 'Evening'),
+    //                         'date' => $record->date,
+    //                         'lname' => $record->lname,
+    //                         'fname' => $record->fname,
+    //                         'suffix' => $record->suffix,
+    //                         'device_out_label' => $deviceLabels[$deviceOutId] ?? 'TBD',
+    //                         'device_out_campus' => $deviceCampus[$deviceOutId] ?? 'TBD',
+    //                     ];
+    //                 }
+    //             }
+    //             $overtimeArray = explode(',', $record->time_over);
+    //             $deviceOvertimeCampArray = explode(',', $record->device_id_over);
+                
+    //             foreach ($overtimeArray as $index => $timeOut) {
+    //                 $deviceOvertimeId = $deviceOvertimeCampArray[$index] ?? null;
+    //                 $logSessions[] = [
+    //                     'time' => $timeOut,
+    //                     'type' => 'overtime',
+    //                     'session' => $index == 0 ? 'Morning' : ($index == 1 ? 'Afternoon' : 'Evening'),
+    //                     'date' => $record->date,
+    //                     'lname' => $record->lname,
+    //                     'fname' => $record->fname,
+    //                     'suffix' => $record->suffix,
+    //                     'device_out_label' => $deviceLabels[$deviceOvertimeId] ?? 'TBD',
+    //                     'device_out_campus' => $deviceCampus[$deviceOvertimeId] ?? 'TBD',
+    //                 ];
+    //             }
+                
+    //         }
+    
+    //         // Sort sessions by time
+    //         usort($logSessions, function ($a, $b) {
+    //             return strtotime($a['time']) - strtotime($b['time']);
+    //         });
+    
+    //         $processedLogs[$employeeId] = $logSessions;
+    //     }
+    
+    //     // Define paper size and margins
+    //     $customPaper = [0, 0, 612, 970];
+    //     $page = ($overtime == 1) ? 'dtr.logs-pdf-overtime' : 'dtr.logs-pdf';
+    //     $pdf = \PDF::loadView($page, compact('guard', 'dtrRecords', 'processedLogs', 'data'))
+    //         ->setPaper($customPaper, 'portrait')
+    //         ->setOptions([
+    //             'margin-top' => 10,
+    //             'margin-right' => 10,
+    //             'margin-bottom' => 10,
+    //             'margin-left' => 10,
+    //         ])
+    //         ->setCallbacks([
+    //             'before_render' => function ($domPdf) {
+    //                 $domPdf->getCanvas()->page_text(10, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, [0, 0, 0]);
+    //             },
+    //         ]);
+    
+    //     return $pdf->stream();
+    // }
     public function dtrLogs(Request $request)
     {
         $guard = $this->getGuard();
@@ -183,77 +419,91 @@ class DtrController extends Controller
             $employeeall = Employee::all();
             $acctstat = 1;
         }    
-    
+
         $data = null;
-    
+
         if ($request->isMethod('post')) {
             $employeeId = $request->input('employee') ?? auth()->guard($guard)->user()->emp_ID;
             $dateFrom = $request->input('date_from', null);
             $dateTo = $request->input('date_to', null);
             $overtime = $request->input('overtime', null);
-    
+
             $dtrRecords = Dtr::where('emp_ID', $employeeId)
                 ->when($dateFrom && $dateTo, function ($query) use ($dateFrom, $dateTo) {
                     return $query->whereBetween('date', [$dateFrom, $dateTo]);
                 })
                 ->get();
-    
+
+            // Devices
             $devices = Fdevice::all();
             $deviceLabels = $devices->pluck('label', 'id')->toArray();
-    
+
+            // Logzones (IDs are already negative)
+            $zones = Logzone::all();
+            $zoneLabels = $zones->pluck('label', 'id')->toArray();
+
+            // Resolver
+            $labelFor = function ($rawId) use ($deviceLabels, $zoneLabels) {
+                if ($rawId === null) return 'TBD';
+                $s = trim((string)$rawId);
+                if ($s === '' || !preg_match('/^-?\d+$/', $s)) return 'TBD';
+                $id = (int)$s;
+                return $id < 0 ? ($zoneLabels[$id] ?? 'TBD') : ($deviceLabels[$id] ?? 'TBD');
+            };
+
             $processedLogs = [];
             foreach ($dtrRecords as $record) {
                 $date = $record->date;
-    
+
                 // Time IN
-                $timeInArray = explode(',', $record->time_in);
-                $deviceInArray = explode(',', $record->device_id_in ?? '');
-    
+                $timeInArray   = array_map('trim', explode(',', $record->time_in ?? ''));
+                $deviceInArray = array_map('trim', explode(',', $record->device_id_in ?? ''));
+
                 foreach ($timeInArray as $index => $timeIn) {
-                    if (!empty($timeIn)) {
+                    if ($timeIn !== '') {
                         $deviceInId = $deviceInArray[$index] ?? null;
                         $processedLogs[] = [
                             'time' => $timeIn,
                             'type' => 'time_in',
                             'date' => $date,
-                            'device_label' => $deviceLabels[$deviceInId] ?? 'TBD',
+                            'device_label' => $labelFor($deviceInId),
                         ];
                     }
                 }
-    
+
                 // Time OUT
-                $timeOutArray = explode(',', $record->time_out);
-                $deviceOutArray = explode(',', $record->device_id_out ?? '');
-    
+                $timeOutArray   = array_map('trim', explode(',', $record->time_out ?? ''));
+                $deviceOutArray = array_map('trim', explode(',', $record->device_id_out ?? ''));
+
                 foreach ($timeOutArray as $index => $timeOut) {
-                    if (!empty($timeOut)) {
+                    if ($timeOut !== '') {
                         $deviceOutId = $deviceOutArray[$index] ?? null;
                         $processedLogs[] = [
                             'time' => $timeOut,
                             'type' => 'time_out',
                             'date' => $date,
-                            'device_label' => $deviceLabels[$deviceOutId] ?? 'TBD',
+                            'device_label' => $labelFor($deviceOutId),
                         ];
                     }
                 }
-    
+
                 // OVERTIME
-                $overtimeArray = explode(',', $record->time_over);
-                $deviceOverArray = explode(',', $record->device_id_over ?? '');
-    
+                $overtimeArray   = array_map('trim', explode(',', $record->time_over ?? ''));
+                $deviceOverArray = array_map('trim', explode(',', $record->device_id_over ?? ''));
+
                 foreach ($overtimeArray as $index => $timeOver) {
-                    if (!empty($timeOver)) {
+                    if ($timeOver !== '') {
                         $deviceOverId = $deviceOverArray[$index] ?? null;
                         $processedLogs[] = [
                             'time' => $timeOver,
                             'type' => 'overtime',
                             'date' => $date,
-                            'device_label' => $deviceLabels[$deviceOverId] ?? 'TBD',
+                            'device_label' => $labelFor($deviceOverId),
                         ];
                     }
                 }
             }
-    
+
             $data = [
                 "employeeId" => $employeeId,
                 "dateFrom" => $dateFrom,
@@ -262,56 +512,76 @@ class DtrController extends Controller
                 "logs" => $processedLogs,
             ];
         }
-    
+
         return view('dtr.log', compact('guard', 'employeeall', 'data', 'acctstat'));
     }
-    
-    
     public function logDtrView($employeeId, $dateFrom = null, $dateTo = null, $overtime = null)
     {
         $guard = $this->getGuard();
         $currentDate = Carbon::now()->toDateString();
-    
+
         $data = [
             "employeeId" => $employeeId,
             "dateFrom" => $dateFrom,
             "dateTo" => $dateTo,
             "overtime" => $overtime
         ];
-    
-        // Fetch DTR records with necessary conditions
+
         $dtrRecords = Dtr::join('employees', 'dtrs.emp_ID', '=', 'employees.emp_ID')
             ->when(is_null($dateFrom) && is_null($dateTo), function ($query) use ($currentDate, $employeeId) {
                 return $query->whereDate('dtrs.date', $currentDate)
-                    ->where('dtrs.emp_ID', $employeeId);
+                            ->where('dtrs.emp_ID', $employeeId);
             })
             ->when(!is_null($dateFrom) && !is_null($dateTo), function ($query) use ($employeeId, $dateFrom, $dateTo) {
                 return $query->where('dtrs.emp_ID', $employeeId)
-                    ->whereBetween('dtrs.date', [$dateFrom, $dateTo]);
+                            ->whereBetween('dtrs.date', [$dateFrom, $dateTo]);
             })
             ->select('dtrs.*', 'employees.lname', 'employees.fname', 'employees.suffix')
             ->orderBy('dtrs.date', 'asc')
             ->orderBy('dtrs.time_in', 'asc')
             ->orderBy('dtrs.time_out', 'asc')
             ->get();
-    
+
         $groupedRecords = $dtrRecords->groupBy('emp_ID');
-    
+
+        // Devices
         $devices = Fdevice::all();
         $deviceLabels = $devices->pluck('label', 'id')->toArray();
         $deviceCampus = $devices->pluck('camp_id', 'id')->toArray();
-    
+
+        // Logzones (IDs are already negative)
+        $zones = Logzone::all();
+        $zoneLabels = $zones->pluck('label', 'id')->toArray();
+        $zoneCampus = $zones->pluck('camp_id', 'id')->toArray();
+
+        // Resolver
+        $labelFor = function ($rawId) use ($deviceLabels, $zoneLabels) {
+            if ($rawId === null) return 'TBD';
+            $s = trim((string)$rawId);
+            if ($s === '' || !preg_match('/^-?\d+$/', $s)) return 'TBD';
+            $id = (int)$s;
+            return $id < 0 ? ($zoneLabels[$id] ?? 'TBD') : ($deviceLabels[$id] ?? 'TBD');
+        };
+        $campusFor = function ($rawId) use ($deviceCampus, $zoneCampus) {
+            if ($rawId === null) return 'TBD';
+            $s = trim((string)$rawId);
+            if ($s === '' || !preg_match('/^-?\d+$/', $s)) return 'TBD';
+            $id = (int)$s;
+            return $id < 0 ? ($zoneCampus[$id] ?? 'TBD') : ($deviceCampus[$id] ?? 'TBD');
+        };
+
         $processedLogs = [];
-    
-        foreach ($groupedRecords as $employeeId => $records) {
+
+        foreach ($groupedRecords as $empId => $records) {
             $logSessions = [];
             
             foreach ($records as $record) {
-                if($overtime == null){
-                    $timeInArray = explode(',', $record->time_in);
-                    $deviceInCampArray = explode(',', $record->device_id_in);
-        
+                if ($overtime === null) {
+                    // time_in
+                    $timeInArray       = array_map('trim', explode(',', $record->time_in ?? ''));
+                    $deviceInCampArray = array_map('trim', explode(',', $record->device_id_in ?? ''));
                     foreach ($timeInArray as $index => $timeIn) {
+                        if ($timeIn === '') continue;
                         $deviceInId = $deviceInCampArray[$index] ?? null;
                         $logSessions[] = [
                             'time' => $timeIn,
@@ -321,15 +591,16 @@ class DtrController extends Controller
                             'lname' => $record->lname,
                             'fname' => $record->fname,
                             'suffix' => $record->suffix,
-                            'device_in_label' => $deviceLabels[$deviceInId] ?? 'TBD',
-                            'device_in_campus' => $deviceCampus[$deviceInId] ?? 'TBD',
+                            'device_in_label' => $labelFor($deviceInId),
+                            'device_in_campus' => $campusFor($deviceInId),
                         ];
                     }
-        
-                    $timeOutArray = explode(',', $record->time_out);
-                    $deviceOutCampArray = explode(',', $record->device_id_out);
-        
+
+                    // time_out
+                    $timeOutArray       = array_map('trim', explode(',', $record->time_out ?? ''));
+                    $deviceOutCampArray = array_map('trim', explode(',', $record->device_id_out ?? ''));
                     foreach ($timeOutArray as $index => $timeOut) {
+                        if ($timeOut === '') continue;
                         $deviceOutId = $deviceOutCampArray[$index] ?? null;
                         $logSessions[] = [
                             'time' => $timeOut,
@@ -339,40 +610,39 @@ class DtrController extends Controller
                             'lname' => $record->lname,
                             'fname' => $record->fname,
                             'suffix' => $record->suffix,
-                            'device_out_label' => $deviceLabels[$deviceOutId] ?? 'TBD',
-                            'device_out_campus' => $deviceCampus[$deviceOutId] ?? 'TBD',
+                            'device_out_label' => $labelFor($deviceOutId),
+                            'device_out_campus' => $campusFor($deviceOutId),
                         ];
                     }
                 }
-                $overtimeArray = explode(',', $record->time_over);
-                $deviceOvertimeCampArray = explode(',', $record->device_id_over);
-                
-                foreach ($overtimeArray as $index => $timeOut) {
-                    $deviceOvertimeId = $deviceOvertimeCampArray[$index] ?? null;
+
+                // overtime
+                $overtimeArray       = array_map('trim', explode(',', $record->time_over ?? ''));
+                $deviceOverCampArray = array_map('trim', explode(',', $record->device_id_over ?? ''));
+                foreach ($overtimeArray as $index => $timeOver) {
+                    if ($timeOver === '') continue;
+                    $deviceOverId = $deviceOverCampArray[$index] ?? null;
                     $logSessions[] = [
-                        'time' => $timeOut,
+                        'time' => $timeOver,
                         'type' => 'overtime',
                         'session' => $index == 0 ? 'Morning' : ($index == 1 ? 'Afternoon' : 'Evening'),
                         'date' => $record->date,
                         'lname' => $record->lname,
                         'fname' => $record->fname,
                         'suffix' => $record->suffix,
-                        'device_out_label' => $deviceLabels[$deviceOvertimeId] ?? 'TBD',
-                        'device_out_campus' => $deviceCampus[$deviceOvertimeId] ?? 'TBD',
+                        'device_out_label' => $labelFor($deviceOverId),
+                        'device_out_campus' => $campusFor($deviceOverId),
                     ];
                 }
-                
             }
-    
-            // Sort sessions by time
+
             usort($logSessions, function ($a, $b) {
-                return strtotime($a['time']) - strtotime($b['time']);
+                return strtotime($a['time']) <=> strtotime($b['time']);
             });
-    
-            $processedLogs[$employeeId] = $logSessions;
+
+            $processedLogs[$empId] = $logSessions;
         }
-    
-        // Define paper size and margins
+
         $customPaper = [0, 0, 612, 970];
         $page = ($overtime == 1) ? 'dtr.logs-pdf-overtime' : 'dtr.logs-pdf';
         $pdf = \PDF::loadView($page, compact('guard', 'dtrRecords', 'processedLogs', 'data'))
@@ -388,7 +658,7 @@ class DtrController extends Controller
                     $domPdf->getCanvas()->page_text(10, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, [0, 0, 0]);
                 },
             ]);
-    
+
         return $pdf->stream();
     }
 
