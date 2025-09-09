@@ -578,8 +578,8 @@ class TimeEntryController extends Controller
     public function fetchLogzones(Request $request) {
         $ttl = 60; // seconds
         // Build payload from cache (DB touched at most once per $ttl)
-        $zones = \Cache::remember('logzones:payload', $ttl, function () {
-            return \DB::table('logzones')->get()->map(function ($zone) {
+        $zones = Cache::remember('logzones:payload', $ttl, function () {
+            return DB::table('logzones')->get()->map(function ($zone) {
                 $points = json_decode($zone->points, true);
                 if (!is_array($points)) $points = [];
                 return [
@@ -619,11 +619,11 @@ class TimeEntryController extends Controller
         $DEFAULT_CAMPUS_NAME  = 'TBD';
         $DEFAULT_ZONE_LABEL   = 'TBD';
         $DEFAULT_DEVICE_LABEL = 'TBD';
-        $zoneById   = \DB::table('logzones')->pluck('label', 'id')->toArray();
-        $deviceById = \DB::table('f_devices')->pluck('label', 'id')->toArray();
-        $zoneCampusIdById   = \DB::table('logzones')->pluck('camp_id', 'id')->toArray();
-        $deviceCampusIdById = \DB::table('f_devices')->pluck('camp_id', 'id')->toArray();
-        $campusNameById = \DB::table('campuses')->pluck('campus_name', 'id')->toArray();
+        $zoneById   = DB::table('logzones')->pluck('label', 'id')->toArray();
+        $deviceById = DB::table('f_devices')->pluck('label', 'id')->toArray();
+        $zoneCampusIdById   = DB::table('logzones')->pluck('camp_id', 'id')->toArray();
+        $deviceCampusIdById = DB::table('f_devices')->pluck('camp_id', 'id')->toArray();
+        $campusNameById = DB::table('campuses')->pluck('campus_name', 'id')->toArray();
         // ---------- Pickers ----------
         $pickCampusName = function (?int $id) use ($deviceCampusIdById, $zoneCampusIdById, $campusNameById, $DEFAULT_CAMPUS_NAME) {
             if ($id === null) return $DEFAULT_CAMPUS_NAME;
@@ -636,7 +636,7 @@ class TimeEntryController extends Controller
         };
         // ---------- Determine latest up to 5 dates with any logs ----------
         // "Any logs" means at least one of time_in / time_out / time_over is non-empty.
-        $dates = \DB::table('dtrs')
+        $dates = DB::table('dtrs')
             ->where('emp_ID', $empId)
             ->where(function ($q) {
                 $q->where(function ($q2) { $q2->whereNotNull('time_in')->where('time_in', '!=', ''); })
@@ -656,7 +656,7 @@ class TimeEntryController extends Controller
             ], 200);
         }
         // Fetch rows for those dates (includes employee name fields)
-        $rows = \DB::table('dtrs')
+        $rows = DB::table('dtrs')
             ->join('employees', 'dtrs.emp_ID', '=', 'employees.emp_ID')
             ->where('dtrs.emp_ID', $empId)
             ->whereIn('dtrs.date', $dates)
