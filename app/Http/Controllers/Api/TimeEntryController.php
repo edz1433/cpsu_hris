@@ -72,10 +72,8 @@ class TimeEntryController extends Controller
         if (!(is_array($cent) && count($cent) === 128)) $cent = null;
         return ['vecs' => $vecs, 'centroid' => $cent];
     }
-    // Cache decoded & normalized embeddings + centroid.
-    // Cache objects: (emp_ID, fname, mname, lname, vecs[], centroid[])
-    private function getCachedEmployees() {
-        return Cache::rememberForever('face_embeddings_cache', function () {
+    private function getCachedCentroids() {
+        return Cache::rememberForever('face_centroids', function () {
             return DB::table('employees')
                 ->select('emp_ID', 'fname', 'mname', 'lname', 'face_embeddings')
                 ->where('stat_1', 1)
@@ -83,20 +81,15 @@ class TimeEntryController extends Controller
                 ->get()
                 ->map(function ($e) {
                     $p = $this->readEmbObj($e->face_embeddings);
-                    // Drop any malformed / non-numeric vectors before normalizing
-                    $vecs = array_values(array_filter($p['vecs'], fn($v) => $this->isValidVec($v)));
-                    $vecs = array_map(fn($v) => $this->l2Normalize($v), $vecs);
-                    // Use stored centroid if valid; otherwise derive from filtered vecs
                     $cent = (is_array($p['centroid']) && count($p['centroid']) === 128)
                         ? $this->l2Normalize($p['centroid'])
-                        : $this->centroid($vecs);
-                    if (empty($vecs)) return null; // skip empty/malformed rows
+                        : null;
+                    if (!$cent) return null;
                     return (object)[
                         'emp_ID'   => $e->emp_ID,
                         'fname'    => $e->fname,
                         'mname'    => $e->mname,
                         'lname'    => $e->lname,
-                        'vecs'     => $vecs,
                         'centroid' => $cent,
                     ];
                 })
@@ -104,24 +97,32 @@ class TimeEntryController extends Controller
                 ->values();
         });
     }
-    // Shared matcher (squared distances). Returns [closestEmployeeObj|null, minDistanceSquared(float)]
     private function findClosestEmployee(array $probe): array {
         $probe = $this->l2Normalize($probe);
-        $employees = $this->getCachedEmployees();
+        // Pass 1: scan cached centroids
+        $centroids = $this->getCachedCentroids();
         $closest = null; $minD2 = PHP_FLOAT_MAX;
-        // Pass 1: scan all centroids
-        foreach ($employees as $emp) {
-            if (!$emp->centroid) continue;
+        foreach ($centroids as $emp) {
             $d2 = $this->l2Distance2($probe, $emp->centroid);
             if ($d2 < $minD2) { $minD2 = $d2; $closest = $emp; }
         }
         if (!$closest) return [null, $minD2];
-        // If already very close to this centroid, accept early
+        // Early accept if very close to centroid
         if ($minD2 < $this->earlyExitThr2) return [$closest, $minD2];
-        // Pass 2: refine on that employee’s individual vectors
-        foreach ($closest->vecs as $v) {
+        // Pass 2: refine — fetch only this employee’s vectors from DB
+        $row = DB::table('employees')
+            ->select('face_embeddings')
+            ->where('emp_ID', $closest->emp_ID)
+            ->first();
+        $p = $this->readEmbObj($row->face_embeddings ?? null);
+        $vecs = array_values(array_filter($p['vecs'] ?? [], fn($v) => $this->isValidVec($v)));
+        foreach ($vecs as $v) {
+            $v  = $this->l2Normalize($v);
             $d2 = $this->l2Distance2($probe, $v);
-            if ($d2 < $minD2) { $minD2 = $d2; if ($minD2 < $this->earlyExitThr2) break; }
+            if ($d2 < $minD2) {
+                $minD2 = $d2;
+                if ($minD2 < $this->earlyExitThr2) break;
+            }
         }
         return [$closest, $minD2];
     }
@@ -265,11 +266,7 @@ class TimeEntryController extends Controller
                     ->where('emp_ID', $empId)
                     ->lockForUpdate()
                     ->first();
-                $parsed      = $this->readEmbObj($row->face_embeddings ?? null);
-                $existingRaw = array_values(array_filter($parsed['vecs'], fn($v) => $this->isValidVec($v)));
-                $existing    = array_map(fn($e) => $this->l2Normalize($e), $existingRaw);
-                $merged = $this->dedupeEmbeddings(array_merge($existing, $incoming));
-                $merged = array_slice($merged, -$this->embeddingLimit);
+                $merged = array_slice($incoming, -$this->embeddingLimit);
                 $cent   = $this->centroid($merged);
                 DB::table('employees')
                     ->where('emp_ID', $empId)
@@ -290,6 +287,7 @@ class TimeEntryController extends Controller
                 return ['total' => count($merged)];
             });
             // outside the transaction (non-critical)
+            Cache::forget('face_centroids');         // new centroid-only cache
             Cache::forget('face_embeddings_cache');
             return response()->json([
                 'success'          => true,
@@ -351,102 +349,6 @@ class TimeEntryController extends Controller
             'distance' => sqrt($minD2),
         ]);
     }
-    // public function logAttendance(Request $request) {
-    //     try {
-    //         $validated = $request->validate([
-    //             'emp_id'  => 'required|string',
-    //             // accept "-1", "-2", "3", etc.
-    //             'zone_id' => ['required','string','regex:/^-?\d+$/'],
-    //             'action'  => 'required|integer|in:1,2,3',
-    //         ]);
-
-    //         // Validate employee exists and preserve DB casing
-    //         $empRow = DB::table('employees')
-    //             ->select('emp_ID')
-    //             ->where('emp_ID', $validated['emp_id'])
-    //             ->first();
-    //         if (!$empRow) return response()->json(['error' => 'Unknown emp_ID'], 404);
-
-    //         $empId    = $empRow->emp_ID;
-    //         $zoneId   = $validated['zone_id'];
-    //         $action   = (int) $validated['action'];
-    //         $deviceId = $zoneId;
-
-    //         $now   = now();
-    //         $date  = $now->toDateString();
-    //         $time  = $now->format('H:i:s'); // keep seconds precision
-
-    //         $timeField = match ($action) { 1 => 'time_in', 2 => 'time_out', 3 => 'time_over' };
-    //         $deviceField = match ($action) { 1 => 'device_id_in', 2 => 'device_id_out', 3 => 'device_id_over' };
-
-    //         $allowed     = true;
-    //         $waitSeconds = 0;
-    //         $didUpdate   = false;
-
-    //         $record = Dtr::where('emp_ID', $empId)->where('date', $date)->first();
-
-    //         if ($record) {
-    //             $existingTimes   = $record->$timeField ? explode(',', $record->$timeField) : [];
-    //             $existingDevices = $record->$deviceField ? explode(',', $record->$deviceField) : [];
-
-    //             // TIME IN rule: block if first OUT >= threshold was <60s ago
-    //             if ($action === 1 && !empty($record->time_out)) {
-    //                 $outs = array_map('trim', explode(',', $record->time_out));
-    //                 $threshold = '11:00:00'; // policy: 11 AM (adjust if needed)
-    //                 $validOuts = array_values(array_filter($outs, fn($t) => strtotime($t) >= strtotime($threshold)));
-    //                 if (!empty($validOuts)) {
-    //                     $firstQualOut = $validOuts[0];
-    //                     $lastTime = \Carbon\Carbon::createFromFormat('H:i:s', $firstQualOut);
-    //                     $elapsed  = $lastTime->diffInSeconds($now);
-    //                     if ($elapsed < 60) {
-    //                         $allowed     = false;
-    //                         $waitSeconds = 60 - $elapsed;
-    //                     }
-    //                 }
-    //             }
-
-    //             // Append only if allowed and not an exact duplicate second
-    //             if ($allowed && !in_array($time, $existingTimes, true)) {
-    //                 $existingTimes[]   = $time;
-    //                 $existingDevices[] = $deviceId;
-
-    //                 $record->update([
-    //                     $timeField   => implode(',', $existingTimes),
-    //                     $deviceField => implode(',', $existingDevices),
-    //                 ]);
-    //                 $didUpdate = true;
-    //             }
-    //         } else {
-    //             Dtr::create([
-    //                 'emp_ID'     => $empId,
-    //                 'date'       => $date,
-    //                 $timeField   => $time,
-    //                 $deviceField => $deviceId,
-    //             ]);
-    //             $didUpdate = true;
-    //         }
-
-    //         // 200 = updated/created, 202 = no change, 429 = rate rule blocked
-    //         $status = $allowed ? ($didUpdate ? 200 : 202) : 429;
-
-    //         return response()->json([
-    //             'success'      => $didUpdate,
-    //             'updated'      => $didUpdate,
-    //             'allowed'      => $allowed,
-    //             'wait_seconds' => $waitSeconds,
-    //             'time'         => $now->format('h:i:s A'),
-    //             'type'         => match ($action) { 1 => 'TIME IN', 2 => 'TIME OUT', 3 => 'OVERTIME' },
-    //             'emp_id'       => $empId,
-    //             'zone_id'      => $zoneId,
-    //         ], $status);
-
-    //     } catch (\Throwable $e) {
-    //         return response()->json([
-    //             'error'   => 'Server error',
-    //             'message' => $e->getMessage(),
-    //         ], 500);
-    //     }
-    // }
     public function logAttendance(Request $request)
     {
         try {
@@ -485,9 +387,7 @@ class TimeEntryController extends Controller
                     ->lockForUpdate()
                     ->orderByDesc('id')
                     ->get();
-
                 $record = $rows->first();
-
                 if (!$record) {
                     // No row yet: create the canonical row (it becomes MAX(id) by definition)
                     \App\Models\Dtr::create([
@@ -499,7 +399,6 @@ class TimeEntryController extends Controller
                     $didUpdate = true;
                     return;
                 }
-
                 // Throttle rule (unchanged semantics):
                 // TIME IN blocked if the first OUT >= 11:00:00 was < 60s ago.
                 if ($action === 1 && !empty($record->time_out)) {
@@ -519,16 +418,13 @@ class TimeEntryController extends Controller
                         }
                     }
                 }
-
                 // Append only to the canonical (MAX id) row and avoid exact duplicate second
                 if ($allowed) {
                     $existingTimes   = $record->$timeField   ? array_values(array_filter(array_map('trim', explode(',', $record->$timeField))))   : [];
                     $existingDevices = $record->$deviceField ? array_values(array_filter(array_map('trim', explode(',', $record->$deviceField)))) : [];
-
                     if (!in_array($time, $existingTimes, true)) {
                         $existingTimes[]   = $time;
                         $existingDevices[] = $deviceId;
-
                         $record->update([
                             $timeField   => implode(',', $existingTimes),
                             $deviceField => implode(',', $existingDevices),
@@ -537,10 +433,8 @@ class TimeEntryController extends Controller
                     }
                 }
             });
-
             // 200 = updated/created, 202 = no change, 429 = throttled
             $status = $allowed ? ($didUpdate ? 200 : 202) : 429;
-
             return response()->json([
                 'success'      => $didUpdate,
                 'updated'      => $didUpdate,
@@ -551,7 +445,6 @@ class TimeEntryController extends Controller
                 'emp_id'       => $empId,
                 'zone_id'      => $zoneId,
             ], $status);
-
         } catch (\Throwable $e) {
             return response()->json([
                 'error'   => 'Server error',
@@ -572,7 +465,6 @@ class TimeEntryController extends Controller
                     'name'   => implode(' ', $parts),
                 ];
             });
-
         return response()->json($employees);
     }
     public function fetchLogzones(Request $request) {
@@ -602,7 +494,7 @@ class TimeEntryController extends Controller
             ->json($zones, 200, [], JSON_UNESCAPED_UNICODE)
             ->setEtag($etag)
             ->header('Cache-Control', 'public, max-age=15');
-    }    
+    }
     public function fetchLatestLogs(Request $request) {
         $MAX_DATES = 35;
         $empId = $request->input('empId');
@@ -734,5 +626,5 @@ class TimeEntryController extends Controller
             'dates_included' => $dates, // newest -> oldest (as selected)
             'logs'           => $out,
         ], 200);
-    }    
+    }
 }

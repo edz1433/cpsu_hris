@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\DtrController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\TimeEntryController;
 use App\Http\Controllers\Api\JobHiringController;
+use App\Http\Controllers\Api\ClinicController;
 
 Route::post('/dtrs', [DtrController::class, 'syncDtr'])->name('api.syncDtr');
 Route::post('/dtrs-batch', [DtrController::class, 'syncDtrBatch'])->name('api.syncDtrBatch');
@@ -36,4 +37,8 @@ Route::prefix('app')->group(function() {
 
     Route::post('/fetch-latest-logs', [TimeEntryController::class, 'fetchLatestLogs']);
     Route::post('/admin-face-verify', [TimeEntryController::class, 'adminFaceVerify']);    
+});
+
+Route::prefix('clinic')->group(function() {
+    Route::get('/employees', [ClinicController::class, 'emplList']);    
 });
