@@ -40,5 +40,5 @@ Route::prefix('app')->group(function() {
 });
 
 Route::prefix('clinic')->group(function() {
-    Route::post('/employees', [ClinicController::class, 'emplList']);    
+    // Route::get('/employees', [ClinicController::class, 'emplList']);    
 });
