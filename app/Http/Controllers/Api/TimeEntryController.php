@@ -116,6 +116,8 @@ class TimeEntryController extends Controller
             ->first();
         $p = $this->readEmbObj($row->face_embeddings ?? null);
         $vecs = array_values(array_filter($p['vecs'] ?? [], fn($v) => $this->isValidVec($v)));
+        // Bail out early if no usable vectors
+        if (empty($vecs)) return [$closest, $minD2];
         foreach ($vecs as $v) {
             $v  = $this->l2Normalize($v);
             $d2 = $this->l2Distance2($probe, $v);
@@ -179,7 +181,7 @@ class TimeEntryController extends Controller
     public function checkRestrictionLevel(Request $request)
     {
         // $row   = DB::table('settings')->first();
-        $ttl = 5; // seconds
+        $ttl = 15; // seconds
         $row = Cache::remember('settings:te_rstrct', $ttl, function () {
             return DB::table('settings')->select('te_rstrct_lvl')->first();
         });
