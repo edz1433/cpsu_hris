@@ -17,7 +17,7 @@ class TimeEntryController extends Controller
     // Squared thresholds (avoid sqrt in hot path)
     private float $dedupeThr2     = 0.28 * 0.28;  // drop near-duplicates on register
     private float $earlyExitThr2  = 0.40 * 0.40;  // early-accept boundary for centroid pass
-    private float $acceptThr2     = 0.75 * 0.75;  // match acceptance threshold    
+    private float $acceptThr2     = 0.70 * 0.70;  // match acceptance threshold    
     // ====  Helpers (embeddings & matching) ====
     private function l2Normalize(array $v): array {
         $sum = 0.0;
@@ -188,7 +188,7 @@ class TimeEntryController extends Controller
         $level = (int) ($row?->te_rstrct_lvl ?? 2);
         // Raw window in 24h
         $startStr = '11:00';
-        $endStr   = '13:00';
+        $endStr   = '13:30';
         $tz    = 'Asia/Manila';
         $now   = Carbon::now($tz);
         $start = Carbon::createFromFormat('H:i', $startStr, $tz)->setDate($now->year, $now->month, $now->day);
