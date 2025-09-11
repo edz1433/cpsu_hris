@@ -576,6 +576,7 @@ class LeaveApplicationController extends Controller
             $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
             $leaveApplication->sup_sdate = Carbon::now();
             $leaveApplication->sup_sign = 2;
+            $leaveApplication->hr_sign = 2;
 
             $employee->vl = $employee->vl ?? 0;
             $employee->sl = $employee->sl ?? 0;

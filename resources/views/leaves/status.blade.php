@@ -97,7 +97,7 @@
                                                     <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
                                                             @if($leaves->emp_esign == 0)
-                                                                <button class="btn btn-info btn-sm day-wpay" data-id="{{ $leaves->id }}" data-max="{{ $leaves->days }}"><i class="fas fa-circle-info"></i></button>
+                                                                <button class="btn btn-info btn-sm day-wpay ml-1" data-id="{{ $leaves->id }}" data-max="{{ $leaves->days }}"><i class="fas fa-circle-info"></i></button>
                                                             @endif
                                                         </div>
                                                     </div>
@@ -127,7 +127,12 @@
                                                     @endif
                                                 @endif
                                                 @if($guard == "web")
-                                                    <button type="button" class="btn btn-warning btn-sm cancelLeave" value="{{ $leaves->id }}" ><i class="fas fa-times"></i> Cancel</button>
+                                                    @if($leaves->sup_sign != 2)
+                                                        <button type="button" class="btn btn-warning btn-sm cancelLeave float-right" value="{{ $leaves->id }}" ><i class="fas fa-times"></i> Cancel</button>
+                                                    @endif
+                                                    @if(!in_array($leaves->status, [3, 4]) && $leaves->emp_esign == 1)
+                                                        <button type="button" class="btn btn-info btn-sm bypass-leave float-right mr-1" data-id="{{ $leaves->id }}" data-by="2" data-max="{{ $leaves->days }}" ><i class="fas fa-check"></i> Forward to pres</button>
+                                                    @endif
                                                 @endif
                                                 <br>
                                             </div>

@@ -821,6 +821,98 @@
         });
     });
 
+    $('.bypass-leave').on('click', function() {
+        var id = $(this).data('id');
+        var by = $(this).data('by');
+        var approveUrl = "{{ route('leaveApprove') }}";
+
+        Swal.fire({
+           title: 'Are you sure?',
+            text: 'Do you want to forward this leave application to the President?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Confirm',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('#loading-spinner').show();
+
+                var formData = new FormData();
+                formData.append('id', id);
+                formData.append('by', by);
+                formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+
+                $.ajax({
+                    type: "POST",
+                    url: approveUrl,
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        Swal.fire({
+                            title: (by == 0 ? 'Signed!' : 'Approved!'),
+                            text: 'The request has been ' + (by == 0 ? 'signed' : 'approved') + '.',
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 1000
+                        });
+
+                        // DOM updates based on 'by'
+                        if (by == 0) {
+                            $('#action-button0' + id).fadeOut(1000, function() {
+                                $(this).remove();
+                            });
+                        }
+                        if (by == 1) {
+                            $('#action-button' + id).fadeOut(1000, function() {
+                                $(this).remove();
+                            });
+                            $('#status-icon' + id).removeClass('fa-times bg-danger bg-secondary').addClass('fa-check bg-success');
+                            $('.time-sup' + id).html(response.datetime);
+                        } else if (by == 2) {
+                            $('#action-button1' + id).fadeOut(1000, function() {
+                                $(this).remove();
+                            });
+                            $('#status-icon1' + id).removeClass('fa-times bg-danger bg-secondary').addClass('fa-check bg-success');
+                            $('.time-hr' + id).html(response.datetime);
+                        } else if (by == 3) {
+                            $('#action-button2' + id).fadeOut(1000, function() {
+                                $(this).remove();
+                            });
+                            $('#status-icon2' + id).removeClass('fa-times bg-danger bg-secondary').addClass('fa-check bg-success');
+                            $('#status-icon3' + id).removeClass('fa-times bg-danger bg-secondary').addClass('fa-check bg-success');
+                            $('.time-pres' + id).html(response.datetime);
+                            $('#preview' + id).removeClass('bg-secondary').addClass('bg-danger');
+                            $('#preview' + id).attr('href', "{{ route('previewLeave', ':id') }}".replace(':id', id));
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var response = xhr.responseJSON;
+                        if (xhr.status === 400 && response && response.error === 'Insufficient leave credits') {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Insufficient leave credits. Please check available credits.',
+                                icon: 'error',
+                                showConfirmButton: true,
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'An error occurred while ' + errortext + ' the leave form.',
+                                icon: 'error',
+                                showConfirmButton: true,
+                            });
+                        }
+                    },
+                    complete: function() {
+                        $('#loading-spinner').hide();
+                    }
+                });
+            }
+        });
+    });
+
     $('.approve-leave').on('click', function() {
         var id = $(this).data('id');
         var by = $(this).data('by');
