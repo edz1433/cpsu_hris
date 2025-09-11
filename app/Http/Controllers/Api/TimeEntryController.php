@@ -16,7 +16,6 @@ class TimeEntryController extends Controller
     private int   $embeddingLimit = 7;            // keep only latest embeddings (post-dedupe)
     // Squared thresholds (avoid sqrt in hot path)
     private float $dedupeThr2     = 0.28 * 0.28;  // drop near-duplicates on register
-    private float $earlyExitThr2  = 0.40 * 0.40;  // early-accept boundary for centroid pass
     private float $acceptThr2     = 0.70 * 0.70;  // match acceptance threshold    
     // ====  Helpers (embeddings & matching) ====
     private function l2Normalize(array $v): array {
@@ -73,7 +72,8 @@ class TimeEntryController extends Controller
         return ['vecs' => $vecs, 'centroid' => $cent];
     }
     private function getCachedCentroids() {
-        return Cache::rememberForever('face_centroids', function () {
+        $ttl = 900; // seconds
+        return Cache::remember('face_centroids', $ttl, function () {
             return DB::table('employees')
                 ->select('emp_ID', 'fname', 'mname', 'lname', 'face_embeddings')
                 ->where('stat_1', 1)
@@ -97,36 +97,50 @@ class TimeEntryController extends Controller
                 ->values();
         });
     }
+    private int $kShortlist = 5;     // try 3–5
+    private float $ratioThr  = 0.80; // Lowe ratio test (squared-L2)
     private function findClosestEmployee(array $probe): array {
         $probe = $this->l2Normalize($probe);
-        // Pass 1: scan cached centroids
+        // 1) scan all centroids, keep top-K
         $centroids = $this->getCachedCentroids();
-        $closest = null; $minD2 = PHP_FLOAT_MAX;
+        if ($centroids->isEmpty()) return [null, INF, null, INF];
+        $cand = [];
         foreach ($centroids as $emp) {
             $d2 = $this->l2Distance2($probe, $emp->centroid);
-            if ($d2 < $minD2) { $minD2 = $d2; $closest = $emp; }
+            $cand[] = [$emp, $d2];
         }
-        if (!$closest) return [null, $minD2];
-        // Early accept if very close to centroid
-        if ($minD2 < $this->earlyExitThr2) return [$closest, $minD2];
-        // Pass 2: refine — fetch only this employee’s vectors from DB
-        $row = DB::table('employees')
-            ->select('face_embeddings')
-            ->where('emp_ID', $closest->emp_ID)
-            ->first();
-        $p = $this->readEmbObj($row->face_embeddings ?? null);
-        $vecs = array_values(array_filter($p['vecs'] ?? [], fn($v) => $this->isValidVec($v)));
-        // Bail out early if no usable vectors
-        if (empty($vecs)) return [$closest, $minD2];
-        foreach ($vecs as $v) {
-            $v  = $this->l2Normalize($v);
-            $d2 = $this->l2Distance2($probe, $v);
-            if ($d2 < $minD2) {
-                $minD2 = $d2;
-                if ($minD2 < $this->earlyExitThr2) break;
+        usort($cand, fn($a,$b) => $a[1] <=> $b[1]);
+        $cand = array_slice($cand, 0, $this->kShortlist);
+        // One round-trip for all shortlisted employees  ← Change #3
+        $ids   = array_map(fn($c) => $c[0]->emp_ID, $cand);
+        $rawMap = DB::table('employees')
+            ->whereIn('emp_ID', $ids)
+            ->pluck('face_embeddings', 'emp_ID'); // key = emp_ID, value = JSON
+        // 2) refine across ALL shortlisted employees’ vectors; pick global best + runner-up
+        $bestEmp = null; $bestD2 = INF; $secondD2 = INF;
+        foreach ($cand as [$emp, $centD2]) {
+            $json = $rawMap->get($emp->emp_ID);
+            $p    = $this->readEmbObj($json);
+            $vecs = array_values(array_filter($p['vecs'] ?? [], fn($v) => $this->isValidVec($v)));
+            // always consider the centroid distance as a candidate
+            $localMin = $centD2;
+            // per-vector refinement (normalize each stored vec)
+            foreach ($vecs as $v) {
+                $v  = $this->l2Normalize($v);
+                $d2 = $this->l2Distance2($probe, $v);
+                if ($d2 < $localMin) $localMin = $d2;
+            }
+            // update global best / runner-up
+            if ($localMin < $bestD2) {
+                $secondD2 = $bestD2;
+                $bestD2   = $localMin;
+                $bestEmp  = $emp;
+            } elseif ($localMin < $secondD2) {
+                $secondD2 = $localMin;
             }
         }
-        return [$closest, $minD2];
+        // Return best + runner-up distance (for ratio test at callers)
+        return [$bestEmp, $bestD2, null, $secondD2];
     }
     private function isValidVec($v): bool {
         if (!is_array($v) || count($v) !== 128) return false;
@@ -248,7 +262,7 @@ class TimeEntryController extends Controller
         if (!DB::table('employees')->where('emp_ID', $enrollerId)->exists()) {
             return response()->json(['error' => 'Invalid enroller_ID'], 400);
         }
-        // Normalize incoming embeddings (same as yours)
+        // Normalize incoming embeddings
         $incoming = [];
         if (is_array($embeddings)) {
             foreach ($embeddings as $e) if ($this->isValidVec($e)) $incoming[] = $this->l2Normalize($e);
@@ -258,6 +272,8 @@ class TimeEntryController extends Controller
             return response()->json(['error' => 'Invalid embedding(s)'], 400);
         }
         if (empty($incoming)) return response()->json(['error' => 'No valid embeddings'], 400);
+        // NEW: server-side de-dup (order-preserving)  ← Change #1
+        $incoming = $this->dedupeEmbeddings($incoming);
         try {
             $result = DB::transaction(function () use ($empId, $enrollerId, $incoming) {
                 $now     = now();
@@ -268,7 +284,9 @@ class TimeEntryController extends Controller
                     ->where('emp_ID', $empId)
                     ->lockForUpdate()
                     ->first();
+                // Keep only the latest N after de-dup
                 $merged = array_slice($incoming, -$this->embeddingLimit);
+                // Recompute centroid from kept vectors
                 $cent   = $this->centroid($merged);
                 DB::table('employees')
                     ->where('emp_ID', $empId)
@@ -289,7 +307,7 @@ class TimeEntryController extends Controller
                 return ['total' => count($merged)];
             });
             // outside the transaction (non-critical)
-            Cache::forget('face_centroids');         // new centroid-only cache
+            Cache::forget('face_centroids');
             Cache::forget('face_embeddings_cache');
             return response()->json([
                 'success'          => true,
@@ -297,7 +315,6 @@ class TimeEntryController extends Controller
                 'total_embeddings' => $result['total'],
             ], 200);
         } catch (\Throwable $e) {
-            // If either step fails, nothing is committed and frontend gets an error
             return response()->json([
                 'error'   => 'Server error',
                 'message' => $e->getMessage(),
@@ -309,46 +326,59 @@ class TimeEntryController extends Controller
         if (!$this->isValidVec($embedding)) {
             return response()->json(['error' => 'Invalid embedding'], 400);
         }
-        [$closest, $minD2] = $this->findClosestEmployee($embedding);
-        // Clamp when there’s no candidate or distance is non-finite
-        if (!$closest || is_infinite($minD2) || is_nan($minD2)) {
-            // For unit-normalized vectors, max squared L2 is 4 -> sqrt(4)=2.0
+        [$bestEmp, $bestD2, $_, $secondD2] = $this->findClosestEmployee($embedding);
+        if (!$bestEmp || !is_finite($bestD2)) {
             return response()->json(['match' => false, 'distance' => 2.0]);
         }
-        if ($minD2 < $this->acceptThr2) {
+        $passAbs   = ($bestD2 < $this->acceptThr2);       // absolute threshold
+        $passRatio = is_finite($secondD2) && $secondD2 > 0
+                ? (($bestD2 / $secondD2) < $this->ratioThr)
+                : true; // if no runner-up, allow ratio
+        if ($passAbs && $passRatio) {
             return response()->json([
                 'match'    => true,
-                'emp_id'   => $closest->emp_ID,
-                'name'     => trim("{$closest->fname} {$closest->mname} {$closest->lname}"),
-                'distance' => sqrt($minD2),
+                'emp_id'   => $bestEmp->emp_ID,
+                'name'     => trim("{$bestEmp->fname} {$bestEmp->mname} {$bestEmp->lname}"),
+                'distance' => sqrt($bestD2),
             ]);
         }
-        return response()->json(['match' => false, 'distance' => sqrt($minD2)]);
+        return response()->json(['match' => false, 'distance' => sqrt($bestD2)]);
     }
     public function adminFaceVerify(Request $request) {
         $embedding = $request->input('embedding');
         if (!$this->isValidVec($embedding)) {
             return response()->json(['error' => 'Invalid embedding'], 400);
         }
-        [$closest, $minD2] = $this->findClosestEmployee($embedding);
-        // Clamp early on non-match / non-finite distance
-        if (!$closest || is_infinite($minD2) || is_nan($minD2) || $minD2 >= $this->acceptThr2) {
-            return response()->json([
-                'match'    => false,
-                'is_admin' => false,
-                'distance' => ($closest && !is_infinite($minD2) && !is_nan($minD2)) ? sqrt($minD2) : 2.0,
-            ]);
+        // Uses improved top-K + global refinement (this still uses centroid cache via findClosestEmployee)
+        [$bestEmp, $bestD2, $_, $secondD2] = $this->findClosestEmployee($embedding);
+        // Default non-match payload (keep schema stable)
+        $nonMatch = fn(float $d2) => response()->json([
+            'match'    => false,
+            'is_admin' => false,
+            'distance' => is_finite($d2) ? sqrt($d2) : 2.0, // unit-norm cap => 2.0
+        ]);
+        if (!$bestEmp || !is_finite($bestD2)) {
+            return $nonMatch(INF);
         }
-        // Admin set (read once, no cache)
-        $hrKioskCsv = DB::table('settings')->value('hr_kiosk'); // e.g. "EMP0039,EMP0033,..."
-        $ids = array_filter(array_map('trim', explode(',', (string) $hrKioskCsv)));
-        $isAdmin = in_array($closest->emp_ID, $ids, true);
+        // Absolute threshold (same as faceVerify)
+        $passAbs = ($bestD2 < $this->acceptThr2);
+        // Ratio margin vs. runner-up (protects against close impostors)
+        $passRatio = is_finite($secondD2) && $secondD2 > 0
+                ? (($bestD2 / $secondD2) < $this->ratioThr)
+                : true; // if no runner-up, allow
+        if (!($passAbs && $passRatio)) {
+            return $nonMatch($bestD2);
+        }
+        // ---- NO CACHE: read admin list directly every time ----
+        $hrKioskCsv = (string) DB::table('settings')->value('hr_kiosk');
+        $ids = array_filter(array_map('trim', preg_split('/\s*,\s*/', $hrKioskCsv, -1, PREG_SPLIT_NO_EMPTY)));
+        $isAdmin = in_array($bestEmp->emp_ID, $ids, true);
         return response()->json([
             'match'    => true,
             'is_admin' => $isAdmin,
-            'emp_id'   => $closest->emp_ID,
-            'name'     => trim("{$closest->fname} {$closest->mname} {$closest->lname}"),
-            'distance' => sqrt($minD2),
+            'emp_id'   => $bestEmp->emp_ID,
+            'name'     => trim("{$bestEmp->fname} {$bestEmp->mname} {$bestEmp->lname}"),
+            'distance' => sqrt($bestD2),
         ]);
     }
     public function logAttendance(Request $request)
@@ -528,7 +558,7 @@ class TimeEntryController extends Controller
             if ($id === null) return $DEFAULT_ZONE_LABEL;
             return $id > 0 ? ($deviceById[$id] ?? $DEFAULT_DEVICE_LABEL) : ($zoneById[$id] ?? $DEFAULT_ZONE_LABEL);
         };
-        // ---------- Determine latest up to 5 dates with any logs ----------
+        // ---------- Determine latest up to max dates with any logs ----------
         // "Any logs" means at least one of time_in / time_out / time_over is non-empty.
         $dates = DB::table('dtrs')
             ->where('emp_ID', $empId)
@@ -541,7 +571,6 @@ class TimeEntryController extends Controller
             ->limit($MAX_DATES)
             ->pluck('date')
             ->toArray();
-
         if (empty($dates)) {
             return response()->json([
                 'window_days'   => $MAX_DATES,
