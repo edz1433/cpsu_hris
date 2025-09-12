@@ -13,10 +13,13 @@ use Carbon\Carbon;
 class TimeEntryController extends Controller
 {
     // ==== CONFIG ====
-    private int   $embeddingLimit = 7;            // keep only latest embeddings (post-dedupe)
+    private int   $embeddingLimit = 7;            
     // Squared thresholds (avoid sqrt in hot path)
-    private float $dedupeThr2     = 0.28 * 0.28;  // drop near-duplicates on register
-    private float $acceptThr2     = 0.70 * 0.70;  // match acceptance threshold    
+    private float $dedupeThr2     = 0.28 * 0.28;  
+    private float $acceptThr2     = 0.55 * 0.55;
+    private float $ratioThr       = 0.78;        
+    private int $kMin = 16;
+    private int $kMax = 48;
     // ====  Helpers (embeddings & matching) ====
     private function l2Normalize(array $v): array {
         $sum = 0.0;
@@ -96,51 +99,61 @@ class TimeEntryController extends Controller
                 ->filter()
                 ->values();
         });
-    }
-    private int $kShortlist = 5;     // try 3–5
-    private float $ratioThr  = 0.80; // Lowe ratio test (squared-L2)
+    }    
     private function findClosestEmployee(array $probe): array {
         $probe = $this->l2Normalize($probe);
         // 1) scan all centroids, keep top-K
         $centroids = $this->getCachedCentroids();
-        if ($centroids->isEmpty()) return [null, INF, null, INF];
+        if ($centroids->isEmpty()) return [null, INF, false, INF];
         $cand = [];
         foreach ($centroids as $emp) {
             $d2 = $this->l2Distance2($probe, $emp->centroid);
             $cand[] = [$emp, $d2];
         }
         usort($cand, fn($a,$b) => $a[1] <=> $b[1]);
-        $cand = array_slice($cand, 0, $this->kShortlist);
-        // One round-trip for all shortlisted employees  ← Change #3
-        $ids   = array_map(fn($c) => $c[0]->emp_ID, $cand);
+        [$_, $bestCentD2] = $cand[0];
+        $r2   = $this->ratioThr * $this->ratioThr; // e.g., 0.78^2 = 0.6084
+        $band = $bestCentD2 / max($r2, 1e-9);
+        // Keep only candidates that can affect the ratio test
+        $cand = array_values(array_filter($cand, fn($c) => $c[1] <= $band));
+        // Ensure enough rivals but cap cost
+        $kMin = property_exists($this, 'kMin') ? $this->kMin : 16;
+        $kMax = property_exists($this, 'kMax') ? $this->kMax : 48;
+        if (count($cand) < $kMin) { $cand = array_slice($cand, 0, $kMin); }
+        if (count($cand) > $kMax) { $cand = array_slice($cand, 0, $kMax); }
+        // One round-trip for all shortlisted employees.
+        $ids    = array_map(fn($c) => $c[0]->emp_ID, $cand);
         $rawMap = DB::table('employees')
             ->whereIn('emp_ID', $ids)
-            ->pluck('face_embeddings', 'emp_ID'); // key = emp_ID, value = JSON
+            ->pluck('face_embeddings', 'emp_ID');
         // 2) refine across ALL shortlisted employees’ vectors; pick global best + runner-up
-        $bestEmp = null; $bestD2 = INF; $secondD2 = INF;
+        $bestEmp = null; $bestD2 = INF; $secondD2 = INF; $bestFromVec = false;
         foreach ($cand as [$emp, $centD2]) {
             $json = $rawMap->get($emp->emp_ID);
             $p    = $this->readEmbObj($json);
             $vecs = array_values(array_filter($p['vecs'] ?? [], fn($v) => $this->isValidVec($v)));
-            // always consider the centroid distance as a candidate
-            $localMin = $centD2;
-            // per-vector refinement (normalize each stored vec)
+            // consider centroid but prefer real vectors when better
+            $localMin = $centD2; 
+            $localFromVec = false;
             foreach ($vecs as $v) {
                 $v  = $this->l2Normalize($v);
                 $d2 = $this->l2Distance2($probe, $v);
-                if ($d2 < $localMin) $localMin = $d2;
+                if ($d2 < $localMin) { 
+                    $localMin = $d2; 
+                    $localFromVec = true; 
+                }
             }
-            // update global best / runner-up
             if ($localMin < $bestD2) {
-                $secondD2 = $bestD2;
-                $bestD2   = $localMin;
-                $bestEmp  = $emp;
+                $secondD2   = $bestD2;
+                $bestD2     = $localMin;
+                $bestEmp    = $emp;
+                $bestFromVec= $localFromVec;
             } elseif ($localMin < $secondD2) {
                 $secondD2 = $localMin;
             }
         }
-        // Return best + runner-up distance (for ratio test at callers)
-        return [$bestEmp, $bestD2, null, $secondD2];
+        // Return: [$bestEmp, $bestD2, $bestFromVec(bool), $secondD2]
+        return [$bestEmp, $bestD2, $bestFromVec, $secondD2];
     }
     private function isValidVec($v): bool {
         if (!is_array($v) || count($v) !== 128) return false;
@@ -194,7 +207,6 @@ class TimeEntryController extends Controller
     }
     public function checkRestrictionLevel(Request $request)
     {
-        // $row   = DB::table('settings')->first();
         $ttl = 15; // seconds
         $row = Cache::remember('settings:te_rstrct', $ttl, function () {
             return DB::table('settings')->select('te_rstrct_lvl')->first();
@@ -413,7 +425,7 @@ class TimeEntryController extends Controller
                 &$allowed, &$waitSeconds, &$didUpdate, $action
             ) {
                 // Lock all rows for this (emp_ID, date); newest first so ->first() is MAX(id)
-                $rows = \App\Models\Dtr::where('emp_ID', $empId)
+                $rows = Dtr::where('emp_ID', $empId)
                     ->where('date', $date)
                     ->lockForUpdate()
                     ->orderByDesc('id')
@@ -421,7 +433,7 @@ class TimeEntryController extends Controller
                 $record = $rows->first();
                 if (!$record) {
                     // No row yet: create the canonical row (it becomes MAX(id) by definition)
-                    \App\Models\Dtr::create([
+                    Dtr::create([
                         'emp_ID'     => $empId,
                         'date'       => $date,
                         $timeField   => $time,
