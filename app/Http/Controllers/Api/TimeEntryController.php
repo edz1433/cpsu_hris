@@ -308,7 +308,6 @@ class TimeEntryController extends Controller
             });
             // outside the transaction (non-critical)
             Cache::forget('face_centroids');
-            Cache::forget('face_embeddings_cache');
             return response()->json([
                 'success'          => true,
                 'emp_ID'           => $empId,
@@ -332,8 +331,8 @@ class TimeEntryController extends Controller
         }
         $passAbs   = ($bestD2 < $this->acceptThr2);       // absolute threshold
         $passRatio = is_finite($secondD2) && $secondD2 > 0
-                ? (($bestD2 / $secondD2) < $this->ratioThr)
-                : true; // if no runner-up, allow ratio
+            ? ($bestD2 < ($this->ratioThr * $this->ratioThr) * $secondD2)
+            : true;
         if ($passAbs && $passRatio) {
             return response()->json([
                 'match'    => true,
@@ -364,8 +363,8 @@ class TimeEntryController extends Controller
         $passAbs = ($bestD2 < $this->acceptThr2);
         // Ratio margin vs. runner-up (protects against close impostors)
         $passRatio = is_finite($secondD2) && $secondD2 > 0
-                ? (($bestD2 / $secondD2) < $this->ratioThr)
-                : true; // if no runner-up, allow
+            ? ($bestD2 < ($this->ratioThr * $this->ratioThr) * $secondD2)
+            : true;
         if (!($passAbs && $passRatio)) {
             return $nonMatch($bestD2);
         }
