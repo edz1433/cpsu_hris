@@ -294,6 +294,7 @@ class OpcrController extends Controller
         } else {
             $opcrData = OpcrMfoData::find($opcrdataId);
             if ($opcrData) {
+                // Update OPCR data
                 $opcrData->update([
                     'mfo' => $request->input('mfo'),
                     'target' => $request->input('target'),
@@ -306,6 +307,21 @@ class OpcrController extends Controller
                     'timeliness' => $request->input('timeliness'),
                     'category' => $request->input('category'),
                     'opcr_by' => $request->input('opcr_by'),
+                ]);
+
+                // Update related DPCR data
+                DpcrMfoData::where('opcr_mfo_data_id', $opcrdataId)->update([
+                    'mfo'        => $request->input('mfo'),
+                    'target'     => $request->input('target'),
+                    'measure'    => $request->input('measure'),
+                    'in_support' => $request->input('in_support'),
+                    'report_sup' => $request->input('report_sup'),
+                    'div_account'=> $request->input('div_account'),
+                    'quality'    => $request->input('quality'),
+                    'efficiency' => $request->input('efficiency'),
+                    'timeliness' => $request->input('timeliness'),
+                    'category'   => $request->input('category'),
+                    'opcr_by'    => $request->input('opcr_by'),
                 ]);
             } else {
                 return redirect()->back()->with('error', 'OPCR MFO Data not found!');
