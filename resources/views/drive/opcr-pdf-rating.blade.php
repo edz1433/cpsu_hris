@@ -197,29 +197,29 @@
                         </tr>
 
                         @php
-                            $filteredDpcrMfoDatas = in_array($cat, [1, 2])
-                                ? $datas->where('dpcr_mfo_id', $core->id)->where('category', $cat)
-                                : $datas->where('dpcr_mfo_id', $core->id);
+                            $filteredOpcrMfoDatas = in_array($cat, [1, 2])
+                                ? $datas->where('opcr_mfo_id', $core->id)->where('category', $cat)
+                                : $datas->where('opcr_mfo_id', $core->id);
                         @endphp
 
-                        @foreach($filteredDpcrMfoDatas as $dpcrmfodata)
-                        <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
-                            <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
+                        @foreach($filteredOpcrMfoDatas as $Opcrmfodata)
+                        <tr id="mfodata{{ $Opcrmfodata->id }}-{{ $Opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $Opcrmfodata->id }},{{ $Opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
+                            <td class="text-left align-top" width="210">{!! displayValue($Opcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
-                                {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
+                                {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Opcrmfodata->measure) . '%', displayValue($Opcrmfodata->target)) !!}
                             </td>
                             <td></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
-                            <td class="text-center">{!! nl2br(e(displayValue($dpcrmfodata->efficiency))) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->e_score) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->timeliness) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->t_score) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->average) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->remarks) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->div_account) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->quality) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->q_score) !!}</td>
+                            <td class="text-center">{!! nl2br(e(displayValue($Opcrmfodata->efficiency))) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->e_score) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->timeliness) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->t_score) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->average) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->remarks) !!}</td>
                             <td class="trborder"></td>
                         </tr>
                         @endforeach
@@ -268,29 +268,29 @@
                         </tr>
 
                         @php
-                            $filteredDpcrMfoDatas = in_array($cat, [1, 2])
-                                ? $datas->where('dpcr_mfo_id', $strat->id)->where('category', $cat)
-                                : $datas->where('dpcr_mfo_id', $strat->id);
+                            $filteredOpcrMfoDatas = in_array($cat, [1, 2])
+                                ? $datas->where('opcr_mfo_id', $strat->id)->where('category', $cat)
+                                : $datas->where('opcr_mfo_id', $strat->id);
                         @endphp
 
-                        @foreach($filteredDpcrMfoDatas as $dpcrmfodata)
-                        <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
-                            <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
+                        @foreach($filteredOpcrMfoDatas as $Opcrmfodata)
+                        <tr id="mfodata{{ $Opcrmfodata->id }}-{{ $Opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $Opcrmfodata->id }},{{ $Opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
+                            <td class="text-left align-top" width="210">{!! displayValue($Opcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
-                                {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
+                                {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Opcrmfodata->measure) . '%', displayValue($Opcrmfodata->target)) !!}
                             </td>
                             <td></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
-                            <td class="text-center">{!! nl2br(e(displayValue($dpcrmfodata->efficiency))) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->e_score) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->timeliness) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->t_score) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->average) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->remarks) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->div_account) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->quality) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->q_score) !!}</td>
+                            <td class="text-center">{!! nl2br(e(displayValue($Opcrmfodata->efficiency))) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->e_score) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->timeliness) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->t_score) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->average) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->remarks) !!}</td>
                             <td class="trborder"></td>
                         </tr>
                         @endforeach
@@ -340,29 +340,29 @@
                         </tr>
 
                         @php
-                            $filteredDpcrMfoDatas = in_array($cat, [1, 2])
-                                ? $datas->where('dpcr_mfo_id', $supp->id)->where('category', $cat)
-                                : $datas->where('dpcr_mfo_id', $supp->id);
+                            $filteredOpcrMfoDatas = in_array($cat, [1, 2])
+                                ? $datas->where('opcr_mfo_id', $supp->id)->where('category', $cat)
+                                : $datas->where('opcr_mfo_id', $supp->id);
                         @endphp
 
-                        @foreach($filteredDpcrMfoDatas as $dpcrmfodata)
-                        <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
-                            <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
+                        @foreach($filteredOpcrMfoDatas as $Opcrmfodata)
+                        <tr id="mfodata{{ $Opcrmfodata->id }}-{{ $Opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $Opcrmfodata->id }},{{ $Opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
+                            <td class="text-left align-top" width="210">{!! displayValue($Opcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
-                                {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
+                                {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Opcrmfodata->measure) . '%', displayValue($Opcrmfodata->target)) !!}
                             </td>
                             <td></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
-                            <td class="text-center">{!! nl2br(e(displayValue($dpcrmfodata->efficiency))) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->e_score) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->timeliness) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->t_score) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->average) !!}</td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->remarks) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->div_account) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->quality) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->q_score) !!}</td>
+                            <td class="text-center">{!! nl2br(e(displayValue($Opcrmfodata->efficiency))) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->e_score) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->timeliness) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->t_score) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->average) !!}</td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->remarks) !!}</td>
                             <td class="trborder"></td>
                         </tr>
                         @endforeach
