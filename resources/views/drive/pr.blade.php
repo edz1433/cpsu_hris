@@ -195,7 +195,7 @@
                 @endphp
 
                 <tr  id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" data-group="core{{ $opcrmfodata->opcr_mfo_id  }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
-                    <td class="text-left align-top" width="210">{!! displayValue($opcrmfodata->mfo) !!} || {{ $opcrmfodata->opcr_mfo_id  }}</td>
+                    <td class="text-left align-top" width="210">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">
                         {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
                     </td>
@@ -876,7 +876,7 @@ $(function () {
         sort: function (event, ui) {
             let draggedGroup = ui.item.attr("data-group");   // e.g., core1, core5
             let placeholder = ui.placeholder;
-            
+
             // Get groups of neighbors
             let prevGroup = placeholder.prev().attr("data-group");
             let nextGroup = placeholder.next().attr("data-group");
