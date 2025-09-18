@@ -16,8 +16,8 @@ class TimeEntryController extends Controller
     private int   $embeddingLimit = 7;            
     // Squared thresholds (avoid sqrt in hot path)
     private float $dedupeThr2     = 0.28 * 0.28;  
-    private float $acceptThr2     = 0.55 * 0.55;
-    private float $ratioThr       = 0.78;        
+    private float $acceptThr2     = 0.65 * 0.65;
+    private float $ratioThr       = 0.78;
     private int $kMin = 16;
     private int $kMax = 48;
     // ====  Helpers (embeddings & matching) ====
@@ -261,7 +261,7 @@ class TimeEntryController extends Controller
     }
     public function faceRegister(Request $request) {
         $empId      = $request->input('emp_ID');
-        $enrollerId = $request->input('enroller_ID');   // <-- required for atomic success
+        $enrollerId = $request->input('enroller_ID');
         $embedding  = $request->input('embedding');
         $embeddings = $request->input('embeddings');
         if (!$empId || !$enrollerId) {
@@ -332,65 +332,203 @@ class TimeEntryController extends Controller
             ], 500);
         }
     }
-    public function faceVerify(Request $request) {
+    function shortDecrypt($encrypted) { $key = 'fA7xB93kL0pTzWmQ'; $cipher = 'AES-128-ECB'; $encrypted = strtr($encrypted, '-_', '+/'); return openssl_decrypt(base64_decode($encrypted), $cipher, $key, 0); }
+    public function adminFaceClaim(Request $request)
+    {
+        // 1) Validate inputs
         $embedding = $request->input('embedding');
+        $qrRaw     = $request->input('qr');
+
         if (!$this->isValidVec($embedding)) {
-            return response()->json(['error' => 'Invalid embedding'], 400);
+            return response()->json(['error' => 'Invalid embedding', 'message' => 'Invalid embedding'], 400);
         }
-        [$bestEmp, $bestD2, $_, $secondD2] = $this->findClosestEmployee($embedding);
-        if (!$bestEmp || !is_finite($bestD2)) {
-            return response()->json(['match' => false, 'distance' => 2.0]);
-        }
-        $passAbs   = ($bestD2 < $this->acceptThr2);       // absolute threshold
-        $passRatio = is_finite($secondD2) && $secondD2 > 0
-            ? ($bestD2 < ($this->ratioThr * $this->ratioThr) * $secondD2)
-            : true;
-        if ($passAbs && $passRatio) {
+
+        if (!is_string($qrRaw) || trim($qrRaw) === '') {
             return response()->json([
-                'match'    => true,
-                'emp_id'   => $bestEmp->emp_ID,
-                'name'     => trim("{$bestEmp->fname} {$bestEmp->mname} {$bestEmp->lname}"),
-                'distance' => sqrt($bestD2),
-            ]);
+                'match'    => false,
+                'is_admin' => false,
+                'message'  => 'Invalid QR code (missing).'
+            ], 200);
         }
-        return response()->json(['match' => false, 'distance' => sqrt($bestD2)]);
-    }
-    public function adminFaceVerify(Request $request) {
-        $embedding = $request->input('embedding');
-        if (!$this->isValidVec($embedding)) {
-            return response()->json(['error' => 'Invalid embedding'], 400);
+
+        // 2) Decrypt QR to emp_ID
+        try {
+            $qrDecrypted = (string) $this->shortDecrypt($qrRaw);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'match'    => false,
+                'is_admin' => false,
+                'message'  => 'Invalid QR code (decryption failed).'
+            ], 200);
         }
-        // Uses improved top-K + global refinement (this still uses centroid cache via findClosestEmployee)
-        [$bestEmp, $bestD2, $_, $secondD2] = $this->findClosestEmployee($embedding);
-        // Default non-match payload (keep schema stable)
-        $nonMatch = fn(float $d2) => response()->json([
-            'match'    => false,
-            'is_admin' => false,
-            'distance' => is_finite($d2) ? sqrt($d2) : 2.0, // unit-norm cap => 2.0
-        ]);
-        if (!$bestEmp || !is_finite($bestD2)) {
-            return $nonMatch(INF);
+
+        $empId = trim($qrDecrypted ?? '');
+        if ($empId === '') {
+            return response()->json([
+                'match'    => false,
+                'is_admin' => false,
+                'message'  => 'Invalid QR code.'
+            ], 200);
         }
-        // Absolute threshold (same as faceVerify)
+
+        // 3) Fetch only ACTIVE employee (stat_1 = 1)
+        $row = DB::table('employees')
+            ->select('emp_ID', 'fname', 'mname', 'lname', 'face_embeddings')
+            ->where('emp_ID', $empId)
+            ->where('stat_1', 1)
+            ->first();
+
+        if (!$row) {
+            // Unified message; do not leak inactive vs nonexistent
+            return response()->json([
+                'match'    => false,
+                'is_admin' => false,
+                'message'  => 'Employee not found or inactive.',
+            ], 200);
+        }
+
+        // 4) Parse stored embeddings
+        $p = $this->readEmbObj($row->face_embeddings);
+        $vecs = array_values(array_filter($p['vecs'] ?? [], fn($v) => $this->isValidVec($v)));
+        $cent = (is_array($p['centroid']) && count($p['centroid']) === 128) ? $p['centroid'] : null;
+
+        if (empty($vecs) && !$cent) {
+            return response()->json([
+                'match'    => false,
+                'is_admin' => false,
+                'message'  => 'No face registered for this employee.',
+            ], 200);
+        }
+
+        // 5) Normalize probe and compute best distance against THIS employee only
+        $probe = $this->l2Normalize($embedding);
+        $bestD2 = INF;
+
+        if ($cent) {
+            $c = $this->l2Normalize($cent);
+            $bestD2 = min($bestD2, $this->l2Distance2($probe, $c));
+        }
+        foreach ($vecs as $v) {
+            $vn = $this->l2Normalize($v);
+            $d2 = $this->l2Distance2($probe, $vn);
+            if ($d2 < $bestD2) $bestD2 = $d2;
+        }
+
+        if (!is_finite($bestD2)) {
+            return response()->json([
+                'match'    => false,
+                'is_admin' => false,
+                'message'  => 'Face did not match.',
+            ], 200);
+        }
+
+        // 6) Absolute threshold decision (same as faceClaim)
         $passAbs = ($bestD2 < $this->acceptThr2);
-        // Ratio margin vs. runner-up (protects against close impostors)
-        $passRatio = is_finite($secondD2) && $secondD2 > 0
-            ? ($bestD2 < ($this->ratioThr * $this->ratioThr) * $secondD2)
-            : true;
-        if (!($passAbs && $passRatio)) {
-            return $nonMatch($bestD2);
+        if (!$passAbs) {
+            return response()->json([
+                'match'    => false,
+                'is_admin' => false,
+                'message'  => 'Face did not match.',
+            ], 200);
         }
-        // ---- NO CACHE: read admin list directly every time ----
+
+        // 7) Authorization: check if employee is in HR kiosk admin list
         $hrKioskCsv = (string) DB::table('settings')->value('hr_kiosk');
         $ids = array_filter(array_map('trim', preg_split('/\s*,\s*/', $hrKioskCsv, -1, PREG_SPLIT_NO_EMPTY)));
-        $isAdmin = in_array($bestEmp->emp_ID, $ids, true);
+        $isAdmin = in_array($row->emp_ID, $ids, true);
+
         return response()->json([
             'match'    => true,
             'is_admin' => $isAdmin,
-            'emp_id'   => $bestEmp->emp_ID,
-            'name'     => trim("{$bestEmp->fname} {$bestEmp->mname} {$bestEmp->lname}"),
-            'distance' => sqrt($bestD2),
-        ]);
+            'emp_id'   => $row->emp_ID,
+            'name'     => trim(preg_replace('/\s+/', ' ', "{$row->fname} {$row->mname} {$row->lname}")),
+            'message'  => $isAdmin ? 'Face matched and authorized.' : 'Not authorized.',
+        ], 200);
+    }
+    public function faceClaim(Request $request)
+    {
+        // 1) Validate embedding input
+        $embedding = $request->input('embedding');
+        $qrRaw     = $request->input('qr');
+        if (!$this->isValidVec($embedding)) {
+            return response()->json(['error' => 'invalid_embedding', 'message' => 'Invalid embedding'], 400);
+        }
+        if (!is_string($qrRaw) || trim($qrRaw) === '') {
+            return response()->json([
+                'match'   => false,
+                'message' => 'Invalid QR code (missing).'
+            ], 200);
+        }
+        // 2) Decrypt QR
+        try {
+            $qrDecrypted = (string) $this->shortDecrypt($qrRaw);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'match'   => false,
+                'message' => 'Invalid QR code (decryption failed).'
+            ], 200);
+        }
+        $empId = trim($qrDecrypted ?? '');
+        if ($empId === '') {
+            return response()->json([
+                'match'   => false,
+                'message' => 'Invalid QR code.'
+            ], 200);
+        }
+        // 3) Fetch only ACTIVE employees (stat_1 = 1)
+        $row = DB::table('employees')
+            ->select('emp_ID', 'fname', 'mname', 'lname', 'face_embeddings')
+            ->where('emp_ID', $empId)
+            ->where('stat_1', 1)
+            ->first();
+        if (!$row) {
+            return response()->json([
+                'match'   => false,
+                'message' => 'Employee not found or inactive.'
+            ], 200);
+        }
+        // 4) Parse stored embeddings
+        $p = $this->readEmbObj($row->face_embeddings);
+        $vecs = array_values(array_filter($p['vecs'] ?? [], fn($v) => $this->isValidVec($v)));
+        $cent = (is_array($p['centroid']) && count($p['centroid']) === 128) ? $p['centroid'] : null;
+        if (empty($vecs) && !$cent) {
+            return response()->json([
+                'match'   => false,
+                'message' => 'No face registered for this employee.'
+            ], 200);
+        }
+        // 5) Normalize probe and compute best distance
+        $probe = $this->l2Normalize($embedding);
+        $bestD2 = INF;
+        if ($cent) {
+            $c = $this->l2Normalize($cent);
+            $bestD2 = min($bestD2, $this->l2Distance2($probe, $c));
+        }
+        foreach ($vecs as $v) {
+            $vn = $this->l2Normalize($v);
+            $d2 = $this->l2Distance2($probe, $vn);
+            if ($d2 < $bestD2) $bestD2 = $d2;
+        }
+        if (!is_finite($bestD2)) {
+            return response()->json([
+                'match'   => false,
+                'message' => 'Face did not match.'
+            ], 200);
+        }
+        // 6) Threshold decision
+        $passAbs = ($bestD2 < $this->acceptThr2);
+        if ($passAbs) {
+            return response()->json([
+                'match'  => true,
+                'emp_id' => $row->emp_ID,
+                'name'   => trim(preg_replace('/\s+/', ' ', "{$row->fname} {$row->mname} {$row->lname}")),
+                'message'=> 'Face matched.'
+            ], 200);
+        }
+        return response()->json([
+            'match'   => false,
+            'message' => 'Face did not match.'
+        ], 200);
     }
     public function logAttendance(Request $request)
     {
@@ -539,7 +677,7 @@ class TimeEntryController extends Controller
             ->header('Cache-Control', 'public, max-age=15');
     }
     public function fetchLatestLogs(Request $request) {
-        $MAX_DATES = 35;
+        $MAX_DATES = 31;
         $empId = $request->input('empId');
         if (!$empId) return response()->json(['error' => 'Missing empId'], 400);
         // Atomic burst gate (per empId)
@@ -665,8 +803,65 @@ class TimeEntryController extends Controller
         foreach ($out as &$row) unset($row['ts']);
         return response()->json([
             'window_days'    => $MAX_DATES,
-            'dates_included' => $dates, // newest -> oldest (as selected)
+            'dates_included' => $dates,
             'logs'           => $out,
         ], 200);
+    }
+
+    // DEPRECATED
+    public function faceVerify(Request $request) {
+        $embedding = $request->input('embedding');
+        if (!$this->isValidVec($embedding)) {
+            return response()->json(['error' => 'Invalid embedding'], 400);
+        }
+        [$bestEmp, $bestD2, $_, $secondD2] = $this->findClosestEmployee($embedding);
+        if (!$bestEmp || !is_finite($bestD2)) {
+            return response()->json(['match' => false, 'distance' => 2.0]);
+        }
+        $passAbs   = ($bestD2 < $this->acceptThr2);
+        $passRatio = is_finite($secondD2) && $secondD2 > 0
+            ? ($bestD2 < ($this->ratioThr * $this->ratioThr) * $secondD2)
+            : true;
+        if ($passAbs && $passRatio) {
+            return response()->json([
+                'match'    => true,
+                'emp_id'   => $bestEmp->emp_ID,
+                'name'     => trim("{$bestEmp->fname} {$bestEmp->mname} {$bestEmp->lname}"),
+                'distance' => sqrt($bestD2),
+            ]);
+        }
+        return response()->json(['match' => false, 'distance' => sqrt($bestD2)]);
+    }
+    public function adminFaceVerify(Request $request) {
+        $embedding = $request->input('embedding');
+        if (!$this->isValidVec($embedding)) {
+            return response()->json(['error' => 'Invalid embedding'], 400);
+        }
+        [$bestEmp, $bestD2, $_, $secondD2] = $this->findClosestEmployee($embedding);
+        $nonMatch = fn(float $d2) => response()->json([
+            'match'    => false,
+            'is_admin' => false,
+            'distance' => is_finite($d2) ? sqrt($d2) : 2.0,
+        ]);
+        if (!$bestEmp || !is_finite($bestD2)) {
+            return $nonMatch(INF);
+        }
+        $passAbs = ($bestD2 < $this->acceptThr2);
+        $passRatio = is_finite($secondD2) && $secondD2 > 0
+            ? ($bestD2 < ($this->ratioThr * $this->ratioThr) * $secondD2)
+            : true;
+        if (!($passAbs && $passRatio)) {
+            return $nonMatch($bestD2);
+        }
+        $hrKioskCsv = (string) DB::table('settings')->value('hr_kiosk');
+        $ids = array_filter(array_map('trim', preg_split('/\s*,\s*/', $hrKioskCsv, -1, PREG_SPLIT_NO_EMPTY)));
+        $isAdmin = in_array($bestEmp->emp_ID, $ids, true);
+        return response()->json([
+            'match'    => true,
+            'is_admin' => $isAdmin,
+            'emp_id'   => $bestEmp->emp_ID,
+            'name'     => trim("{$bestEmp->fname} {$bestEmp->mname} {$bestEmp->lname}"),
+            'distance' => sqrt($bestD2),
+        ]);
     }
 }
