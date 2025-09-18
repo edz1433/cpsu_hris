@@ -52,7 +52,7 @@ Route::get('/', function () {
 });
 
 //login
-// Route::get('/hr-admin',[LoginAuthController::class,'getLoginAdmin'])->name('getLoginAdmin');
+Route::get('/hr-admin',[LoginAuthController::class,'getLoginAdmin'])->name('getLoginAdmin');
 Route::get('/login',[LoginAuthController::class,'getLogin'])->name('getLogin')->middleware([NoCacheMiddleware::class]);
 Route::post('/login',[LoginAuthController::class,'postLogin'])->name('postLogin');
 // Route::get('/update-pass', [EmployeeController::class, 'updateEmployeePasswords']);
@@ -90,6 +90,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/opcr/{cat}/{empid?}/{prnumber}', [DocumentController::class, 'perRatingOpcr'])->name('perRatingOpcr');
         Route::get('/dpcr/{cat}/{empid?}/{prnumber}', [DocumentController::class, 'perRatingDpcr'])->name('perRatingDpcr');
         Route::get('/ipcr/{cat}/{empid?}/{prnumber}', [DocumentController::class, 'perRatingIpcr'])->name('perRatingIpcr');
+
+        Route::post('/update-order', [DocumentController::class, 'updateOrder'])->name('updateOrder');
 
         //Opcr
         Route::post('/create-opcr', [OpcrController::class, 'createOpcr'])->name('create-opcr');
