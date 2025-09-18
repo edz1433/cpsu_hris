@@ -272,6 +272,12 @@ class OpcrController extends Controller
         $opcrId = $request->input('opcr_mfo_id');
         $opcrdataId = $request->input('opcrdata_id');
         $categories = $request->input('category') === 'All' ? [1, 2] : [$request->input('category')];
+        
+        $lastOrder = OpcrMfoData::where('opcr_mfo_id', $opcrId)
+            ->max('order');
+
+        // Start new order number
+        $order = $lastOrder ? $lastOrder + 1 : 1;
 
         if ($opcrdataId == 0) {
             foreach ($categories as $category) {
@@ -289,7 +295,10 @@ class OpcrController extends Controller
                     'category' => $category,
                     'opcr_by' => $request->input('opcr_by'),
                     'user_id' => $setting->suc_pres,
+                    'order' => $order,
                 ]);
+
+                $order++;
             }
         } else {
             $opcrData = OpcrMfoData::find($opcrdataId);

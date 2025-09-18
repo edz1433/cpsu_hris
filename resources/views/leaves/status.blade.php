@@ -108,7 +108,6 @@
                                                             <div class="float-right mb-4">
                                                                 {{-- <button type="button" class="btn btn-warning btn-sm cancelLeave" value="{{ $leaves->id }}" ><i class="fas fa-times"></i> Cancel</button> --}}
                                                                 
-
                                                                 {{-- <button class="btn btn-success btn-sm approve-leave" data-id="{{ $leaves->id }}" data-by="0" data-max="{{ $leaves->days }}"><i class="fas fa-upload"></i> Upload</button> --}}
                                                                 @if(auth()->guard($guard)->user()->esign == NULL)
                                                                     <a href="{{ url('pds/signature') }}">Click here to upload your e-signature</a>

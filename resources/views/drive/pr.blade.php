@@ -182,8 +182,8 @@
             
             @php
                 $filteredOpcrMfoDatas = in_array($cat, [1, 2])
-                    ? $datas->where('opcr_mfo_id', $core->id)->where('category', $cat)
-                    : $datas->where('opcr_mfo_id', $core->id);
+                    ? $datas->where('opcr_mfo_id', $core->id)->where('category', $cat)->sortBy('order')
+                    : $datas->where('opcr_mfo_id', $core->id)->sortBy('order');
             @endphp
 
             @foreach($filteredOpcrMfoDatas as $opcrmfodata)
@@ -194,8 +194,8 @@
                     });
                 @endphp
 
-                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
-                    <td class="text-left align-top" width="210">{!! displayValue($opcrmfodata->mfo) !!}</td>
+                <tr  id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" data-group="core{{ $opcrmfodata->opcr_mfo_id  }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
+                    <td class="text-left align-top" width="210">{!! displayValue($opcrmfodata->mfo) !!} || {{ $opcrmfodata->opcr_mfo_id  }}</td>
                     <td class="text-left pl-1">
                         {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
                     </td>
@@ -329,8 +329,8 @@
 
             @php
                 $filteredopcrmfodatas = in_array($cat, [1, 2])
-                    ? $datas->where('opcr_mfo_id', $strat->id)->where('category', $cat)
-                    : $datas->where('opcr_mfo_id', $strat->id);
+                    ? $datas->where('opcr_mfo_id', $strat->id)->where('category', $cat)->sortBy('order')
+                    : $datas->where('opcr_mfo_id', $strat->id)->sortBy('order');
             @endphp
 
             @foreach($filteredopcrmfodatas as $opcrmfodata)
@@ -340,7 +340,7 @@
                         return !empty($sub->evidence_file);
                     });
                 @endphp
-                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->opcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
+                <tr  id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" data-group="strategic{{ $opcrmfodata->opcr_mfo_id  }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->opcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
                     <td class="text-left align-top" width="210">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">
                         {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
@@ -472,8 +472,8 @@
 
             @php
                 $filteredopcrmfodatas = in_array($cat, [1, 2])
-                    ? $datas->where('opcr_mfo_id', $supp->id)->where('category', $cat)
-                    : $datas->where('opcr_mfo_id', $supp->id);
+                    ? $datas->where('opcr_mfo_id', $supp->id)->where('category', $cat)->sortBy('order')
+                    : $datas->where('opcr_mfo_id', $supp->id)->sortBy('order');
             @endphp
 
             @foreach($filteredopcrmfodatas as $opcrmfodata)
@@ -483,7 +483,7 @@
                         return !empty($sub->evidence_file);
                     });
                 @endphp
-                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
+                <tr  id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" data-group="support{{ $opcrmfodata->opcr_mfo_id  }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
                     <td class="text-left align-top" width="210">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">
                         {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
@@ -586,6 +586,7 @@
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script>
     $.ajaxSetup({
         headers: {
@@ -831,5 +832,95 @@
             iframe.src = '';
         });
     });
+</script>
+{{-- <script>
+$(function () {
+    $("#table-form tbody").sortable({
+        update: function (event, ui) {
+            let draggedRow = ui.item; 
+            let targetRow = draggedRow.prev().length 
+                ? draggedRow.prev()   // if it has a row above, use that
+                : draggedRow.next();  // otherwise, use the row below
+
+            if (!targetRow.length) return;
+
+            let draggedId = draggedRow.attr("id").split('-')[0].replace("mfodata", "");
+            let targetId = targetRow.attr("id").split('-')[0].replace("mfodata", "");
+
+            // alert("Dragged: " + draggedId + "\nTarget: " + targetId); // debug
+
+            $.ajax({
+                url: "{{ route('updateOrder') }}",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    dragged_id: draggedId,
+                    target_id: targetId,
+                    model: 'OpcrMfoData'
+                },
+                success: function (res) {
+                    // alert("Swapped:\n" + JSON.stringify(res));
+                },
+                error: function (err) {
+                    // alert("Error:\n" + err.responseText);
+                }
+            });
+        }
+    });
+});
+</script> --}}
+<script>
+$(function () {
+    $("#table-form tbody").sortable({
+        items: "tr",
+        sort: function (event, ui) {
+            let draggedGroup = ui.item.attr("data-group");   // e.g., core1, core5
+            let placeholder = ui.placeholder;
+            
+            // Get groups of neighbors
+            let prevGroup = placeholder.prev().attr("data-group");
+            let nextGroup = placeholder.next().attr("data-group");
+
+            // If both sides exist and neither matches dragged group → block
+            if ((prevGroup && prevGroup !== draggedGroup) &&
+                (nextGroup && nextGroup !== draggedGroup)) {
+                return false;
+            }
+        },
+        update: function (event, ui) {
+            let draggedRow = ui.item;
+            let draggedGroup = draggedRow.attr("data-group");
+            let targetRow = draggedRow.prev().length 
+                ? draggedRow.prev()
+                : draggedRow.next();
+
+            if (!targetRow.length) return;
+
+            let targetGroup = targetRow.attr("data-group");
+
+            // Final check: cancel if groups differ
+            if (draggedGroup !== targetGroup) {
+                $(this).sortable("cancel");
+                return;
+            }
+
+            // Extract IDs
+            let draggedId = draggedRow.attr("id").replace("mfodata", "");
+            let targetId = targetRow.attr("id").replace("mfodata", "");
+
+            // Send to server
+            $.ajax({
+                url: "{{ route('updateOrder') }}",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    dragged_id: draggedId,
+                    target_id: targetId,
+                    model: 'OpcrMfoData'
+                }
+            });
+        }
+    });
+});
 </script>
 @endsection

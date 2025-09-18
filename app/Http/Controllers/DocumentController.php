@@ -183,7 +183,7 @@ class DocumentController extends Controller
         $datas = OpcrMfoData::select([
             'id', 'opcr_mfo_id', 'mfo', 'target', 'measure', 'in_support',
             'div_account', 'quality', 'q_score', 'efficiency', 'e_score',
-            'timeliness', 't_score', 'average', 'remarks', 'category'
+            'timeliness', 't_score', 'average', 'remarks', 'category', 'order'
         ])->get();
 
         // Optimize DPCR join
@@ -415,6 +415,49 @@ class DocumentController extends Controller
         }
 
         return redirect()->back()->with('success', 'Signatories updated successfully!');
+    }
+
+    public function updateOrder(Request $request)
+    {
+        $draggedId = $request->input('dragged_id');
+        $targetId  = $request->input('target_id');
+        $model     = $request->input('model');
+
+        $modelClass = "\\App\\Models\\" . $model;
+
+        $dragged = $modelClass::find($draggedId);
+        $target  = $modelClass::find($targetId);
+
+        if (!$dragged || !$target) {
+            return response()->json(['status' => 'error', 'message' => 'Record not found'], 404);
+        }
+
+        $draggedOrder = $dragged->order;
+        $targetOrder  = $target->order;
+
+        if ($draggedOrder < $targetOrder) {
+            // moved DOWN → shift everything up
+            $modelClass::where('order', '>', $draggedOrder)
+                ->where('order', '<=', $targetOrder)
+                ->decrement('order');
+
+        } elseif ($draggedOrder > $targetOrder) {
+            // moved UP → shift everything down
+            $modelClass::where('order', '<', $draggedOrder)
+                ->where('order', '>=', $targetOrder)
+                ->increment('order');
+        }
+
+        // place dragged row in new target position
+        $dragged->order = $targetOrder;
+        $dragged->save();
+
+        return response()->json([
+            'status' => 'success',
+            'dragged_id' => $draggedId,
+            'target_id' => $targetId,
+            'new_order_dragged' => $dragged->order,
+        ]);
     }
 
 }
