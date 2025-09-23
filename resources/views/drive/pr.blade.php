@@ -807,7 +807,7 @@
 
         // Define the URLs with Blade
         const iframeSrc = "{{ route('opcrPdf', ['prnumber' => $prnumber, 'userid' => $empid ?? auth()->guard($guard)->user()->id, 'category' => 1]) }}";
-        const iframeSrc1 = "{{ route('generateOpcrPdf', ['prnumber' => $prnumber, 'empid' => $empid ?? auth()->guard($guard)->user()->id, 'category' => 1]) }}";
+        const iframeSrc1 = "{{ route('generateOpcrPdf', ['prnumber' => $prnumber, 'empid' => $empid ?? auth()->guard($guard)->user()->id, 'category' => $cat ?? 1]) }}";
 
         let selectedCat = null;
 

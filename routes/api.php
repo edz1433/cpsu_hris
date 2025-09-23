@@ -14,6 +14,10 @@ Route::get('/event-login/{passcode}/{eventid}/{empid}', [EventController::class,
 Route::get('/event-logs/{passcode}/{eventid}', [EventController::class, 'eventLogs'])->name('api.eventLogs');
 
 Route::get('/job-list', [JobHiringController::class, 'jobList'])->name('api.jobList');
+Route::prefix('v1')->group(function () {
+    // Application endpoints
+    Route::post('/applications', [ApplicationController::class, 'store']);
+});
 
 Route::prefix('app')->group(function() {
     Route::get('/dtrlogs', [DtrController::class, 'appdtrLogs'])->name('appdtrLogs');
