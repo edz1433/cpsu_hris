@@ -65,8 +65,8 @@
         <div class="input-group" style="width: auto;">
             <select class="form-control form-control-sm" id="categorySelect">
                 <option value="0" {{ ($cat == 0) ? 'selected' : '' }}>All</option>
-                <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>1st Quarter</option>
-                <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>2nd Quarter</option>
+                <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>1st Half</option>
+                <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>2nd Half</option>
             </select>
             <div class="input-group-append" style="margin-right: 5px;">
                 <span class="input-group-text"><i class="fas fa-filter"></i></span>
