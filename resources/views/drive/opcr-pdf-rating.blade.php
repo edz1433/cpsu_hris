@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPCR</title>
+    <title>OFFICE PERFORMANCE COMMITMENT AND REVIEW (OPCR)</title>
     <style>
         .header{
             font-family: Arial, Helvetica, sans-serif;
@@ -108,7 +108,7 @@
 <body>
     <div style="text-align: center; margin-top: -7px;" class="header">
         <img src="{{ asset('Uploads/spms-header.jpg') }}" width="25%" alt="Header Image"><br><br>
-        <b>OFFICE PERFORMANCE COMMITMENT AND REVIEW (DPCR)</b><br>
+        <b>OFFICE PERFORMANCE COMMITMENT AND REVIEW (OPCR)</b><br>
         For the Rating Period:@if($cat == 1 || $cat == 0)
                 January - June
             @elseif($cat == 2)

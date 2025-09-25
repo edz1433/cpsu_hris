@@ -194,7 +194,6 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/apply/{id}', [JobHiringController::class, 'apply'])->name('jApply');
     });
 
-
     // Employee
     Route::prefix('employees')->group(function() {
         Route::get('/', [EmployeeController::class, 'emp_list'])->name('emp_list');
