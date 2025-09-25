@@ -194,7 +194,7 @@
                     });
                 @endphp
 
-                <tr  id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" data-group="core{{ $opcrmfodata->opcr_mfo_id  }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
+                <tr  id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" data-group="core{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
                     <td class="text-left align-top" width="210">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">
                         {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
@@ -583,7 +583,7 @@
                 </div>
             @endforeach
         </div>
-    </div>
+    </div> 
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>

@@ -272,12 +272,12 @@
             
             @php
                 $filteredDpcrMfoDatas = in_array($cat, [1, 2])
-                    ? $datas->where('dpcr_mfo_id', $core->id)->where('category', $cat)
-                    : $datas->where('dpcr_mfo_id', $core->id);
+                    ? $datas->where('dpcr_mfo_id', $core->id)->where('category', $cat)->sortBy('order')
+                    : $datas->where('dpcr_mfo_id', $core->id)->sortBy('order');
             @endphp
 
             @foreach($filteredDpcrMfoDatas as $dpcrmfodata)
-            <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}"
+            <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="core{{ $dpcrmfodata->dpcr_mfo_id }}"
                 @if(!in_array($userid, $pmtsmember ?? []) && $guard == 'employee')
                     @if(!in_array($status, [2, 5]))
                         onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})"
@@ -433,12 +433,12 @@
 
             @php
                 $filtereddpcrmfodatas = in_array($cat, [1, 2])
-                    ? $datas->where('dpcr_mfo_id', $strat->id)->where('category', $cat)
-                    : $datas->where('dpcr_mfo_id', $strat->id);
+                    ? $datas->where('dpcr_mfo_id', $strat->id)->where('category', $cat)->sortBy('order')
+                    : $datas->where('dpcr_mfo_id', $strat->id)->sortBy('order');
             @endphp
 
             @foreach($filtereddpcrmfodatas as $dpcrmfodata)
-                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $strat->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
+                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="strategic{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $strat->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
                 <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
@@ -581,12 +581,12 @@
 
             @php
                 $filtereddpcrmfodatas = in_array($cat, [1, 2])
-                    ? $datas->where('dpcr_mfo_id', $supp->id)->where('category', $cat)
-                    : $datas->where('dpcr_mfo_id', $supp->id);
+                    ? $datas->where('dpcr_mfo_id', $supp->id)->where('category', $cat)->sortBy('order')
+                    : $datas->where('dpcr_mfo_id', $supp->id)->sortBy('order');
             @endphp
 
             @foreach($filtereddpcrmfodatas as $dpcrmfodata)
-                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $supp->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
+                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="support{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $supp->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
                 <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
@@ -1095,7 +1095,7 @@ $(function () {
                 $(this).sortable("cancel");
                 return;
             }
-
+ 
             // Extract IDs
             let draggedId = draggedRow.attr("id").replace("mfodata", "");
             let targetId = targetRow.attr("id").replace("mfodata", "");
@@ -1110,6 +1110,12 @@ $(function () {
                     target_id: targetId,
                     model: 'DpcrMfoData'
                 }
+                // success: function (res) {
+                //     alert("✅ Server responded:\n" + JSON.stringify(res));
+                // },
+                // error: function (xhr, status, error) {
+                //     alert("❌ Error from server:\n" + xhr.responseText);
+                // }
             });
         }
     });
