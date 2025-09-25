@@ -988,7 +988,7 @@ function attachEvidenceURL(id, title, url) {
 
         // Define the URLs with Blade
         const iframeSrc = "{{ route('dpcrPdf', ['prnumber' => $prnumber, 'userid' => $empid ?? auth()->guard($guard)->user()->id, 'category' => 1]) }}";
-        const iframeSrc1 = "{{ route('generateDpcrPdf', ['prnumber' => $prnumber, 'empid' => $empid ?? auth()->guard($guard)->user()->id, 'category' => 1]) }}";
+        const iframeSrc1 = "{{ route('generateDpcrPdf', ['prnumber' => $prnumber, 'empid' => $empid ?? auth()->guard($guard)->user()->id, 'category' => $cat ?? 1]) }}";
 
         let selectedCat = null;
 

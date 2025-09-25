@@ -16,7 +16,7 @@
             max-width: 100%;
             font-family: Arial, Helvetica, sans-serif;
         }
-
+        
         /* Table styling for both web and PDF */
         .table-form {
             border-collapse: collapse;
