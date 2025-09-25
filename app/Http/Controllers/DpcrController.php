@@ -61,6 +61,12 @@ class DpcrController extends Controller
         $userId = $this->shortDecrypt($request->input('user_id'));
 
         $categories = $request->input('category') === 'All' ? [1, 2] : [$request->input('category')];
+        
+        $lastOrder = DpcrMfoData::where('dpcr_mfo_id', $dpcrId)
+        ->max('order');
+
+        // Start new order number
+        $order = $lastOrder ? $lastOrder + 1 : 1;
 
         if ($dpcrdataId == 0) {
             foreach ($categories as $category) {
@@ -78,8 +84,11 @@ class DpcrController extends Controller
                     'timeliness' => $request->input('timeliness'),
                     'category' => $category,
                     'opcr_by' => $request->input('opcr_by'),
+                    'order' => $order,
                     'lock' => ($guard === 'employee' && $userId == auth()->guard($guard)->user()->id) ? 2 : 1,
                 ]);
+
+                $order++;
             }
         } else {
             // dd($dpcrdataId);

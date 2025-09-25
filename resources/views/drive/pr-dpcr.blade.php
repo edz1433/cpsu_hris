@@ -677,6 +677,7 @@
 </div>
 <input type="file" id="pdfUploader" accept="application/pdf" hidden onchange="handlePdfUpload(this)">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script>
     $.ajaxSetup({
         headers: {
@@ -1059,5 +1060,59 @@ function attachEvidenceURL(id, title, url) {
             });
         });
     });
+</script>
+<script>
+$(function () {
+    $("#table-form tbody").sortable({
+        items: "tr",
+        sort: function (event, ui) {
+            let draggedGroup = ui.item.attr("data-group");   // e.g., core1, core5
+            let placeholder = ui.placeholder;
+
+            // Get groups of neighbors
+            let prevGroup = placeholder.prev().attr("data-group");
+            let nextGroup = placeholder.next().attr("data-group");
+
+            // If both sides exist and neither matches dragged group → block
+            if ((prevGroup && prevGroup !== draggedGroup) &&
+                (nextGroup && nextGroup !== draggedGroup)) {
+                return false;
+            }
+        },
+        update: function (event, ui) {
+            let draggedRow = ui.item;
+            let draggedGroup = draggedRow.attr("data-group");
+            let targetRow = draggedRow.prev().length 
+                ? draggedRow.prev()
+                : draggedRow.next();
+
+            if (!targetRow.length) return;
+
+            let targetGroup = targetRow.attr("data-group");
+
+            // Final check: cancel if groups differ
+            if (draggedGroup !== targetGroup) {
+                $(this).sortable("cancel");
+                return;
+            }
+
+            // Extract IDs
+            let draggedId = draggedRow.attr("id").replace("mfodata", "");
+            let targetId = targetRow.attr("id").replace("mfodata", "");
+            
+            // Send to server
+            $.ajax({
+                url: "{{ route('updateOrder') }}",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    dragged_id: draggedId,
+                    target_id: targetId,
+                    model: 'DpcrMfoData'
+                }
+            });
+        }
+    });
+});
 </script>
 @endsection
