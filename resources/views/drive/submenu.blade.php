@@ -15,7 +15,7 @@
     @if(!request()->is('spms-pmt'))
         <div class="dropdown-menu w-100">
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#createFolderModal">Create Folder</a>
-            @if(request()->is('spms/*')) 
+            @if(request()->is('spms/*') && $id == 1) 
                 @if($folder->folder_category !== 'subfolder')
                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#createOpcrModal">Create OPCR</a>
                 @endif
