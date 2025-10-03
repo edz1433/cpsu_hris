@@ -28,11 +28,10 @@ Route::prefix('app')->group(function() {
     // Time Entry
     Route::post('/health', function (Request $request) { return response()->noContent(); });
     Route::post('/check-restriction-level', [TimeEntryController::class, 'checkRestrictionLevel']);
-
-    Route::post('/fetch-logzones', [TimeEntryController::class, 'fetchLogzones']);   
+    Route::post('/fetch-logzones-with-campuses', [TimeEntryController::class, 'fetchLogzonesWithCampuses']);
     
     Route::post('/face-claim', [TimeEntryController::class, 'faceClaim']);
-    Route::post('/log-attendance', [TimeEntryController::class, 'logAttendance']); 
+    Route::post('/log-attendance', [TimeEntryController::class, 'logAttendance']);
     Route::post('/fetch-latest-logs', [TimeEntryController::class, 'fetchLatestLogs']);
 
     Route::post('/admin-face-claim', [TimeEntryController::class, 'adminFaceClaim']);
@@ -40,7 +39,8 @@ Route::prefix('app')->group(function() {
     Route::post('/face-register', [TimeEntryController::class, 'faceRegister']);    
     Route::post('/admin-pass-verify', [TimeEntryController::class, 'adminPassVerify']);
     
-    // Deprecated
+    // For deprecation
+    Route::post('/fetch-logzones', [TimeEntryController::class, 'fetchLogzones']);
     Route::post('/face-verify', [TimeEntryController::class, 'faceVerify']);
     Route::post('/admin-face-verify', [TimeEntryController::class, 'adminFaceVerify']);
 });
