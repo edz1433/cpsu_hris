@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\DtrController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\TimeEntryController;
 use App\Http\Controllers\Api\JobHiringController;
+use App\Http\Controllers\Api\ApplicationController;
 use App\Http\Controllers\Api\ClinicController;
 
 Route::post('/dtrs', [DtrController::class, 'syncDtr'])->name('api.syncDtr');
@@ -14,10 +15,9 @@ Route::get('/event-login/{passcode}/{eventid}/{empid}', [EventController::class,
 Route::get('/event-logs/{passcode}/{eventid}', [EventController::class, 'eventLogs'])->name('api.eventLogs');
 
 Route::get('/job-list', [JobHiringController::class, 'jobList'])->name('api.jobList');
-Route::prefix('v1')->group(function () {
-    // Application endpoints
-    Route::post('/applications', [ApplicationController::class, 'store']);
-});
+Route::post('/application/store', [ApplicationController::class, 'applicationStore'])->name('application.status');
+Route::get('/application/check/{jid}/{email}', [ApplicationController::class, 'applicationCheck'])->name('application.check');
+Route::get('/application/status/{appnumber}', [ApplicationController::class, 'applicationStatus'])->name('application.status');
 
 Route::prefix('app')->group(function() {
     Route::get('/dtrlogs', [DtrController::class, 'appdtrLogs'])->name('appdtrLogs');
@@ -25,26 +25,32 @@ Route::prefix('app')->group(function() {
     Route::get('/authlogin', [DtrController::class, 'appdtrauthLogin'])->name('appdtrauthLogin');
     Route::get('/check-coordinates', [DtrController::class, 'checkCoordinates'])->name('checkCoordinates');
 
-    // Time Entry
-    Route::post('/health', function (Request $request) { return response()->noContent(); });
+    // CPSU TIME ENTRY
+    // ── Health / readiness ─────────────────────────────────────────────
+    Route::post('/health', fn(Request $r) => response()->noContent());
+
+    // ── Public/employee flows (primary UX) ─────────────────────────────
     Route::post('/check-restriction-level', [TimeEntryController::class, 'checkRestrictionLevel']);
     Route::post('/fetch-logzones-with-campuses', [TimeEntryController::class, 'fetchLogzonesWithCampuses']);
-    
+    Route::post('/validate-qr', [TimeEntryController::class, 'validateQr']);
     Route::post('/face-claim', [TimeEntryController::class, 'faceClaim']);
     Route::post('/log-attendance', [TimeEntryController::class, 'logAttendance']);
     Route::post('/fetch-latest-logs', [TimeEntryController::class, 'fetchLatestLogs']);
 
+    // ── Admin/kiosk flows ──────────────────────────────────────────────
     Route::post('/admin-face-claim', [TimeEntryController::class, 'adminFaceClaim']);
-    Route::post('/fetch-employees', [TimeEntryController::class, 'fetchEmployees']);
-    Route::post('/face-register', [TimeEntryController::class, 'faceRegister']);    
     Route::post('/admin-pass-verify', [TimeEntryController::class, 'adminPassVerify']);
-    
-    // For deprecation
-    Route::post('/fetch-logzones', [TimeEntryController::class, 'fetchLogzones']);
-    Route::post('/face-verify', [TimeEntryController::class, 'faceVerify']);
-    Route::post('/admin-face-verify', [TimeEntryController::class, 'adminFaceVerify']);
+
+    // ── Directory/registration utilities ───────────────────────────────
+    Route::post('/fetch-employees', [TimeEntryController::class, 'fetchEmployees']);
+    Route::post('/face-register', [TimeEntryController::class, 'faceRegister']);
+
+    // ── Deprecated (leave for compatibility; keep at end) ──────────────
+    Route::post('/fetch-logzones', [TimeEntryController::class, 'fetchLogzones']);          // deprecated
+    Route::post('/face-verify', [TimeEntryController::class, 'faceVerify']);                // deprecated
+    Route::post('/admin-face-verify', [TimeEntryController::class, 'adminFaceVerify']);     // deprecated
 });
 
-Route::prefix('clinic')->group(function() {
-    Route::get('/employees', [ClinicController::class, 'emplList']);    
-});
+// Route::prefix('clinic')->group(function() {
+//     Route::get('/employees', [ClinicController::class, 'emplList']);    
+// });

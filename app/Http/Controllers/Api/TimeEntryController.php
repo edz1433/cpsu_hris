@@ -13,11 +13,12 @@ use Carbon\Carbon;
 class TimeEntryController extends Controller
 {
     // ==== CONFIG ====
-    private int   $embeddingLimit = 7;            
-    // Squared thresholds (avoid sqrt in hot path)
-    private float $dedupeThr2     = 0.28 * 0.28;  
-    private float $acceptThr2     = 0.65 * 0.65;    
-    // ====  Helpers (embeddings & matching) ====
+    private int   $embeddingLimit = 7;
+    private float $dedupeThr2     = 0.28 * 0.28;
+    private float $acceptThr2     = 0.65 * 0.65;
+    
+    // ==== HELPERS ====
+    private function shortDecrypt($encrypted) { $key = 'fA7xB93kL0pTzWmQ'; $cipher = 'AES-128-ECB'; $encrypted = strtr($encrypted, '-_', '+/'); return openssl_decrypt(base64_decode($encrypted), $cipher, $key, 0); }
     private function l2Normalize(array $v): array {
         $sum = 0.0;
         foreach ($v as $x) { $sum += $x * $x; }
@@ -25,7 +26,6 @@ class TimeEntryController extends Controller
         foreach ($v as $i => $x) { $v[$i] = $x / $norm; }
         return $v;
     }
-    // L2 **squared** distance (faster; no sqrt)
     private function l2Distance2(array $a, array $b): float {
         $s = 0.0;
         for ($i = 0; $i < 128; $i++) {
@@ -34,7 +34,6 @@ class TimeEntryController extends Controller
         }
         return $s;
     }
-    // Keep order; drop vectors closer than $dedupeThr2 to any kept vector. Inputs expected normalized.
     private function dedupeEmbeddings(array $embs): array {
         $out = [];
         foreach ($embs as $e) {
@@ -59,8 +58,6 @@ class TimeEntryController extends Controller
         for ($i = 0; $i < 128; $i++) { $acc[$i] /= $k; }
         return $this->l2Normalize($acc);
     }
-    // Strict new-schema reader. Expects: {"vecs":[[128],...], "centroid":[128]|null}
-    // Returns ['vecs'=>array, 'centroid'=>array|null].
     private function readEmbObj(?string $json): array {
         if (!$json) return ['vecs' => [], 'centroid' => null];
         $raw  = json_decode($json, true);
@@ -71,32 +68,6 @@ class TimeEntryController extends Controller
         if (!(is_array($cent) && count($cent) === 128)) $cent = null;
         return ['vecs' => $vecs, 'centroid' => $cent];
     }
-    private function getCachedCentroids() {
-        $ttl = 900; // seconds
-        return Cache::remember('face_centroids', $ttl, function () {
-            return DB::table('employees')
-                ->select('emp_ID', 'fname', 'mname', 'lname', 'face_embeddings')
-                ->where('stat_1', 1)
-                ->whereNotNull('face_embeddings')
-                ->get()
-                ->map(function ($e) {
-                    $p = $this->readEmbObj($e->face_embeddings);
-                    $cent = (is_array($p['centroid']) && count($p['centroid']) === 128)
-                        ? $this->l2Normalize($p['centroid'])
-                        : null;
-                    if (!$cent) return null;
-                    return (object)[
-                        'emp_ID'   => $e->emp_ID,
-                        'fname'    => $e->fname,
-                        'mname'    => $e->mname,
-                        'lname'    => $e->lname,
-                        'centroid' => $cent,
-                    ];
-                })
-                ->filter()
-                ->values();
-        });
-    }
     private function isValidVec($v): bool {
         if (!is_array($v) || count($v) !== 128) return false;
         foreach ($v as $x) {
@@ -105,7 +76,8 @@ class TimeEntryController extends Controller
         }
         return true;
     }
-    // ==================== APIs ====================
+    
+    // ==== APIs ====
     public function checkRestrictionLevel(Request $request) {
         $ttl = 15; // seconds
         $row = Cache::remember('settings:te_rstrct', $ttl, function () {
@@ -160,7 +132,8 @@ class TimeEntryController extends Controller
         ]);
     }    
     public function fetchLogzonesWithCampuses(Request $request) {
-        $ttl = 300;
+        $ttl = 5;
+        //$ttl = 300;
         $payload = Cache::remember('logzones:payload', $ttl, function () {
             $zones = DB::table('logzones')->where('active_stat', 1)->orderBy('id')->get()->map(function ($z) {
                 $points = json_decode($z->points, true) ?: [];
@@ -200,7 +173,6 @@ class TimeEntryController extends Controller
             ->setEtag($etag)
             ->header('Cache-Control', 'no-store, max-age=0');
     }
-    function shortDecrypt($encrypted) { $key = 'fA7xB93kL0pTzWmQ'; $cipher = 'AES-128-ECB'; $encrypted = strtr($encrypted, '-_', '+/'); return openssl_decrypt(base64_decode($encrypted), $cipher, $key, 0); }
     public function validateQr(Request $request) {
         $qrRaw = $request->input('qr');
         $mode  = $request->input('mode', 'emp');
@@ -210,18 +182,18 @@ class TimeEntryController extends Controller
         }
 
         if (!is_string($qrRaw) || trim($qrRaw) === '') {
-            return response()->json(['valid' => false, 'message' => 'Invalid QR code (missing).'], 200);
+            return response()->json(['valid' => false, 'message' => 'Invalid QR (missing).'], 200);
         }
 
         try {
             $qrDecrypted = (string) $this->shortDecrypt($qrRaw);
         } catch (\Throwable $e) {
-            return response()->json(['valid' => false, 'message' => 'Invalid QR code (decryption failed).'], 200);
+            return response()->json(['valid' => false, 'message' => 'Invalid QR (decryption failed).'], 200);
         }
 
         $empId = trim($qrDecrypted ?? '');
         if ($empId === '') {
-            return response()->json(['valid' => false, 'message' => 'Invalid QR code.'], 200);
+            return response()->json(['valid' => false, 'message' => 'Invalid QR.'], 200);
         }
 
         // Fetch only active employees, removed unused mname
@@ -267,17 +239,17 @@ class TimeEntryController extends Controller
             return response()->json(['error' => 'invalid_embedding', 'message' => 'Invalid embedding'], 400);
         }
         if (!is_string($qrRaw) || trim($qrRaw) === '') {
-            return response()->json(['match'=>false,'message'=>'Invalid QR code (missing).'], 200);
+            return response()->json(['match'=>false,'message'=>'Invalid QR (missing).'], 200);
         }
         // 2) Decrypt QR
         try {
             $qrDecrypted = (string) $this->shortDecrypt($qrRaw);
         } catch (\Throwable $e) {
-            return response()->json(['match'=>false,'message'=>'Invalid QR code (decryption failed).'], 200);
+            return response()->json(['match'=>false,'message'=>'Invalid QR (decryption failed).'], 200);
         }
         $empId = trim($qrDecrypted ?? '');
         if ($empId === '') {
-            return response()->json(['match'=>false,'message'=>'Invalid QR code.'], 200);
+            return response()->json(['match'=>false,'message'=>'Invalid QR.'], 200);
         }
         // 3) Fetch only ACTIVE employees (stat_1 = 1), removed unused mname
         $row = DB::table('employees')
@@ -564,17 +536,17 @@ class TimeEntryController extends Controller
             return response()->json(['error' => 'invalid_embedding', 'message' => 'Invalid embedding'], 400);
         }
         if (!is_string($qrRaw) || trim($qrRaw) === '') {
-            return response()->json(['match'=>false,'is_admin'=>false,'message'=>'Invalid QR code (missing).'], 200);
+            return response()->json(['match'=>false,'is_admin'=>false,'message'=>'Invalid QR (missing).'], 200);
         }
         // 2) Decrypt QR
         try {
             $qrDecrypted = (string) $this->shortDecrypt($qrRaw);
         } catch (\Throwable $e) {
-            return response()->json(['match'=>false,'is_admin'=>false,'message'=>'Invalid QR code (decryption failed).'], 200);
+            return response()->json(['match'=>false,'is_admin'=>false,'message'=>'Invalid QR (decryption failed).'], 200);
         }
         $empId = trim($qrDecrypted ?? '');
         if ($empId === '') {
-            return response()->json(['match'=>false,'is_admin'=>false,'message'=>'Invalid QR code.'], 200);
+            return response()->json(['match'=>false,'is_admin'=>false,'message'=>'Invalid QR.'], 200);
         }
         // 3) Fetch only ACTIVE employees (stat_1 = 1), removed unused mname
         $row = DB::table('employees')
@@ -626,6 +598,46 @@ class TimeEntryController extends Controller
             'name'     => $name,
             'message'  => 'Face matched' . ($isAdmin ? ' and authorized.' : '.'),
         ], 200);
+    }
+    public function adminPassVerify(Request $request) {
+        // Only require password, with a sane length cap
+        $request->validate([
+            'password' => 'required|string|max:30',
+        ]);
+        try {
+            // Read bcrypt hash directly
+            $hash = DB::connection('mysql')
+                ->table('settings')
+                ->value('hrk_pw');
+            if (!is_string($hash) || $hash === '') {
+                return response()->json([
+                    'ok'      => false,
+                    'message' => 'Password not set.',
+                ], 500);
+            }
+            $input = (string) $request->input('password');
+            if (Hash::check($input, $hash)) {
+                // Optional: keep hashes fresh if cost changes
+                if (Hash::needsRehash($hash)) {
+                    DB::connection('mysql')
+                        ->table('settings')
+                        ->limit(1)
+                        ->update(['hrk_pw' => Hash::make($input)]);
+                }
+                return response()->json(['ok' => true], 200);
+            }
+            // Wrong password: still HTTP 200, ok=false
+            return response()->json([
+                'ok'      => false,
+                'message' => 'Incorrect password.',
+            ], 200);
+        } catch (\Throwable $e) {
+            // Generic server error
+            return response()->json([
+                'ok'      => false,
+                'message' => 'Server error.',
+            ], 500);
+        }
     }
     public function fetchEmployees(Request $request) {
         $employees = DB::table('employees')
@@ -713,122 +725,12 @@ class TimeEntryController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
-    }
-    public function adminPassVerify(Request $request): \Illuminate\Http\JsonResponse
-    {
-        // Only require password, with a sane length cap
-        $request->validate([
-            'password' => 'required|string|max:30',
-        ]);
-        try {
-            // Read bcrypt hash directly
-            $hash = DB::connection('mysql')
-                ->table('settings')
-                ->value('hrk_pw');
-            if (!is_string($hash) || $hash === '') {
-                return response()->json([
-                    'ok'      => false,
-                    'message' => 'Password not set.',
-                ], 500);
-            }
-            $input = (string) $request->input('password');
-            if (Hash::check($input, $hash)) {
-                // Optional: keep hashes fresh if cost changes
-                if (Hash::needsRehash($hash)) {
-                    DB::connection('mysql')
-                        ->table('settings')
-                        ->limit(1)
-                        ->update(['hrk_pw' => Hash::make($input)]);
-                }
-                return response()->json(['ok' => true], 200);
-            }
-            // Wrong password: still HTTP 200, ok=false
-            return response()->json([
-                'ok'      => false,
-                'message' => 'Incorrect password.',
-            ], 200);
-        } catch (\Throwable $e) {
-            // Generic server error
-            return response()->json([
-                'ok'      => false,
-                'message' => 'Server error.',
-            ], 500);
-        }
-    }
+    }      
 
-    // DEPRECATED (DON'T REMOVE)
-    public function fetchLogzones(Request $request) {
-        $ttl = 300; // seconds
-        // Build payload from cache (DB touched at most once per $ttl)
-        $zones = Cache::remember('logzones:payload', $ttl, function () {
-            return DB::table('logzones')->where('active_stat', 1)->get()->map(function ($zone) {
-                $points = json_decode($zone->points, true);
-                if (!is_array($points)) $points = [];
-                return [
-                    'id'     => (int) $zone->id,
-                    'label'  => (string) $zone->label,
-                    'points' => $points,
-                ];
-            })->values()->all(); // store as plain array
-        });
-        // Derive an ETag directly from the cached payload
-        $etag = sha1(json_encode($zones, JSON_UNESCAPED_UNICODE));
-        // If client already has this version, short-circuit
-        if (in_array($etag, $request->getEtags() ?? [], true)) {
-            return response()
-                ->noContent(304)
-                ->setEtag($etag)
-                ->header('Cache-Control', 'public, max-age=60');
-        }
-        return response()
-            ->json($zones, 200, [], JSON_UNESCAPED_UNICODE)
-            ->setEtag($etag)
-            ->header('Cache-Control', 'public, max-age=60');
-    }
+    // ==== DEPRECATED ====    
     private float $ratioThr = 0.78;
     private int   $kMin     = 16;
-    private int   $kMax     = 48;
-    public function faceVerify(Request $request) {
-        $embedding = $request->input('embedding');
-        if (!$this->isValidVec($embedding)) { return response()->json(['error' => 'Invalid embedding'], 400); }
-        [$bestEmp, $bestD2, $_, $secondD2] = $this->findClosestEmployee($embedding);
-        if (!$bestEmp || !is_finite($bestD2)) { return response()->json(['match' => false, 'distance' => 2.0]); }
-        $passAbs   = ($bestD2 < $this->acceptThr2);
-        $passRatio = is_finite($secondD2) && $secondD2 > 0 ? ($bestD2 < ($this->ratioThr * $this->ratioThr) * $secondD2) : true;
-        if ($passAbs && $passRatio) {
-            return response()->json([
-                'match'    => true,
-                'emp_id'   => $bestEmp->emp_ID,
-                'name'     => trim("{$bestEmp->fname} {$bestEmp->mname} {$bestEmp->lname}"),
-                'distance' => sqrt($bestD2),
-            ]);
-        }
-        return response()->json(['match' => false, 'distance' => sqrt($bestD2)]);
-    }
-    public function adminFaceVerify(Request $request) {
-        $embedding = $request->input('embedding');
-        if (!$this->isValidVec($embedding)) { return response()->json(['error' => 'Invalid embedding'], 400); }
-        [$bestEmp, $bestD2, $_, $secondD2] = $this->findClosestEmployee($embedding);
-        $nonMatch = fn(float $d2) => response()->json([
-            'match'    => false,
-            'is_admin' => false,
-            'distance' => is_finite($d2) ? sqrt($d2) : 2.0,
-        ]);
-        if (!$bestEmp || !is_finite($bestD2)) { return $nonMatch(INF); }
-        $passAbs = ($bestD2 < $this->acceptThr2);
-        $passRatio = is_finite($secondD2) && $secondD2 > 0 ? ($bestD2 < ($this->ratioThr * $this->ratioThr) * $secondD2) : true;
-        if (!($passAbs && $passRatio)) { return $nonMatch($bestD2); }
-        $hrKioskCsv = (string) DB::table('settings')->value('hr_kiosk');
-        $ids = array_filter(array_map('trim', preg_split('/\s*,\s*/', $hrKioskCsv, -1, PREG_SPLIT_NO_EMPTY)));
-        $isAdmin = in_array($bestEmp->emp_ID, $ids, true);
-        return response()->json([
-            'match'    => true,
-            'is_admin' => $isAdmin,
-            'emp_id'   => $bestEmp->emp_ID,
-            'name'     => trim("{$bestEmp->fname} {$bestEmp->mname} {$bestEmp->lname}"),
-            'distance' => sqrt($bestD2),
-        ]);
-    }
+    private int   $kMax     = 48;    
     private function findClosestEmployee(array $probe): array {
         $probe = $this->l2Normalize($probe);
         // 1) scan all centroids, keep top-K
@@ -883,5 +785,100 @@ class TimeEntryController extends Controller
         }
         // Return: [$bestEmp, $bestD2, $bestFromVec(bool), $secondD2]
         return [$bestEmp, $bestD2, $bestFromVec, $secondD2];
+    }
+    private function getCachedCentroids() {
+        $ttl = 900; // seconds
+        return Cache::remember('face_centroids', $ttl, function () {
+            return DB::table('employees')
+                ->select('emp_ID', 'fname', 'mname', 'lname', 'face_embeddings')
+                ->where('stat_1', 1)
+                ->whereNotNull('face_embeddings')
+                ->get()
+                ->map(function ($e) {
+                    $p = $this->readEmbObj($e->face_embeddings);
+                    $cent = (is_array($p['centroid']) && count($p['centroid']) === 128)
+                        ? $this->l2Normalize($p['centroid'])
+                        : null;
+                    if (!$cent) return null;
+                    return (object)[
+                        'emp_ID'   => $e->emp_ID,
+                        'fname'    => $e->fname,
+                        'mname'    => $e->mname,
+                        'lname'    => $e->lname,
+                        'centroid' => $cent,
+                    ];
+                })
+                ->filter()
+                ->values();
+        });
+    }
+    public function fetchLogzones(Request $request) {
+        $ttl = 300; // seconds
+        // Build payload from cache (DB touched at most once per $ttl)
+        $zones = Cache::remember('logzones:payload', $ttl, function () {
+            return DB::table('logzones')->where('active_stat', 1)->get()->map(function ($zone) {
+                $points = json_decode($zone->points, true);
+                if (!is_array($points)) $points = [];
+                return [
+                    'id'     => (int) $zone->id,
+                    'label'  => (string) $zone->label,
+                    'points' => $points,
+                ];
+            })->values()->all(); // store as plain array
+        });
+        // Derive an ETag directly from the cached payload
+        $etag = sha1(json_encode($zones, JSON_UNESCAPED_UNICODE));
+        // If client already has this version, short-circuit
+        if (in_array($etag, $request->getEtags() ?? [], true)) {
+            return response()
+                ->noContent(304)
+                ->setEtag($etag)
+                ->header('Cache-Control', 'public, max-age=60');
+        }
+        return response()
+            ->json($zones, 200, [], JSON_UNESCAPED_UNICODE)
+            ->setEtag($etag)
+            ->header('Cache-Control', 'public, max-age=60');
+    }
+    public function faceVerify(Request $request) {
+        $embedding = $request->input('embedding');
+        if (!$this->isValidVec($embedding)) { return response()->json(['error' => 'Invalid embedding'], 400); }
+        [$bestEmp, $bestD2, $_, $secondD2] = $this->findClosestEmployee($embedding);
+        if (!$bestEmp || !is_finite($bestD2)) { return response()->json(['match' => false, 'distance' => 2.0]); }
+        $passAbs   = ($bestD2 < $this->acceptThr2);
+        $passRatio = is_finite($secondD2) && $secondD2 > 0 ? ($bestD2 < ($this->ratioThr * $this->ratioThr) * $secondD2) : true;
+        if ($passAbs && $passRatio) {
+            return response()->json([
+                'match'    => true,
+                'emp_id'   => $bestEmp->emp_ID,
+                'name'     => trim("{$bestEmp->fname} {$bestEmp->mname} {$bestEmp->lname}"),
+                'distance' => sqrt($bestD2),
+            ]);
+        }
+        return response()->json(['match' => false, 'distance' => sqrt($bestD2)]);
+    }
+    public function adminFaceVerify(Request $request) {
+        $embedding = $request->input('embedding');
+        if (!$this->isValidVec($embedding)) { return response()->json(['error' => 'Invalid embedding'], 400); }
+        [$bestEmp, $bestD2, $_, $secondD2] = $this->findClosestEmployee($embedding);
+        $nonMatch = fn(float $d2) => response()->json([
+            'match'    => false,
+            'is_admin' => false,
+            'distance' => is_finite($d2) ? sqrt($d2) : 2.0,
+        ]);
+        if (!$bestEmp || !is_finite($bestD2)) { return $nonMatch(INF); }
+        $passAbs = ($bestD2 < $this->acceptThr2);
+        $passRatio = is_finite($secondD2) && $secondD2 > 0 ? ($bestD2 < ($this->ratioThr * $this->ratioThr) * $secondD2) : true;
+        if (!($passAbs && $passRatio)) { return $nonMatch($bestD2); }
+        $hrKioskCsv = (string) DB::table('settings')->value('hr_kiosk');
+        $ids = array_filter(array_map('trim', preg_split('/\s*,\s*/', $hrKioskCsv, -1, PREG_SPLIT_NO_EMPTY)));
+        $isAdmin = in_array($bestEmp->emp_ID, $ids, true);
+        return response()->json([
+            'match'    => true,
+            'is_admin' => $isAdmin,
+            'emp_id'   => $bestEmp->emp_ID,
+            'name'     => trim("{$bestEmp->fname} {$bestEmp->mname} {$bestEmp->lname}"),
+            'distance' => sqrt($bestD2),
+        ]);
     }
 }
