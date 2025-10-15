@@ -128,41 +128,68 @@ class GoogleAuthController extends Controller
         try {
             $google_user = Socialite::driver('google')->user();
             $email = $google_user->getEmail();
-        
+
             $user = User::where('username', $email)->first();
             $employee = Employee::where('username', $email)->first();
             
             if (!$user && !$employee) {
                 return redirect()->back()->with('error', 'We couldn\'t find your email. Please contact HR for assistance.');
             }
-    
+
             $verification_code = mt_rand(100000, 999999);
-    
-            if ($user) {
-                $user->verification_code = $verification_code;
-                $user->save();
-                
-                Mail::raw("Your verification code is: $verification_code", function ($message) use ($user) {
-                    $message->to($user->username)
-                            ->subject('Verification Code');
-                });
-    
-                session()->flash('email', $user->username);
-            } elseif ($employee) {
-                $employee->verification_code = $verification_code;
-                $employee->save();
-                
-                Mail::raw("Your verification code is: $verification_code", function ($message) use ($employee) {
-                    $message->to($employee->username)
-                            ->subject('Verification Code');
-                });
-    
-                session()->flash('email', $employee->username);
-            }
-    
+            $green = '#187744';
+
+            // 🧩 Determine recipient (User or Employee)
+            $recipient = $user ?? $employee;
+            $recipient->verification_code = $verification_code;
+            $recipient->save();
+
+            // 🧍 Get first and last name from Google
+            $firstName = $google_user->user['given_name'] ?? strtok($google_user->getName(), ' ');
+            $lastName = $google_user->user['family_name'] ?? '';
+
+            // 💌 Styled HTML email
+            $body = '
+                <div style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 20px;">
+                    <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
+                        <div style="background-color: '.$green.'; color: white; padding: 16px 24px;">
+                            <h2 style="margin: 0; font-size: 20px;">HRIS Account Verification</h2>
+                        </div>
+                        <div style="padding: 24px; color: #333;">
+                            <p>Dear <strong>' . e($firstName . ' ' . $lastName) . '</strong>,</p>
+                            <p>We received a login request for your HRIS account using your personal Google account.</p>
+                            <p>Please use the verification code below to complete your sign-in process:</p>
+
+                            <div style="background: #f0fdf4; border-left: 4px solid '.$green.'; padding: 12px 16px; margin: 20px 0; text-align: center; font-size: 24px; font-weight: bold; color: '.$green.'; letter-spacing: 4px;">
+                                ' . $verification_code . '
+                            </div>
+
+                            <p>If you did not initiate this login, please ignore this email for your security.</p>
+
+                            <p style="margin-top: 24px;">Best regards,<br><strong>CPSU HRIS Team</strong></p>
+                        </div>
+                        <div style="background: #f1f1f1; text-align: center; padding: 10px; font-size: 12px; color: #555;">
+                            © ' . date('Y') . ' Central Philippines State University | HRIS
+                        </div>
+                    </div>
+                </div>
+            ';
+
+            // ✉️ Send styled email (FROM values from .env)
+            Mail::send([], [], function ($message) use ($recipient, $body) {
+                $message->to($recipient->username)
+                        ->from(config('mail.from.address'), config('mail.from.name'))
+                        ->subject('CPSU Login Verification Code')
+                        ->html($body);
+            });
+
+            // 🧠 Store session for verification page
+            session()->flash('email', $recipient->username);
+
             return redirect()->route('verify');
-    
+
         } catch (\Exception $e) {
+            \Log::error('❌ Google OAuth Error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'There was an issue with Google OAuth. Please try again.');
         }
     }
