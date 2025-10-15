@@ -150,30 +150,26 @@ class GoogleAuthController extends Controller
 
             // 💌 Styled HTML email
             $body = '
-                <div style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 20px;">
-                    <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
-                        <div style="background-color: '.$green.'; color: white; padding: 16px 24px;">
-                            <h2 style="margin: 0; font-size: 20px;">HRIS Account Verification</h2>
-                        </div>
-                        <div style="padding: 24px; color: #333;">
-                            <p>Dear <strong>' . e($firstName . ' ' . $lastName) . '</strong>,</p>
-                            <p>We received a login request for your HRIS account using your personal Google account.</p>
-                            <p>Please use the verification code below to complete your sign-in process:</p>
-
-                            <div style="background: #f0fdf4; border-left: 4px solid '.$green.'; padding: 12px 16px; margin: 20px 0; text-align: center; font-size: 24px; font-weight: bold; color: '.$green.'; letter-spacing: 4px;">
-                                ' . $verification_code . '
-                            </div>
-
-                            <p>If you did not initiate this login, please ignore this email for your security.</p>
-
-                            <p style="margin-top: 24px;">Best regards,<br><strong>CPSU HRIS Team</strong></p>
-                        </div>
-                        <div style="background: #f1f1f1; text-align: center; padding: 10px; font-size: 12px; color: #555;">
-                            © ' . date('Y') . ' Central Philippines State University | HRIS
-                        </div>
+            <div style="font-family: Arial, sans-serif; background-color: #f9fafb; padding:20px;">
+                <div style="max-width:600px;margin:auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 0 10px rgba(0,0,0,0.05);">
+                    <div style="background-color:'.$green.';color:#fff;padding:16px 24px;text-align:center;">
+                    <h2 style="margin:0;font-size:20px;">HRIS Account Verification</h2>
+                    </div>
+                    <div style="padding:20px;color:#333;">
+                    <p>Dear <strong>' . e(ucwords(strtolower($firstName . ' ' . $lastName))) . '</strong>,</p>
+                    <p>We received a login request for your HRIS account using your personal Google account.</p>
+                    <p>Please use the verification code below to complete your sign-in process:</p>
+                    <div style="background:#f0fdf4;border-left:4px solid '.$green.';padding:12px 16px;margin:20px 0;text-align:center;font-size:24px;font-weight:bold;color:'.$green.';letter-spacing:4px;">
+                        ' . $verification_code . '
+                    </div>
+                    <p>If you did not initiate this login, please ignore this email for your security.</p>
+                    <p style="margin-top:20px;">Best regards,<br><strong>CPSU HRIS Team</strong></p>
+                    </div>
+                    <div style="background:#f1f1f1;text-align:center;padding:10px;font-size:12px;color:#555;">
+                    © ' . date('Y') . ' Central Philippines State University | HRIS
                     </div>
                 </div>
-            ';
+            </div>';
 
             // ✉️ Send styled email (FROM values from .env)
             Mail::send([], [], function ($message) use ($recipient, $body) {
