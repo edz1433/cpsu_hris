@@ -41,6 +41,7 @@ use App\Http\Controllers\SpmsMfoPercentageController;
 use App\Http\Controllers\PerformanceController;
 use App\Http\Controllers\EvidenceController;
 use App\Http\Controllers\JobHiringController;
+use App\Http\Controllers\ApplicationController;
 
 Route::get('/', function () {
     if (Auth::guard('web')->check()) {
@@ -61,7 +62,7 @@ Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->n
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
 Route::get('/verify', [GoogleAuthController::class, 'verifyForm'])->name('verify');
 Route::post('/verify', [GoogleAuthController::class, 'verify'])->name('verify.code');
-Route::get('/convert-esign', [PdsController::class, 'convertEsign'])->name('convertEsign');
+// Route::get('/convert-esign', [PdsController::class, 'convertEsign'])->name('convertEsign');
 
 Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], function() {
     //Performance
@@ -116,6 +117,15 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/dpcr-pdf/{prnumber}/{userid}/{category}', [DpcrController::class, 'dpcrPdf'])->name('dpcrPdf');
         Route::post('/assign-dpcr', [DpcrController::class, 'assignDpcr'])->name('assignDpcr');  
         Route::get('/pdf/dpcr/{prnumber}/{empid}/{category}', [DpcrController::class, 'generateDpcrPdf'])->name('generateDpcrPdf');
+
+        //Ipcr
+        Route::post('/update-ipcr-mfo', [IpcrController::class, 'updateIpcrMfo'])->name('update-ipcr-mfo');
+        Route::post('/create-ipcr-mfo-data', [IpcrController::class, 'createIpcrMfoData'])->name('create-ipcr-mfo-data');
+        Route::post('/ipcr-data', [IpcrController::class, 'ipcrData'])->name('ipcrData');
+        Route::get('/ipcrmfo-edit-data/{id}', [IpcrController::class, 'ipcrmfoEditData'])->name('ipcrmfoEditData');
+        Route::post('/ipcrmfo-delete-data/{id}', [IpcrController::class, 'ipcrmfoDeleteData'])->name('ipcrmfoDeleteData');
+        Route::get('/ipcr-pdf/{prnumber}/{userid}/{category}', [IpcrController::class, 'ipcrPdf'])->name('ipcrPdf');
+        Route::get('/pdf/ipcr/{prnumber}/{empid}/{category}', [IpcrController::class, 'generateIpcrPdf'])->name('generateIpcrPdf');
 
         Route::post('/update-comment-status', [DpcrController::class, 'markAsRead'])->name('markAsRead');
         //Evidence
@@ -181,17 +191,18 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     Route::prefix('/myaccount')->group(function(){
         // Route::get('/', [MyAccountController::class, 'myAccount']) ->name('myAccount');
         // Route::post('/update-account', [MyAccountController::class, 'updateAccount']) ->name('updateAccount');
-    });
+    }); 
 
-    Route::prefix('job-hiring')->group(function () {
+    Route::prefix('job-opening')->group(function () {
         Route::get('/', [JobHiringController::class, 'jlist'])->name('jlist');
         Route::post('/create', [JobHiringController::class, 'jCreate'])->name('jCreate');
         Route::get('/edit/{id}', [JobHiringController::class, 'jEdit'])->name('jEdit');
         Route::post('/update', [JobHiringController::class, 'jUpdate'])->name('jUpdate');
         Route::post('/delete', [JobHiringController::class, 'jDelete'])->name('jDelete');
-
+        
         // optional extra route if applicants can apply directly
-        Route::post('/apply/{id}', [JobHiringController::class, 'apply'])->name('jApply');
+        Route::get('/applications', [MasterController::class, 'appList'])->name('appList');
+        Route::post('/applications/create', [ApplicationController::class, 'appCreate'])->name('appCreate');
     });
 
     // Employee
