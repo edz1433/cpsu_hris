@@ -10,6 +10,7 @@ class JobHiring extends Model
     use HasFactory;
 
     protected $fillable = [
+        'type',
         'title',
         'plantilla_item_no',
         'salary',

@@ -34,6 +34,20 @@
                             </div>
                         </div>
 
+                        {{-- Job Type --}}
+                        <div class="form-group mt-2">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-tags"></i></span>
+                                </div>
+                                <select name="type" class="form-control form-control-sm" required>
+                                    <option value="">-- Select Job Type --</option>
+                                    <option value="1" {{ (isset($jEdit) && $jEdit->type == 1) ? 'selected' : '' }}>Non-Teaching</option>
+                                    <option value="2" {{ (isset($jEdit) && $jEdit->type == 2) ? 'selected' : '' }}>Teaching</option>
+                                </select>
+                            </div>
+                        </div>
+
                         {{-- Plantilla Item No. --}}
                         <div class="form-group">
                             <div class="input-group">
@@ -141,13 +155,20 @@
                                 @php $no = 1; @endphp
                                 @foreach($jobs as $job)
                                 <tr id="tr-{{ $job->id }}">
-                                    <td>{{ $no++ }}</td>
-                                    <td>{{ $job->title }}</td>
-                                    <td>{{ $job->plantilla_item_no }}</td>
-                                    <td>₱{{ number_format($job->salary, 2) }}</td>
-                                    <td>{{ $job->assignment }}</td>
+                                    <td class="align-middle">{{ $no++ }}</td>
+                                    <td class="align-middle">
+                                        {{ $job->title }}<br>
+                                        @if ($job->type == 1)
+                                            <span class="badge bg-success">Non-Teaching</span>
+                                        @else
+                                            <span class="badge bg-primary">Teaching</span>
+                                        @endif
+                                    </td>
+                                    <td class="align-middle">{{ $job->plantilla_item_no }}</td>
+                                    <td class="align-middle">₱{{ number_format($job->salary, 2) }}</td>
+                                    <td class="align-middle">{{ $job->assignment }}</td>
                                     {{-- Combine education, eligibility, training, experience, competency --}}
-                                    <td>
+                                    <td class="align-middle">
                                         <ul class="list-unstyled small mb-0">
                                             <li><strong>Education:</strong> {{ $job->education }}</li>
                                             <li><strong>Eligibility:</strong> {{ $job->eligibility }}</li>
@@ -157,16 +178,16 @@
                                         </ul>
                                     </td>
 
-                                    <td>{{ \Carbon\Carbon::parse($job->posted_at)->format('M d, Y') }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($job->expiration_at)->format('M d, Y') }}</td>
+                                    <td class="align-middle">{{ \Carbon\Carbon::parse($job->posted_at)->format('M d, Y') }}</td>
+                                    <td class="align-middle">{{ \Carbon\Carbon::parse($job->expiration_at)->format('M d, Y') }}</td>
 
-                                    <td>
+                                    <td class="align-middle">
                                         <span class="badge {{ $job->status == 'Open' ? 'badge-success' : 'badge-secondary' }}">
                                             {{ $job->status }}
                                         </span>
                                     </td>
 
-                                    <td class="text-center">
+                                    <td class="align-middle text-center">
                                         <a href="{{ route('jEdit', $job->id) }}" class="btn btn-info btn-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>

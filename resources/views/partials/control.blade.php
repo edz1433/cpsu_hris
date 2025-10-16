@@ -82,13 +82,31 @@
         </li>
 
         @if($guard == "web")
-        <li class="nav-item">
-            <a href="{{ route('jlist') }}" class="nav-link text-success1 {{ request()->is('job-hiring*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ request()->is('job-hiring*') || request()->is('applications*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link text-success1 {{ request()->is('job-hiring*') || request()->is('applications*') ? 'active' : '' }}">
                 <i class="pt-1 nav-icon fas fa-briefcase"></i>
-                <p>Job Hiring</p>
+                <p>
+                    Careers
+                    <i class="right fas fa-angle-left"></i>
+                </p>
             </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="{{ route('jlist') }}" class="nav-link text-success1">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Job Openings</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('appList') }}" class="nav-link text-success1">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Applications</p>
+                    </a>
+                </li>
+            </ul>
         </li>
         @endif
+
 
         @if(auth()->guard($guard)->user()->role == "Administrator")
 
