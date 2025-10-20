@@ -100,7 +100,7 @@ class ApplicationController extends Controller
 
     //     // 📧 Send email directly here
     //     try {
-    //         $toEmail = 'career@cpsu.edu.ph'; // ✅ fixed
+    //         $toEmail = 'cpsu_hrmo@cpsu.edu.ph'; // ✅ fixed
 
     //         $subject = "New Job Application: {$request->first_name} {$request->last_name}";
             
@@ -141,7 +141,7 @@ class ApplicationController extends Controller
 
     //         Mail::send([], [], function ($message) use ($toEmail, $subject, $body, $paths) {
     //             $message->to($toEmail)
-    //                     ->from('career@cpsu.edu.ph', 'CPSU Career Portal')
+    //                     ->from('cpsu_hrmo@cpsu.edu.ph', 'CPSU Career Portal')
     //                     ->subject($subject)
     //                     ->html($body);
 
@@ -244,7 +244,7 @@ class ApplicationController extends Controller
 
         // 📧 Send email to HR and applicant
         try {
-            $toEmail = 'career@cpsu.edu.ph';
+            $toEmail = 'cpsu_hrmo@cpsu.edu.ph';
             $green = '#187744';
             $trackingUrl = 'https://cpsu.edu.ph/career';
 
@@ -287,7 +287,7 @@ class ApplicationController extends Controller
 
             Mail::send([], [], function ($message) use ($toEmail, $subjectHR, $bodyHR, $paths) {
                 $message->to($toEmail)
-                        ->from('career@cpsu.edu.ph', 'CPSU Career Portal')
+                        ->from('cpsu_hrmo@cpsu.edu.ph', 'CPSU Career Portal')
                         ->subject($subjectHR)
                         ->html($bodyHR);
 
@@ -325,7 +325,7 @@ class ApplicationController extends Controller
 
             Mail::send([], [], function ($message) use ($request, $subjectApplicant, $bodyApplicant) {
                 $message->to($request->email)
-                        ->from('career@cpsu.edu.ph', 'CPSU Career Portal')
+                        ->from('cpsu_hrmo@cpsu.edu.ph', 'CPSU Career Portal')
                         ->subject($subjectApplicant)
                         ->html($bodyApplicant);
             });
@@ -347,7 +347,9 @@ class ApplicationController extends Controller
 
     public function applicationStatus(Request $request)
     {
-        $application = Application::where('app_number', $request->appnumber)->first();
+        $application = Application::join('job_hirings', 'applications.jid', '=', 'job_hirings.id')
+            ->select('applications.*', 'job_hirings.title as position')
+            ->where('app_number', $request->appnumber)->first();
 
         if ($application) {
             return response()->json([

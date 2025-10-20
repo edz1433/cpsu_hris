@@ -4,6 +4,7 @@
 @php
     $current_route = request()->route()->getName();
 @endphp
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-12 mb-2">
@@ -20,6 +21,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>App No.</th>
+                                    <th>Control No.</th>
                                     <th>Applicant Name</th>
                                     <th>Position</th>
                                     <th>Sex</th>
@@ -36,35 +38,144 @@
                                 <tr id="tr-{{ $app->id }}">
                                     <td class="align-middle">{{ $no++ }}</td>
                                     <td class="align-middle">{{ $app->app_number }}</td>
+                                    <td class="align-middle">{{ $app->ctrl_no }}</td>
                                     <td class="align-middle">{{ $app->first_name }} {{ $app->middle_name }} {{ $app->last_name }}</td>
                                     <td class="align-middle">{{ $app->position }}</td>
                                     <td class="align-middle">{{ ucfirst($app->sex) }}</td>
                                     <td class="align-middle">{{ $app->mobile }}</td>
                                     <td class="align-middle">{{ $app->email }}</td>
-                                    <td class="align-middle">
-                                        @if($app->status != 0)
-                                            <a href="{{ asset('storage/' . $app->pds) }}" target="_blank">PDS</a> |
-                                            <a href="{{ asset('storage/' . $app->wes) }}" target="_blank">WES</a> |
-                                            <a href="{{ asset('storage/' . $app->intent) }}" target="_blank">Intent</a> |
-                                            <a href="{{ asset('storage/' . $app->resume) }}" target="_blank">Resume</a> |
-                                            <a href="{{ asset('storage/' . $app->tor) }}" target="_blank">TOR</a>
+
+                                    {{-- 🔹 File Access --}}
+                                    <td class="align-middle text-center">
+                                        @if (empty($app->ctrl_no))
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-warning set-ctrl"
+                                                    value="{{ $app->id }}"
+                                                    data-toggle="modal"
+                                                    data-target="#setCtrlModal"
+                                                    title="Set Control Number to unlock file access">
+                                                <i class="fas fa-key"></i> Set Control No.
+                                            </button>
                                         @else
-                                            Waiting for Records
+                                            <div class="d-flex flex-wrap" style="gap: 4px;">
+                                                <a href="{{ asset('storage/' . $app->pds) }}" class="btn btn-sm btn-outline-primary" target="_blank" title="Personal Data Sheet">
+                                                    <i class="fas fa-file-alt"></i> PDS
+                                                </a>
+                                                <a href="{{ asset('storage/' . $app->wes) }}" class="btn btn-sm btn-outline-info" target="_blank" title="Work Experience Sheet">
+                                                    <i class="fas fa-briefcase"></i> WES
+                                                </a>
+                                                <a href="{{ asset('storage/' . $app->intent) }}" class="btn btn-sm btn-outline-secondary" target="_blank" title="Intent Letter">
+                                                    <i class="fas fa-envelope-open-text"></i> Intent
+                                                </a>
+                                                <a href="{{ asset('storage/' . $app->resume) }}" class="btn btn-sm btn-outline-success" target="_blank" title="Resume">
+                                                    <i class="fas fa-user"></i> Resume
+                                                </a>
+                                                <a href="{{ asset('storage/' . $app->tor) }}" class="btn btn-sm btn-outline-danger" target="_blank" title="Transcript of Records">
+                                                    <i class="fas fa-graduation-cap"></i> TOR
+                                                </a>
+                                            </div>
                                         @endif
                                     </td>
-                                    <td class="align-middle">
+
+                                    {{-- 🔹 Status --}}
+                                    <td class="text-center align-middle">
                                         @php
-                                            $status_labels = ['Pending', 'Reviewed', 'Qualified', 'Disqualified'];
-                                            $badge_colors = ['secondary', 'info', 'success', 'danger'];
+                                            $status_labels = [
+                                                0 => 'Application Submitted',
+                                                1 => 'Reviewing',
+                                                2 => 'Qualified / Ready for Interview',
+                                                3 => 'Disqualified',
+                                                4 => 'Qualified yet not selected',
+                                                5 => 'Top 5 / Psychological or Pre-Employment Test',
+                                                6 => 'Not Hired',
+                                                7 => 'Hired',
+                                            ];
+
+                                            $badge_colors = [
+                                                0 => 'secondary',
+                                                1 => 'info',
+                                                2 => 'success',
+                                                3 => 'danger',
+                                                4 => 'warning',
+                                                5 => 'primary',
+                                                6 => 'dark',
+                                                7 => 'success',
+                                            ];
                                         @endphp
                                         <span class="badge badge-{{ $badge_colors[$app->status] ?? 'secondary' }}">
                                             {{ $status_labels[$app->status] ?? 'Unknown' }}
                                         </span>
                                     </td>
-                                    <td class="text-center">
-                                        <button value="{{ $app->id }}" class="btn btn-danger btn-sm app-delete">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+
+                                    {{-- 🔹 Actions --}}
+                                    <td class="text-center align-middle">
+                                        @if ($app->status == 1)
+                                            {{-- Qualified --}}
+                                            <button type="button"
+                                                    class="btn btn-sm btn-success q-btn"
+                                                    data-app-id="{{ $app->id }}"
+                                                    data-toggle="modal"
+                                                    data-target="#qualifyModal"
+                                                    title="Mark as Qualified / Set Interview">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+
+                                            {{-- Disqualified --}}
+                                            <button type="button"
+                                                    class="btn btn-sm btn-danger dq-btn"
+                                                    data-app-id="{{ $app->id }}"
+                                                    data-toggle="modal"
+                                                    data-target="#dqModal"
+                                                    title="Disqualify Applicant">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+
+                                        @elseif ($app->status == 2)
+                                            {{-- Move to next or skip --}}
+                                            <form method="POST" action="{{ route('updateStatus') }}" style="display:inline;">
+                                                @csrf
+                                                <input type="hidden" name="id" value="{{ $app->id }}">
+                                                <input type="hidden" name="status" value="4">
+                                                <button type="submit" class="btn btn-sm btn-warning" title="Not selected for next stage">
+                                                    <i class="fas fa-user-clock"></i>
+                                                </button>
+                                            </form>
+
+                                            <form method="POST" action="{{ route('updateStatus') }}" style="display:inline;">
+                                                @csrf
+                                                <input type="hidden" name="id" value="{{ $app->id }}">
+                                                <input type="hidden" name="status" value="5">
+                                                <button type="submit" class="btn btn-sm btn-primary" title="Select for next stage (Top 5)">
+                                                    <i class="fas fa-arrow-right"></i>
+                                                </button>
+                                            </form>
+
+                                        @elseif ($app->status == 5)
+                                            {{-- Not Hired --}}
+                                            <form method="POST" action="{{ route('updateStatus') }}" style="display:inline;">
+                                                @csrf
+                                                <input type="hidden" name="id" value="{{ $app->id }}">
+                                                <input type="hidden" name="status" value="6">
+                                                <button type="submit" class="btn btn-sm btn-dark" title="Mark as Not Hired">
+                                                    <i class="fas fa-user-slash"></i>
+                                                </button>
+                                            </form>
+
+                                            {{-- Hired --}}
+                                            <form method="POST" action="{{ route('updateStatus') }}" style="display:inline;">
+                                                @csrf
+                                                <input type="hidden" name="id" value="{{ $app->id }}">
+                                                <input type="hidden" name="status" value="7">
+                                                <button type="submit" class="btn btn-sm btn-success" title="Mark as Hired">
+                                                    <i class="fas fa-user-check"></i>
+                                                </button>
+                                            </form>
+
+                                        @else
+                                            <button class="btn btn-sm btn-outline-secondary" disabled title="No actions available">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                        @endif
                                     </td>
                                 </tr>
                                 @endforeach
@@ -76,31 +187,143 @@
         </div>
     </div>
 </div>
-<!-- Review Modal -->
-<div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <form id="reviewForm" method="POST">
-            @csrf
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="reviewModalLabel">Review Application</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="application_no">Routing #</label>
-                        <input type="text" name="application_no" id="application_no" class="form-control" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Submit Review</button>
-                </div>
-            </div>
-        </form>
+
+{{-- 🔸 Set Control No. Modal --}}
+<div class="modal fade" id="setCtrlModal" tabindex="-1" role="dialog" aria-labelledby="setCtrlModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content border-0 shadow-lg rounded">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title font-weight-bold" id="setCtrlModalLabel">
+          <i class="fas fa-key mr-2"></i> Set Control Number
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <form id="ctrlForm" method="POST" action="{{ route('setCtrlNo') }}">
+        @csrf
+        <div class="modal-body">
+          <input type="hidden" name="id" id="ctrlAppId">
+          <div class="form-group">
+            <label for="ctrl_no">Control Number</label>
+            <input type="text" name="ctrl_no" id="ctrl_no" class="form-control" placeholder="Enter Control Number" autocomplete="off" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-warning text-dark">
+            <i class="fas fa-save"></i> Save
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
 
+{{-- 🔸 Qualified (Interview Schedule) Modal --}}
+<div class="modal fade" id="qualifyModal" tabindex="-1" role="dialog" aria-labelledby="qualifyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content border-0 shadow rounded">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title font-weight-bold" id="qualifyModalLabel">
+          <i class="fas fa-calendar-check mr-2"></i> Set Interview Schedule
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <form method="POST" action="{{ route('updateStatus') }}">
+        @csrf
+        <input type="hidden" name="id" id="qualifyAppId">
+        <input type="hidden" name="status" value="2">
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="interview_datetime">Interview Schedule <span class="text-danger">*</span></label>
+            <input type="datetime-local" id="interview_datetime" name="interview_datetime" class="form-control" required>
+            <small class="form-text text-muted">Example: September 16, 2025, at 2:00 PM</small>
+          </div>
+
+          <div class="form-group">
+            <label for="venue">Venue <span class="text-danger">*</span></label>
+            <textarea id="venue" name="venue" class="form-control" rows="2" required>Conference Room, Admin Building/Bidding Room/Accreditation/ Mini Hotel</textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-check"></i> Confirm & Qualify
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{{-- 🔸 Disqualification Reason Modal --}}
+<div class="modal fade" id="dqModal" tabindex="-1" role="dialog" aria-labelledby="dqModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content border-0 shadow rounded">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title font-weight-bold" id="dqModalLabel">
+          <i class="fas fa-times-circle mr-2"></i> Disqualify Applicant
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <form method="POST" action="{{ route('updateStatus') }}">
+        @csrf
+        <input type="hidden" name="id" id="dqAppId">
+        <input type="hidden" name="status" value="3">
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="dqReason">Reason for Disqualification <span class="text-danger">*</span></label>
+            <textarea name="reason" id="dqReason" class="form-control" rows="3" placeholder="Enter reason..." required></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button type="submit" class="btn btn-danger">
+            <i class="fas fa-check"></i> Confirm Disqualification
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Set Control No.
+    document.querySelectorAll('.set-ctrl').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('ctrlAppId').value = btn.value;
+        });
+    });
+
+    // Qualified modal
+    document.querySelectorAll('.q-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('qualifyAppId').value = btn.dataset.appId;
+        });
+    });
+
+    // Disqualified modal
+    document.querySelectorAll('.dq-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('dqAppId').value = btn.dataset.appId;
+        });
+    });
+});
+</script>
 @endsection

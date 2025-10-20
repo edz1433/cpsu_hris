@@ -82,8 +82,8 @@
         </li>
 
         @if($guard == "web")
-        <li class="nav-item has-treeview {{ request()->is('job-hiring*') || request()->is('applications*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link text-success1 {{ request()->is('job-hiring*') || request()->is('applications*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ request()->is('career*') || request()->is('applications*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link text-success1 {{ request()->is('career*') || request()->is('applications*') ? 'active' : '' }}">
                 <i class="pt-1 nav-icon fas fa-briefcase"></i>
                 <p>
                     Careers

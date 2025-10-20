@@ -193,16 +193,18 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         // Route::post('/update-account', [MyAccountController::class, 'updateAccount']) ->name('updateAccount');
     }); 
 
-    Route::prefix('job-opening')->group(function () {
+    Route::prefix('career')->group(function () {
         Route::get('/', [JobHiringController::class, 'jlist'])->name('jlist');
         Route::post('/create', [JobHiringController::class, 'jCreate'])->name('jCreate');
         Route::get('/edit/{id}', [JobHiringController::class, 'jEdit'])->name('jEdit');
         Route::post('/update', [JobHiringController::class, 'jUpdate'])->name('jUpdate');
         Route::post('/delete', [JobHiringController::class, 'jDelete'])->name('jDelete');
-        
+
         // optional extra route if applicants can apply directly
         Route::get('/applications', [MasterController::class, 'appList'])->name('appList');
         Route::post('/applications/create', [ApplicationController::class, 'appCreate'])->name('appCreate');
+        Route::post('/application/setCtrlNo', [ApplicationController::class, 'setCtrlNo'])->name('setCtrlNo');
+        Route::post('/application/update-status', [ApplicationController::class, 'updateStatus'])->name('updateStatus');
     });
 
     // Employee

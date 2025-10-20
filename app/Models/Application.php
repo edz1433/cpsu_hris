@@ -30,13 +30,11 @@ class Application extends Model
         'tor',	
         'coe',	
         'cert_training',
-        'stat_1',
-        'stat_2',
-        'stat_3',
-        'stat_4',
-        'stat_5',
-        'stat_6',
-        'reason',
-        'status'
+        'dq_reason',
+        'ctrl_no',
+        'interview_datetime',
+        'venue',
+        'status',
+        'is_complete'
     ];
 }
