@@ -246,7 +246,7 @@ class ApplicationController extends Controller
         try {
             $toEmail = 'cpsu_hrmo@cpsu.edu.ph';
             $green = '#187744';
-            $trackingUrl = 'https://cpsu.edu.ph/career';
+            $trackingUrl = 'https://cpsu.edu.ph/jobs';
 
             // ===== 📩 Email to HR =====
             $subjectHR = "New Job Application: {$request->first_name} {$request->last_name}";
@@ -323,9 +323,9 @@ class ApplicationController extends Controller
                 </div>
             ';
 
-            Mail::send([], [], function ($message) use ($request, $subjectApplicant, $bodyApplicant) {
+            Mail::send([], [], function ($message) use ($request, $subjectApplicant, $bodyApplicant, $toEmail) {
                 $message->to($request->email)
-                        ->from('cpsu_hrmo@cpsu.edu.ph', 'CPSU Career Portal')
+                        ->from($toEmail, 'CPSU Career Portal')
                         ->subject($subjectApplicant)
                         ->html($bodyApplicant);
             });
