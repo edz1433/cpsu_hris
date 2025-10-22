@@ -186,7 +186,7 @@ class ApplicationController extends Controller
 
             Mail::send([], [], function ($m) use ($email, $subject, $body) {
                 $m->to($email)
-                ->from(config('mail.from.address'), config('mail.from.name'))
+                ->from('cpsu_cpsu_career@cpsu.edu.ph', config('mail.from.name'))
                 ->subject($subject)
                 ->html($body);
             });
@@ -347,7 +347,7 @@ class ApplicationController extends Controller
                     for the position of <strong>" . e($app->position) . "</strong> at <strong>Central Philippines State University (CPSU)</strong>.</p>
                     <p>This stage will consist of a <strong>Psychological / Pre-Employment Test</strong>. Details regarding your schedule and venue 
                     will be sent to you shortly.</p>
-                    <p>Please check your email regularly for further instructions from the CPSU Human Resources Department.</p>
+                    <p>Please check your email regularly for further instructions from the CPSU Career Portal.</p>
                 ";
                 break;
 
@@ -369,7 +369,7 @@ class ApplicationController extends Controller
                     <p>Congratulations!</p>
                     <p>We are delighted to inform you that you have been selected for the position of 
                     <strong>" . e($app->position) . "</strong> at <strong>Central Philippines State University (CPSU)</strong>.</p>
-                    <p>The CPSU Human Resources Department will contact you soon regarding onboarding procedures and employment documentation.</p>
+                    <p>The CPSU Career Portal will contact you soon regarding onboarding procedures and employment documentation.</p>
                     <p>Welcome to the CPSU community!</p>
                 ";
                 break;
@@ -394,7 +394,7 @@ class ApplicationController extends Controller
                     </div>
                     <div style="padding:20px;color:#333;">
                         ' . $message . '
-                        <p style="margin-top:20px;">Best regards,<br><strong>CPSU Human Resources Department</strong></p>
+                        <p style="margin-top:20px;">Best regards,<br><strong>CPSU Career Portal</strong></p>
                     </div>
                     <div style="background:#f1f1f1;text-align:center;padding:10px;font-size:12px;color:#555;">
                         © ' . date('Y') . ' Central Philippines State University | Human Resources Department
@@ -407,7 +407,7 @@ class ApplicationController extends Controller
         // ------------------------------
         Mail::send([], [], function ($m) use ($email, $subject, $body) {
             $m->to($email)
-                ->from('career@cpsu.edu.ph', 'CPSU Human Resources Department')
+                ->from('cpsu_career@cpsu.edu.ph', 'CPSU Career Portal')
                 ->subject($subject)
                 ->html($body);
         });
