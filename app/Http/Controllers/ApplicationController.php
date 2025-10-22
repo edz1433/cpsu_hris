@@ -418,5 +418,4 @@ class ApplicationController extends Controller
         return back()->with('success', "Applicant status successfully updated. An email notification has been sent to {$email}.");
     }
 
-
 }
