@@ -100,7 +100,7 @@ class ApplicationController extends Controller
 
     //     // 📧 Send email directly here
     //     try {
-    //         $toEmail = 'cpsu_hrmo@cpsu.edu.ph'; // ✅ fixed
+    //         $toEmail = 'cpsu_career@cpsu.edu.ph'; // ✅ fixed
 
     //         $subject = "New Job Application: {$request->first_name} {$request->last_name}";
             
@@ -141,7 +141,7 @@ class ApplicationController extends Controller
 
     //         Mail::send([], [], function ($message) use ($toEmail, $subject, $body, $paths) {
     //             $message->to($toEmail)
-    //                     ->from('cpsu_hrmo@cpsu.edu.ph', 'CPSU Career Portal')
+    //                     ->from('cpsu_career@cpsu.edu.ph', 'CPSU Career Portal')
     //                     ->subject($subject)
     //                     ->html($body);
 
@@ -244,11 +244,11 @@ class ApplicationController extends Controller
 
         // 📧 Send email to HR and applicant
         try {
-            $toEmail = 'cpsu_hrmo@cpsu.edu.ph';
+            $toEmail = 'cpsu_main@cpsu.edu.ph';
             $green = '#187744';
             $trackingUrl = 'https://cpsu.edu.ph/jobs';
 
-            // ===== 📩 Email to HR =====
+            // ===== 📩 Email to Records =====
             $subjectHR = "New Job Application: {$request->first_name} {$request->last_name}";
             $bodyHR = '
                 <div style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 20px;">
@@ -257,7 +257,7 @@ class ApplicationController extends Controller
                             <h2 style="margin: 0; font-size: 20px;">New Job Application Received</h2>
                         </div>
                         <div style="padding: 24px; color: #333;">
-                            <p style="font-size: 16px; margin-bottom: 10px;">Dear HR Team,</p>
+                            <p style="font-size: 16px; margin-bottom: 10px;">Dear Records Office Team,</p>
                             <p style="margin-bottom: 20px;">A new job application has been submitted via the CPSU Career Portal. Here are the details:</p>
 
                             <table style="width: 100%; border-collapse: collapse;">
@@ -283,11 +283,11 @@ class ApplicationController extends Controller
                         </div>
                     </div>
                 </div>
-            ';
+            '; 
 
             Mail::send([], [], function ($message) use ($toEmail, $subjectHR, $bodyHR, $paths) {
                 $message->to($toEmail)
-                        ->from('cpsu_hrmo@cpsu.edu.ph', 'CPSU Career Portal')
+                        ->from('cpsu_career@cpsu.edu.ph', 'CPSU Career Portal')
                         ->subject($subjectHR)
                         ->html($bodyHR);
 
@@ -325,7 +325,7 @@ class ApplicationController extends Controller
 
             Mail::send([], [], function ($message) use ($request, $subjectApplicant, $bodyApplicant, $toEmail) {
                 $message->to($request->email)
-                        ->from($toEmail, 'CPSU Career Portal')
+                        ->from('cpsu_career@cpsu.edu.ph', 'CPSU Career Portal')
                         ->subject($subjectApplicant)
                         ->html($bodyApplicant);
             });
