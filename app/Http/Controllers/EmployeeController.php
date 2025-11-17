@@ -437,7 +437,7 @@ class EmployeeController extends Controller
         $offices = Office::where('office_name', 'not like', '%UNKNOWN%')
                  ->where('office_name', 'not like', '%CAMPUS%')
                  ->get();
-
+        
         $stat = Status::where('status_name', '!=', 'Part-time/JO')->get();
         $quali = Qualification::all();
         $camp = (auth()->user()->campus_id == 1) ? Campus::all() : Campus::where('id', auth()->user()->campus_id)->get();

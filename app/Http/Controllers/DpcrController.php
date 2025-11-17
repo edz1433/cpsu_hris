@@ -13,6 +13,9 @@ use App\Models\PrSetting;
 use App\Models\Dpcr;
 use App\Models\DpcrMfo;
 use App\Models\DpcrMfoData;
+use App\Models\Ipcr;
+use App\Models\IpcrMfo;
+use App\Models\IpcrMfoData;
 use App\Models\SpmsPersonnel;
 use App\Models\Office;
 use App\Models\SpmsAsignatory;
@@ -316,6 +319,161 @@ class DpcrController extends Controller
             ]);
 
         return $pdf->stream();
+    }
+    
+    public function assignDpcr(Request $request)
+    { 
+        $setting = Setting::first();
+        $id = $request->dpcrid;
+        $empIds = $request->empid;
+        $count = $request->count;
+        $prnumber = $request->prnumber;
+        $target = $request->target;
+
+        $finalEmpIds = [];
+
+        $sucpresData = Employee::join('spms_personnels', 'employees.id', '=', 'spms_personnels.empid')
+            ->where('employees.id', $setting->suc_pres)
+            ->select('employees.emp_ID', 'employees.suffix', 'spms_personnels.designation')
+            ->first();
+
+        foreach ($empIds as $empId) {
+            if ($empId != $setting->suc_pres) {
+                $finalEmpIds[] = $empId;
+            }
+        }
+
+        foreach ($finalEmpIds as $empid) {
+            if (!is_numeric($empid)) continue;
+
+            $employee = Employee::find($empid);
+            $empoffice = Office::find($employee->emp_dept);
+
+            $offheadData = Employee::join('spms_personnels', 'employees.id', '=', 'spms_personnels.empid')
+                ->where('employees.id', $employee->supervisor)
+                ->select('employees.emp_ID', 'employees.suffix', 'spms_personnels.designation', 'employees.emp_dept')
+                ->first();
+
+            $headoffice = Office::find($offheadData->emp_dept);
+
+            if (!$employee) continue;
+ 
+            $prSetting = PrSetting::find($employee->strat_function);
+            $dpcrmfodata = DpcrMfoData::find($id);
+            $dpcrmfo = DpcrMfo::find($dpcrmfodata->dpcr_mfo_id ?? null);
+            $dpcr = Dpcr::find($dpcrmfo->dpcr_id ?? null);
+            if (!$dpcr) continue;
+
+            $dpcrmfos = DpcrMfo::where('dpcr_id', $dpcr->id)->get();
+            $functions = $dpcrmfos->pluck('functions')->all();
+
+            $lastPr = Ipcr::where('pr_number', 'like', 'I-%')
+                        ->orderByDesc('id')
+                        ->value('pr_number');
+
+            $nextNumber = ($lastPr && preg_match('/I-(\d+)/', $lastPr, $matches))
+                            ? ((int)$matches[1] + 1)
+                            : 1;
+
+            $prNumber = 'I-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+            $exists = Ipcr::where('user_id', $empid)
+                        ->where('dp_pr_number', $dpcr->pr_number)
+                        ->exists();
+
+            if (!$exists) {
+                $dpcrRecords = [
+                    ['mfo' => 'CORE FUNCTIONS',      'percent' => $prSetting->core_sum ?? 0],
+                    ['mfo' => 'STRATEGIC FUNCTIONS', 'percent' => $prSetting->strat_sum ?? 0],
+                    ['mfo' => 'SUPPORT FUNCTIONS',   'percent' => $prSetting->support_sum ?? 0],
+                ];
+
+                $insertedIds = [];
+                foreach ($dpcrRecords as $record) {
+                    $model = Ipcr::create([
+                        'user_id'      => $empid,
+                        'dpcr_id'      => $dpcrmfo->dpcr_id ?? null,
+                        'dp_pr_number' => $dpcr->pr_number,
+                        'folder_id'    => 3,
+                        'pr_number'    => $prNumber,
+                        'mfo'          => $record['mfo'],
+                        'percent'      => $record['percent'],
+                        'year'         => $dpcr->year,
+                    ]);
+                    $insertedIds[] = $model->id;
+                }
+
+                [$firstId, $secondId, $thirdId] = $insertedIds;
+
+                $ipcrMfo = [
+                    ['ipcr_id' => $firstId, 'dpcr_id' => $dpcrmfo->dpcr_id, 'mfo' => 'MFO 1', 'percent' => $prSetting->core_mfo1 ?? 0, 'functions' => $functions[0] ?? '', 'count' => 1],
+                    ['ipcr_id' => $firstId, 'dpcr_id' => $dpcrmfo->dpcr_id, 'mfo' => 'MFO 2', 'percent' => $prSetting->core_mfo2 ?? 0, 'functions' => $functions[1] ?? '', 'count' => 2],
+                    ['ipcr_id' => $firstId, 'dpcr_id' => $dpcrmfo->dpcr_id, 'mfo' => 'MFO 3', 'percent' => $prSetting->core_mfo3 ?? 0, 'functions' => $functions[2] ?? '', 'count' => 3],
+
+                    ['ipcr_id' => $secondId, 'dpcr_id' => $dpcrmfo->dpcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->strategic_mfo4 ?? 0, 'functions' => $functions[3] ?? '', 'count' => 4],
+                    ['ipcr_id' => $secondId, 'dpcr_id' => $dpcrmfo->dpcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->strategic_mfo5 ?? 0, 'functions' => $functions[4] ?? '', 'count' => 5],
+
+                    ['ipcr_id' => $thirdId, 'dpcr_id' => $dpcrmfo->dpcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->support_mfo4 ?? 0, 'functions' => $functions[5] ?? '', 'count' => 6],
+                    ['ipcr_id' => $thirdId, 'dpcr_id' => $dpcrmfo->dpcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->support_mfo5 ?? 0, 'functions' => $functions[6] ?? '', 'count' => 7],
+                ];
+
+                IpcrMfo::insert($ipcrMfo);
+
+                $asignatories = [
+                    ['empid' => $employee->emp_ID, 'suffixes' => $employee->suffix, 'designation' => !empty($empoffice) && !empty($empoffice->office_name) ? 'Head, '.$empoffice->office_name : '', 'label' => 'Discussed with:'],
+                    ['empid' => $offheadData->emp_ID, 'suffixes' => $offheadData->suffix, 'designation' => !empty($headoffice) && !empty($headoffice->office_name) ? $headoffice->office_name : '', 'label' => 'Assessed by:'],
+                    ['empid' => 'EMP0131', 'suffixes' => "Ph.D.", 'designation' => 'Performance Management Team', 'label' => 'Reviewed by:'],
+                    ['empid' => 'EMP0202', 'suffixes' => "Ph.D.", 'designation' => 'Performance Management Team', 'label' => 'Reviewed by:'],
+                    ['empid' => $sucpresData->emp_ID, 'suffixes' => $sucpresData->suffix, 'designation' => 'President', 'label' => 'Approved:'],
+                ];
+
+                foreach ($asignatories as $asignatory) {
+                    SpmsAsignatory::create([
+                        'pr_number'   => $prNumber,
+                        'empid'       => $asignatory['empid'],
+                        'suffixes'    => $asignatory['suffixes'],
+                        'designation' => $asignatory['designation'],
+                        'spms_type'   => 'IPCR',
+                        'label'       => $asignatory['label'],
+                    ]);
+                }
+            }
+
+            $ipcrmfofind = IpcrMfo::join('ipcrs', 'ipcr_mfos.ipcr_id', '=', 'ipcrs.id')
+                ->where('ipcrs.user_id', $empid)
+                ->where('ipcr_mfos.count', $count)
+                ->select('ipcr_mfos.*')
+                ->first();
+
+            // dd($ipcrmfofind);
+            if ($dpcrmfodata && $ipcrmfofind) {
+                $data = $dpcrmfodata->toArray();
+                unset($data['id']);
+
+                $data['pr_number'] = $dpcrmfo->pr_number ?? null;
+                $data['ipcr_mfo_id'] = $ipcrmfofind->id;
+                $data['dpcr_mfo_data_id'] = $id;
+                $data['user_id'] = $empid;
+                $data['dpcr_by'] = $data['opcr_by'];
+                $data['target'] = $target;
+
+                $exists = IpcrMfoData::where('user_id', $empid)
+                            ->where('dpcr_mfo_data_id', $id)
+                            ->exists();
+
+                if (!$exists) {
+                    $nextOrder = IpcrMfoData::where('user_id', $empid)
+                                    ->where('ipcr_mfo_id', $ipcrmfofind->id)
+                                    ->max('order') ?? 0;
+
+                    $data['order'] = $nextOrder + 1;
+
+                    IpcrMfoData::create($data);
+                }
+            }
+        }
+
+        return redirect()->back()->with('success', 'Assigned successfully!');
     }
 
     public function markAsRead(Request $request)

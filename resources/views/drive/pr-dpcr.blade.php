@@ -3,7 +3,7 @@
 @section('body')
 <style>  
     #table-form {
-        width: 100%;
+        width: 100%; 
         font-size: 10px;
     }
     #table-form td, th{
@@ -269,7 +269,6 @@
                     </td>
                 @endif
             </tr>
-            
             @php
                 $filteredDpcrMfoDatas = in_array($cat, [1, 2])
                     ? $datas->where('dpcr_mfo_id', $core->id)->where('category', $cat)->sortBy('order')
@@ -277,18 +276,23 @@
             @endphp
 
             @foreach($filteredDpcrMfoDatas as $dpcrmfodata)
+            @php
+                $names = explode(',', $dpcrmfodata->emp_employees ?? '');
+                $ids = explode(',', $dpcrmfodata->emp_ids ?? '');
+                $evidences = explode(',', $dpcrmfodata->emp_evidences ?? '');
+            @endphp
             <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="core{{ $dpcrmfodata->dpcr_mfo_id }}"
                 @if(!in_array($userid, $pmtsmember ?? []) && $guard == 'employee')
                     @if(!in_array($status, [2, 5]))
-                        onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})"
+                        onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, '{{ $dpcrmfodata->target }}', {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})"
                         style="cursor: pointer;"
                     @endif
                 @else
-                    onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})"
+                    onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, '{{ $dpcrmfodata->target }}', {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})"
                     style="cursor: pointer;"
                 @endif
             >
-            <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
+                <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
                 </td>
@@ -337,7 +341,25 @@
                     @endif
                 </td>
                 <td class="text-center"></td>
-                <td class="text-center"></td>
+                <td class="text-center">
+                    @foreach($names as $index => $name)
+                        @php
+                            $name = trim($name);
+                            $evidence = $evidences[$index] ?? '#';
+                        @endphp
+
+                        @if($evidence != '#')
+                            <a href="{{ $evidence }}" 
+                            target="_blank"
+                            onclick="event.stopPropagation();" 
+                            style="text-decoration: none; color: #007bff;">
+                            {{ $name }}<br>
+                            </a>
+                        @else
+                            <span style="color: #6c757d;">{{ $name }}<br></span>
+                        @endif
+                    @endforeach
+                </td>
                 <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
                 <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
                 <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
@@ -438,7 +460,12 @@
             @endphp
 
             @foreach($filtereddpcrmfodatas as $dpcrmfodata)
-                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="strategic{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $strat->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
+                @php
+                    $names = explode(',', $dpcrmfodata->emp_employees ?? '');
+                    $ids = explode(',', $dpcrmfodata->emp_ids ?? '');
+                    $evidences = explode(',', $dpcrmfodata->emp_evidences ?? '');
+                @endphp
+                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="strategic{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, '{{ $dpcrmfodata->target }}', {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $strat->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
                 <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
@@ -488,7 +515,25 @@
                     @endif
                 </td>
                     <td class="text-center"></td>
-                    <td class="text-center"></td>
+                    <td class="text-center">
+                        @foreach($names as $index => $name)
+                            @php
+                                $name = trim($name);
+                                $evidence = $evidences[$index] ?? '#';
+                            @endphp
+
+                            @if($evidence != '#')
+                                <a href="{{ $evidence }}" 
+                                target="_blank"
+                                onclick="event.stopPropagation();" 
+                                style="text-decoration: none; color: #007bff;">
+                                {{ $name }}<br>
+                                </a>
+                            @else
+                                <span style="color: #6c757d;">{{ $name }}<br></span>
+                            @endif
+                        @endforeach
+                    </td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
@@ -586,7 +631,12 @@
             @endphp
 
             @foreach($filtereddpcrmfodatas as $dpcrmfodata)
-                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="support{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $supp->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
+                @php
+                    $names = explode(',', $dpcrmfodata->emp_employees ?? '');
+                    $ids = explode(',', $dpcrmfodata->emp_ids ?? '');
+                    $evidences = explode(',', $dpcrmfodata->emp_evidences ?? '');
+                @endphp
+                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="support{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, '{{ $dpcrmfodata->target }}', {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $supp->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
                 <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
@@ -636,7 +686,25 @@
                     @endif
                 </td>
                     <td class="text-center"></td>
-                    <td class="text-center"></td>
+                    <td class="text-center">
+                        @foreach($names as $index => $name)
+                            @php
+                                $name = trim($name);
+                                $evidence = $evidences[$index] ?? '#';
+                            @endphp
+
+                            @if($evidence != '#')
+                                <a href="{{ $evidence }}" 
+                                target="_blank"
+                                onclick="event.stopPropagation();" 
+                                style="text-decoration: none; color: #007bff;">
+                                {{ $name }}<br>
+                                </a>
+                            @else
+                                <span style="color: #6c757d;">{{ $name }}<br></span>
+                            @endif
+                        @endforeach
+                    </td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
@@ -773,7 +841,7 @@
 </script>
 <script>
     let canDelete = @json($guard == 'web' || in_array($userid, $pmtsmember ?? []));
-    function showOpcrMfoData(id, mfoid, count, lock) {
+    function showOpcrMfoData(id, target, mfoid, count, lock) {
         Swal.fire({
             title: 'Choose an action',
             icon: 'question',
@@ -791,19 +859,20 @@
             buttonsStyling: false
         }).then((result) => {
             if (result.isConfirmed) {
-                $('#opcr-mfo-data-id').val(id);
-                $('#count').val(count);
-                $('#asign-to-dpcr').modal('show');
+                $('#dpcr-mfo-data-id').val(id);
+                $('#count1').val(count);
+                $('#asign-to-ipcr').modal('show');
+                document.getElementById('ipcr-target').value = target;
             } else if (result.isDenied) {
                 editOpcrData(id);
-                $('#opcr-mfo-id').val(mfoid);
+                $('#dpcr-mfo-id').val(mfoid);
 
                 $.ajax({
                     url: `{{ route('dpcrmfoEditData', ':id') }}`.replace(':id', id),
                     method: 'GET',
                     success: function (data) {
                         $('#category').val(data.category);
-                        $('#opcr_by').val(data.opcr_by);
+                        $('#dpcr_by').val(data.dpcr_by);
                         $('#mfo').val(data.mfo);
                         $('#target').val(data.target);
                         $('#measure').val(data.measure);

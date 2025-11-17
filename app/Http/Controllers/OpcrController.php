@@ -692,7 +692,7 @@ class OpcrController extends Controller
                         'empid'       => $asignatory['empid'],
                         'suffixes'    => $asignatory['suffixes'],
                         'designation' => $asignatory['designation'],
-                        'spms_type'   => 'OPCR',
+                        'spms_type'   => 'DPCR',
                         'label'       => $asignatory['label'],
                     ]);
                 }
@@ -719,12 +719,6 @@ class OpcrController extends Controller
                             ->exists();
 
                 if (!$exists) {
-                    $nextOrder = DpcrMfoData::where('user_id', $empid)
-                                    ->where('dpcr_mfo_id', $dpcrmfofind->id)
-                                    ->max('order') ?? 0;
-
-                    $data['order'] = $nextOrder + 1;
-
                     DpcrMfoData::create($data);
                 }
             }

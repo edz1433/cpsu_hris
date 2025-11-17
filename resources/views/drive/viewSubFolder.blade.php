@@ -110,7 +110,7 @@
                                         $defaultImage = $sex === 'Female' ? 'default-female.png' : 'default.png';
                                         $image = asset('Profile/Employee/' . $defaultImage);
                                     }
-
+                                    
                                     $currentStatus = $statusLabels[$status] ?? $statusLabels[0];
                                 @endphp
                                 <tr 

@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Ipcr extends Model
+class IpcrMfo extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
-        'user_id', 'folder_id', 'dpcr_id', 'pr_number', 'dp_pr_number', 'mfo', 'percent', 'year', 'status'
+        'ipcr_id', 'dpcr_id', 'mfo', 'percent', 'functions', 'count'
     ];
 }

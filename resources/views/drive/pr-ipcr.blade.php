@@ -3,7 +3,7 @@
 @section('body')
 <style>  
     #table-form {
-        width: 100%;
+        width: 100%; 
         font-size: 10px;
     }
     #table-form td, th{
@@ -30,7 +30,7 @@
     }
 </style>
 @php
-    $selectedEmployees = \App\Models\SpmsAsignatory::where('pr_number', 0001)
+    $selectedEmployees = \App\Models\SpmsAsignatory::where('pr_number', $dprnumber)
         ->join('employees', 'spms_asignatories.empid', '=', 'employees.emp_ID')
         ->select('employees.fname', 'employees.lname', 'employees.mname', 'spms_asignatories.*')
         ->get();
@@ -44,30 +44,120 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <iframe src="{{ asset('Uploads/spms-rating.pdf') }}" frameborder="0" style="width: 100%; height: 80vh;"></iframe>
+                <!-- Placeholder iframe without src initially -->
+                <iframe id="rating-iframe" frameborder="0" style="width: 100%; height: 80vh;"></iframe>
             </div>
         </div>
     </div>
 </div>
-<div class="d-flex justify-content-end align-items-center gap-2 mb-3">
-    <div class="input-group" style="width: auto;">
-        <select class="form-control form-control-sm" id="categorySelect">
-            <option value="0" {{ ($cat == 0) ? 'selected' : '' }} >All</option>
-            <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>1st Quarter</option>
-            <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>2nd Quarter</option>
-        </select>
-        <div class="input-group-append" style="margin-right: 5px;">
-            <span class="input-group-text"><i class="fas fa-filter"></i></span>
+
+<div class="d-flex justify-content-between align-items-center gap-3 mb-3 flex-wrap">
+    {{-- Full Name on the Left --}}
+    <div class="d-flex align-items-center ml-2">
+        <span class="badge bg-primary text-light px-3 py-2 shadow-sm" style="font-size: 0.875rem;">
+            <i class="fas fa-user-circle me-1"></i> {{ strtoupper($fullname) }}
+        </span>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 px-2">
+        {{-- Right Buttons: Request Review, PDF Dropdown, Filter --}}
+        <div class="d-flex align-items-center flex-wrap gap-2 ms-auto">
+            {{-- Request for Review Button --}}
+            @if(in_array($status, [1,4]) && !in_array($userid, $pmtsmember ?? []) && $guard == "employee")
+                <form id="requestReviewForm" action="{{ route('updateStat') }}" method="POST" style="display:inline;">
+                    @csrf
+                    <input type="hidden" name="stat" value="5">
+                    <input type="hidden" name="prnumber" value="{{ $dprnumber }}">
+                    <button type="button" class="btn btn-success btn-sm mr-1" onclick="confirmRequestReview()">
+                        <i class="fas fa-paper-plane me-1"></i> Request for Review
+                    </button>
+                </form>
+            @endif
+
+            @php
+                $unreadComments = $comments->where('status', 0);
+            @endphp
+
+            <div class="dropdown d-inline mr-1 position-relative">
+                <button class="btn btn-info btn-sm dropdown-toggle open-comments" 
+                        type="button" 
+                        id="notifDropdown" 
+                        data-toggle="dropdown" 
+                        aria-haspopup="true" 
+                        aria-expanded="false"
+                        data-prnumber="{{ $dprnumber }}">
+                    <i class="fas fa-comment"></i>
+                    @if($unreadComments->count() > 0)
+                        <span class="badge badge-warning navbar-badge" id="unreadCount">{{ $unreadComments->count() }}</span>
+                    @endif
+                </button>
+                <div class="dropdown-menu dropdown-menu-right mt-2 shadow animated--fade-in" 
+                    aria-labelledby="notifDropdown" 
+                    style="min-width: 500px; max-height: 400px; overflow-y: auto;">
+                    
+                    <div class="dropdown-header">{{ $comments->count() }} Notifications</div>
+                    <div class="dropdown-divider"></div>
+
+                    @forelse($comments as $comment)
+                        <a href="#" class="dropdown-item {{ $comment->status == 0 ? 'bg-light' : '' }}">
+                            <div>
+                                <strong>{{ ucfirst(strtolower($comment->lname)) }} {{ ucfirst(strtolower($comment->fname)) }}</strong>
+                            </div>
+                            <div class="text-wrap text-break">{{ $comment->comment }}</div>
+                            <span class="float-right text-muted text-sm">{{ $comment->created_at->diffForHumans() }}</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                    @empty
+                        <span class="dropdown-item text-muted">No notifications</span>
+                    @endforelse
+                </div>
+            </div>
+
+            {{-- PDF Dropdown --}}
+            <div class="dropdown mr-1">
+                <button class="btn btn-danger btn-sm dropdown-toggle" type="button" id="pdfDropdown"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-file-pdf"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="pdfDropdown">
+
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-cat="1" data-target="#modal-rating">
+                        Cover Page
+                    </a>
+                    
+                    @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
+                        @if($status == 3)
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-cat="2" data-target="#modal-rating">IPCR</a>
+                        @else
+                            <a class="dropdown-item text-muted" href="javascript:void(0);" title="Not yet available"
+                            style="cursor: not-allowed; pointer-events: none; color: #6c757d !important; background-color: transparent !important;">
+                                <i class="fas fa-lock me-1 text-secondary fa-sm"></i> IPCR
+                            </a>
+                        @endif
+                    @else
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-cat="2" data-target="#modal-rating">IPCR</a>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Category Filter --}}
+            <div class="input-group input-group-sm" style="width: auto;">
+                <select class="form-control" id="categorySelect">
+                    <option value="0" {{ ($cat == 0) ? 'selected' : '' }}>All</option>
+                    <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>1st Half</option>
+                    <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>2nd Half</option>
+                </select>
+                <div class="input-group-append">
+                    <span class="input-group-text"><i class="fas fa-filter"></i></span>
+                </div>
+            </div>
         </div>
     </div>
-    <button type="submit" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modal-rating">
-        <i class="fas fa-star"></i> Rating
-    </button>
 </div>
 
 <div style="max-height: 500px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.25rem; padding: 10px;">
 <table id="table-form">
-    <thead>  
+    <thead>
         <tr>
             <th rowspan="3" class="text-center">MFO/PAPs</th>
             <th class="text-center" width="180">Success Indicators</th>
@@ -75,7 +165,7 @@
             <th colspan="2" class="text-center" >Evidence</th>
             <th rowspan="3" class="text-center" >Allotted<br>Budget</th>
             <th rowspan="3" class="text-center">Division/<br>Individuals<br>Accountable</th>
-            <th rowspan="2"colspan="7" class="text-center border-b-n" ></th>
+            <th rowspan="2"colspan="7" class="text-center border-b-n" >Rating Guide/Accomplishment</th>
             <th class="text-center">Remarks/ Accomplishment</th>
             <th rowspan="2"></th>
         </tr>
@@ -115,14 +205,29 @@
             <td></td>
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             @if(isset($prs[0]))
-                <td class="b-none text-center">
-                    <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
-                    data-toggle="modal"
-                    data-cat="1"
-                    data-id="{{ $prs[0]->id }}"
-                    data-target="#createOpcrMfoModal">
-                    </i>
-                </td>
+                @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
+                    @if(!in_array($status, [2, 5]))
+                    <td class="b-none text-center">
+                        <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
+                        data-toggle="modal"
+                        data-cat="1"
+                        data-id="{{ $prs[0]->id }}"
+                        data-folder="{{ $folder }}"
+                        data-target="#createOpcrMfoModal">
+                        </i>
+                    </td>
+                    @endif
+                @else
+                    <td class="b-none text-center">
+                        <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
+                        data-toggle="modal"
+                        data-cat="1"
+                        data-id="{{ $prs[0]->id }}"
+                        data-folder="{{ $folder }}"
+                        data-target="#createOpcrMfoModal">
+                        </i>
+                    </td>
+                @endif
             @else 
                 <td class="b-none text-center"></td>
             @endif
@@ -150,34 +255,98 @@
                 <td class="text-center">{{ displayValue($core->a) }}</td>
                 <td class="text-center">{{ displayValue($core->remarks) }}</td>
                 <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
-                <td class="b-none text-center">
-                    <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;" data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></i>
-                </td>
+                @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
+                    @if(!in_array($status, [2, 5]))
+                        <td class="b-none text-center">
+                            <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
+                            data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></i>
+                        </td>
+                    @endif
+                @else
+                    <td class="b-none text-center">
+                        <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
+                        data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></i>
+                    </td>
+                @endif
             </tr>
             
             @php
-                $filteredOpcrMfoDatas = in_array($cat, [1, 2])
-                    ? $opcrmfodatas->where('ipcr_mfo_id', $core->id)->where('category', $cat)
-                    : $opcrmfodatas->where('ipcr_mfo_id', $core->id);
+                $filteredIpcrMfoDatas = in_array($cat, [1, 2])
+                    ? $datas->where('ipcr_mfo_id', $core->id)->where('category', $cat)->sortBy('order')
+                    : $datas->where('ipcr_mfo_id', $core->id)->sortBy('order');
             @endphp
 
-            @foreach($filteredOpcrMfoDatas as $opcrmfodata)
-            <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->ipcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->ipcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
-                <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
-                <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
+            @foreach($filteredIpcrMfoDatas as $Ipcrmfodata)
+            <tr id="mfodata{{ $Ipcrmfodata->id }}-{{ $Ipcrmfodata->ipcr_mfo_id }}" data-group="core{{ $Ipcrmfodata->ipcr_mfo_id }}"
+                @if(!in_array($userid, $pmtsmember ?? []) && $guard == 'employee')
+                    @if(!in_array($status, [2, 5]))
+                        onclick="showOpcrMfoData({{ $Ipcrmfodata->id }},{{ $Ipcrmfodata->ipcr_mfo_id }}, {{ $core->count }}, {{ $Ipcrmfodata->lock }})"
+                        style="cursor: pointer;"
+                    @endif
+                @else
+                    onclick="showOpcrMfoData({{ $Ipcrmfodata->id }},{{ $Ipcrmfodata->ipcr_mfo_id }}, {{ $core->count }}, {{ $Ipcrmfodata->lock }})"
+                    style="cursor: pointer;"
+                @endif
+            >
+            <td class="text-left align-top" width="210">{!! displayValue($Ipcrmfodata->mfo) !!}</td>
+                <td class="text-left pl-1">
+                    {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Ipcrmfodata->measure) . '%', displayValue($Ipcrmfodata->target)) !!}
+                </td>
+                <td class="text-center">
+                    @php
+                        $inSupportValue = displayValue($Ipcrmfodata->in_support);
+                    @endphp
+                    @if($inSupportValue)
+                        <a href="{{ $inSupportValue }}" target="_blank" class="text-primary" style="text-decoration: none;">
+                            <i class="fas fa-globe fa-2x"></i>
+                        </a>
+                    @else
+                        <span class="text-muted"><i class="fas fa-globe fa-2x"></i></span>
+                    @endif
+                </td>
+                <td class="text-center">
+                    @if($Ipcrmfodata->evidence_file)
+                        <div class="d-flex justify-content-between gap-1">
+                            {{-- View link on the left --}}
+                            <a 
+                                href="{{ $Ipcrmfodata->evidence_file }}" 
+                                target="_blank"
+                                class="badge bg-success text-white flex-fill text-decoration-none"
+                            >
+                                View
+                            </a>
+
+                            {{-- Update button on the right --}}
+                            <span 
+                                onclick="event.stopPropagation(); uploadEvidence('{{ $Ipcrmfodata->id }}')" 
+                                class="badge bg-primary ml-1 text-white flex-fill" 
+                                style="cursor: pointer;"
+                            >
+                                Update
+                            </span>
+                        </div>
+                    @else
+                        {{-- Single Attach Evidence badge centered --}}
+                        <span 
+                            onclick="event.stopPropagation(); uploadEvidence('{{ $Ipcrmfodata->id }}')" 
+                            class="badge bg-secondary text-white w-100 d-inline-block" 
+                            style="cursor: pointer;"
+                        >
+                            Attach Evidence
+                        </span>
+                    @endif
+                </td>
                 <td class="text-center"></td>
-                <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                 <td class="text-center"></td>
-                <td class="text-center"></td>
-                <td class="text-center">{!! displayValue($opcrmfodata->div_account) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->quality) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->q_score) !!}</td>
-                <td class="text-center">{!! nl2br(e(displayValue($opcrmfodata->efficiency))) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->e_score) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->timeliness) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->t_score) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->average) !!}</td>
-                <td class="text-center">{!! displayValue($opcrmfodata->remarks) !!}</td>
+                <td class="text-center">{!! displayValue($Ipcrmfodata->div_account) !!}</td>
+                <td class="text-center">{!! displayValue($Ipcrmfodata->quality) !!}</td>
+                <td class="text-center">{!! displayValue($Ipcrmfodata->q_score) !!}</td>
+                <td class="text-center">{!! nl2br(e(displayValue($Ipcrmfodata->efficiency))) !!}</td>
+                <td class="text-center">{!! displayValue($Ipcrmfodata->e_score) !!}</td>
+                <td class="text-center">{!! displayValue($Ipcrmfodata->timeliness) !!}</td>
+                <td class="text-center">{!! displayValue($Ipcrmfodata->t_score) !!}</td>
+                <td class="text-center">{!! displayValue($Ipcrmfodata->average) !!}</td>
+                <td class="text-center">{!! displayValue($Ipcrmfodata->remarks) !!}</td>
                 <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             </tr>
             @endforeach
@@ -201,14 +370,29 @@
             <td></td>
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             @if(isset($prs[1]))
-                <td class="b-none text-center">
-                    <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
-                    data-toggle="modal"
-                    data-cat="2"
-                    data-id="{{ $prs[1]->id }}"
-                    data-target="#createOpcrMfoModal">
-                    </i>
-                </td>
+                @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
+                    @if(!in_array($status, [2, 5]))
+                        <td class="b-none text-center">
+                            <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
+                            data-toggle="modal"
+                            data-cat="2"
+                            data-id="{{ $prs[1]->id }}"
+                            data-folder="{{ $folder }}"
+                            data-target="#createOpcrMfoModal">
+                            </i>
+                        </td>
+                    @endif
+                @else
+                    <td class="b-none text-center">
+                        <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
+                        data-toggle="modal"
+                        data-cat="2"
+                        data-id="{{ $prs[1]->id }}"
+                        data-folder="{{ $folder }}"
+                        data-target="#createOpcrMfoModal">
+                        </i>
+                    </td>
+                @endif
             @else
                 <td class="b-none text-center"></td>
             @endif
@@ -232,34 +416,88 @@
                 <td class="text-center">{{ displayValue($strat->a) }}</td>
                 <td class="text-center">{{ displayValue($strat->remarks) }}</td>
                 <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
-                <td class="b-none text-center">
-                    <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;" data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i>
-                </td>
+                @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
+                    @if(!in_array($status, [2, 5]))
+                        <td class="b-none text-center">
+                            <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
+                            data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i>
+                        </td>
+                    @endif
+                @else
+                    <td class="b-none text-center">
+                        <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
+                        data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i>
+                    </td>
+                @endif
             </tr>
 
             @php
-                $filteredopcrmfodatas = in_array($cat, [1, 2])
-                    ? $opcrmfodatas->where('ipcr_mfo_id', $strat->id)->where('category', $cat)
-                    : $opcrmfodatas->where('ipcr_mfo_id', $strat->id);
+                $filteredIpcrmfodatas = in_array($cat, [1, 2])
+                    ? $datas->where('ipcr_mfo_id', $strat->id)->where('category', $cat)->sortBy('order')
+                    : $datas->where('ipcr_mfo_id', $strat->id)->sortBy('order');
             @endphp
 
-            @foreach($filteredopcrmfodatas as $opcrmfodata)
-                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->ipcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->ipcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
-                    <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
-                    <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
+            @foreach($filteredIpcrmfodatas as $Ipcrmfodata)
+                <tr id="mfodata{{ $Ipcrmfodata->id }}-{{ $Ipcrmfodata->ipcr_mfo_id }}" data-group="strategic{{ $Ipcrmfodata->ipcr_mfo_id }}" onclick="showOpcrMfoData({{ $Ipcrmfodata->id }}, {{ $Ipcrmfodata->ipcr_mfo_id }}, {{ $strat->count }}, {{ $Ipcrmfodata->lock }})" style="cursor: pointer;">
+                <td class="text-left align-top" width="210">{!! displayValue($Ipcrmfodata->mfo) !!}</td>
+                <td class="text-left pl-1">
+                    {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Ipcrmfodata->measure) . '%', displayValue($Ipcrmfodata->target)) !!}
+                </td>
+                <td class="text-center">
+                    @php
+                        $inSupportValue = displayValue($Ipcrmfodata->in_support);
+                    @endphp
+                    @if($inSupportValue)
+                        <a href="{{ $inSupportValue }}" target="_blank" class="text-primary" style="text-decoration: none;">
+                            <i class="fas fa-globe fa-2x"></i>
+                        </a>
+                    @else
+                        <span class="text-muted"><i class="fas fa-globe fa-2x"></i></span>
+                    @endif
+                </td>
+                <td class="text-center">
+                    @if($Ipcrmfodata->evidence_file)
+                        <div class="d-flex justify-content-between gap-1">
+                            {{-- View link on the left --}}
+                            <a 
+                                href="{{ $Ipcrmfodata->evidence_file }}" 
+                                target="_blank"
+                                class="badge bg-success text-white flex-fill text-decoration-none"
+                            >
+                                View
+                            </a>
+
+                            {{-- Update button on the right --}}
+                            <span 
+                                onclick="event.stopPropagation(); uploadEvidence('{{ $Ipcrmfodata->id }}')" 
+                                class="badge bg-primary ml-1 text-white flex-fill" 
+                                style="cursor: pointer;"
+                            >
+                                Update
+                            </span>
+                        </div>
+                    @else
+                        {{-- Single Attach Evidence badge centered --}}
+                        <span 
+                            onclick="event.stopPropagation(); uploadEvidence('{{ $Ipcrmfodata->id }}')" 
+                            class="badge bg-secondary text-white w-100 d-inline-block" 
+                            style="cursor: pointer;"
+                        >
+                            Attach Evidence
+                        </span>
+                    @endif
+                </td>
                     <td class="text-center"></td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
-                    <td class="text-center"></td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->div_account) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->quality) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->q_score) !!}</td>
-                    <td class="text-center">{!! nl2br(e(displayValue($opcrmfodata->efficiency))) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->e_score) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->timeliness) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->t_score) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->average) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->remarks) !!}</td>
+                    <td class="text-center">{!! displayValue($Ipcrmfodata->div_account) !!}</td>
+                    <td class="text-center">{!! displayValue($Ipcrmfodata->quality) !!}</td>
+                    <td class="text-center">{!! displayValue($Ipcrmfodata->q_score) !!}</td>
+                    <td class="text-center">{!! nl2br(e(displayValue($Ipcrmfodata->efficiency))) !!}</td>
+                    <td class="text-center">{!! displayValue($Ipcrmfodata->e_score) !!}</td>
+                    <td class="text-center">{!! displayValue($Ipcrmfodata->timeliness) !!}</td>
+                    <td class="text-center">{!! displayValue($Ipcrmfodata->t_score) !!}</td>
+                    <td class="text-center">{!! displayValue($Ipcrmfodata->average) !!}</td>
+                    <td class="text-center">{!! displayValue($Ipcrmfodata->remarks) !!}</td>
                     <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
                 </tr>
             @endforeach
@@ -283,14 +521,29 @@
             <td></td>
             <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             @if(isset($prs[2]))
-                <td class="b-none text-center">
-                    <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
-                    data-toggle="modal"
-                    data-cat="3"
-                    data-id="{{ $prs[2]->id }}"
-                    data-target="#createOpcrMfoModal">
-                    </i>
-                </td>
+                @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
+                    @if(!in_array($status, [2, 5]))
+                        <td class="b-none text-center">
+                            <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
+                            data-toggle="modal"
+                            data-cat="3"
+                            data-id="{{ $prs[2]->id }}"
+                            data-folder="{{ $folder }}"
+                            data-target="#createOpcrMfoModal">
+                            </i>
+                        </td>
+                    @endif
+                @else
+                    <td class="b-none text-center">
+                        <i class="fas fa-pen fa-md text-success1 pl-1 modalFunction" style="cursor: pointer;"
+                        data-toggle="modal"
+                        data-cat="3"
+                        data-id="{{ $prs[2]->id }}"
+                        data-folder="{{ $folder }}"
+                        data-target="#createOpcrMfoModal">
+                        </i>
+                    </td>
+                @endif
             @endif
         </tr>
         @foreach($supports as $supp)
@@ -311,34 +564,88 @@
                 <td class="text-center">{{ displayValue($supp->a) }}</td>
                 <td class="text-center">{{ displayValue($supp->remarks) }}</td>
                 <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
-                <td class="b-none text-center">
-                    <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;" data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i>
-                </td>
+                @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
+                    @if(!in_array($status, [2, 5]))
+                        <td class="b-none text-center">
+                            <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
+                            data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i>
+                        </td>
+                    @endif
+                @else
+                    <td class="b-none text-center">
+                        <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
+                        data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i>
+                    </td>
+                @endif
             </tr>
 
             @php
-                $filteredopcrmfodatas = in_array($cat, [1, 2])
-                    ? $opcrmfodatas->where('ipcr_mfo_id', $supp->id)->where('category', $cat)
-                    : $opcrmfodatas->where('ipcr_mfo_id', $supp->id);
+                $filteredIpcrmfodatas = in_array($cat, [1, 2])
+                    ? $datas->where('ipcr_mfo_id', $supp->id)->where('category', $cat)->sortBy('order')
+                    : $datas->where('ipcr_mfo_id', $supp->id)->sortBy('order');
             @endphp
 
-            @foreach($filteredopcrmfodatas as $opcrmfodata)
-                <tr id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->ipcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->ipcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
-                    <td class="text-left align-top">{!! displayValue($opcrmfodata->mfo) !!}</td>
-                    <td class="text-left pl-1">{!! displayValue($opcrmfodata->target) !!}</td>
+            @foreach($filteredIpcrmfodatas as $Ipcrmfodata)
+                <tr id="mfodata{{ $Ipcrmfodata->id }}-{{ $Ipcrmfodata->ipcr_mfo_id }}" data-group="support{{ $Ipcrmfodata->ipcr_mfo_id }}" onclick="showOpcrMfoData({{ $Ipcrmfodata->id }},{{ $Ipcrmfodata->ipcr_mfo_id }}, {{ $supp->count }}, {{ $Ipcrmfodata->lock }})" style="cursor: pointer;">
+                <td class="text-left align-top" width="210">{!! displayValue($Ipcrmfodata->mfo) !!}</td>
+                <td class="text-left pl-1">
+                    {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Ipcrmfodata->measure) . '%', displayValue($Ipcrmfodata->target)) !!}
+                </td>
+                <td class="text-center">
+                    @php
+                        $inSupportValue = displayValue($Ipcrmfodata->in_support);
+                    @endphp
+                    @if($inSupportValue)
+                        <a href="{{ $inSupportValue }}" target="_blank" class="text-primary" style="text-decoration: none;">
+                            <i class="fas fa-globe fa-2x"></i>
+                        </a>
+                    @else
+                        <span class="text-muted"><i class="fas fa-globe fa-2x"></i></span>
+                    @endif
+                </td>
+                <td class="text-center">
+                    @if($Ipcrmfodata->evidence_file)
+                        <div class="d-flex justify-content-between gap-1">
+                            {{-- View link on the left --}}
+                            <a 
+                                href="{{ $Ipcrmfodata->evidence_file }}" 
+                                target="_blank"
+                                class="badge bg-success text-white flex-fill text-decoration-none"
+                            >
+                                View
+                            </a>
+
+                            {{-- Update button on the right --}}
+                            <span 
+                                onclick="event.stopPropagation(); uploadEvidence('{{ $Ipcrmfodata->id }}')" 
+                                class="badge bg-primary ml-1 text-white flex-fill" 
+                                style="cursor: pointer;"
+                            >
+                                Update
+                            </span>
+                        </div>
+                    @else
+                        {{-- Single Attach Evidence badge centered --}}
+                        <span 
+                            onclick="event.stopPropagation(); uploadEvidence('{{ $Ipcrmfodata->id }}')" 
+                            class="badge bg-secondary text-white w-100 d-inline-block" 
+                            style="cursor: pointer;"
+                        >
+                            Attach Evidence
+                        </span>
+                    @endif
+                </td>
                     <td class="text-center"></td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->in_support) !!}</td>
                     <td class="text-center"></td>
-                    <td class="text-center"></td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->div_account) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->quality) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->q_score) !!}</td>
-                    <td class="text-center">{!! nl2br(e(displayValue($opcrmfodata->efficiency))) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->e_score) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->timeliness) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->t_score) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->average) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->remarks) !!}</td>
+                    <td class="text-center">{!! displayValue($Ipcrmfodata->div_account) !!}</td>
+                    <td class="text-center">{!! displayValue($Ipcrmfodata->quality) !!}</td>
+                    <td class="text-center">{!! displayValue($Ipcrmfodata->q_score) !!}</td>
+                    <td class="text-center">{!! nl2br(e(displayValue($Ipcrmfodata->efficiency))) !!}</td>
+                    <td class="text-center">{!! displayValue($Ipcrmfodata->e_score) !!}</td>
+                    <td class="text-center">{!! displayValue($Ipcrmfodata->timeliness) !!}</td>
+                    <td class="text-center">{!! displayValue($Ipcrmfodata->t_score) !!}</td>
+                    <td class="text-center">{!! displayValue($Ipcrmfodata->average) !!}</td>
+                    <td class="text-center">{!! displayValue($Ipcrmfodata->remarks) !!}</td>
                     <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
                 </tr>
             @endforeach
@@ -357,18 +664,20 @@
                 @php
                     $fullName = $asignatory->fname . ' ' .
                                 ($asignatory->mname ? strtoupper(substr($asignatory->mname, 0, 1)) . '. ' : '') .
-                                $asignatory->lname ;
+                                $asignatory->lname;
                 @endphp
                 <div class="col text-center">
                     <div><strong>_________________________________</strong></div>
                     <div><strong>{{ $fullName ?? 'N/A' }}{{ ($asignatory->suffixes) ? ', '.$asignatory->suffixes : '' }}</strong></div>
-                    <div>{{ $asignatory->designation ?? 'N/A' }}</div>
+                    <div>{{ ucwords(strtolower($asignatory->designation)) ?? 'N/A' }}</div>
                 </div>
             @endforeach
         </div>
     </div>
 </div>
+<input type="file" id="pdfUploader" accept="application/pdf" hidden onchange="handlePdfUpload(this)">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script>
     $.ajaxSetup({
         headers: {
@@ -394,7 +703,7 @@
         $('#form-data').empty();
 
         $.ajax({
-            url: '{{ route('opcrData') }}',
+            url: '{{ route('ipcrData') }}',
             method: 'POST',
             data: {
                 cat: cat,
@@ -454,7 +763,7 @@
         const cat = this.value;
 
         // Use the route base and replace the params dynamically
-        const url = `{{ route('per-rating', ['cat' => 'CAT_PLACEHOLDER', 'empid' => 'EMPID_PLACEHOLDER', 'prnumber' => 'PR_PLACEHOLDER']) }}`
+        const url = `{{ route('perRatingIpcr', ['cat' => 'CAT_PLACEHOLDER', 'empid' => 'EMPID_PLACEHOLDER', 'prnumber' => 'PR_PLACEHOLDER']) }}`
             .replace('CAT_PLACEHOLDER', cat)
             .replace('EMPID_PLACEHOLDER', empid)
             .replace('PR_PLACEHOLDER', prnumber);
@@ -463,37 +772,37 @@
     });
 </script>
 <script>
-    function showOpcrMfoData(id, mfoid, count) {
+    let canDelete = @json($guard == 'web' || in_array($userid, $pmtsmember ?? []));
+    function showOpcrMfoData(id, mfoid, count, lock) {
         Swal.fire({
             title: 'Choose an action',
             icon: 'question',
-            showCancelButton: true,
-            showDenyButton: true,
-            confirmButtonText: 'Asign',
+            showConfirmButton: false,   // ⬅️ removes the default OK button
+            showCancelButton: (lock != 1 || canDelete), // Delete
+            showDenyButton: true,       // Edit
             denyButtonText: 'Edit',
             cancelButtonText: 'Delete',
             reverseButtons: false,
             customClass: {
-                confirmButton: 'btn btn-primary mx-1',
                 denyButton: 'btn btn-info mx-1',
                 cancelButton: 'btn btn-danger mx-1'
             },
-            buttonsStyling: false // Needed to apply Bootstrap styles
-        }).then((result) => {
+            buttonsStyling: false
+        })
+        .then((result) => {
             if (result.isConfirmed) {
-                $('#opcr-mfo-data-id').val(id);
-                $('#count').val(count);
-                $('#asign-to-dpcr').modal('show');
+                $('#ipcr-mfo-data-id').val(id);
+                $('#count1').val(count);
             } else if (result.isDenied) {
                 editOpcrData(id);
-                $('#opcr-mfo-id').val(mfoid);
+                $('#ipcr-mfo-id').val(mfoid);
 
                 $.ajax({
-                    url: `{{ route('opcrmfoEditData', ':id') }}`.replace(':id', id),
+                    url: `{{ route('ipcrmfoEditData', ':id') }}`.replace(':id', id),
                     method: 'GET',
                     success: function (data) {
                         $('#category').val(data.category);
-                        $('#opcr_by').val(data.opcr_by);
+                        $('#dpcr_by').val(data.dpcr_by);
                         $('#mfo').val(data.mfo);
                         $('#target').val(data.target);
                         $('#measure').val(data.measure);
@@ -509,10 +818,11 @@
                     }
                 });
             } else if (result.dismiss === Swal.DismissReason.cancel) {
-                confirmDeleteOpcrData(id, mfoid);
+                confirmDeleteipcrData(id, mfoid);
             }
         });
     }
+
 
     function editOpcrData(id) {
         // Set hidden input value
@@ -522,7 +832,7 @@
         $('#opcrMfoData').modal('show');
     }
 
-    function confirmDeleteOpcrData(id,mfoid) {
+    function confirmDeleteipcrData(id,mfoid) {
         Swal.fire({
             title: 'Delete this entry?',
             text: 'This action cannot be undone.',
@@ -533,7 +843,7 @@
         }).then((result) => {
             if (!result.isConfirmed) return;
 
-            const url = `{{ route('opcrmfoDeleteData', ':id') }}`
+            const url = `{{ route('ipcrmfoDeleteData', ':id') }}`
                         .replace(':id', id);
 
             fetch(url, {
@@ -581,6 +891,233 @@
         $('#efficiency').val('');
         $('#timeliness').val('');
     });
+</script>
+<script>
+let currentEvidenceId = null;
 
+function uploadEvidence(id) {
+    Swal.fire({
+        title: 'Attach Evidence',
+        html: `
+            <input id="evidence-title" 
+                   class="swal2-input" 
+                   placeholder="Enter evidence title" 
+                   style="width: 100%; margin: 1em 0; box-sizing: border-box;">
+            <input id="evidence-url" 
+                   class="swal2-input" 
+                   placeholder="https://mscpsueduph.sharepoint.com/" 
+                   style="width: 100%; margin: 1em 0; box-sizing: border-box;">
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Attach',
+        cancelButtonText: 'Cancel',
+        customClass: {
+            popup: 'swal-wide'
+        },
+        preConfirm: () => {
+            const title = document.getElementById('evidence-title').value.trim();
+            const url = document.getElementById('evidence-url').value.trim();
+
+            if (!title) {
+                Swal.showValidationMessage('Title is required.');
+                return false;
+            }
+
+            if (!url) {
+                Swal.showValidationMessage('URL is required.');
+                return false;
+            }
+
+            const pattern = /^(https?:\/\/)[^\s$.?#].[^\s]*$/gm;
+            if (!pattern.test(url)) {
+                Swal.showValidationMessage('Please enter a valid URL.');
+                return false;
+            }
+
+            return { title, url };
+        }
+    }).then((result) => {
+        if (result.isConfirmed && result.value) {
+            const { title, url } = result.value;
+            attachEvidenceURL(id, title, url);
+        }
+    });
+}
+
+function attachEvidenceURL(id, title, url) {
+    const formData = new FormData();
+    formData.append('empid', '{{ $dempid }}'); // Blade variable
+    formData.append('category', 3);            // Adjust as needed
+    formData.append('data_id', id);
+    formData.append('evidence_title', title);  // ✅ Add title
+    formData.append('evidence_url', url);      // ✅ Keep URL
+
+    fetch("{{ route('uploadEvidence') }}", {
+        method: "POST",
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: formData
+    })
+    .then(async res => {
+        const text = await res.text();
+        if (!res.ok) {
+            console.error("Error response from Laravel controller:");
+            console.error(text);
+        } else {
+            Swal.fire({
+                title: 'Success',
+                text: 'Evidence attached successfully.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                location.reload();
+            });
+        }
+    })
+    .catch(err => {
+        console.error("JavaScript fetch failed:", err);
+    });
+}
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('modal-rating');
+        const iframe = document.getElementById('rating-iframe');
+
+        // Define the URLs with Blade
+        const iframeSrc = "{{ route('ipcrPdf', ['prnumber' => $prnumber, 'userid' => $empid ?? auth()->guard($guard)->user()->id, 'category' => 1]) }}";
+        const iframeSrc1 = "{{ route('generateIpcrPdf', ['prnumber' => $prnumber, 'empid' => $empid ?? auth()->guard($guard)->user()->id, 'category' => $cat ?? 1]) }}";
+
+        let selectedCat = null;
+
+        // Capture clicked link's data-cat value
+        document.querySelectorAll('.dropdown-item[data-toggle="modal"]').forEach(link => {
+            link.addEventListener('click', function () {
+                selectedCat = this.getAttribute('data-cat');
+            });
+        });
+
+        // Listen for modal show event
+        $('#modal-rating').on('show.bs.modal', function () {
+            if (selectedCat === '2') {
+                iframe.src = iframeSrc1;
+            } else {
+                iframe.src = iframeSrc;
+            }
+        });
+
+        // Clear iframe src on modal hide
+        $('#modal-rating').on('hidden.bs.modal', function () {
+            iframe.src = '';
+        });
+    });
+
+    function confirmRequestReview() {
+        Swal.fire({
+            title: 'Send for Review?',
+            text: "This action cannot be undone.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, submit',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            customClass: {
+                confirmButton: 'btn btn-success mx-1',
+                cancelButton: 'btn btn-secondary mx-1'
+            },
+            buttonsStyling: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('requestReviewForm').submit();
+            }
+        });
+    }
+</script>
+<script>
+    $(document).ready(function () {
+        $('.open-comments').on('click', function () {
+            const prNumber = $(this).data('prnumber');
+            
+            $.ajax({
+                url: "{{ route('markAsRead') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    pr_number: prNumber
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $('#unreadCount').text('0');
+                        // Optional: add more logic to clear or gray out the list
+                    }
+                },
+                error: function () {
+                    console.error('Failed to update comment status');
+                }
+            });
+        });
+    });
+</script>
+<script>
+$(function () {
+    $("#table-form tbody").sortable({
+        items: "tr",
+        sort: function (event, ui) {
+            let draggedGroup = ui.item.attr("data-group");   // e.g., core1, core5
+            let placeholder = ui.placeholder;
+
+            // Get groups of neighbors
+            let prevGroup = placeholder.prev().attr("data-group");
+            let nextGroup = placeholder.next().attr("data-group");
+
+            // If both sides exist and neither matches dragged group → block
+            if ((prevGroup && prevGroup !== draggedGroup) &&
+                (nextGroup && nextGroup !== draggedGroup)) {
+                return false;
+            }
+        },
+        update: function (event, ui) {
+            let draggedRow = ui.item;
+            let draggedGroup = draggedRow.attr("data-group");
+            let targetRow = draggedRow.prev().length 
+                ? draggedRow.prev()
+                : draggedRow.next();
+
+            if (!targetRow.length) return;
+
+            let targetGroup = targetRow.attr("data-group");
+
+            // Final check: cancel if groups differ
+            if (draggedGroup !== targetGroup) {
+                $(this).sortable("cancel");
+                return;
+            }
+ 
+            // Extract IDs
+            let draggedId = draggedRow.attr("id").replace("mfodata", "");
+            let targetId = targetRow.attr("id").replace("mfodata", "");
+            
+            // Send to server
+            $.ajax({
+                url: "{{ route('updateOrder') }}",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    dragged_id: draggedId,
+                    target_id: targetId,
+                    model: 'IpcrMfoData'
+                }
+                // success: function (res) {
+                //     alert("✅ Server responded:\n" + JSON.stringify(res));
+                // },
+                // error: function (xhr, status, error) {
+                //     alert("❌ Error from server:\n" + xhr.responseText);
+                // }
+            });
+        }
+    });
+});
 </script>
 @endsection

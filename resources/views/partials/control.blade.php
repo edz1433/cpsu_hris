@@ -118,7 +118,7 @@
             </li>
             
             <li class="nav-item">
-                <a href="" class="nav-link text-success1 {{ request()->is('settings') ? 'active' : '' }}">
+                <a href="{{ route('settings') }}" class="nav-link text-success1 {{ request()->is('settings') ? 'active' : '' }}">
                     <i class="pt-1 nav-icon fas fa-cogs"></i>
                     <p>Settings</p>
                 </a>

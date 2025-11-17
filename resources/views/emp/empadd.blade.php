@@ -1,54 +1,6 @@
 @extends('layouts.master')
 
 @section('body')
-<style>
-    .mtop {
-        margin-top: -15px;
-    }
-    .bg-form{
-        background-color:  #e9ecef;
-    }
-    .form-control:disabled, .form-control[readonly] {
-        background-color: #ffffff;
-        opacity: 1;
-    }
-    .form-control-sm {
-        height: calc(1.5125rem + 2px);
-        padding: .15rem .5rem;
-        font-size: .750rem;
-        line-height: 1.5;
-        border-radius: .2rem;
-        background-color: #ffffff !important;
-    }
-    .btn-sm{
-        font-size: 10px !important;
-        height: 25px !important;
-        padding-top: 0 !important;
-        padding-bottom: 0 !important;
-    }
-    .select2-container--default.select2-container--disabled .select2-selection--single {
-        background-color: #ffffff;
-        cursor: default;
-    }
-    .c-radio{
-        width: 20px; 
-        height: 20px; 
-        padding-top: 2px;
-        width: 20px; 
-        height: 20px; 
-        padding-top: 2px;
-    }
-    .c-label{
-        border-radius: 3px; 
-        padding: 2px; 
-        width: 90px; 
-        display: inline-block; 
-        background-color: #FFFF;
-    }
-    .fa-asterisk{
-        font-size: 10px !important;
-    }
-</style>
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-12">

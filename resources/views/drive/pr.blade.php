@@ -37,7 +37,7 @@
 
     function displayValue($value) {
         return strtolower(trim($value ?? '')) === 'n/a' ? '' : $value;
-    }
+    } 
 @endphp
 
 @include('drive.modal-mfo')
@@ -229,7 +229,7 @@
                                         @php
                                             $hasEvidence = !empty($sub->evidence_file);
                                             $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
-                                            $evidenceUrl = $hasEvidence ? asset("storage/Evidence/{$sub->evidence_file}") : 'javascript:void(0)';
+                                            $evidenceUrl = $hasEvidence ? $sub->evidence_file : 'javascript:void(0)';
                                         @endphp
 
                                         @if ($hasEvidence)

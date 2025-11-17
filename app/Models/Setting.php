@@ -15,6 +15,12 @@ class Setting extends Model
         'vpaa',
         'vpaf',
         'dtr_acct',
+        'hr_kiosk',
+        'hrk_pw',
+        'sync_backups',
+        'te_rstrct_lvl',
+        'records_office_email',
+        'job_portal_email',
         'maintenance',
     ];
 }

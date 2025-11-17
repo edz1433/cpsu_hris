@@ -79,7 +79,7 @@ class TimeEntryController extends Controller
     
     // ==== APIs ====
     public function checkRestrictionLevel(Request $request) {
-        $ttl = 15; // seconds
+        $ttl = 30; // seconds
         $row = Cache::remember('settings:te_rstrct', $ttl, function () {
             return DB::table('settings')->select('te_rstrct_lvl')->first();
         });
@@ -130,10 +130,9 @@ class TimeEntryController extends Controller
             'server_time' => $now->toIso8601String(),
             'message'     => $allowed ? null : ($message ?? 'Action not available.'),
         ]);
-    }    
+    }
     public function fetchLogzonesWithCampuses(Request $request) {
-        $ttl = 5;
-        //$ttl = 300;
+        $ttl = 60;
         $payload = Cache::remember('logzones:payload', $ttl, function () {
             $zones = DB::table('logzones')->where('active_stat', 1)->orderBy('id')->get()->map(function ($z) {
                 $points = json_decode($z->points, true) ?: [];
@@ -173,32 +172,44 @@ class TimeEntryController extends Controller
             ->setEtag($etag)
             ->header('Cache-Control', 'no-store, max-age=0');
     }
-    public function validateQr(Request $request) {
+    public function validateQr(Request $request)
+    {
         $qrRaw = $request->input('qr');
         $mode  = $request->input('mode', 'emp');
 
-        if (!in_array($mode, ['emp', 'admin'])) { // Removed 'logs' as unused
-            return response()->json(['error' => 'Invalid mode'], 400);
+        // 200-only responses to keep frontend compatible
+        if (!in_array($mode, ['emp', 'admin'], true)) {
+            return response()->json(['valid' => false, 'message' => 'Invalid mode.'], 200);
         }
-
         if (!is_string($qrRaw) || trim($qrRaw) === '') {
-            return response()->json(['valid' => false, 'message' => 'Invalid QR (missing).'], 200);
+            return response()->json(['valid' => false, 'message' => 'Invalid QR code (missing).'], 200);
         }
 
         try {
-            $qrDecrypted = (string) $this->shortDecrypt($qrRaw);
+            $empId = trim((string) $this->shortDecrypt($qrRaw));
         } catch (\Throwable $e) {
-            return response()->json(['valid' => false, 'message' => 'Invalid QR (decryption failed).'], 200);
+            return response()->json(['valid' => false, 'message' => 'Invalid QR code (decryption failed).'], 200);
         }
-
-        $empId = trim($qrDecrypted ?? '');
         if ($empId === '') {
-            return response()->json(['valid' => false, 'message' => 'Invalid QR.'], 200);
+            return response()->json(['valid' => false, 'message' => 'Invalid QR code.'], 200);
         }
 
-        // Fetch only active employees, removed unused mname
+        // JSON-aware face check in SQL; avoids roundtripping the blob
         $row = DB::table('employees')
-            ->select('emp_ID', 'fname', 'lname', 'face_embeddings')
+            ->select([
+                'emp_ID',
+                'fname',
+                'lname',
+                DB::raw("
+                    (
+                        JSON_VALID(face_embeddings)
+                        AND (
+                            COALESCE(JSON_LENGTH(JSON_EXTRACT(face_embeddings, '$.vecs')), 0) > 0
+                            OR JSON_EXTRACT(face_embeddings, '$.centroid') IS NOT NULL
+                        )
+                    ) AS has_face
+                "),
+            ])
             ->where('emp_ID', $empId)
             ->where('stat_1', 1)
             ->first();
@@ -207,28 +218,27 @@ class TimeEntryController extends Controller
             return response()->json(['valid' => false, 'message' => 'Employee not found or inactive.'], 200);
         }
 
-        $p = $this->readEmbObj($row->face_embeddings);
-        if (empty($p['vecs']) && !$p['centroid']) {
+        if (!(bool) $row->has_face) {
             return response()->json(['valid' => false, 'message' => 'No face registered for this employee.'], 200);
         }
 
         $isAdmin = false;
         if ($mode === 'admin') {
             $csv = (string) DB::table('settings')->value('hr_kiosk');
-            $arr = array_filter(array_map('trim', preg_split('/\s*,\s*/', $csv, -1, PREG_SPLIT_NO_EMPTY)));
-            $isAdmin = in_array($row->emp_ID, $arr, true);
-            if (!$isAdmin) {
+            $ids = array_filter(array_map('trim', preg_split('/\s*,\s*/', $csv, -1, PREG_SPLIT_NO_EMPTY)));
+            if (!in_array($row->emp_ID, $ids, true)) {
                 return response()->json(['valid' => false, 'message' => 'Not authorized.'], 200);
             }
+            $isAdmin = true;
         }
 
         $name = trim(preg_replace('/\s+/', ' ', "{$row->fname} {$row->lname}"));
 
         return response()->json([
-            'valid'     => true,
-            'emp_id'    => $row->emp_ID,
-            'name'      => $name,
-            'is_admin'  => $isAdmin,
+            'valid'    => true,
+            'emp_id'   => $row->emp_ID,
+            'name'     => $name,
+            'is_admin' => $mode === 'admin' ? $isAdmin : false,
         ], 200);
     }
     public function faceClaim(Request $request) {
@@ -397,58 +407,49 @@ class TimeEntryController extends Controller
             ], 500);
         }
     }
-    public function fetchLatestLogs(Request $request) {
+    public function fetchLatestLogs(Request $request)
+    {
         $MAX_DATES = 16;
         $empId = $request->input('empId');
-        if (!$empId) return response()->json(['error' => 'Missing empId'], 400);
-        // Atomic burst gate (per empId)
+        if (!$empId) {
+            return response()->json(['error' => 'Missing empId'], 400);
+        }
+
+        // Burst control: 1 request per 3s per employee
         $key = 'latestlogs:' . $empId;
         $cooldown = 3;
         if (!Cache::add($key, 1, now()->addSeconds($cooldown))) {
             return response()
                 ->json(['error' => 'Too many requests'], 429)
-                ->header('Retry-After', (string) $cooldown);
+                ->header('Retry-After', (string)$cooldown);
         }
-        // ---------- Lookups ----------
-        $DEFAULT_CAMPUS_NAME  = 'TBD';
-        $DEFAULT_ZONE_LABEL   = 'TBD';
-        $DEFAULT_DEVICE_LABEL = 'TBD';
-        $zoneById   = DB::table('logzones')->pluck('label', 'id')->toArray();
-        $deviceById = DB::table('f_devices')->pluck('label', 'id')->toArray();
-        $zoneCampusIdById   = DB::table('logzones')->pluck('camp_id', 'id')->toArray();
-        $deviceCampusIdById = DB::table('f_devices')->pluck('camp_id', 'id')->toArray();
-        $campusNameById = DB::table('campuses')->pluck('campus_name', 'id')->toArray();
-        // ---------- Pickers ----------
-        $pickCampusName = function (?int $id) use ($deviceCampusIdById, $zoneCampusIdById, $campusNameById, $DEFAULT_CAMPUS_NAME) {
-            if ($id === null) return $DEFAULT_CAMPUS_NAME;
-            $campId = $id > 0 ? ($deviceCampusIdById[$id] ?? null) : ($zoneCampusIdById[$id] ?? null);
-            return $campId !== null ? ($campusNameById[$campId] ?? $DEFAULT_CAMPUS_NAME) : $DEFAULT_CAMPUS_NAME;
-        };
-        $pickPlace = function (?int $id) use ($deviceById, $zoneById, $DEFAULT_DEVICE_LABEL, $DEFAULT_ZONE_LABEL) {
-            if ($id === null) return $DEFAULT_ZONE_LABEL;
-            return $id > 0 ? ($deviceById[$id] ?? $DEFAULT_DEVICE_LABEL) : ($zoneById[$id] ?? $DEFAULT_ZONE_LABEL);
-        };
-        // ---------- Determine latest up to max dates with any logs ----------
-        // "Any logs" means at least one of time_in / time_out / time_over is non-empty.
+
+        // Default labels
+        $DEFAULT_CAMPUS = 'TBD';
+        $DEFAULT_LABEL  = 'TBD';
+
+        // 1️⃣ Fetch recent date window
         $dates = DB::table('dtrs')
             ->where('emp_ID', $empId)
             ->where(function ($q) {
-                $q->where(function ($q2) { $q2->whereNotNull('time_in')->where('time_in', '!=', ''); })
-                ->orWhere(function ($q2) { $q2->whereNotNull('time_out')->where('time_out', '!=', ''); })
-                ->orWhere(function ($q2) { $q2->whereNotNull('time_over')->where('time_over', '!=', ''); });
+                $q->whereNotNull('time_in')->where('time_in', '!=', '')
+                ->orWhereNotNull('time_out')->where('time_out', '!=', '')
+                ->orWhereNotNull('time_over')->where('time_over', '!=', '');
             })
             ->orderBy('date', 'desc')
             ->limit($MAX_DATES)
             ->pluck('date')
             ->toArray();
+
         if (empty($dates)) {
             return response()->json([
-                'window_days'   => $MAX_DATES,
-                'dates_included'=> [],
-                'logs'          => [],
+                'window_days'    => $MAX_DATES,
+                'dates_included' => [],
+                'logs'           => [],
             ], 200);
         }
-        // Fetch rows for those dates (includes employee name fields)
+
+        // 2️⃣ Fetch all relevant rows for those dates
         $rows = DB::table('dtrs')
             ->join('employees', 'dtrs.emp_ID', '=', 'employees.emp_ID')
             ->where('dtrs.emp_ID', $empId)
@@ -456,72 +457,76 @@ class TimeEntryController extends Controller
             ->select('dtrs.*', 'employees.fname', 'employees.lname', 'employees.suffix')
             ->orderBy('dtrs.date', 'desc')
             ->get();
+
+        // 3️⃣ Collect unique positive/negative IDs
+        $deviceIds = [];
+        $zoneIds   = [];
+
+        foreach ($rows as $r) {
+            $extractIds = function ($str) {
+                return array_filter(array_map('trim', explode(',', (string)$str)));
+            };
+            foreach ($extractIds($r->device_id_in) as $id)  $id > 0 ? $deviceIds[$id] = true : $zoneIds[$id] = true;
+            foreach ($extractIds($r->device_id_out) as $id) $id > 0 ? $deviceIds[$id] = true : $zoneIds[$id] = true;
+            foreach ($extractIds($r->device_id_over) as $id)$id > 0 ? $deviceIds[$id] = true : $zoneIds[$id] = true;
+        }
+
+        // 4️⃣ Pull only needed lookups (sign rule preserved)
+        $deviceById         = empty($deviceIds) ? [] : DB::table('f_devices')->whereIn('id', array_keys($deviceIds))->pluck('label', 'id')->toArray();
+        $deviceCampusById   = empty($deviceIds) ? [] : DB::table('f_devices')->whereIn('id', array_keys($deviceIds))->pluck('camp_id', 'id')->toArray();
+        $zoneById           = empty($zoneIds)   ? [] : DB::table('logzones')->whereIn('id', array_keys($zoneIds))->pluck('label', 'id')->toArray();
+        $zoneCampusById     = empty($zoneIds)   ? [] : DB::table('logzones')->whereIn('id', array_keys($zoneIds))->pluck('camp_id', 'id')->toArray();
+
+        $campusIds = array_unique(array_merge(array_values($deviceCampusById), array_values($zoneCampusById)));
+        $campusById = empty($campusIds) ? [] : DB::table('campuses')->whereIn('id', $campusIds)->pluck('campus_name', 'id')->toArray();
+
+        $campusName = function (?int $id) use ($deviceCampusById, $zoneCampusById, $campusById, $DEFAULT_CAMPUS) {
+            if ($id === null) return $DEFAULT_CAMPUS;
+            if ($id > 0) {
+                $campId = $deviceCampusById[$id] ?? null;
+            } else {
+                $campId = $zoneCampusById[$id] ?? null;
+            }
+            return $campId ? ($campusById[$campId] ?? $DEFAULT_CAMPUS) : $DEFAULT_CAMPUS;
+        };
+        $labelName = function (?int $id) use ($deviceById, $zoneById, $DEFAULT_LABEL) {
+            if ($id === null) return $DEFAULT_LABEL;
+            return $id > 0 ? ($deviceById[$id] ?? $DEFAULT_LABEL)
+                        : ($zoneById[$id] ?? $DEFAULT_LABEL);
+        };
+
+        // 5️⃣ Expand all time fields
         $out = [];
         foreach ($rows as $r) {
-            // TIME IN
-            $ins = array_filter(explode(',', (string) $r->time_in));
-            $zin = explode(',', (string) $r->device_id_in);
-            foreach ($ins as $i => $t) {
-                $dt = Carbon::parse($r->date.' '.$t);
-                $zRaw = trim($zin[$i] ?? '');
-                $id   = $zRaw === '' ? null : (int)$zRaw;
-                $out[] = [
-                    'type'         => 'time_in',
-                    'date'         => $r->date,
-                    'time'         => $t,
-                    'fname'        => $r->fname,
-                    'lname'        => $r->lname,
-                    'suffix'       => $r->suffix,
-                    'zone_id'      => $id,
-                    'campus_name'  => $pickCampusName($id),
-                    'zone_label'   => $pickPlace($id),
-                    'ts'           => $dt->toIso8601String(),
-                ];
-            }
-            // TIME OUT
-            $outs = array_filter(explode(',', (string) $r->time_out));
-            $zout = explode(',', (string) $r->device_id_out);
-            foreach ($outs as $i => $t) {
-                $dt = Carbon::parse($r->date.' '.$t);
-                $zRaw = trim($zout[$i] ?? '');
-                $id   = $zRaw === '' ? null : (int)$zRaw;
-                $out[] = [
-                    'type'         => 'time_out',
-                    'date'         => $r->date,
-                    'time'         => $t,
-                    'fname'        => $r->fname,
-                    'lname'        => $r->lname,
-                    'suffix'       => $r->suffix,
-                    'zone_id'      => $id,
-                    'campus_name'  => $pickCampusName($id),
-                    'zone_label'   => $pickPlace($id),
-                    'ts'           => $dt->toIso8601String(),
-                ];
-            }
-            // OVERTIME
-            $overs = array_filter(explode(',', (string) $r->time_over));
-            $zover = explode(',', (string) $r->device_id_over);
-            foreach ($overs as $i => $t) {
-                $dt = Carbon::parse($r->date.' '.$t);
-                $zRaw = trim($zover[$i] ?? '');
-                $id   = $zRaw === '' ? null : (int)$zRaw;
-                $out[] = [
-                    'type'         => 'time_over',
-                    'date'         => $r->date,
-                    'time'         => $t,
-                    'fname'        => $r->fname,
-                    'lname'        => $r->lname,
-                    'suffix'       => $r->suffix,
-                    'zone_id'      => $id,
-                    'campus_name'  => $pickCampusName($id),
-                    'zone_label'   => $pickPlace($id),
-                    'ts'           => $dt->toIso8601String(),
-                ];
-            }
+            $append = function ($times, $ids, $type) use (&$out, $r, $campusName, $labelName) {
+                $timesArr = array_filter(explode(',', (string)$times));
+                $idsArr   = explode(',', (string)$ids);
+                foreach ($timesArr as $i => $t) {
+                    $raw = trim($idsArr[$i] ?? '');
+                    $id  = $raw === '' ? null : (int)$raw;
+                    $out[] = [
+                        'type'         => $type,
+                        'date'         => $r->date,
+                        'time'         => $t,
+                        'fname'        => $r->fname,
+                        'lname'        => $r->lname,
+                        'suffix'       => $r->suffix,
+                        'zone_id'      => $id,
+                        'campus_name'  => $campusName($id),
+                        'zone_label'   => $labelName($id),
+                        'ts'           => "{$r->date}T{$t}",
+                    ];
+                }
+            };
+            $append($r->time_in,  $r->device_id_in,  'time_in');
+            $append($r->time_out, $r->device_id_out, 'time_out');
+            $append($r->time_over,$r->device_id_over,'time_over');
         }
-        // Sort newest first by true timestamp
-        usort($out, fn($a,$b) => strcmp($b['ts'], $a['ts']));
-        foreach ($out as &$row) unset($row['ts']);
+
+        // 6️⃣ Sort newest first (no Carbon needed)
+        usort($out, fn($a, $b) => strcmp($b['ts'], $a['ts']));
+        foreach ($out as &$r) unset($r['ts']);
+
         return response()->json([
             'window_days'    => $MAX_DATES,
             'dates_included' => $dates,
@@ -725,8 +730,7 @@ class TimeEntryController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
-    }      
-
+    }
     // ==== DEPRECATED ====    
     private float $ratioThr = 0.78;
     private int   $kMin     = 16;
@@ -813,9 +817,9 @@ class TimeEntryController extends Controller
         });
     }
     public function fetchLogzones(Request $request) {
-        $ttl = 300; // seconds
+        $ttl = 60; // seconds
         // Build payload from cache (DB touched at most once per $ttl)
-        $zones = Cache::remember('logzones:payload', $ttl, function () {
+        $zones = Cache::remember('logzones_legacy:payload', $ttl, function () {
             return DB::table('logzones')->where('active_stat', 1)->get()->map(function ($zone) {
                 $points = json_decode($zone->points, true);
                 if (!is_array($points)) $points = [];

@@ -400,7 +400,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/reports', [EventController::class, 'searchReport'])->name('searchReport');
         Route::get('/reports-generate/{eventid}/{campusid}/{statusid}', [EventController::class, 'reportGenrate'])->name('reportGenrate');
     });
-    
+
+    Route::get('/settings', [MasterController::class, 'systemSetting'])->name('settings');
     Route::get('/leave/disapprove', [LeaveApplicationController::class, 'leaveDisapprove']);
     Route::post('/logout', [MasterController::class, 'logout'])->name('logout');
 });

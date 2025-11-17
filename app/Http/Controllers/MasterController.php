@@ -17,6 +17,7 @@ use App\Models\WorkExperience;
 use App\Models\LearningDev; 
 use App\Models\VoluntaryWork;
 use App\Models\Application;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
@@ -159,14 +160,25 @@ class MasterController extends Controller
             ]);
 
         return $pdf->stream(); // stream to iframe
-    }
+    } 
 
     public function appList(){
         $guard = $this->getGuard();
         $applications = Application::join('job_hirings', 'applications.jid', '=', 'job_hirings.id')
             ->select('applications.*', 'job_hirings.title as position')
             ->get();
-        return view('job-hiring.application', compact('applications', 'guard'));
+        return view('career.application', compact('applications', 'guard'));
+    }
+
+    public function systemSetting(){
+        $guard = $this->getGuard();
+        $employees = Employee::select('id', 'emp_ID', 'fname', 'lname')->get();
+        $settings = Setting::first();
+
+        $kioskAccess = explode(',', $settings->hr_kiosk);
+        $dtrFullAccess = explode(',', $settings->dtr_acct);
+
+        return view('settings.index', compact('guard', 'employees', 'settings', 'kioskAccess', 'dtrFullAccess'));
     }
 
     public function dataPrivacyNotice(Request $request)

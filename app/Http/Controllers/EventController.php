@@ -69,7 +69,7 @@ class EventController extends Controller
         if ($request->campus_id != 0) {
             $employeeQuery->where('camp_id', $request->campus_id);
         }
-
+        
         if ($request->emp_status != 0) {
             $employeeQuery->where('emp_status', $request->emp_status);
         }

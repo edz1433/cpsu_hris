@@ -22,7 +22,7 @@ class JobHiringController extends Controller
         $guard = $this->getGuaard();
         $jobs = JobHiring::all();
 
-        return view("job-hiring.list", compact('jobs', 'guard'));
+        return view("career.list", compact('jobs', 'guard'));
     }
 
     public function jCreate(Request $request)
