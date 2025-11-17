@@ -211,11 +211,11 @@
     $last_non_matching_day = $countnmatch === 5 ? end($notnatch) : null;
 
 @endphp
- 
+
 <body>
     
     <div class="column1"> 
-        <img src="{{ public_path('Uploads/dtr-header-old.png') }}" width="110%" style="margin-top: -7px;" alt="Header Image">
+        <img src="{{ asset('Uploads/dtr-header-old.png') }}" width="110%" style="margin-top: -7px;" alt="Header Image">
         <div>
             <span class="font">Name of Employee :</span> <span class="header" style="relative; display: inline-block; width: 73%; text-align: left;">&nbsp; @if(isset($employee)) {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(substr($employee->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->suffix)) }}@endif</span>
         </div>
@@ -347,7 +347,7 @@
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: left; margin-top: -25px;"><b>VERIFIED</b> as to the prescribed office hours:</span>
         </div>
         <div>
-            <span class="font"><b>@if(isset($supervisor)) {{ strtoupper(ucwords($supervisor->fname)) }} {{ strtoupper(substr($supervisor->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($supervisor->lname)) }}{{ ($supervisor->prefix) ? ', '.$supervisor->prefix : ''}}@endif</b></span><br>
+            <span class="font"><b>@if(isset($supervisor)){{ ($supervisor->prefix) ? ', '.$supervisor->prefix : ''}} {{ strtoupper(ucwords($supervisor->fname)) }} {{ strtoupper(substr($supervisor->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($supervisor->lname)) }}{{ ($supervisor->suffix) ? ', '.$supervisor->suffix : ''}}@endif</b></span><br>
             <span class="header" style="relative; display: inline-block; width: 50%; text-align: center;"></span>
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: center; margin-top: -25px;">Immediate Supervisor’s Signature </span>
             <span class="font" style="relative; display: inline-block; width: 100%; text-align: center; margin-top: -37px;">over Printed Name</span>
