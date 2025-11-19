@@ -110,9 +110,9 @@
         <img src="{{ asset('Uploads/spms-header.jpg') }}" width="25%" alt="Header Image"><br><br>
         <b>OFFICE PERFORMANCE COMMITMENT AND REVIEW (OPCR)</b><br>
         For the Rating Period:@if($cat == 1 || $cat == 0)
-                January - June
+                January to June
             @elseif($cat == 2)
-                July - December
+                July to December
             @endif
             </span>
             , <span class="underline bold">{{ $prs[0]->year }}</span>.<br>
