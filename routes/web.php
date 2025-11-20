@@ -104,7 +104,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/opcr-pdf/{prnumber}/{userid}/{category}', [OpcrController::class, 'opcrPdf'])->name('opcrPdf');
         Route::post('/assign-opcr', [OpcrController::class, 'assignOpcr'])->name('assignOpcr');
         Route::post('/update-rating/{prnumber}', [OpcrController::class, 'updateRatingStatus'])->name('updateRatingStatus');
-        Route::get('/pdf/opcr/{prnumber}/{category}/{userid?}', [OpcrController::class, 'generateOpcrPdf'])->name('generateOpcrPdf');
+        Route::get('/pdf/opcr/{prnumber}/{category}/{userid}', [OpcrController::class, 'generateOpcrPdf'])->name('generateOpcrPdf');
         
         Route::post('/update-opcr-stat', [DocumentFolderController::class, 'updateStat'])->name('updateStat');
     
