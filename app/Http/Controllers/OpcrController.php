@@ -516,7 +516,7 @@ class OpcrController extends Controller
         $prs = Opcr::where('user_id', $dempid)
             ->where('pr_number', $dprnumber)
             ->get();
-
+        
         $cores = $prs->get(0) ? OpcrMfo::where('opcr_id', $prs[0]->id)->get() : collect();
         $strats = $prs->get(1) ? OpcrMfo::where('opcr_id', $prs[1]->id)->get() : collect();
         $supports = $prs->get(2) ? OpcrMfo::where('opcr_id', $prs[2]->id)->get() : collect();
