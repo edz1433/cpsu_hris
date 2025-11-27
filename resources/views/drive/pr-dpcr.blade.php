@@ -284,11 +284,11 @@
             <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="core{{ $dpcrmfodata->dpcr_mfo_id }}"
                 @if(!in_array($userid, $pmtsmember ?? []) && $guard == 'employee')
                     @if(!in_array($status, [2, 5]))
-                        onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, '{{ $dpcrmfodata->target }}', {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})"
+                        onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})"
                         style="cursor: pointer;"
                     @endif
                 @else
-                    onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, '{{ $dpcrmfodata->target }}', {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})"
+                    onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})"
                     style="cursor: pointer;"
                 @endif
             >
@@ -465,7 +465,7 @@
                     $ids = explode(',', $dpcrmfodata->emp_ids ?? '');
                     $evidences = explode(',', $dpcrmfodata->emp_evidences ?? '');
                 @endphp
-                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="strategic{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, '{{ $dpcrmfodata->target }}', {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $strat->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
+                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="strategic{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $strat->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
                 <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
@@ -636,7 +636,7 @@
                     $ids = explode(',', $dpcrmfodata->emp_ids ?? '');
                     $evidences = explode(',', $dpcrmfodata->emp_evidences ?? '');
                 @endphp
-                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="support{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, '{{ $dpcrmfodata->target }}', {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $supp->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
+                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="support{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $supp->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
                 <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
@@ -841,7 +841,7 @@
 </script>
 <script>
     let canDelete = @json($guard == 'web' || in_array($userid, $pmtsmember ?? []));
-    function showOpcrMfoData(id, target, mfoid, count, lock) {
+    function showOpcrMfoData(id, mfoid, count, lock) {
         Swal.fire({
             title: 'Choose an action',
             icon: 'question',
@@ -862,7 +862,17 @@
                 $('#dpcr-mfo-data-id').val(id);
                 $('#count1').val(count);
                 $('#asign-to-ipcr').modal('show');
-                document.getElementById('ipcr-target').value = target;
+
+                $.ajax({
+                    url: `{{ route('dpcrmfoEditData', ':id') }}`.replace(':id', id),
+                    method: 'GET',
+                    success: function (data) {
+                        $('#ipcr-target').val(data.target);
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Unable to fetch data for editing.', 'error');
+                    }
+                });
             } else if (result.isDenied) {
                 editOpcrData(id);
                 $('#dpcr-mfo-id').val(mfoid);
