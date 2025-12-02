@@ -212,7 +212,9 @@ class OpcrController extends Controller
 
         $totalPercent = array_sum($percentArray);
 
-        $prSetting = PrSetting::find(1);
+        $opcr = Opcr::find($opcrId);
+        $employee = Employee::find($opcr->user_id);
+        $prSetting = PrSetting::find($employee->strat_function);
 
         // Expected sum based on category
         if ($cat == 1) {
@@ -264,7 +266,7 @@ class OpcrController extends Controller
             'efficiency' => 'nullable|string',
             'timeliness' => 'nullable|string',
             'category' => 'required',
-            'opcr_by' => 'required',
+            'opcr_by' => 'nullable',
         ]);
 
         $setting = Setting::first();
@@ -293,7 +295,7 @@ class OpcrController extends Controller
                     'efficiency' => $request->input('efficiency'),
                     'timeliness' => $request->input('timeliness'),
                     'category' => $category,
-                    'opcr_by' => $request->input('opcr_by'),
+                    'opcr_by' => $request->input('opcr_by') ?? '',
                     'user_id' => $setting->suc_pres,
                     'order' => $order,
                 ]);
@@ -396,14 +398,14 @@ class OpcrController extends Controller
 
                     <div class="form-group col-md-2">
                         <input type="text" name="mfo[]" class="form-control form-control-sm text-center"
-                            style="height: 52px; font-size: 20px;" value="' . $mfo . '" readonly>
+                            style="height: 43px; font-size: 20px;" value="' . $mfo . '" readonly>
                     </div>
                     <div class="form-group col-md-8">
                         <textarea name="functions[]" rows="2" class="form-control form-control-sm" placeholder="function">' . $function . '</textarea>
                     </div>
                     <div class="form-group col-md-2">
                         <input type="text" name="percent[]" class="form-control form-control-sm text-center"
-                            style="height: 52px; font-size: 25px;" value="' . $percent . '" ' . $disablePercentInput . '>
+                            style="height: 43px; font-size: 25px;" value="' . $percent . '" ' . $disablePercentInput . '>
                     </div>
                 </div>
             ';
@@ -570,6 +572,7 @@ class OpcrController extends Controller
         $empIds = $request->empid;
         $count = $request->count;
         $prnumber = $request->prnumber;
+        $target = $request->target;
 
         $finalEmpIds = [];
 
@@ -626,104 +629,288 @@ class OpcrController extends Controller
             $opcrmfos = OpcrMfo::where('opcr_id', $opcr->id)->get();
             $functions = $opcrmfos->pluck('functions')->all();
 
-            $lastPr = Dpcr::where('pr_number', 'like', 'D-%')
-                        ->orderByDesc('id')
-                        ->value('pr_number');
+            $prNumber = null;
+            $isUpdateMode = !empty($prnumber);
 
-            $nextNumber = ($lastPr && preg_match('/D-(\d+)/', $lastPr, $matches))
-                            ? ((int)$matches[1] + 1)
-                            : 1;
+            if ($isUpdateMode) {
+                $prNumber = $prnumber;
+                // Assume structure exists for update; if not, the data assignment will skip
+            } else {
+                $exists = Dpcr::where('user_id', $empid)
+                            ->where('op_pr_number', $opcr->pr_number)
+                            ->exists();
 
-            $prNumber = 'D-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+                if (!$exists) {
+                    $lastPr = Dpcr::where('pr_number', 'like', 'D-%')
+                                ->orderByDesc('id')
+                                ->value('pr_number');
 
-            $exists = Dpcr::where('user_id', $empid)
-                        ->where('op_pr_number', $opcr->pr_number)
-                        ->exists();
+                    $nextNumber = ($lastPr && preg_match('/D-(\d+)/', $lastPr, $matches))
+                                    ? ((int)$matches[1] + 1)
+                                    : 1;
 
-            if (!$exists) {
-                $dpcrRecords = [
-                    ['mfo' => 'CORE FUNCTIONS',      'percent' => $prSetting->core_sum ?? 0],
-                    ['mfo' => 'STRATEGIC FUNCTIONS', 'percent' => $prSetting->strat_sum ?? 0],
-                    ['mfo' => 'SUPPORT FUNCTIONS',   'percent' => $prSetting->support_sum ?? 0],
-                ];
+                    $prNumber = 'D-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
 
-                $insertedIds = [];
-                foreach ($dpcrRecords as $record) {
-                    $model = Dpcr::create([
-                        'user_id'      => $empid,
-                        'opcr_id'      => $opcrmfo->opcr_id ?? null,
-                        'op_pr_number' => $opcr->pr_number,
-                        'folder_id'    => 2,
-                        'pr_number'    => $prNumber,
-                        'mfo'          => $record['mfo'],
-                        'percent'      => $record['percent'],
-                        'year'         => $opcr->year,
-                    ]);
-                    $insertedIds[] = $model->id;
-                }
+                    $dpcrRecords = [
+                        ['mfo' => 'CORE FUNCTIONS',      'percent' => $prSetting->core_sum ?? 0],
+                        ['mfo' => 'STRATEGIC FUNCTIONS', 'percent' => $prSetting->strat_sum ?? 0],
+                        ['mfo' => 'SUPPORT FUNCTIONS',   'percent' => $prSetting->support_sum ?? 0],
+                    ];
 
-                [$firstId, $secondId, $thirdId] = $insertedIds;
+                    $insertedIds = [];
+                    foreach ($dpcrRecords as $record) {
+                        $model = Dpcr::create([
+                            'user_id'      => $empid,
+                            'opcr_id'      => $opcrmfo->opcr_id ?? null,
+                            'op_pr_number' => $opcr->pr_number,
+                            'folder_id'    => 2,
+                            'pr_number'    => $prNumber,
+                            'mfo'          => $record['mfo'],
+                            'percent'      => $record['percent'],
+                            'year'         => $opcr->year,
+                        ]);
+                        $insertedIds[] = $model->id;
+                    }
 
-                $dpcrMfo = [
-                    ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 1', 'percent' => $prSetting->core_mfo1 ?? 0, 'functions' => $functions[0] ?? '', 'count' => 1],
-                    ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 2', 'percent' => $prSetting->core_mfo2 ?? 0, 'functions' => $functions[1] ?? '', 'count' => 2],
-                    ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 3', 'percent' => $prSetting->core_mfo3 ?? 0, 'functions' => $functions[2] ?? '', 'count' => 3],
+                    [$firstId, $secondId, $thirdId] = $insertedIds;
 
-                    ['dpcr_id' => $secondId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->strategic_mfo4 ?? 0, 'functions' => $functions[3] ?? '', 'count' => 4],
-                    ['dpcr_id' => $secondId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->strategic_mfo5 ?? 0, 'functions' => $functions[4] ?? '', 'count' => 5],
+                    $dpcrMfo = [
+                        ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 1', 'percent' => $prSetting->core_mfo1 ?? 0, 'functions' => $functions[0] ?? '', 'count' => 1],
+                        ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 2', 'percent' => $prSetting->core_mfo2 ?? 0, 'functions' => $functions[1] ?? '', 'count' => 2],
+                        ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 3', 'percent' => $prSetting->core_mfo3 ?? 0, 'functions' => $functions[2] ?? '', 'count' => 3],
 
-                    ['dpcr_id' => $thirdId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->support_mfo4 ?? 0, 'functions' => $functions[5] ?? '', 'count' => 6],
-                    ['dpcr_id' => $thirdId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->support_mfo5 ?? 0, 'functions' => $functions[6] ?? '', 'count' => 7],
-                ];
+                        ['dpcr_id' => $secondId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->strategic_mfo4 ?? 0, 'functions' => $functions[3] ?? '', 'count' => 4],
+                        ['dpcr_id' => $secondId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->strategic_mfo5 ?? 0, 'functions' => $functions[4] ?? '', 'count' => 5],
 
-                DpcrMfo::insert($dpcrMfo);
+                        ['dpcr_id' => $thirdId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->support_mfo4 ?? 0, 'functions' => $functions[5] ?? '', 'count' => 6],
+                        ['dpcr_id' => $thirdId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->support_mfo5 ?? 0, 'functions' => $functions[6] ?? '', 'count' => 7],
+                    ];
 
-                $asignatories = [
-                    ['empid' => $employee->emp_ID, 'suffixes' => $employee->suffix, 'designation' => !empty($empoffice) && !empty($empoffice->office_name) ? 'Head, '.$empoffice->office_name : '', 'label' => 'Discussed with:'],
-                    ['empid' => $offheadData->emp_ID, 'suffixes' => $offheadData->suffix, 'designation' => !empty($headoffice) && !empty($headoffice->office_name) ? $headoffice->office_name : '', 'label' => 'Assessed by:'],
-                    ['empid' => 'EMP0131', 'suffixes' => "Ph.D.", 'designation' => 'Performance Management Team', 'label' => 'Reviewed by:'],
-                    ['empid' => 'EMP0202', 'suffixes' => "Ph.D.", 'designation' => 'Performance Management Team', 'label' => 'Reviewed by:'],
-                    ['empid' => $sucpresData->emp_ID, 'suffixes' => $sucpresData->suffix, 'designation' => 'President', 'label' => 'Approved:'],
-                ];
+                    DpcrMfo::insert($dpcrMfo);
 
-                foreach ($asignatories as $asignatory) {
-                    SpmsAsignatory::create([
-                        'pr_number'   => $prNumber,
-                        'empid'       => $asignatory['empid'],
-                        'suffixes'    => $asignatory['suffixes'],
-                        'designation' => $asignatory['designation'],
-                        'spms_type'   => 'DPCR',
-                        'label'       => $asignatory['label'],
-                    ]);
+                    $asignatories = [
+                        ['empid' => $employee->emp_ID, 'suffixes' => $employee->suffix, 'designation' => !empty($empoffice) && !empty($empoffice->office_name) ? 'Head, '.$empoffice->office_name : '', 'label' => 'Discussed with:'],
+                        ['empid' => $offheadData->emp_ID, 'suffixes' => $offheadData->suffix, 'designation' => !empty($headoffice) && !empty($headoffice->office_name) ? $headoffice->office_name : '', 'label' => 'Assessed by:'],
+                        ['empid' => 'EMP0131', 'suffixes' => "Ph.D.", 'designation' => 'Performance Management Team', 'label' => 'Reviewed by:'],
+                        ['empid' => 'EMP0202', 'suffixes' => "Ph.D.", 'designation' => 'Performance Management Team', 'label' => 'Reviewed by:'],
+                        ['empid' => $sucpresData->emp_ID, 'suffixes' => $sucpresData->suffix, 'designation' => 'President', 'label' => 'Approved:'],
+                    ];
+
+                    foreach ($asignatories as $asignatory) {
+                        SpmsAsignatory::create([
+                            'pr_number'   => $prNumber,
+                            'empid'       => $asignatory['empid'],
+                            'suffixes'    => $asignatory['suffixes'],
+                            'designation' => $asignatory['designation'],
+                            'spms_type'   => 'DPCR',
+                            'label'       => $asignatory['label'],
+                        ]);
+                    }
+                } else {
+                    $prNumber = Dpcr::where('user_id', $empid)
+                                ->where('op_pr_number', $opcr->pr_number)
+                                ->value('pr_number');
                 }
             }
 
             $dpcrmfofind = DpcrMfo::join('dpcrs', 'dpcr_mfos.dpcr_id', '=', 'dpcrs.id')
                 ->where('dpcrs.user_id', $empid)
                 ->where('dpcr_mfos.count', $count)
-                ->select('dpcr_mfos.*')
-                ->first();
+                ->select('dpcr_mfos.*');
 
-            // dd($dpcrmfofind);
+            if ($prNumber) {
+                $dpcrmfofind->where('dpcrs.pr_number', $prNumber);
+            }
+
+            $dpcrmfofind = $dpcrmfofind->first();
+
             if ($opcrmfodata && $dpcrmfofind) {
                 $data = $opcrmfodata->toArray();
                 unset($data['id']);
 
-                $data['pr_number'] = $opcrmfo->pr_number ?? null;
+                $data['pr_number'] = $prNumber;
+                $data['target'] = $target;
                 $data['dpcr_mfo_id'] = $dpcrmfofind->id;
                 $data['opcr_mfo_data_id'] = $id;
                 $data['user_id'] = $empid;
 
-                $exists = DpcrMfoData::where('user_id', $empid)
-                            ->where('opcr_mfo_data_id', $id)
-                            ->exists();
-
-                if (!$exists) {
-                    DpcrMfoData::create($data);
-                }
+                DpcrMfoData::updateOrCreate(
+                    [
+                        'user_id' => $empid,
+                        'opcr_mfo_data_id' => $id,
+                        'dpcr_mfo_id' => $dpcrmfofind->id,
+                    ],
+                    $data
+                );
             }
         }
 
         return redirect()->back()->with('success', 'Assigned successfully!');
     }
+
+    // public function assignOpcr(Request $request)
+    // { 
+    //     $setting = Setting::first();
+    //     $id = $request->opcrid;
+    //     $empIds = $request->empid;
+    //     $count = $request->count;
+    //     $prnumber = $request->prnumber;
+    //     $target = $request->target;
+
+    //     $finalEmpIds = [];
+
+    //     $sucpresData = Employee::join('spms_personnels', 'employees.id', '=', 'spms_personnels.empid')
+    //         ->where('employees.id', $setting->suc_pres)
+    //         ->select('employees.emp_ID', 'employees.suffix', 'spms_personnels.designation')
+    //         ->first();
+
+    //     if (!empty($empIds) && str_contains(implode(',', $empIds), 'C:')) {
+    //         $categoryIds = [];
+
+    //         foreach ($empIds as $empId) {
+    //             $parts = explode(',', $empId);
+    //             foreach ($parts as $part) {
+    //                 if (str_starts_with($part, 'C:')) {
+    //                     $categoryIds[] = substr($part, 2);
+    //                 }
+    //             }
+    //         }
+
+    //         $finalEmpIds = SpmsPersonnel::whereIn('category', $categoryIds)
+    //                         ->where('empid', '!=', $setting->suc_pres)
+    //                         ->pluck('empid')
+    //                         ->toArray();
+    //     } else {
+    //         foreach ($empIds as $empId) {
+    //             if ($empId != $setting->suc_pres) {
+    //                 $finalEmpIds[] = $empId;
+    //             }
+    //         }
+    //     }
+
+    //     foreach ($finalEmpIds as $empid) {
+    //         if (!is_numeric($empid)) continue;
+
+    //         $employee = Employee::find($empid);
+    //         $empoffice = Office::find($employee->emp_dept);
+
+    //         $offheadData = Employee::join('spms_personnels', 'employees.id', '=', 'spms_personnels.empid')
+    //             ->where('employees.id', $employee->supervisor)
+    //             ->select('employees.emp_ID', 'employees.suffix', 'spms_personnels.designation', 'employees.emp_dept')
+    //             ->first();
+
+    //         $headoffice = Office::find($offheadData->emp_dept);
+
+    //         if (!$employee) continue;
+
+    //         $prSetting = PrSetting::find($employee->strat_function);
+    //         $opcrmfodata = OpcrMfoData::find($id);
+    //         $opcrmfo = OpcrMfo::find($opcrmfodata->opcr_mfo_id ?? null);
+    //         $opcr = Opcr::find($opcrmfo->opcr_id ?? null);
+    //         if (!$opcr) continue;
+
+    //         $opcrmfos = OpcrMfo::where('opcr_id', $opcr->id)->get();
+    //         $functions = $opcrmfos->pluck('functions')->all();
+
+    //         $lastPr = Dpcr::where('pr_number', 'like', 'D-%')
+    //                     ->orderByDesc('id')
+    //                     ->value('pr_number');
+
+    //         $nextNumber = ($lastPr && preg_match('/D-(\d+)/', $lastPr, $matches))
+    //                         ? ((int)$matches[1] + 1)
+    //                         : 1;
+
+    //         $prNumber = 'D-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+
+    //         $exists = Dpcr::where('user_id', $empid)
+    //                     ->where('op_pr_number', $opcr->pr_number)
+    //                     ->exists();
+
+    //         if (!$exists) {
+    //             $dpcrRecords = [
+    //                 ['mfo' => 'CORE FUNCTIONS',      'percent' => $prSetting->core_sum ?? 0],
+    //                 ['mfo' => 'STRATEGIC FUNCTIONS', 'percent' => $prSetting->strat_sum ?? 0],
+    //                 ['mfo' => 'SUPPORT FUNCTIONS',   'percent' => $prSetting->support_sum ?? 0],
+    //             ];
+
+    //             $insertedIds = [];
+    //             foreach ($dpcrRecords as $record) {
+    //                 $model = Dpcr::create([
+    //                     'user_id'      => $empid,
+    //                     'opcr_id'      => $opcrmfo->opcr_id ?? null,
+    //                     'op_pr_number' => $opcr->pr_number,
+    //                     'folder_id'    => 2,
+    //                     'pr_number'    => $prNumber,
+    //                     'mfo'          => $record['mfo'],
+    //                     'percent'      => $record['percent'],
+    //                     'year'         => $opcr->year,
+    //                 ]);
+    //                 $insertedIds[] = $model->id;
+    //             }
+
+    //             [$firstId, $secondId, $thirdId] = $insertedIds;
+
+    //             $dpcrMfo = [
+    //                 ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 1', 'percent' => $prSetting->core_mfo1 ?? 0, 'functions' => $functions[0] ?? '', 'count' => 1],
+    //                 ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 2', 'percent' => $prSetting->core_mfo2 ?? 0, 'functions' => $functions[1] ?? '', 'count' => 2],
+    //                 ['dpcr_id' => $firstId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 3', 'percent' => $prSetting->core_mfo3 ?? 0, 'functions' => $functions[2] ?? '', 'count' => 3],
+
+    //                 ['dpcr_id' => $secondId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->strategic_mfo4 ?? 0, 'functions' => $functions[3] ?? '', 'count' => 4],
+    //                 ['dpcr_id' => $secondId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->strategic_mfo5 ?? 0, 'functions' => $functions[4] ?? '', 'count' => 5],
+
+    //                 ['dpcr_id' => $thirdId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 4', 'percent' => $prSetting->support_mfo4 ?? 0, 'functions' => $functions[5] ?? '', 'count' => 6],
+    //                 ['dpcr_id' => $thirdId, 'opcr_id' => $opcrmfo->opcr_id, 'mfo' => 'MFO 5', 'percent' => $prSetting->support_mfo5 ?? 0, 'functions' => $functions[6] ?? '', 'count' => 7],
+    //             ];
+
+    //             DpcrMfo::insert($dpcrMfo);
+
+    //             $asignatories = [
+    //                 ['empid' => $employee->emp_ID, 'suffixes' => $employee->suffix, 'designation' => !empty($empoffice) && !empty($empoffice->office_name) ? 'Head, '.$empoffice->office_name : '', 'label' => 'Discussed with:'],
+    //                 ['empid' => $offheadData->emp_ID, 'suffixes' => $offheadData->suffix, 'designation' => !empty($headoffice) && !empty($headoffice->office_name) ? $headoffice->office_name : '', 'label' => 'Assessed by:'],
+    //                 ['empid' => 'EMP0131', 'suffixes' => "Ph.D.", 'designation' => 'Performance Management Team', 'label' => 'Reviewed by:'],
+    //                 ['empid' => 'EMP0202', 'suffixes' => "Ph.D.", 'designation' => 'Performance Management Team', 'label' => 'Reviewed by:'],
+    //                 ['empid' => $sucpresData->emp_ID, 'suffixes' => $sucpresData->suffix, 'designation' => 'President', 'label' => 'Approved:'],
+    //             ];
+
+    //             foreach ($asignatories as $asignatory) {
+    //                 SpmsAsignatory::create([
+    //                     'pr_number'   => $prNumber,
+    //                     'empid'       => $asignatory['empid'],
+    //                     'suffixes'    => $asignatory['suffixes'],
+    //                     'designation' => $asignatory['designation'],
+    //                     'spms_type'   => 'DPCR',
+    //                     'label'       => $asignatory['label'],
+    //                 ]);
+    //             }
+    //         }
+
+    //         $dpcrmfofind = DpcrMfo::join('dpcrs', 'dpcr_mfos.dpcr_id', '=', 'dpcrs.id')
+    //             ->where('dpcrs.user_id', $empid)
+    //             ->where('dpcr_mfos.count', $count)
+    //             ->select('dpcr_mfos.*')
+    //             ->first();
+
+    //         // dd($dpcrmfofind);
+    //         if ($opcrmfodata && $dpcrmfofind) {
+    //             $data = $opcrmfodata->toArray();
+    //             unset($data['id']);
+
+    //             $data['pr_number'] = $opcrmfo->pr_number ?? null;
+    //             $data['target'] = $target;
+    //             $data['dpcr_mfo_id'] = $dpcrmfofind->id;
+    //             $data['opcr_mfo_data_id'] = $id;
+    //             $data['user_id'] = $empid;
+
+    //             $exists = DpcrMfoData::where('user_id', $empid)
+    //                         ->where('opcr_mfo_data_id', $id)
+    //                         ->exists();
+
+    //             if (!$exists) {
+    //                 DpcrMfoData::create($data);
+    //             }
+    //         }
+    //     }
+
+    //     return redirect()->back()->with('success', 'Assigned successfully!');
+    // }
 }

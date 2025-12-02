@@ -699,9 +699,16 @@
             buttonsStyling: false // Needed to apply Bootstrap styles
         }).then((result) => {
             if (result.isConfirmed) {
-                $('#opcr-mfo-data-id').val(id);
-                $('#count').val(count);
-                $('#asign-to-dpcr').modal('show');
+                $.ajax({
+                    url: `{{ route('opcrmfoEditData', ':id') }}`.replace(':id', id),
+                    method: 'GET',
+                    success: function (data) {
+                        $('#opcr-mfo-data-id').val(id);
+                        $('#opcr-target').val(data.target);
+                        $('#count').val(count);
+                        $('#asign-to-dpcr').modal('show');
+                    }
+                });
             } else if (result.isDenied) {
                 editOpcrData(id);
                 $('#opcr-mfo-id').val(mfoid);

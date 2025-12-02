@@ -4,12 +4,12 @@
         height: 40%;
         margin: 30px auto;
     }
-</style>
-<div class="modal fade" id="createOpcrMfoModal" tabindex="-1" role="dialog" aria-labelledby="createOpcrMfoModalLabel" aria-hidden="true">
+</style> 
+<div class="modal fade" id="createDpcrMfoModal" tabindex="-1" role="dialog" aria-labelledby="createDpcrMfoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-custom modal-sm" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h6 class="modal-title text-success1" id="createOpcrMfoModalLabel"><b id="opcr-cat-text"></b></h6>
+                <h6 class="modal-title text-success1" id="createDpcrMfoModalLabel"><b id="dpcr-cat-text"></b></h6>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -17,10 +17,10 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-12">
-                        <form id="uploadForm" method="POST" action="{{ request()->is('spms/*') ? route('update-opcr-mfo') : '' }}" enctype="multipart/form-data">
+                        <form id="uploadForm" method="POST" action="{{ route('update-dpcr-mfo') }}" enctype="multipart/form-data">
                             @csrf
-                            <input type="hidden" name="opcr-cat" id="opcr-cat">
-                            <input type="hidden" name="opcr-id" id="opcr-id">
+                            <input type="hidden" name="dpcr-cat" id="dpcr-cat">
+                            <input type="hidden" name="dpcr-id" id="dpcr-id">
 
                             <div class="form-row" id="form-data">
 
@@ -38,11 +38,11 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="opcrMfoData" tabindex="-1" role="dialog" aria-labelledby="opcrMfoDataLabel" aria-hidden="true">
+<div class="modal fade" id="dpcrMfoData" tabindex="-1" role="dialog" aria-labelledby="dpcrMfoDataLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h6 class="modal-title text-success1" id="opcrMfoDataLabel"><b id="functions">PERFORMANCE REVIEW</b></h6>
+                <h6 class="modal-title text-success1" id="dpcrMfoDataLabel"><b id="functions">PERFORMANCE REVIEW</b></h6>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" data-id="1">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -50,10 +50,10 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-12">
-                        <form id="uploadForm" method="POST" action="{{ route('create-opcr-mfo-data') }}" enctype="multipart/form-data">
+                        <form id="uploadForm" method="POST" action="{{ route('create-dpcr-mfo-data') }}" enctype="multipart/form-data">
                             @csrf
-                            <input type="hidden" name="opcr_mfo_id" id="opcr-mfo-id">
-                            <input type="hidden" name="opcrdata_id" id="opcrdata_id">
+                            <input type="hidden" name="dpcr_mfo_id" id="dpcr_mfo_id">
+                            <input type="hidden" name="dpcrdata_id" id="dpcrdata_id">
                             <input type="hidden" name="user_id" id="user_id" value="{{ $empid }}">
                             <div class="form-row align-items-center">
                                 <div class="form-group col-md-3">
@@ -74,7 +74,7 @@
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">REPORT OF SUPERVISOR / OTHER OFFICES</label>
-                                    <input type="text" name="report_sup" class="form-control" id="report_sup" autocomplete="off">
+                                    <input name="report_sup" rows="3" class="form-control" id="report_sup" autocomplete="off">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="text-success1">TARGETS </label>
@@ -115,43 +115,40 @@
     </div>
 </div>
 <!-- Modal -->
-<div class="modal fade" id="opcrModal" tabindex="-1" aria-labelledby="opcrModalLabel" aria-hidden="true">
+<div class="modal fade" id="dpcrModal" tabindex="-1" aria-labelledby="dpcrModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="opcrModalLabel">OPCR Entry Options</h5>
+                <h5 class="modal-title" id="dpcrModalLabel">DPCR Entry Options</h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body text-center">
-                <input type="hidden" id="opcr_id"> 
-
+                <input type="hidden" id="dpcr_id"> 
                 <p>What do you want to do?</p>
 
-                <button class="btn btn-primary btn-block mb-2" onclick="editOpcrData()">Edit</button>
-                <button class="btn btn-danger btn-block" onclick="deleteOpcrData()">Delete</button>
+                <button class="btn btn-primary btn-block mb-2" onclick="editDpcrData()">Edit</button>
+                <button class="btn btn-danger btn-block" onclick="deleteDpcrData()">Delete</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="asign-to-dpcr" aria-labelledby="opcrModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm" style="width: 600px !important;">
+<div class="modal fade" id="asign-to-dpcr" aria-labelledby="dpcrModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm" style="width: 400px !important;">
         <div class="modal-content">
-            <form method="POST" action="{{ route('assignOpcr') }}">
+            <form method="POST" action="{{ route('assignDpcr') }}">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title" id="opcrModalLabel">Asign</h5>
+                    <h5 class="modal-title" id="dpcrModalLabel">Asign</h5>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
-                <div class="modal-body">
-                    <input type="hidden" name="opcrid" id="opcr-mfo-data-id">
+                <div class="modal-body text-center">
+                    <input type="hidden" name="dpcrid" id="dpcr-mfo-data-id">
                     <input type="hidden" name="count" id="count">
-                    <label for="target">Target</label>
-                    <textarea class="form-control mb-2" id="opcr-target" name="target" cols="30" rows="5"></textarea>
                     <label for="Employee">Employee</label>
                     <select class="form-control form-control-sm select2" name="empid[]" id="employee" required multiple>
                         @if($folder == 1)
-                            <option value="C:2">All Deans</option>
+                            <option value="C:2">All Dean</option>
                             <option value="C:3">All Campus Ad</option>
                             <option value="C:4">All Office Head</option>
                             <option value="C:5">All Director</option> 
@@ -185,7 +182,7 @@
 </div>
 
 <div class="modal fade" id="asign-to-ipcr" aria-labelledby="dpcrModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm" style="width: 400px !important;">
+    <div class="modal-dialog modal-sm" style="width: 600px !important;">
         <div class="modal-content">
             <form method="POST" action="{{ route('assignDpcr') }}">
                 @csrf

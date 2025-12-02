@@ -208,7 +208,7 @@
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Opcrmfodata->measure) . '%', displayValue($Opcrmfodata->target)) !!}
                             </td>
-                            <td></td>
+                            <td>Evidence</td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
                             <td class="text-center">{!! displayValue($Opcrmfodata->div_account) !!}</td>

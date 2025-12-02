@@ -40,14 +40,77 @@ class DpcrController extends Controller
         return openssl_decrypt(base64_decode($encrypted), $cipher, $key, 0);
     }
 
+    public function updateDpcrMfo(Request $request)
+    {
+        $request->validate([
+            'dpcr-id' => 'required|integer',
+            'mfo' => 'required|array',
+            'mfo.*' => 'string',
+            'functions' => 'required|array',
+            'functions.*' => 'string|nullable',
+            'percent' => 'required|array',
+            'percent.*' => 'numeric|min:0|max:100'
+        ]);
+
+        $cat = $request->input('dpcr-cat');
+        $dpcrId = $request->input('dpcr-id');
+        $functionArray = $request->input('functions');
+        $percentArray  = $request->input('percent');
+        
+        // Sum of percentage
+        $totalPercent = array_sum($percentArray);
+
+        $dpcr = Dpcr::find($dpcrId);
+        $employee = Employee::find($dpcr->user_id);
+        $prSetting = PrSetting::find($employee->strat_function);
+ 
+        // Determine expected percent based on category
+        switch ($cat) {
+            case 1:
+                $expectedPercentSum = $prSetting->core_sum;
+                break;
+            case 2:
+                $expectedPercentSum = $prSetting->strat_sum;
+                break;
+            default:
+                $expectedPercentSum = $prSetting->support_sum;
+        }
+        
+        // Check total %
+        // Uncomment if you want validation
+        if ($totalPercent != $expectedPercentSum) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'percent' => "The total percent must be exactly $expectedPercentSum%. Current total: $totalPercent"
+                ]);
+        }
+
+        // Get existing records sorted by ID (matches your form order)
+        $existingMfos = DpcrMfo::where('dpcr_id', $dpcrId)
+            ->orderBy('id', 'asc')
+            ->get();
+
+        // Update each row based on index
+        foreach ($existingMfos as $index => $mfoRecord) {
+            $mfoRecord->update([
+                'functions' => $functionArray[$index] ?? '',
+                'percent'   => $percentArray[$index],
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'MFO saved successfully!');
+    }
+
     public function createDpcrMfoData(Request $request)
     {
         $request->validate([
-            'opcr_mfo_id' => 'required|integer',
-            'opcrdata_id' => 'required|integer',
+            'dpcr_mfo_id' => 'required|integer',
+            'dpcrdata_id' => 'required|integer',
             'user_id' => 'required',
-            'mfo' => 'required|string', 
+            'mfo' => 'required|string',
             'target' => 'nullable|string',
+            'measure' => 'nullable|string',
             'in_support' => 'nullable|string',
             'report_sup' => 'nullable|string',
             'div_account' => 'nullable|string',
@@ -55,22 +118,18 @@ class DpcrController extends Controller
             'efficiency' => 'nullable|string',
             'timeliness' => 'nullable|string',
             'category' => 'required',
-            'opcr_by' => 'required',
+            'dpcr_by' => 'nullable',
         ]);
-
         $guard = $this->getGuard();
-        $dpcrId = $request->input('opcr_mfo_id');
-        $dpcrdataId = $request->input('opcrdata_id');
+        $dpcrId = $request->input('dpcr_mfo_id');
+        $dpcrdataId = $request->input('dpcrdata_id');
         $userId = $this->shortDecrypt($request->input('user_id'));
-
         $categories = $request->input('category') === 'All' ? [1, 2] : [$request->input('category')];
-        
+    
         $lastOrder = DpcrMfoData::where('dpcr_mfo_id', $dpcrId)
         ->max('order');
-
         // Start new order number
         $order = $lastOrder ? $lastOrder + 1 : 1;
-
         if ($dpcrdataId == 0) {
             foreach ($categories as $category) {
                 DpcrMfoData::create([
@@ -86,11 +145,10 @@ class DpcrController extends Controller
                     'efficiency' => $request->input('efficiency'),
                     'timeliness' => $request->input('timeliness'),
                     'category' => $category,
-                    'opcr_by' => $request->input('opcr_by'),
+                    'dpcr_by' => $request->input('dpcr_by') ?? '',
                     'order' => $order,
                     'lock' => ($guard === 'employee' && $userId == auth()->guard($guard)->user()->id) ? 2 : 1,
                 ]);
-
                 $order++;
             }
         } else {
@@ -108,13 +166,12 @@ class DpcrController extends Controller
                     'efficiency' => $request->input('efficiency'),
                     'timeliness' => $request->input('timeliness'),
                     'category' => $request->input('category'),
-                    'opcr_by' => $request->input('opcr_by'),
+                    'dpcr_by' => $request->input('dpcr_by'),
                 ]);
             } else {
                 return redirect()->back()->with('error', 'OPCR MFO Data not found!');
             }
         }
-
         return redirect()->back()->with('success', 'MFO data saved successfully!');
     }
 
@@ -142,7 +199,7 @@ class DpcrController extends Controller
         }else{
             $prPercent = $prSetting->support_sum;
         }
-
+        
         // Calculate total percent from the data collection
         $totalPercent = $data->sum('percent');
 
@@ -170,14 +227,14 @@ class DpcrController extends Controller
             $html .= '
                     <div class="form-group col-md-2">
                         <input type="text" name="mfo[]" class="form-control form-control-sm text-center"
-                            style="height: 52px; font-size: 20px;" value="' . $mfo . '" readonly>
+                            style="height: 43px; font-size: 20px;" value="' . $mfo . '" readonly>
                     </div>
                     <div class="form-group col-md-8">
                         <textarea name="functions[]" rows="2" class="form-control form-control-sm" placeholder="function">' . $function . '</textarea>
                     </div>
                     <div class="form-group col-md-2">
                         <input type="text" name="percent[]" class="form-control form-control-sm text-center"
-                            style="height: 52px; font-size: 25px;" value="' . $percent . '" ' . $disablePercentInput . '>
+                            style="height: 43px; font-size: 25px;" value="' . $percent . '">
                     </div>
                 </div>
             ';
@@ -502,4 +559,5 @@ class DpcrController extends Controller
             return response()->json(['error' => 'Failed to delete entry.'], 500);
         }
     }
+
 }

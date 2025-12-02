@@ -39,7 +39,7 @@
         return strtolower(trim($value ?? '')) === 'n/a' ? '' : $value;
     }
 @endphp
-@include('drive.modal-mfo')
+@include('drive.modal-mfo-dpcr')
 <div class="modal fade" id="modal-rating" tabindex="-1" role="dialog" aria-labelledby="modal-prform" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -50,7 +50,6 @@
         </div>
     </div>
 </div>
-
 <div class="d-flex justify-content-between align-items-center gap-3 mb-3 flex-wrap">
     {{-- Full Name on the Left --}}
     <div class="d-flex align-items-center ml-2">
@@ -213,7 +212,7 @@
                         data-cat="1"
                         data-id="{{ $prs[0]->id }}"
                         data-folder="{{ $folder }}"
-                        data-target="#createOpcrMfoModal">
+                        data-target="#createDpcrMfoModal">
                         </i>
                     </td>
                     @endif
@@ -224,7 +223,7 @@
                         data-cat="1"
                         data-id="{{ $prs[0]->id }}"
                         data-folder="{{ $folder }}"
-                        data-target="#createOpcrMfoModal">
+                        data-target="#createDpcrMfoModal">
                         </i>
                     </td>
                 @endif
@@ -259,13 +258,13 @@
                     @if(!in_array($status, [2, 5]))
                         <td class="b-none text-center">
                             <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
-                            data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></i>
+                            data-target="#dpcrMfoData" data-mfoid="{{ $core->id }}"></i>
                         </td>
                     @endif
                 @else
                     <td class="b-none text-center">
                         <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
-                        data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></i>
+                        data-target="#dpcrMfoData" data-mfoid="{{ $core->id }}"></i>
                     </td>
                 @endif
             </tr>
@@ -284,11 +283,11 @@
             <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="core{{ $dpcrmfodata->dpcr_mfo_id }}"
                 @if(!in_array($userid, $pmtsmember ?? []) && $guard == 'employee')
                     @if(!in_array($status, [2, 5]))
-                        onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})"
+                        onclick="showDpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})"
                         style="cursor: pointer;"
                     @endif
                 @else
-                    onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})"
+                    onclick="showDpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})"
                     style="cursor: pointer;"
                 @endif
             >
@@ -400,7 +399,7 @@
                             data-cat="2"
                             data-id="{{ $prs[1]->id }}"
                             data-folder="{{ $folder }}"
-                            data-target="#createOpcrMfoModal">
+                            data-target="#createDpcrMfoModal">
                             </i>
                         </td>
                     @endif
@@ -411,7 +410,7 @@
                         data-cat="2"
                         data-id="{{ $prs[1]->id }}"
                         data-folder="{{ $folder }}"
-                        data-target="#createOpcrMfoModal">
+                        data-target="#createDpcrMfoModal">
                         </i>
                     </td>
                 @endif
@@ -442,13 +441,13 @@
                     @if(!in_array($status, [2, 5]))
                         <td class="b-none text-center">
                             <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
-                            data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i>
+                            data-target="#dpcrMfoData" data-mfoid="{{ $strat->id }}"></i>
                         </td>
                     @endif
                 @else
                     <td class="b-none text-center">
                         <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
-                        data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i>
+                        data-target="#dpcrMfoData" data-mfoid="{{ $strat->id }}"></i>
                     </td>
                 @endif
             </tr>
@@ -465,7 +464,7 @@
                     $ids = explode(',', $dpcrmfodata->emp_ids ?? '');
                     $evidences = explode(',', $dpcrmfodata->emp_evidences ?? '');
                 @endphp
-                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="strategic{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $strat->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
+                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="strategic{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showDpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $strat->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
                 <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
@@ -574,7 +573,7 @@
                             data-cat="3"
                             data-id="{{ $prs[2]->id }}"
                             data-folder="{{ $folder }}"
-                            data-target="#createOpcrMfoModal">
+                            data-target="#createDpcrMfoModal">
                             </i>
                         </td>
                     @endif
@@ -585,7 +584,7 @@
                         data-cat="3"
                         data-id="{{ $prs[2]->id }}"
                         data-folder="{{ $folder }}"
-                        data-target="#createOpcrMfoModal">
+                        data-target="#createDpcrMfoModal">
                         </i>
                     </td>
                 @endif
@@ -613,13 +612,13 @@
                     @if(!in_array($status, [2, 5]))
                         <td class="b-none text-center">
                             <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
-                            data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i>
+                            data-target="#dpcrMfoData" data-mfoid="{{ $supp->id }}"></i>
                         </td>
                     @endif
                 @else
                     <td class="b-none text-center">
                         <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
-                        data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i>
+                        data-target="#dpcrMfoData" data-mfoid="{{ $supp->id }}"></i>
                     </td>
                 @endif
             </tr>
@@ -636,7 +635,7 @@
                     $ids = explode(',', $dpcrmfodata->emp_ids ?? '');
                     $evidences = explode(',', $dpcrmfodata->emp_evidences ?? '');
                 @endphp
-                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="support{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $supp->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
+                <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="support{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showDpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $supp->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
                 <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
@@ -757,15 +756,15 @@
         let cat = $(this).data('cat');
         let id = $(this).data('id');
 
-        $('#opcr-cat').val(cat);
-        $('#opcr-id').val(id);
+        $('#dpcr-cat').val(cat);
+        $('#dpcr-id').val(id);
 
         if(cat == 1) {
-            $('#opcr-cat-text').text('CORE FUNCTION');
+            $('#dpcr-cat-text').text('CORE FUNCTION');
         } else if(cat == 2) {
-            $('#opcr-cat-text').text('STRATEGIC FUNCTION');
+            $('#dpcr-cat-text').text('STRATEGIC FUNCTION');
         } else {
-            $('#opcr-cat-text').text('SUPPORT FUNCTION');
+            $('#dpcr-cat-text').text('SUPPORT FUNCTION');
         }
         
         $('#form-data').empty();
@@ -841,7 +840,7 @@
 </script>
 <script>
     let canDelete = @json($guard == 'web' || in_array($userid, $pmtsmember ?? []));
-    function showOpcrMfoData(id, mfoid, count, lock) {
+    function showDpcrMfoData(id, mfoid, count, lock) {
         Swal.fire({
             title: 'Choose an action',
             icon: 'question',
@@ -874,8 +873,8 @@
                     }
                 });
             } else if (result.isDenied) {
-                editOpcrData(id);
-                $('#dpcr-mfo-id').val(mfoid);
+                editDpcrData(id);
+                $('#dpcr_mfo_id').val(mfoid);
 
                 $.ajax({
                     url: `{{ route('dpcrmfoEditData', ':id') }}`.replace(':id', id),
@@ -904,12 +903,12 @@
     }
 
 
-    function editOpcrData(id) {
+    function editDpcrData(id) {
         // Set hidden input value
-        document.getElementById('opcrdata_id').value = id;
+        document.getElementById('dpcrdata_id').value = id;
 
         // Show the modal
-        $('#opcrMfoData').modal('show');
+        $('#dpcrMfoData').modal('show');
     }
 
     function confirmDeleteDpcrData(id,mfoid) {
@@ -958,10 +957,10 @@
 
     $(document).on('click', '.mfo-data', function (event) {
         var mfoid = $(this).data('mfoid');
-        $('#opcr-mfo-id').val(mfoid);
-        $('#opcrdata_id').val(0);
+        $('#dpcr_mfo_id').val(mfoid);
+        $('#dpcrdata_id').val(0);
 
-        $('#opcr_by').val('');
+        $('#dpcr_by').val('');
         $('#mfo').val('');
         $('#target').val('');
         $('#in_support').val('');
