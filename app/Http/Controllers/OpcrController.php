@@ -616,8 +616,10 @@ class OpcrController extends Controller
                 ->select('employees.emp_ID', 'employees.suffix', 'spms_personnels.designation', 'employees.emp_dept')
                 ->first();
 
-            $headoffice = Office::find($offheadData->emp_dept);
-
+            if($offheadData){
+                $headoffice = Office::find($offheadData->emp_dept);
+            }
+            
             if (!$employee) continue;
 
             $prSetting = PrSetting::find($employee->strat_function);
@@ -690,7 +692,7 @@ class OpcrController extends Controller
 
                     $asignatories = [
                         ['empid' => $employee->emp_ID, 'suffixes' => $employee->suffix, 'designation' => !empty($empoffice) && !empty($empoffice->office_name) ? 'Head, '.$empoffice->office_name : '', 'label' => 'Discussed with:'],
-                        ['empid' => $offheadData->emp_ID, 'suffixes' => $offheadData->suffix, 'designation' => !empty($headoffice) && !empty($headoffice->office_name) ? $headoffice->office_name : '', 'label' => 'Assessed by:'],
+                        ['empid' => $offheadData->emp_ID ?? null, 'suffixes' => $offheadData->suffix ?? null, 'designation' => $headoffice->office_name ?? null, 'label' => 'Assessed by:'],
                         ['empid' => 'EMP0131', 'suffixes' => "Ph.D.", 'designation' => 'Performance Management Team', 'label' => 'Reviewed by:'],
                         ['empid' => 'EMP0202', 'suffixes' => "Ph.D.", 'designation' => 'Performance Management Team', 'label' => 'Reviewed by:'],
                         ['empid' => $sucpresData->emp_ID, 'suffixes' => $sucpresData->suffix, 'designation' => 'President', 'label' => 'Approved:'],
