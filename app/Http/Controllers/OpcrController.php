@@ -573,6 +573,10 @@ class OpcrController extends Controller
         $count = $request->count;
         $prnumber = $request->prnumber;
         $target = $request->target;
+        $quality = $request->quality;
+        $efficiency = $request->efficiency;
+        $timeliness = $request->timeliness;
+        $divaccount = $request->div_account;
 
         $finalEmpIds = [];
 
@@ -780,6 +784,11 @@ class OpcrController extends Controller
                 unset($data['id'], $data['created_at'], $data['updated_at']);
 
                 $data['target'] = $target;
+                $data['quality'] = $quality;
+                $data['efficiency'] = $efficiency;
+                $data['timeliness'] = $timeliness;
+                $data['div_account'] = $divaccount;
+                
                 $data['pr_number'] = $opcr->pr_number ?? null;
                 $data['dpcr_mfo_id'] = $dpcrmfofind->id;
                 $data['opcr_mfo_data_id'] = $id;

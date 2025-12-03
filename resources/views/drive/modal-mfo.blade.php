@@ -148,6 +148,27 @@
                     <input type="hidden" name="count" id="count">
                     <label for="target">Target</label>
                     <textarea class="form-control mb-2" id="opcr-target" name="target" cols="30" rows="5"></textarea>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="target">Quality</label>
+                            <textarea class="form-control mb-2" id="opcr-quality" name="quality" cols="30" rows="5"></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="target">Efficiency</label>
+                            <textarea class="form-control mb-2" id="opcr-efficiency" name="efficiency" cols="30" rows="5"></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="target">Timeliness</label>
+                            <textarea class="form-control mb-2" id="opcr-timeliness" name="timeliness" cols="30" rows="5"></textarea>
+                        </div>
+                    </div>
+                    <label for="Accountable">Accountable</label>
+                    <select class="form-control form-control-sm select2 mb-1" id="opcr-div-account" name="div_account" required>
+                        <option value="">Select Accountable</option>
+                        @foreach($offices as $office)
+                            <option value="{{ $office->id }}">{{ $office->office_name }}</option>
+                        @endforeach
+                    </select>
                     <label for="Employee">Employee</label>
                     <select class="form-control form-control-sm select2" name="empid[]" id="employee" required multiple>
                         @if($folder == 1)
@@ -165,45 +186,6 @@
                             @if($emp->emp_id != $dempid)
                                 <option value="{{ $emp->emp_id }}" 
                                     @if(isset($employee) && $employee && $emp->emp_id == $employee->emp_ID) selected @endif>
-                                    {{ $emp->lname }}
-                                    {{ $emp->prefix }}
-                                    {{ $emp->fname }}
-                                    {{ isset($emp->mname) ? substr($emp->mname, 0, 1).'.' : '' }}
-                                </option>
-                            @endif
-                        @endforeach
-                    </select>
-                    <div class="form-row">
-                        <div class="col-md-12 mt-2 text-right">
-                            <button class="btn btn-success btn-sm" type="submit" id="asign-to-dpcr-btn"><i class="fas fa-save"></i> Save</button>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="asign-to-ipcr" aria-labelledby="dpcrModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm" style="width: 400px !important;">
-        <div class="modal-content">
-            <form method="POST" action="{{ route('assignDpcr') }}">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title" id="dpcrModalLabel">Asign</h5>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" name="dpcrid" id="dpcr-mfo-data-id">
-                    <input type="hidden" name="count" id="count1">
-                    <label for="target">Target</label>
-                    <textarea class="form-control mb-2" id="ipcr-target" name="target" cols="30" rows="5"></textarea>
-                    <label for="Employee">Employee</label>
-                    <select class="form-control form-control-sm select2" name="empid[]" id="employees" required multiple>
-                        @foreach($employees as $emp)
-                            @if($emp->id != $dempid)
-                                <option value="{{ $emp->id }}" 
-                                    @if(isset($employee) && $employee && $emp->id == $employee->emp_ID) selected @endif>
                                     {{ $emp->lname }}
                                     {{ $emp->prefix }}
                                     {{ $emp->fname }}

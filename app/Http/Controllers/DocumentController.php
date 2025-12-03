@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Employee;
+use App\Models\Office;
 use App\Models\Setting;
 use App\Models\DocuFolder; 
 use App\Models\Document;
@@ -151,6 +152,10 @@ class DocumentController extends Controller
                 'employees.prefix'
             )
             ->get();
+
+        $offices = Office::where('office_name', 'not like', '%UNKNOWN%')
+            ->where('office_name', 'not like', '%CAMPUS%')
+            ->get();
         
         $employeesreg = Employee::where('emp_status', 1)->get();
 
@@ -217,7 +222,7 @@ class DocumentController extends Controller
         $elapsed = round($endTime - $startTime, 3);
 
         return view('drive.pr', compact(
-            'guard', 'datas', 'prs', 'cores', 'strats', 'supports', 'folder', 'employeesreg',
+            'guard', 'datas', 'prs', 'cores', 'strats', 'supports', 'folder', 'employeesreg', 'offices',
             'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'datasdpcr', 'dprnumber'
         ));
     }

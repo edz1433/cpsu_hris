@@ -687,7 +687,7 @@
             icon: 'question',
             showCancelButton: true,
             showDenyButton: true,
-            confirmButtonText: 'Asign',
+            confirmButtonText: 'Assign',
             denyButtonText: 'Edit',
             cancelButtonText: 'Delete',
             reverseButtons: false,
@@ -706,6 +706,10 @@
                         $('#opcr-mfo-data-id').val(id);
                         $('#opcr-target').val(data.target);
                         $('#count').val(count);
+                        $('#opcr-quality').val(data.quality);
+                        $('#opcr-efficiency').val(data.efficiency);
+                        $('#opcr-timeliness').val(data.timeliness);
+                        $('#opcr-div-account').val(data.div_account);
                         $('#asign-to-dpcr').modal('show');
                     }
                 });
