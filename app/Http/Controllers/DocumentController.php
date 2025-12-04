@@ -153,7 +153,7 @@ class DocumentController extends Controller
             )
             ->get();
 
-        $offices = Office::where('office_name', 'not like', '%UNKNOWN%')
+        $offices = Office::where('office_abbr', 'not like', '%UNKNOWN%')
             ->where('office_name', 'not like', '%CAMPUS%')
             ->get();
         

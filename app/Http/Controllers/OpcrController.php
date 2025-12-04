@@ -16,6 +16,7 @@ use App\Models\DpcrMfo;
 use App\Models\DpcrMfoData;
 use App\Models\SpmsPersonnel;
 use App\Models\Office;
+use Illuminate\Support\Facades\DB;
 
 class OpcrController extends Controller
 {
@@ -533,7 +534,31 @@ class OpcrController extends Controller
             ->select(
                 'opcr_mfo_data.*',
                 'evidence.evidence as evidence_file',
+                'evidence.title as evidence_title',
                 \DB::raw("CONCAT(employees.fname, ' ', 
+                    IF(employees.mname IS NOT NULL AND employees.mname != '', 
+                        CONCAT(UPPER(LEFT(employees.mname, 1)), '.'), 
+                        ''
+                    ), 
+                    ' ', employees.lname
+                ) AS fullname")
+            )
+            ->get();
+
+        // Optimize DPCR join
+        $datasdpcr = DB::table('dpcr_mfo_data')
+            ->join('employees', 'dpcr_mfo_data.user_id', '=', 'employees.id')
+            ->leftJoin('evidence', function ($join) {
+                $join->on('dpcr_mfo_data.id', '=', 'evidence.data_id')
+                    ->where('evidence.category', '=', 2);
+            })
+            ->select(
+                'dpcr_mfo_data.id',
+                'dpcr_mfo_data.opcr_mfo_data_id',
+                'dpcr_mfo_data.user_id',
+                'evidence.evidence as evidence_file',
+                'evidence.title as evidence_title',
+                DB::raw("CONCAT(employees.fname, ' ', 
                     IF(employees.mname IS NOT NULL AND employees.mname != '', 
                         CONCAT(UPPER(LEFT(employees.mname, 1)), '.'), 
                         ''
@@ -546,7 +571,7 @@ class OpcrController extends Controller
         $customPaper = [0, 0, 1008, 684];
 
         $pdf = \PDF::loadView('drive.opcr-pdf-rating', compact('guard', 'datas', 'prs', 'cores', 'folder', 'strats', 'supports', 'employeesreg',
-            'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'dprnumber'))
+            'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'dprnumber', 'datasdpcr'))
             ->setPaper($customPaper, 'portrait')
             ->setOptions([
                 'isHtml5ParserEnabled' => true,
