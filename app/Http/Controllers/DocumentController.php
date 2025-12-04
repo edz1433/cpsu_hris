@@ -287,6 +287,7 @@ class DocumentController extends Controller
         $datas = \DB::table('dpcr_mfo_data')
             ->leftJoin('ipcr_mfo_data', 'ipcr_mfo_data.dpcr_mfo_data_id', '=', 'dpcr_mfo_data.id')
             ->leftJoin('employees', 'ipcr_mfo_data.user_id', '=', 'employees.id')
+            ->leftJoin('dbcpsupms.offices as offices', 'offices.id', '=', 'dpcr_mfo_data.div_account')
             ->leftJoin('evidence as dpcr_evidence', function ($join) {
                 $join->on('dpcr_evidence.data_id', '=', 'dpcr_mfo_data.id')
                     ->where('dpcr_evidence.category', '=', 2);
@@ -315,7 +316,13 @@ class DocumentController extends Controller
                 'dpcr_mfo_data.order',
                 'dpcr_mfo_data.category',
                 'dpcr_evidence.evidence as evidence_file',
-
+                \DB::raw("
+                    CASE 
+                        WHEN dpcr_mfo_data.div_account = '01' THEN 'All Office'
+                        WHEN dpcr_mfo_data.div_account = '02' THEN 'All Employee'
+                        ELSE offices.office_abbr
+                    END AS office_abbr
+                "),
                 \DB::raw("GROUP_CONCAT(DISTINCT employees.lname ORDER BY employees.lname ASC SEPARATOR ',') AS emp_employees"),
                 \DB::raw("GROUP_CONCAT(DISTINCT employees.id ORDER BY employees.lname ASC SEPARATOR ',') AS emp_ids"),
                 \DB::raw("
@@ -344,7 +351,8 @@ class DocumentController extends Controller
                 'dpcr_mfo_data.lock',
                 'dpcr_mfo_data.order',
                 'dpcr_mfo_data.category',
-                'dpcr_evidence.evidence'
+                'dpcr_evidence.evidence',
+                'offices.office_abbr'
             )
             ->get();
 

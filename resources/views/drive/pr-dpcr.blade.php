@@ -247,7 +247,7 @@
                 <td class="text-center"></td>
                 <td class="text-center">{{ displayValue($core->report_sup) }}</td>
                 <td class="text-center">{{ displayValue($core->alloted) }}</td>
-                <td class="text-center">{{ displayValue($core->div_account) }}</td>
+                <td class="text-center">{{ displayValue($core->office_abbr) }}</td>
                 <td class="text-center">{{ displayValue($core->qrate) }}</td>
                 <td class="text-center">{{ displayValue($core->erate) }}</td>
                 <td class="text-center">{{ displayValue($core->trate) }}</td>
@@ -359,7 +359,7 @@
                         @endif
                     @endforeach
                 </td>
-                <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
+                <td class="text-center">{!! displayValue($dpcrmfodata->office_abbr) !!}</td>
                 <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
                 <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
                 <td class="text-center">{!! nl2br(e(displayValue($dpcrmfodata->efficiency))) !!}</td>
@@ -430,7 +430,7 @@
                 <td class="text-center"></td>
                 <td class="text-center">{{ displayValue($strat->report_sup) }}</td>
                 <td class="text-center">{{ displayValue($strat->alloted) }}</td>
-                <td class="text-center">{{ displayValue($strat->div_account) }}</td>
+                <td class="text-center">{{ displayValue($strat->office_abbr) }}</td>
                 <td class="text-center">{{ displayValue($strat->qrate) }}</td>
                 <td class="text-center">{{ displayValue($strat->erate) }}</td>
                 <td class="text-center">{{ displayValue($strat->trate) }}</td>
@@ -533,7 +533,7 @@
                             @endif
                         @endforeach
                     </td>
-                    <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->office_abbr) !!}</td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
                     <td class="text-center">{!! nl2br(e(displayValue($dpcrmfodata->efficiency))) !!}</td>
@@ -601,7 +601,7 @@
                 <td class="text-center"></td>
                 <td class="text-center">{{ displayValue($supp->report_sup) }}</td>
                 <td class="text-center">{{ displayValue($supp->alloted) }}</td>
-                <td class="text-center">{{ displayValue($supp->div_account) }}</td>
+                <td class="text-center">{{ displayValue($supp->office_abbr) }}</td>
                 <td class="text-center">{{ displayValue($supp->qrate) }}</td>
                 <td class="text-center">{{ displayValue($supp->erate) }}</td>
                 <td class="text-center">{{ displayValue($supp->trate) }}</td>
@@ -704,7 +704,7 @@
                             @endif
                         @endforeach
                     </td>
-                    <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
+                    <td class="text-center">{!! displayValue($dpcrmfodata->office_abbr) !!}</td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
                     <td class="text-center">{!! nl2br(e(displayValue($dpcrmfodata->efficiency))) !!}</td>

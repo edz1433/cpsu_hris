@@ -11,7 +11,22 @@ class Office extends Model
 
     protected $connection = 'payroll';
     protected $table = 'offices';
-    
+
     protected $fillable = ['office_name', 'office_abbr', 'office_head_id', 'group_by'];
 
+    /**
+     * Get modified office_abbr with special rules.
+     */
+    public function getOfficeAbbrAttribute($value)
+    {
+        if ($this->id == '01') {
+            return 'All Office';
+        }
+
+        if ($this->id == '02') {
+            return 'All Employee';
+        }
+
+        return $value; // original office_abbr
+    }
 }

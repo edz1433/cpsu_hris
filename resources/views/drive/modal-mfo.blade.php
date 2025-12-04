@@ -164,9 +164,11 @@
                     </div>
                     <label for="Accountable">Accountable</label>
                     <select class="form-control form-control-sm select2 mb-1" id="opcr-div-account" name="div_account" required>
-                        <option value="">Select Accountable</option>
+                        <option value="" disabled selected hidden>Select Accountable</option>
+                        <option value="01">All Office</option>
+                        <option value="02">All Employee</option>
                         @foreach($offices as $office)
-                            <option value="{{ $office->id }}">{{ $office->office_name }}</option>
+                            <option value="{{ $office->id }}">{{ strtoupper($office->office_name) }}</option>
                         @endforeach
                     </select>
                     <label for="Employee">Employee</label>
