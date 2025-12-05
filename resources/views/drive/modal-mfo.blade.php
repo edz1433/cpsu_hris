@@ -167,6 +167,8 @@
                         <option value="" disabled selected hidden>Select Accountable</option>
                         <option value="01">All Office</option>
                         <option value="02">All Employee</option>
+                        <option value="03">All Colleges</option>
+                        <option value="04">All Campuses</option>
                         @foreach($offices as $office)
                             <option value="{{ $office->id }}">{{ strtoupper($office->office_name) }}</option>
                         @endforeach

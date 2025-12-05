@@ -320,6 +320,8 @@ class DocumentController extends Controller
                     CASE 
                         WHEN dpcr_mfo_data.div_account = '01' THEN 'All Office'
                         WHEN dpcr_mfo_data.div_account = '02' THEN 'All Employee'
+                        WHEN dpcr_mfo_data.div_account = '03' THEN 'All Colleges'
+                        WHEN dpcr_mfo_data.div_account = '04' THEN 'All Campuses'
                         ELSE offices.office_abbr
                     END AS office_abbr
                 "),

@@ -198,9 +198,9 @@
 </script>
 @endif
 <script>
-    // document.addEventListener('contextmenu', function (e) {
-    //     e.preventDefault();
-    // });
+    document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+    });
 
     $(function () {
         @if(Session::has('error'))
@@ -359,51 +359,63 @@
     });
 </script>
 @endif
-{{-- <script>
+<script>
 $(document).ready(function() {
-    var page = 1;
-    var loading = false;
-    var maxPages = {{ $notifications->lastPage() }};
 
-    function loadMoreNotifications(page) {
+    let offset = 10;   // first 10 already loaded in the blade
+    let loading = false;
+    let stopLoading = false;
+
+    function loadMoreNotifications() {
+
+        if (loading || stopLoading) return;
+
+        loading = true;
+
         $.ajax({
-            url: '{{ route('notificationload', ':page') }}'.replace(':page', page),
-            type: "get",
+            url: '{{ route("notificationload") }}',
+            type: "GET",
+            data: { offset: offset },
             beforeSend: function() {
                 loading = true;
             }
         })
         .done(function(data) {
-            if (data.html === "") {
+
+            // No more notifications
+            if (data.stop === true || data.html === "") {
+                stopLoading = true;
                 loading = false;
                 return;
             }
 
-            $('#notifications-container').append(data.html);  
-            loading = false;
+            // Append new notifications
+            $('#notifications-container').append(data.html);
 
-            if (page >= maxPages) {
-                $('.dropdown-menu').off('scroll');
-            }
+            // Increase offset by 10
+            offset = data.nextOffset;
+
+            loading = false;
         })
-        .fail(function(jqXHR, ajaxOptions, thrownError) {
-            console.log('Server error occurred');
+        .fail(function() {
+            console.log("Error loading notifications");
             loading = false;
         });
     }
 
-    $('.dropdown-menu').scroll(function() {
-        var dropdownMenu = $(this);
+    // Infinite Scroll inside the dropdown
+    $('.dropdown-menu').on('scroll', function() {
 
-        if (dropdownMenu.scrollTop() + dropdownMenu.innerHeight() >= dropdownMenu[0].scrollHeight && !loading) {
-            if (page < maxPages) {
-                page++;
-                loadMoreNotifications(page); 
-            }
+        let menu = $(this);
+
+        if (menu.scrollTop() + menu.innerHeight() >= this.scrollHeight - 5) {
+            loadMoreNotifications();
         }
+
     });
+
 });
-</script> --}}
+</script>
 <script>
 $(document).ready(function () {
     $('.btn-status-with-comment').on('click', function () {

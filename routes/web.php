@@ -363,7 +363,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
 
     //Notification
     Route::prefix('notification')->group(function() {
-        Route::get('/load/{page}', [NotificationController::class, 'loadMore'])->name('notificationload');
+        // Route::get('/load/{page}', [NotificationController::class, 'loadMore'])->name('notificationload');
+        Route::get('/load', [NotificationController::class, 'loadMore'])->name('notificationload');
         Route::get('/update-notif/{menid}/{lappid}/{menu}', [NotificationController::class, 'updateNotif'])->name('updateNotif');
     });
 
