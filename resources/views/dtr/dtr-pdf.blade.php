@@ -495,7 +495,7 @@
                 @endif
                 {{ strtoupper(ucwords($supervisor->fname)) }} {{ strtoupper(substr($supervisor->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($supervisor->lname)) }}{{ ($supervisor->suffix) ? ', '.$supervisor->suffix : ''}}
                 @if(!in_array($supervisor->prefix, ['Dr.', 'Eng.']))
-                    {{ strtoupper(ucwords($supervisor->prefix)) }}
+                    {{ ', '.strtoupper(ucwords($supervisor->prefix)) }}
                 @endif
                 @endif
             </b>
