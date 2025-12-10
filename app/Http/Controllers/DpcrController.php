@@ -113,7 +113,6 @@ class DpcrController extends Controller
             'measure' => 'nullable|string',
             'in_support' => 'nullable|string',
             'report_sup' => 'nullable|string',
-            'div_account' => 'nullable|string',
             'quality' => 'nullable|string',
             'efficiency' => 'nullable|string',
             'timeliness' => 'nullable|string',
@@ -140,7 +139,6 @@ class DpcrController extends Controller
                     'measure' => $request->input('measure'),
                     'in_support' => $request->input('in_support'),
                     'report_sup' => $request->input('report_sup'),
-                    'div_account' => $request->input('div_account'),
                     'quality' => $request->input('quality'),
                     'efficiency' => $request->input('efficiency'),
                     'timeliness' => $request->input('timeliness'),
@@ -161,7 +159,6 @@ class DpcrController extends Controller
                     'measure' => $request->input('measure'),
                     'in_support' => $request->input('in_support'),
                     'report_sup' => $request->input('report_sup'),
-                    'div_account' => $request->input('div_account'),
                     'quality' => $request->input('quality'),
                     'efficiency' => $request->input('efficiency'),
                     'timeliness' => $request->input('timeliness'),
@@ -176,7 +173,11 @@ class DpcrController extends Controller
     }
 
     public function dpcrmfoEditData($id){
-        $dpcrMfoData = DpcrMfoData::find($id);
+        $dpcrMfoData = DpcrMfoData::join('dbcpsupms.offices', 'dbcpsupms.offices.id', '=', 'dpcr_mfo_data.div_account')
+            ->where('dpcr_mfo_data.id', $id)
+            ->select('dpcr_mfo_data.*', 'dbcpsupms.offices.office_abbr')
+            ->first();
+        
         if ($dpcrMfoData) {
             return response()->json($dpcrMfoData);
         } else {
@@ -386,6 +387,10 @@ class DpcrController extends Controller
         $count = $request->count;
         $prnumber = $request->prnumber;
         $target = $request->target;
+        $quality = $request->quality;
+        $efficiency = $request->efficiency;
+        $timeliness = $request->timeliness;
+        $divaccount = $request->div_account;
 
         $finalEmpIds = [];
 
@@ -496,37 +501,32 @@ class DpcrController extends Controller
                 }
             }
 
+            // Assign specific MFO data (DpcrMfoData)
             $ipcrmfofind = IpcrMfo::join('ipcrs', 'ipcr_mfos.ipcr_id', '=', 'ipcrs.id')
                 ->where('ipcrs.user_id', $empid)
                 ->where('ipcr_mfos.count', $count)
                 ->select('ipcr_mfos.*')
                 ->first();
 
-            // dd($ipcrmfofind);
             if ($dpcrmfodata && $ipcrmfofind) {
                 $data = $dpcrmfodata->toArray();
-                unset($data['id']);
+                unset($data['id'], $data['created_at'], $data['updated_at']);
 
-                $data['pr_number'] = $dpcrmfo->pr_number ?? null;
-                $data['ipcr_mfo_id'] = $ipcrmfofind->id;
+                $data['target'] = $target;
+                $data['quality'] = $quality;
+                $data['efficiency'] = $efficiency;
+                $data['timeliness'] = $timeliness;
+                $data['div_account'] = $divaccount;
+                
+                $data['pr_number'] = $opcr->pr_number ?? null;
+                $data['dpcr_mfo_id'] = $ipcrmfofind->id;
                 $data['dpcr_mfo_data_id'] = $id;
                 $data['user_id'] = $empid;
-                $data['dpcr_by'] = $data['opcr_by'];
-                $data['target'] = $target;
 
-                $exists = IpcrMfoData::where('user_id', $empid)
-                            ->where('dpcr_mfo_data_id', $id)
-                            ->exists();
-
-                if (!$exists) {
-                    $nextOrder = IpcrMfoData::where('user_id', $empid)
-                                    ->where('ipcr_mfo_id', $ipcrmfofind->id)
-                                    ->max('order') ?? 0;
-
-                    $data['order'] = $nextOrder + 1;
-
-                    IpcrMfoData::create($data);
-                }
+                IpcrMfoData::updateOrCreate(
+                    ['user_id' => $empid, 'dpcr_mfo_data_id' => $id],
+                    $data
+                );
             }
         }
 

@@ -227,7 +227,7 @@
                                                 $hasEvidence = !empty($sub->evidence_file);
                                                 $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
                                                 $evidenceUrl = $hasEvidence ? $sub->evidence_file : 'javascript:void(0)';
-                                                $title = $sub->evidence_title ?? '';
+                                                $title = $sub->fullname ?? '';
                                             @endphp
 
                                             @if ($hasEvidence)
@@ -245,7 +245,7 @@
                                     </div>
                                 @endif
                             </td>
-                            <td class="text-center"></td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->report_sup) !!}</td>
                             <td class="text-center"></td>
                             <td class="text-center">{!! displayValue($Opcrmfodata->div_account) !!}</td>
                             <td class="text-center">{!! displayValue($Opcrmfodata->quality) !!}</td>
@@ -310,13 +310,49 @@
                         @endphp
 
                         @foreach($filteredOpcrMfoDatas as $Opcrmfodata)
+                        @php
+                            $relatedSubordinates = $datasdpcr->where('opcr_mfo_data_id', $Opcrmfodata->id);
+                            $allHaveEvidence = $relatedSubordinates->every(function ($sub) {
+                                return !empty($sub->evidence_file);
+                            });
+                        @endphp
                         <tr id="mfodata{{ $Opcrmfodata->id }}-{{ $Opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $Opcrmfodata->id }},{{ $Opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
                             <td class="text-left align-top" width="210">{!! displayValue($Opcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Opcrmfodata->measure) . '%', displayValue($Opcrmfodata->target)) !!}
                             </td>
-                            <td></td>
-                            <td class="text-center"></td>
+                            <td>
+                                @php
+                                    $withEvidenceCount = $relatedSubordinates->where('evidence_file', '!=', '')->count();
+                                    $totalCount = $relatedSubordinates->count();
+                                @endphp
+
+                                @if($totalCount)
+                                    <div class="dropdown">
+                                        @foreach ($relatedSubordinates as $sub)
+                                            @php
+                                                $hasEvidence = !empty($sub->evidence_file);
+                                                $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
+                                                $evidenceUrl = $hasEvidence ? $sub->evidence_file : 'javascript:void(0)';
+                                                $title = $sub->fullname ?? '';
+                                            @endphp
+
+                                            @if ($hasEvidence)
+                                                <a class="dropdown-item" href="{{ $evidenceUrl }}" target="_blank">
+                                                    <i class="fas fa-check-circle {{ $iconClass }}"></i>
+                                                    {{ strtoupper($title) }}<br>
+                                                </a>
+                                            @else
+                                                <span class="dropdown-item" style="cursor: default;">
+                                                    <i class="fas fa-check-circle {{ $iconClass }}"></i>
+                                                    {{ strtoupper($title) }}<br>
+                                                </span>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->report_sup) !!}</td>
                             <td class="text-center"></td>
                             <td class="text-center">{!! displayValue($Opcrmfodata->div_account) !!}</td>
                             <td class="text-center">{!! displayValue($Opcrmfodata->quality) !!}</td>
@@ -382,13 +418,49 @@
                         @endphp
 
                         @foreach($filteredOpcrMfoDatas as $Opcrmfodata)
+                        @php
+                            $relatedSubordinates = $datasdpcr->where('opcr_mfo_data_id', $Opcrmfodata->id);
+                            $allHaveEvidence = $relatedSubordinates->every(function ($sub) {
+                                return !empty($sub->evidence_file);
+                            });
+                        @endphp
                         <tr id="mfodata{{ $Opcrmfodata->id }}-{{ $Opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $Opcrmfodata->id }},{{ $Opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
                             <td class="text-left align-top" width="210">{!! displayValue($Opcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Opcrmfodata->measure) . '%', displayValue($Opcrmfodata->target)) !!}
                             </td>
-                            <td></td>
-                            <td class="text-center"></td>
+                            <td>
+                                @php
+                                    $withEvidenceCount = $relatedSubordinates->where('evidence_file', '!=', '')->count();
+                                    $totalCount = $relatedSubordinates->count();
+                                @endphp
+
+                                @if($totalCount)
+                                    <div class="dropdown">
+                                        @foreach ($relatedSubordinates as $sub)
+                                            @php
+                                                $hasEvidence = !empty($sub->evidence_file);
+                                                $iconClass = $hasEvidence ? 'text-success' : 'text-secondary';
+                                                $evidenceUrl = $hasEvidence ? $sub->evidence_file : 'javascript:void(0)';
+                                                $title = $sub->fullname ?? '';
+                                            @endphp
+
+                                            @if ($hasEvidence)
+                                                <a class="dropdown-item" href="{{ $evidenceUrl }}" target="_blank">
+                                                    <i class="fas fa-check-circle {{ $iconClass }}"></i>
+                                                    {{ strtoupper($title) }}<br>
+                                                </a>
+                                            @else
+                                                <span class="dropdown-item" style="cursor: default;">
+                                                    <i class="fas fa-check-circle {{ $iconClass }}"></i>
+                                                    {{ strtoupper($title) }}<br>
+                                                </span>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </td>
+                            <td class="text-center">{!! displayValue($Opcrmfodata->report_sup) !!}</td>
                             <td class="text-center"></td>
                             <td class="text-center">{!! displayValue($Opcrmfodata->div_account) !!}</td>
                             <td class="text-center">{!! displayValue($Opcrmfodata->quality) !!}</td>

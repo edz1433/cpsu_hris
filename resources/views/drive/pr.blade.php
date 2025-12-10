@@ -248,7 +248,7 @@
                             </div>
                         @endif
                     </td>
-                    <td class="text-center"></td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->report_sup) !!}</td>
                     <td class="text-center"></td>
                     <td class="text-center">{!! displayValue($opcrmfodata->div_account) !!}</td>
                     <td class="text-center">{!! displayValue($opcrmfodata->quality) !!}</td>
@@ -394,7 +394,7 @@
                             </div>
                         @endif
                     </td>
-                    <td class="text-center"></td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->report_sup) !!}</td>
                     <td class="text-center"></td>
                     <td class="text-center">{!! displayValue($opcrmfodata->div_account) !!}</td>
                     <td class="text-center">{!! displayValue($opcrmfodata->quality) !!}</td>
@@ -537,7 +537,7 @@
                             </div>
                         @endif
                     </td>
-                    <td class="text-center"></td>
+                    <td class="text-center">{!! displayValue($opcrmfodata->report_sup) !!}</td>
                     <td class="text-center"></td>
                     <td class="text-center">{!! displayValue($opcrmfodata->div_account) !!}</td>
                     <td class="text-center">{!! displayValue($opcrmfodata->quality) !!}</td>

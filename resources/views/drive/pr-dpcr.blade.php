@@ -276,7 +276,10 @@
 
             @foreach($filteredDpcrMfoDatas as $dpcrmfodata)
             @php
-                $names = explode(',', $dpcrmfodata->emp_employees ?? '');
+                $names = array_filter(
+                        explode(',', $dpcrmfodata->emp_employees ?? ''),
+                        fn($n) => trim($n) !== ''
+                    );
                 $ids = explode(',', $dpcrmfodata->emp_ids ?? '');
                 $evidences = explode(',', $dpcrmfodata->emp_evidences ?? '');
             @endphp
@@ -339,27 +342,31 @@
                         </span>
                     @endif
                 </td>
+                <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
                 <td class="text-center"></td>
                 <td class="text-center">
-                    @foreach($names as $index => $name)
-                        @php
-                            $name = trim($name);
-                            $evidence = $evidences[$index] ?? '#';
-                        @endphp
+                    @if(!empty($names))
+                        @foreach($names as $index => $name)
+                            @php
+                                $name = trim($name);
+                                $evidence = $evidences[$index] ?? '#';
+                            @endphp
 
-                        @if($evidence != '#')
-                            <a href="{{ $evidence }}" 
-                            target="_blank"
-                            onclick="event.stopPropagation();" 
-                            style="text-decoration: none; color: #007bff;">
-                            {{ $name }}<br>
-                            </a>
-                        @else
-                            <span style="color: #6c757d;">{{ $name }}<br></span>
-                        @endif
-                    @endforeach
+                            @if($evidence !== '#')
+                                <a href="{{ $evidence }}" 
+                                target="_blank"
+                                onclick="event.stopPropagation();" 
+                                style="text-decoration: none; color: #007bff;">
+                                    {{ $name }}<br>
+                                </a>
+                            @else
+                                <span style="color: #6c757d;">{{ $name }}<br></span>
+                            @endif
+                        @endforeach
+                    @else
+                        {!! displayValue($dpcrmfodata->office_abbr) !!}
+                    @endif
                 </td>
-                <td class="text-center">{!! displayValue($dpcrmfodata->office_abbr) !!}</td>
                 <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
                 <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
                 <td class="text-center">{!! nl2br(e(displayValue($dpcrmfodata->efficiency))) !!}</td>
@@ -460,7 +467,10 @@
 
             @foreach($filtereddpcrmfodatas as $dpcrmfodata)
                 @php
-                    $names = explode(',', $dpcrmfodata->emp_employees ?? '');
+                    $names = array_filter(
+                        explode(',', $dpcrmfodata->emp_employees ?? ''),
+                        fn($n) => trim($n) !== ''
+                    );
                     $ids = explode(',', $dpcrmfodata->emp_ids ?? '');
                     $evidences = explode(',', $dpcrmfodata->emp_evidences ?? '');
                 @endphp
@@ -514,26 +524,30 @@
                     @endif
                 </td>
                     <td class="text-center"></td>
+                    <td class="text-center"></td>
                     <td class="text-center">
+                        @if(!empty($names))
                         @foreach($names as $index => $name)
                             @php
                                 $name = trim($name);
                                 $evidence = $evidences[$index] ?? '#';
                             @endphp
 
-                            @if($evidence != '#')
+                            @if($evidence !== '#')
                                 <a href="{{ $evidence }}" 
                                 target="_blank"
                                 onclick="event.stopPropagation();" 
                                 style="text-decoration: none; color: #007bff;">
-                                {{ $name }}<br>
+                                    {{ $name }}<br>
                                 </a>
                             @else
                                 <span style="color: #6c757d;">{{ $name }}<br></span>
                             @endif
                         @endforeach
+                    @else
+                        {!! displayValue($dpcrmfodata->office_abbr) !!}
+                    @endif
                     </td>
-                    <td class="text-center">{!! displayValue($dpcrmfodata->office_abbr) !!}</td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
                     <td class="text-center">{!! nl2br(e(displayValue($dpcrmfodata->efficiency))) !!}</td>
@@ -631,7 +645,10 @@
 
             @foreach($filtereddpcrmfodatas as $dpcrmfodata)
                 @php
-                    $names = explode(',', $dpcrmfodata->emp_employees ?? '');
+                    $names = array_filter(
+                        explode(',', $dpcrmfodata->emp_employees ?? ''),
+                        fn($n) => trim($n) !== ''
+                    );
                     $ids = explode(',', $dpcrmfodata->emp_ids ?? '');
                     $evidences = explode(',', $dpcrmfodata->emp_evidences ?? '');
                 @endphp
@@ -685,26 +702,30 @@
                     @endif
                 </td>
                     <td class="text-center"></td>
+                    <td class="text-center"></td>
                     <td class="text-center">
+                        @if(!empty($names))
                         @foreach($names as $index => $name)
                             @php
                                 $name = trim($name);
                                 $evidence = $evidences[$index] ?? '#';
                             @endphp
 
-                            @if($evidence != '#')
+                            @if($evidence !== '#')
                                 <a href="{{ $evidence }}" 
                                 target="_blank"
                                 onclick="event.stopPropagation();" 
                                 style="text-decoration: none; color: #007bff;">
-                                {{ $name }}<br>
+                                    {{ $name }}<br>
                                 </a>
                             @else
                                 <span style="color: #6c757d;">{{ $name }}<br></span>
                             @endif
                         @endforeach
+                    @else
+                        {!! displayValue($dpcrmfodata->office_abbr) !!}
+                    @endif
                     </td>
-                    <td class="text-center">{!! displayValue($dpcrmfodata->office_abbr) !!}</td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
                     <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
                     <td class="text-center">{!! nl2br(e(displayValue($dpcrmfodata->efficiency))) !!}</td>
@@ -846,7 +867,7 @@
             icon: 'question',
             showCancelButton: (lock != 1 || canDelete), // 🔁 Always show delete if canDelete is true
             showDenyButton: true,
-            confirmButtonText: 'Asign',
+            confirmButtonText: 'Assign',
             denyButtonText: 'Edit',
             cancelButtonText: 'Delete',
             reverseButtons: false,
@@ -857,16 +878,18 @@
             },
             buttonsStyling: false
         }).then((result) => {
-            if (result.isConfirmed) {
-                $('#dpcr-mfo-data-id').val(id);
-                $('#count1').val(count);
-                $('#asign-to-ipcr').modal('show');
-
+            if (result.isConfirmed) {                
                 $.ajax({
                     url: `{{ route('dpcrmfoEditData', ':id') }}`.replace(':id', id),
                     method: 'GET',
                     success: function (data) {
+                        $('#dpcr-mfo-data-id').val(id);
                         $('#ipcr-target').val(data.target);
+                        $('#count1').val(count);
+                        $('#dpcr-quality').val(data.quality);
+                        $('#dpcr-efficiency').val(data.efficiency);
+                        $('#dpcr-timeliness').val(data.timeliness);
+                        $('#asign-to-ipcr').modal('show');
                     },
                     error: function () {
                         Swal.fire('Error', 'Unable to fetch data for editing.', 'error');
@@ -887,7 +910,7 @@
                         $('#measure').val(data.measure);
                         $('#in_support').val(data.in_support);
                         $('#report_sup').val(data.report_sup);
-                        $('#div_account').val(data.div_account);
+                        $('#div_account').val(data.office_abbr);
                         $('#quality').val(data.quality);
                         $('#efficiency').val(data.efficiency);
                         $('#timeliness').val(data.timeliness);
@@ -901,7 +924,6 @@
             }
         });
     }
-
 
     function editDpcrData(id) {
         // Set hidden input value

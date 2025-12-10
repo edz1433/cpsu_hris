@@ -132,7 +132,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> 
 
 <div class="modal fade" id="asign-to-dpcr" aria-labelledby="opcrModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm" style="width: 600px !important;">
@@ -140,7 +140,7 @@
             <form method="POST" action="{{ route('assignOpcr') }}">
                 @csrf
                 <div class="modal-header">
-                    <h5 class="modal-title" id="opcrModalLabel">Asign</h5>
+                    <h5 class="modal-title" id="opcrModalLabel">Assign</h5>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">

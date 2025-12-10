@@ -189,7 +189,7 @@ class DocumentController extends Controller
 
         // Optimize data loading
         $datas = OpcrMfoData::select([
-            'id', 'opcr_mfo_id', 'mfo', 'target', 'measure', 'in_support',
+            'id', 'opcr_mfo_id', 'mfo', 'target', 'measure', 'in_support', 'report_sup',
             'div_account', 'quality', 'q_score', 'efficiency', 'e_score',
             'timeliness', 't_score', 'average', 'remarks', 'category', 'order'
         ])->get();
@@ -315,6 +315,7 @@ class DocumentController extends Controller
                 'dpcr_mfo_data.lock',
                 'dpcr_mfo_data.order',
                 'dpcr_mfo_data.category',
+                'dpcr_mfo_data.report_sup',
                 'dpcr_evidence.evidence as evidence_file',
                 \DB::raw("
                     CASE 
@@ -353,6 +354,7 @@ class DocumentController extends Controller
                 'dpcr_mfo_data.lock',
                 'dpcr_mfo_data.order',
                 'dpcr_mfo_data.category',
+                'dpcr_mfo_data.report_sup',
                 'dpcr_evidence.evidence',
                 'offices.office_abbr'
             )
@@ -384,6 +386,10 @@ class DocumentController extends Controller
 
         $employee = Employee::find($dempid);
         $dpcrcheck = Ipcr::where('pr_number', $dprnumber)->get();
+
+        $offices = Office::where('office_abbr', 'not like', '%UNKNOWN%')
+        ->where('office_name', 'not like', '%CAMPUS%')
+        ->get();
         
         if (!$employee || !$dprnumber) {
             return redirect()->back()->with('error', 'Access Denied.');
@@ -443,7 +449,7 @@ class DocumentController extends Controller
 
         return view('drive.pr-ipcr', compact(
             'guard', 'datas', 'prs', 'cores', 'strats', 'supports', 'folder', 'employeesreg', 'comments',
-            'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'dprnumber', 'status'
+            'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'dprnumber', 'status', 'offices'
         ));
     }
     
