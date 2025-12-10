@@ -76,7 +76,17 @@
             @php
                 $unreadComments = $comments->where('status', 0);
             @endphp
-
+            {{-- Category Filter --}}
+            <div class="input-group input-group-sm" style="width: auto;">
+                <select class="form-control" id="categorySelect">
+                    <option value="0" {{ ($cat == 0) ? 'selected' : '' }}>All</option>
+                    <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>1st Half</option>
+                    <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>2nd Half</option>
+                </select>
+                <div class="input-group-append">
+                    <span class="input-group-text"><i class="fas fa-filter"></i></span>
+                </div>
+            </div>
             <div class="dropdown d-inline mr-1 position-relative">
                 <button class="btn btn-info btn-sm dropdown-toggle open-comments" 
                         type="button" 
@@ -109,17 +119,6 @@
                     @empty
                         <span class="dropdown-item text-muted">No notifications</span>
                     @endforelse
-                </div>
-            </div>
-            {{-- Category Filter --}}
-            <div class="input-group input-group-sm" style="width: auto;">
-                <select class="form-control" id="categorySelect">
-                    <option value="0" {{ ($cat == 0) ? 'selected' : '' }}>All</option>
-                    <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>1st Half</option>
-                    <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>2nd Half</option>
-                </select>
-                <div class="input-group-append">
-                    <span class="input-group-text"><i class="fas fa-filter"></i></span>
                 </div>
             </div>
             {{-- PDF Dropdown --}}
