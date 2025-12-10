@@ -449,7 +449,7 @@ class DocumentController extends Controller
 
         return view('drive.pr-ipcr', compact(
             'guard', 'datas', 'prs', 'cores', 'strats', 'supports', 'folder', 'employeesreg', 'comments',
-            'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'dprnumber', 'status', 'offices'
+            'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'dprnumber', 'status'
         ));
     }
     

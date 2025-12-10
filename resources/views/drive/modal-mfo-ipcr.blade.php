@@ -38,11 +38,11 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="dpcrMfoData" tabindex="-1" role="dialog" aria-labelledby="dpcrMfoDataLabel" aria-hidden="true">
+<div class="modal fade" id="ipcrMfoData" tabindex="-1" role="dialog" aria-labelledby="ipcrMfoDataLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h6 class="modal-title text-success1" id="dpcrMfoDataLabel"><b id="functions">PERFORMANCE REVIEW</b></h6>
+                <h6 class="modal-title text-success1" id="ipcrMfoDataLabel"><b id="functions">PERFORMANCE REVIEW</b></h6>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" data-id="1">
                     <span aria-hidden="true">&times;</span>
                 </button>

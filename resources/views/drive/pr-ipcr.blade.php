@@ -39,7 +39,7 @@
         return strtolower(trim($value ?? '')) === 'n/a' ? '' : $value;
     }
 @endphp
-@include('drive.modal-mfo')
+@include('drive.modal-mfo-ipcr')
 <div class="modal fade" id="modal-rating" tabindex="-1" role="dialog" aria-labelledby="modal-prform" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">

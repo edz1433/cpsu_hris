@@ -338,22 +338,79 @@ class DpcrController extends Controller
         $supports = $prs->get(2) ? DpcrMfo::where('dpcr_id', $prs[2]->id)->get() : collect();
 
         // Assign joined DPCR data directly to $datas
-        $datas = \DB::table('dpcr_mfo_data')
-            ->join('employees', 'dpcr_mfo_data.user_id', '=', 'employees.id')
-            ->leftJoin('evidence', function ($join) {
-                $join->on('dpcr_mfo_data.id', '=', 'evidence.data_id')
-                    ->where('evidence.category', '=', 2); // Category 2 for DPCR
+       $datas = \DB::table('dpcr_mfo_data')
+            ->leftJoin('ipcr_mfo_data', 'ipcr_mfo_data.dpcr_mfo_data_id', '=', 'dpcr_mfo_data.id')
+            ->leftJoin('employees', 'ipcr_mfo_data.user_id', '=', 'employees.id')
+            ->leftJoin('dbcpsupms.offices as offices', 'offices.id', '=', 'dpcr_mfo_data.div_account')
+            ->leftJoin('evidence as dpcr_evidence', function ($join) {
+                $join->on('dpcr_evidence.data_id', '=', 'dpcr_mfo_data.id')
+                    ->where('dpcr_evidence.category', '=', 2);
+            })
+            ->leftJoin('evidence as user_evidence', function ($join) {
+                $join->on('user_evidence.data_id', '=', 'ipcr_mfo_data.id')
+                    ->where('user_evidence.category', '=', 3);
             })
             ->select(
-                'dpcr_mfo_data.*',
-                'evidence.evidence as evidence_file',
-                \DB::raw("CONCAT(employees.fname, ' ', 
-                    IF(employees.mname IS NOT NULL AND employees.mname != '', 
-                        CONCAT(UPPER(LEFT(employees.mname, 1)), '.'), 
-                        ''
-                    ), 
-                    ' ', employees.lname
-                ) AS fullname")
+                'dpcr_mfo_data.id',
+                'dpcr_mfo_data.dpcr_mfo_id',
+                'dpcr_mfo_data.mfo',
+                'dpcr_mfo_data.measure',
+                'dpcr_mfo_data.target',
+                'dpcr_mfo_data.in_support',
+                'dpcr_mfo_data.div_account',
+                'dpcr_mfo_data.quality',
+                'dpcr_mfo_data.q_score',
+                'dpcr_mfo_data.efficiency',
+                'dpcr_mfo_data.e_score',
+                'dpcr_mfo_data.timeliness',
+                'dpcr_mfo_data.t_score',
+                'dpcr_mfo_data.average',
+                'dpcr_mfo_data.remarks',
+                'dpcr_mfo_data.lock',
+                'dpcr_mfo_data.order',
+                'dpcr_mfo_data.category',
+                'dpcr_mfo_data.report_sup',
+                'dpcr_evidence.evidence as evidence_file',
+                \DB::raw("
+                    CASE 
+                        WHEN dpcr_mfo_data.div_account = '01' THEN 'All Office'
+                        WHEN dpcr_mfo_data.div_account = '02' THEN 'All Employee'
+                        WHEN dpcr_mfo_data.div_account = '03' THEN 'All Colleges'
+                        WHEN dpcr_mfo_data.div_account = '04' THEN 'All Campuses'
+                        ELSE offices.office_abbr
+                    END AS office_abbr
+                "),
+                \DB::raw("GROUP_CONCAT(DISTINCT employees.lname ORDER BY employees.lname ASC SEPARATOR ',') AS emp_employees"),
+                \DB::raw("GROUP_CONCAT(DISTINCT employees.id ORDER BY employees.lname ASC SEPARATOR ',') AS emp_ids"),
+                \DB::raw("
+                    GROUP_CONCAT(
+                        DISTINCT IFNULL(NULLIF(user_evidence.evidence, ''), '#')
+                        ORDER BY employees.lname ASC SEPARATOR ','
+                    ) AS emp_evidences
+                ")
+            )
+            ->groupBy(
+                'dpcr_mfo_data.id',
+                'dpcr_mfo_data.dpcr_mfo_id',
+                'dpcr_mfo_data.mfo',
+                'dpcr_mfo_data.measure',
+                'dpcr_mfo_data.target',
+                'dpcr_mfo_data.in_support',
+                'dpcr_mfo_data.div_account',
+                'dpcr_mfo_data.quality',
+                'dpcr_mfo_data.q_score',
+                'dpcr_mfo_data.efficiency',
+                'dpcr_mfo_data.e_score',
+                'dpcr_mfo_data.timeliness',
+                'dpcr_mfo_data.t_score',
+                'dpcr_mfo_data.average',
+                'dpcr_mfo_data.remarks',
+                'dpcr_mfo_data.lock',
+                'dpcr_mfo_data.order',
+                'dpcr_mfo_data.category',
+                'dpcr_mfo_data.report_sup',
+                'dpcr_evidence.evidence',
+                'offices.office_abbr'
             )
             ->get();
 

@@ -520,7 +520,7 @@
                         </span>
                     @endif
                 </td>
-                    <td class="text-center"></td>
+                    <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
                     <td class="text-center"></td>
                     <td class="text-center">
                         @if(!empty($names))
@@ -698,7 +698,7 @@
                         </span>
                     @endif
                 </td>
-                    <td class="text-center"></td>
+                    <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
                     <td class="text-center"></td>
                     <td class="text-center">
                         @if(!empty($names))

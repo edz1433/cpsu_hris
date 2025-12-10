@@ -203,15 +203,45 @@
                         @endphp
 
                         @foreach($filteredDpcrMfoDatas as $dpcrmfodata)
+                        @php
+                            $names = array_filter(
+                                explode(',', $dpcrmfodata->emp_employees ?? ''),
+                                fn($n) => trim($n) !== ''
+                            );
+                            $ids = explode(',', $dpcrmfodata->emp_ids ?? '');
+                            $evidences = explode(',', $dpcrmfodata->emp_evidences ?? '');
+                        @endphp
                         <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
                             <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
                             </td>
-                            <td></td>
+                            <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
+                            <td class="text-center">                    
+                                @if(!empty($names))
+                                    @foreach($names as $index => $name)
+                                        @php
+                                            $name = trim($name);
+                                            $evidence = $evidences[$index] ?? '#';
+                                        @endphp
+
+                                        @if($evidence !== '#')
+                                            <a href="{{ $evidence }}" 
+                                            target="_blank"
+                                            onclick="event.stopPropagation();" 
+                                            style="text-decoration: none; color: #007bff;">
+                                                {{ $name }}<br>
+                                            </a>
+                                        @else
+                                            <span style="color: #6c757d;">{{ $name }}<br></span>
+                                        @endif
+                                    @endforeach
+                                @else
+                                    {!! displayValue($dpcrmfodata->office_abbr) !!}
+                                @endif
+                            </td>
                             <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
                             <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
                             <td class="text-center">{!! nl2br(e(displayValue($dpcrmfodata->efficiency))) !!}</td>
@@ -279,10 +309,32 @@
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
                             </td>
-                            <td></td>
+                            <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
+                            <td class="text-center">                    
+                                @if(!empty($names))
+                                    @foreach($names as $index => $name)
+                                        @php
+                                            $name = trim($name);
+                                            $evidence = $evidences[$index] ?? '#';
+                                        @endphp
+
+                                        @if($evidence !== '#')
+                                            <a href="{{ $evidence }}" 
+                                            target="_blank"
+                                            onclick="event.stopPropagation();" 
+                                            style="text-decoration: none; color: #007bff;">
+                                                {{ $name }}<br>
+                                            </a>
+                                        @else
+                                            <span style="color: #6c757d;">{{ $name }}<br></span>
+                                        @endif
+                                    @endforeach
+                                @else
+                                    {!! displayValue($dpcrmfodata->office_abbr) !!}
+                                @endif
+                            </td>
                             <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
                             <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
                             <td class="text-center">{!! nl2br(e(displayValue($dpcrmfodata->efficiency))) !!}</td>
@@ -351,10 +403,32 @@
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
                             </td>
-                            <td></td>
+                            <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
-                            <td class="text-center">{!! displayValue($dpcrmfodata->div_account) !!}</td>
+                            <td class="text-center">                    
+                                @if(!empty($names))
+                                    @foreach($names as $index => $name)
+                                        @php
+                                            $name = trim($name);
+                                            $evidence = $evidences[$index] ?? '#';
+                                        @endphp
+
+                                        @if($evidence !== '#')
+                                            <a href="{{ $evidence }}" 
+                                            target="_blank"
+                                            onclick="event.stopPropagation();" 
+                                            style="text-decoration: none; color: #007bff;">
+                                                {{ $name }}<br>
+                                            </a>
+                                        @else
+                                            <span style="color: #6c757d;">{{ $name }}<br></span>
+                                        @endif
+                                    @endforeach
+                                @else
+                                    {!! displayValue($dpcrmfodata->office_abbr) !!}
+                                @endif
+                            </td>
                             <td class="text-center">{!! displayValue($dpcrmfodata->quality) !!}</td>
                             <td class="text-center">{!! displayValue($dpcrmfodata->q_score) !!}</td>
                             <td class="text-center">{!! nl2br(e(displayValue($dpcrmfodata->efficiency))) !!}</td>
