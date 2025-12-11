@@ -343,6 +343,7 @@ class DocumentController extends Controller
                 'dpcr_mfo_data.measure',
                 'dpcr_mfo_data.target',
                 'dpcr_mfo_data.in_support',
+                'dpcr_mfo_data.link_source',
                 'dpcr_mfo_data.div_account',
                 'dpcr_mfo_data.quality',
                 'dpcr_mfo_data.q_score',

@@ -16,6 +16,7 @@ class DpcrMfoData extends Model
         'target',
         'measure',
         'in_support',
+        'link_source',
         'report_sup',
         'alloted',
         'div_account',

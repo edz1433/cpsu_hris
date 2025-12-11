@@ -214,8 +214,9 @@
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Opcrmfodata->measure) . '%', displayValue($Opcrmfodata->target)) !!}
                             </td>
-                            <td>
-                                @php
+                            <td class="text-center">
+                                {!! displayValue($Opcrmfodata->in_support) !!}
+                                {{-- @php
                                     $withEvidenceCount = $relatedSubordinates->where('evidence_file', '!=', '')->count();
                                     $totalCount = $relatedSubordinates->count();
                                 @endphp
@@ -243,7 +244,7 @@
                                             @endif
                                         @endforeach
                                     </div>
-                                @endif
+                                @endif --}}
                             </td>
                             <td class="text-center">{!! displayValue($Opcrmfodata->report_sup) !!}</td>
                             <td class="text-center"></td>
@@ -321,8 +322,9 @@
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Opcrmfodata->measure) . '%', displayValue($Opcrmfodata->target)) !!}
                             </td>
-                            <td>
-                                @php
+                            <td class="text-center">
+                                {!! displayValue($Opcrmfodata->in_support) !!}
+                                {{-- @php
                                     $withEvidenceCount = $relatedSubordinates->where('evidence_file', '!=', '')->count();
                                     $totalCount = $relatedSubordinates->count();
                                 @endphp
@@ -350,7 +352,7 @@
                                             @endif
                                         @endforeach
                                     </div>
-                                @endif
+                                @endif --}}
                             </td>
                             <td class="text-center">{!! displayValue($Opcrmfodata->report_sup) !!}</td>
                             <td class="text-center"></td>
@@ -429,8 +431,9 @@
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Opcrmfodata->measure) . '%', displayValue($Opcrmfodata->target)) !!}
                             </td>
-                            <td>
-                                @php
+                            <td class="text-center">
+                                {!! displayValue($Opcrmfodata->in_support) !!}
+                                {{-- @php
                                     $withEvidenceCount = $relatedSubordinates->where('evidence_file', '!=', '')->count();
                                     $totalCount = $relatedSubordinates->count();
                                 @endphp
@@ -458,7 +461,7 @@
                                             @endif
                                         @endforeach
                                     </div>
-                                @endif
+                                @endif --}}
                             </td>
                             <td class="text-center">{!! displayValue($Opcrmfodata->report_sup) !!}</td>
                             <td class="text-center"></td>
