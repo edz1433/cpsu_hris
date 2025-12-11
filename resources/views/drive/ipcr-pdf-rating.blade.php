@@ -408,7 +408,7 @@
 
             $total_pages = $PAGE_COUNT - 1;
 
-            $footer_text = "Doc Control Code: CPSU-F-HRMO-22        Effective Date: 08/07/2024        Page No.:" . $PAGE_NUM . " of " . $total_pages;
+            $footer_text = "Doc Control Code: CPSU-F-HRMO-12-REV01        Effective Date: 08/07/2024        Page No.:" . $PAGE_NUM . " of " . $total_pages;
 
             $text_width = $fontMetrics->get_text_width($footer_text, $font, $size);
             $x = (($pdf->get_width() - $text_width) / 2);
