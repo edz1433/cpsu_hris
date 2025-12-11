@@ -906,6 +906,7 @@
                         $('#target').val(data.target);
                         $('#measure').val(data.measure);
                         $('#in_support').val(data.in_support);
+                        $('#link_source').val(data.link_source);
                         $('#report_sup').val(data.report_sup);
                         $('#div_account').val(data.office_abbr);
                         $('#quality').val(data.quality);

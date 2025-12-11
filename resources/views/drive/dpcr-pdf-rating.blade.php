@@ -213,7 +213,7 @@
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
                             </td>
-                            <td class="text-center"></td>
+                            <td class="text-center">{{ $dpcrmfodata->in_support }}</td>
                             <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
                             <td class="text-center">                    
                                 @if(!empty($names))
@@ -303,7 +303,7 @@
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
                             </td>
-                            <td class="text-center"></td>
+                            <td class="text-center">{{ $dpcrmfodata->in_support }}</td>
                             <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
                             <td class="text-center">                    
                                 @if(!empty($names))
@@ -394,7 +394,7 @@
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
                             </td>
-                            <td class="text-center"></td>
+                            <td class="text-center">{{ $dpcrmfodata->in_support }}</td>
                             <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
                             <td class="text-center">                    
                                 @if(!empty($names))
