@@ -307,6 +307,7 @@ class IpcrController extends Controller
             ->setOptions([
                 'isHtml5ParserEnabled' => true,
                 'isRemoteEnabled' => true,
+                'enable_php' => true,
                 'margin-top' => 10,
                 'margin-right' => 10,
                 'margin-bottom' => 10,

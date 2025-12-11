@@ -297,7 +297,7 @@
                 </td>
                 <td class="text-center">
                     @php
-                        $inSupportValue = displayValue($dpcrmfodata->in_support);
+                        $inSupportValue = displayValue($dpcrmfodata->link_source);
                     @endphp
                     @if($inSupportValue)
                         <a href="{{ $inSupportValue }}" target="_blank" class="text-primary" style="text-decoration: none;">
@@ -478,7 +478,7 @@
                 </td>
                 <td class="text-center">
                     @php
-                        $inSupportValue = displayValue($dpcrmfodata->in_support);
+                        $inSupportValue = displayValue($dpcrmfodata->link_source);
                     @endphp
                     @if($inSupportValue)
                         <a href="{{ $inSupportValue }}" target="_blank" class="text-primary" style="text-decoration: none;">
@@ -656,7 +656,7 @@
                 </td>
                 <td class="text-center">
                     @php
-                        $inSupportValue = displayValue($dpcrmfodata->in_support);
+                        $inSupportValue = displayValue($dpcrmfodata->link_source);
                     @endphp
                     @if($inSupportValue)
                         <a href="{{ $inSupportValue }}" target="_blank" class="text-primary" style="text-decoration: none;">

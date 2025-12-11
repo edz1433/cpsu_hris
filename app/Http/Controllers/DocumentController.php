@@ -190,7 +190,7 @@ class DocumentController extends Controller
         // Optimize data loading
         $datas = OpcrMfoData::select([
             'id', 'opcr_mfo_id', 'mfo', 'target', 'measure', 'in_support', 'report_sup',
-            'div_account', 'quality', 'q_score', 'efficiency', 'e_score',
+            'div_account', 'quality', 'q_score', 'efficiency', 'e_score', 'link_source',
             'timeliness', 't_score', 'average', 'remarks', 'category', 'order'
         ])->get();
 
@@ -303,6 +303,7 @@ class DocumentController extends Controller
                 'dpcr_mfo_data.measure',
                 'dpcr_mfo_data.target',
                 'dpcr_mfo_data.in_support',
+                'dpcr_mfo_data.link_source',
                 'dpcr_mfo_data.div_account',
                 'dpcr_mfo_data.quality',
                 'dpcr_mfo_data.q_score',

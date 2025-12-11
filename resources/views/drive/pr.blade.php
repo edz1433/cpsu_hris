@@ -201,7 +201,7 @@
                     </td>
                     <td class="text-center">
                         @php
-                            $inSupportValue = displayValue($opcrmfodata->in_support);
+                            $inSupportValue = displayValue($opcrmfodata->link_source);
                         @endphp
                         @if($inSupportValue)
                             <a href="{{ $inSupportValue }}" target="_blank" class="text-primary" style="text-decoration: none;">
@@ -347,7 +347,7 @@
                     </td>
                     <td class="text-center">
                         @php
-                            $inSupportValue = displayValue($opcrmfodata->in_support);
+                            $inSupportValue = displayValue($opcrmfodata->link_source);
                         @endphp
                         @if($inSupportValue)
                             <a href="{{ $inSupportValue }}" target="_blank" class="text-primary" style="text-decoration: none;">
@@ -490,7 +490,7 @@
                     </td>
                     <td class="text-center">
                         @php
-                            $inSupportValue = displayValue($opcrmfodata->in_support);
+                            $inSupportValue = displayValue($opcrmfodata->link_source);
                         @endphp
                         @if($inSupportValue)
                             <a href="{{ $inSupportValue }}" target="_blank" class="text-primary" style="text-decoration: none;">
@@ -727,6 +727,7 @@
                         $('#target').val(data.target);
                         $('#measure').val(data.measure);
                         $('#in_support').val(data.in_support);
+                        $('#link_source').val(data.link_source);
                         $('#report_sup').val(data.report_sup);
                         $('#div_account').val(data.div_account);
                         $('#quality').val(data.quality);

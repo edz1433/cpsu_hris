@@ -56,7 +56,7 @@
                             <input type="hidden" name="opcrdata_id" id="opcrdata_id">
                             <input type="hidden" name="user_id" id="user_id" value="{{ $empid }}">
                             <div class="form-row align-items-center">
-                                <div class="form-group col-md-3">
+                                <div class="form-group col-md-1">
                                     <label class="text-success1">QUARTER</label>
                                     <select type="text" class="form-control" name="category" id="category">
                                         <option value="All">All</option>
@@ -65,16 +65,20 @@
                                     </select>
                                 </div>
                                 <div class="form-group col-md-3">
-                                    <label class="text-success1">DIVISION/ INDIVIDUALS ACCOUNTABLE</label>
-                                    <input type="text" class="form-control p-3" name="div_account" id="div_account" autocomplete="off">
-                                </div>
-                                <div class="form-group col-md-3">
-                                    <label class="text-success1">MFO / PAP's</label>
-                                    <input type="text" class="form-control p-3" name="mfo" id="mfo" autocomplete="off">
+                                    <label class="text-success1">INDIVIDUAL SUPPORT DOCUMENTS</label>
+                                    <input type="text" class="form-control p-3" name="in_support" id="in_support" autocomplete="off">
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label class="text-success1">REPORT OF SUPERVISOR / OTHER OFFICES</label>
                                     <input type="text" name="report_sup" class="form-control" id="report_sup" autocomplete="off">
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <label class="text-success1">MFO / PAP's</label>
+                                    <input type="text" class="form-control p-3" name="mfo" id="mfo" autocomplete="off">
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label class="text-success1">DIVISION/ INDIVIDUALS ACCOUNTABLE</label>
+                                    <input type="text" class="form-control p-3" name="div_account" id="div_account" autocomplete="off">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="text-success1">TARGETS </label>
@@ -86,8 +90,8 @@
                                         oninput="this.value = this.value.replace(/[^\d\n.,]/g, '');"></textarea>
                                 </div>
                                 <div class="form-group col-md-4">
-                                    <label class="text-success1">Link to Source</label>
-                                    <textarea name="in_support" rows="3" class="form-control form-control-sm" id="in_support" autocomplete="off" {{ (in_array($userid, $pmtsmember) || $guard == 'web') ? '' : 'readonly' }}></textarea>
+                                    <label class="text-success1">Link to Sources</label>
+                                    <textarea name="link_source" rows="3" class="form-control form-control-sm" id="link_source" autocomplete="off" {{ (in_array($userid, $pmtsmember) || $guard == 'web') ? '' : 'readonly' }}></textarea>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="text-success1">QUALITY</label>

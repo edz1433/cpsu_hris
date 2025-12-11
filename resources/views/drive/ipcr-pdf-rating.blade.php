@@ -390,9 +390,32 @@
             @endforeach
         </table>
     </div>
-<div class="signatories-row">
-
-</div>
-
 </body>
+<script type="text/php">
+    if (isset($pdf)) {
+        $pdf->page_script('
+            // Skip footer on the last page
+            if ($PAGE_NUM == $PAGE_COUNT) {
+                return;
+            }
+
+            $font = $fontMetrics->get_font("DejaVu Sans", "normal");
+            $size = 7;
+            $color = array(0,0,0);
+            $word_space = 0.0;
+            $char_space = 0.0;
+            $angle = 0.0;
+
+            $total_pages = $PAGE_COUNT - 1;
+
+            $footer_text = "Doc Control Code: CPSU-F-HRMO-22        Effective Date: 08/07/2024        Page No.:" . $PAGE_NUM . " of " . $total_pages;
+
+            $text_width = $fontMetrics->get_text_width($footer_text, $font, $size);
+            $x = (($pdf->get_width() - $text_width) / 2);
+            $y = $pdf->get_height() - 25;
+
+            $pdf->text($x, $y, $footer_text, $font, $size, $color, $word_space, $char_space, $angle);
+        ');
+    }
+</script>
 </html>

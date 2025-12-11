@@ -261,13 +261,13 @@ class OpcrController extends Controller
             'mfo' => 'required|string', 
             'target' => 'nullable|string',
             'in_support' => 'nullable|string',
+            'link_source' => 'nullable|string',
             'report_sup' => 'nullable|string',
             'div_account' => 'nullable|string',
             'quality' => 'nullable|string',
             'efficiency' => 'nullable|string',
             'timeliness' => 'nullable|string',
             'category' => 'required',
-            'opcr_by' => 'nullable',
         ]);
 
         $setting = Setting::first();
@@ -290,13 +290,13 @@ class OpcrController extends Controller
                     'target' => $request->input('target'),
                     'measure' => $request->input('measure'),
                     'in_support' => $request->input('in_support'),
+                    'link_source' => $request->input('link_source'),
                     'report_sup' => $request->input('report_sup'),
                     'div_account' => $request->input('div_account'),
                     'quality' => $request->input('quality'),
                     'efficiency' => $request->input('efficiency'),
                     'timeliness' => $request->input('timeliness'),
                     'category' => $category,
-                    'opcr_by' => $request->input('opcr_by') ?? '',
                     'user_id' => $setting->suc_pres,
                     'order' => $order,
                 ]);
@@ -312,13 +312,13 @@ class OpcrController extends Controller
                     'target' => $request->input('target'),
                     'measure' => $request->input('measure'),
                     'in_support' => $request->input('in_support'),
+                    'link_source' => $request->input('link_source'),
                     'report_sup' => $request->input('report_sup'),
                     'div_account' => $request->input('div_account'),
                     'quality' => $request->input('quality'),
                     'efficiency' => $request->input('efficiency'),
                     'timeliness' => $request->input('timeliness'),
                     'category' => $request->input('category'),
-                    'opcr_by' => $request->input('opcr_by'),
                 ]);
 
                 // Update related DPCR data
@@ -327,13 +327,13 @@ class OpcrController extends Controller
                     'target'     => $request->input('target'),
                     'measure'    => $request->input('measure'),
                     'in_support' => $request->input('in_support'),
+                    'link_source' => $request->input('link_source'),
                     'report_sup' => $request->input('report_sup'),
                     'div_account'=> $request->input('div_account'),
                     'quality'    => $request->input('quality'),
                     'efficiency' => $request->input('efficiency'),
                     'timeliness' => $request->input('timeliness'),
                     'category'   => $request->input('category'),
-                    'opcr_by'    => $request->input('opcr_by'),
                 ]);
             } else {
                 return redirect()->back()->with('error', 'OPCR MFO Data not found!');
@@ -576,6 +576,7 @@ class OpcrController extends Controller
             ->setOptions([
                 'isHtml5ParserEnabled' => true,
                 'isRemoteEnabled' => true,
+                'enable_php' => true,
                 'margin-top' => 10,
                 'margin-right' => 10,
                 'margin-bottom' => 10,

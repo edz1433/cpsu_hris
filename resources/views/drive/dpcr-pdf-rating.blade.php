@@ -124,7 +124,6 @@
                     <th rowspan="5" class="text-center">MFO/PAPs</th>
                     <th rowspan="2" class="text-center" width="180">Success Indicators</th>
                     <th colspan="2" class="text-center">Evidence</th>
-                    <th rowspan="5" class="text-center">Allotted<br>Budget</th>
                     <th rowspan="5" class="text-center">Division/<br>Individuals<br>Accountable</th>
                     <th rowspan="2" colspan="6" class="text-center border-b-n">Rating Guide/Accomplishment</th>
                     <th rowspan="2"></th>
@@ -169,7 +168,6 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td></td>
                         <td class="trborder"></td>
                     </tr>
                     {{-- Core MFO Rows --}}
@@ -181,7 +179,6 @@
                                 @endif
                             </td>
                             <td class="text-center">{{ displayValue($core->target) }}</td>
-                            <td class="text-center"></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
@@ -216,9 +213,8 @@
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
                             </td>
+                            <td class="text-center"></td>
                             <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
-                            <td class="text-center"></td>
-                            <td class="text-center"></td>
                             <td class="text-center">                    
                                 @if(!empty($names))
                                     @foreach($names as $index => $name)
@@ -269,7 +265,6 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td></td>
                         <td class="trborder"></td>
                     </tr>
 
@@ -282,7 +277,6 @@
                                 @endif
                             </td>
                             <td class="text-center">{{ displayValue($strat->target) }}</td>
-                            <td class="text-center"></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
@@ -309,9 +303,8 @@
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
                             </td>
+                            <td class="text-center"></td>
                             <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
-                            <td class="text-center"></td>
-                            <td class="text-center"></td>
                             <td class="text-center">                    
                                 @if(!empty($names))
                                     @foreach($names as $index => $name)
@@ -363,7 +356,6 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td></td>
                         <td class="trborder"></td>
                     </tr>
 
@@ -376,7 +368,6 @@
                                 @endif
                             </td>
                             <td class="text-center">{{ displayValue($supp->target) }}</td>
-                            <td class="text-center"></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
@@ -403,9 +394,8 @@
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
                             </td>
+                            <td class="text-center"></td>
                             <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
-                            <td class="text-center"></td>
-                            <td class="text-center"></td>
                             <td class="text-center">                    
                                 @if(!empty($names))
                                     @foreach($names as $index => $name)
@@ -464,9 +454,29 @@
             @endforeach
         </table>
     </div>
-<div class="signatories-row">
-
-</div>
-
 </body>
+{{-- Dynamic Footer Script --}}
+<script type="text/php">
+    if (isset($pdf)) {
+        $pdf->page_script('
+            $font = $fontMetrics->get_font("DejaVu Sans", "normal");
+            $size = 6;
+            $color = array(0,0,0);
+            $word_space = 0.0;
+            $char_space = 0.0;
+            $angle = 0.0;
+
+            // subtract 1 from total pages
+            $total_pages = $PAGE_COUNT - 1;
+
+            $footer_text = "Doc Control Code: CPSU-F-HRMO-21        Effective Date: 08/07/2024        Page No.: " . $PAGE_NUM . " of " . $total_pages;
+
+            $text_width = $fontMetrics->get_text_width($footer_text, $font, $size);
+            $x = (($pdf->get_width() - $text_width) / 2);
+            $y = $pdf->get_height() - 25;
+
+            $pdf->text($x, $y, $footer_text, $font, $size, $color, $word_space, $char_space, $angle);
+        ');
+    }
+</script>
 </html>
