@@ -453,8 +453,27 @@
             </tr>
         </table>
     </div>
-</body>
+</body> 
 {{-- Dynamic Footer Script --}}
+<table style="width: 100%; border-collapse: collapse; border: none; margin-top: 30px;">
+    <tr>
+        @foreach ($selectedEmployees as $asignatory)
+            @php
+                $fullName = $asignatory->fname . ' ' .
+                            ($asignatory->mname ? strtoupper(substr($asignatory->mname, 0, 1)) . '. ' : '') .
+                            $asignatory->lname;
+            @endphp
+
+            <th style="text-align: center; border: none; padding: 10px; font-size: 9.7px;">
+                <div><strong>_________________________________</strong></div>
+                <div>
+                    <strong>{{ $fullName ?? 'N/A' }}{{ $asignatory->suffixes ? ', ' . $asignatory->suffixes : '' }}</strong>
+                </div>
+                <div>{{ $asignatory->designation ?? 'N/A' }}</div>
+            </th>
+        @endforeach
+    </tr>
+</table>
 <script type="text/php">
     if (isset($pdf)) {
         $pdf->page_script('

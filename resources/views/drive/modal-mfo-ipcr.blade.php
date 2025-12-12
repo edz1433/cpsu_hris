@@ -5,11 +5,11 @@
         margin: 30px auto;
     }
 </style> 
-<div class="modal fade" id="createDpcrMfoModal" tabindex="-1" role="dialog" aria-labelledby="createDpcrMfoModalLabel" aria-hidden="true">
+<div class="modal fade" id="createIpcrMfoModal" tabindex="-1" role="dialog" aria-labelledby="createIpcrMfoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-custom modal-sm" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h6 class="modal-title text-success1" id="createDpcrMfoModalLabel"><b id="dpcr-cat-text"></b></h6>
+                <h6 class="modal-title text-success1" id="createIpcrMfoModalLabel"><b id="ipcr-cat-text"></b></h6>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -17,10 +17,10 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-12">
-                        <form id="uploadForm" method="POST" action="{{ route('update-dpcr-mfo') }}" enctype="multipart/form-data">
+                        <form id="uploadForm" method="POST" action="{{ route('update-ipcr-mfo') }}" enctype="multipart/form-data">
                             @csrf
-                            <input type="hidden" name="dpcr-cat" id="dpcr-cat">
-                            <input type="hidden" name="dpcr-id" id="dpcr-id">
+                            <input type="hidden" name="ipcr-cat" id="ipcr-cat">
+                            <input type="hidden" name="ipcr-id" id="ipcr-id">
 
                             <div class="form-row" id="form-data">
 
@@ -35,7 +35,7 @@
                     </div>  
                 </div>
             </div>
-        </div>
+        </div> 
     </div>
 </div>
 <div class="modal fade" id="ipcrMfoData" tabindex="-1" role="dialog" aria-labelledby="ipcrMfoDataLabel" aria-hidden="true">
@@ -50,31 +50,35 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-12">
-                        <form id="uploadForm" method="POST" action="{{ route('create-dpcr-mfo-data') }}" enctype="multipart/form-data">
+                        <form id="uploadForm" method="POST" action="{{ route('create-ipcr-mfo-data') }}" enctype="multipart/form-data">
                             @csrf
-                            <input type="hidden" name="dpcr_mfo_id" id="dpcr_mfo_id">
-                            <input type="hidden" name="dpcrdata_id" id="dpcrdata_id">
+                            <input type="hidden" name="ipcr_mfo_id" id="ipcr_mfo_id">
+                            <input type="hidden" name="ipcrdata_id" id="ipcrdata_id">
                             <input type="hidden" name="user_id" id="user_id" value="{{ $empid }}">
                             <div class="form-row align-items-center">
-                                <div class="form-group col-md-3">
+                                <div class="form-group col-md-1">
                                     <label class="text-success1">QUARTER</label>
                                     <select type="text" class="form-control" name="category" id="category">
                                         <option value="All">All</option>
                                         <option value="1" selected>1ST HALF</option>
                                         <option value="2">2ND HALF</option>
                                     </select>
-                                </div> 
-                                <div class="form-group col-md-3">
-                                    <label class="text-success1">DIVISION/ INDIVIDUALS ACCOUNTABLE</label>
-                                    <input type="text" class="form-control p-3" name="div_account" id="div_account" autocomplete="off" readonly>
                                 </div>
                                 <div class="form-group col-md-3">
+                                    <label class="text-success1">INDIVIDUAL SUPPORT DOCUMENTS</label>
+                                    <input type="text" class="form-control p-3" name="in_support" id="in_support" autocomplete="off">
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label class="text-success1">REPORT OF SUPERVISOR / OTHER OFFICES</label>
+                                    <input type="text" name="report_sup" class="form-control" id="report_sup" autocomplete="off">
+                                </div>
+                                <div class="form-group col-md-2">
                                     <label class="text-success1">MFO / PAP's</label>
                                     <input type="text" class="form-control p-3" name="mfo" id="mfo" autocomplete="off">
                                 </div>
                                 <div class="form-group col-md-3">
-                                    <label class="text-success1">REPORT OF SUPERVISOR / OTHER OFFICES</label>
-                                    <input name="report_sup" rows="3" class="form-control" id="report_sup" autocomplete="off">
+                                    <label class="text-success1">DIVISION/ INDIVIDUALS ACCOUNTABLE</label>
+                                    <input type="text" class="form-control p-3" name="div_account" id="div_account" autocomplete="off">
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="text-success1">TARGETS </label>
@@ -115,74 +119,20 @@
     </div>
 </div>
 <!-- Modal -->
-<div class="modal fade" id="dpcrModal" tabindex="-1" aria-labelledby="dpcrModalLabel" aria-hidden="true">
+<div class="modal fade" id="ipcrModal" tabindex="-1" aria-labelledby="ipcrModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="dpcrModalLabel">DPCR Entry Options</h5>
+                <h5 class="modal-title" id="ipcrModalLabel">iPCR Entry Options</h5>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body text-center">
-                <input type="hidden" id="dpcr_id"> 
+                <input type="hidden" id="ipcr_id"> 
                 <p>What do you want to do?</p>
 
-                <button class="btn btn-primary btn-block mb-2" onclick="editDpcrData()">Edit</button>
-                <button class="btn btn-danger btn-block" onclick="deleteDpcrData()">Delete</button>
+                <button class="btn btn-primary btn-block mb-2" onclick="editIpcrData()">Edit</button>
+                <button class="btn btn-danger btn-block" onclick="deleteIpcrData()">Delete</button>
             </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="asign-to-ipcr" aria-labelledby="dpcrModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-sm" style="width: 600px !important;">
-        <div class="modal-content">
-            <form method="POST" action="{{ route('assignDpcr') }}">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title" id="dpcrModalLabel">Assign</h5>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" name="dpcrid" id="dpcr-mfo-data-id">
-                    <input type="hidden" name="count" id="count1">
-                    <label for="target">Target</label>
-                    <textarea class="form-control mb-2" id="ipcr-target" name="target" cols="30" rows="5"></textarea>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <label for="target">Quality</label>
-                            <textarea class="form-control mb-2" id="dpcr-quality" name="quality" cols="30" rows="5"></textarea>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="target">Efficiency</label>
-                            <textarea class="form-control mb-2" id="dpcr-efficiency" name="efficiency" cols="30" rows="5"></textarea>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="target">Timeliness</label>
-                            <textarea class="form-control mb-2" id="dpcr-timeliness" name="timeliness" cols="30" rows="5"></textarea>
-                        </div>
-                    </div>
-                    <label for="Employee">Employee</label>
-                    <select class="form-control form-control-sm select2" name="empid[]" id="employees" required multiple>
-                        <option value="01">All Personnel</option>
-                        @foreach($employees as $emp)
-                            @if($emp->id != $dempid)
-                                <option value="{{ $emp->id }}" 
-                                    @if(isset($employee) && $employee && $emp->id == $employee->emp_ID) selected @endif>
-                                    {{ $emp->lname }}
-                                    {{ $emp->prefix }}
-                                    {{ $emp->fname }}
-                                    {{ isset($emp->mname) ? substr($emp->mname, 0, 1).'.' : '' }}
-                                </option>
-                            @endif
-                        @endforeach
-                    </select>
-                    <div class="form-row">
-                        <div class="col-md-12 mt-2 text-right">
-                            <button class="btn btn-success btn-sm" type="submit" id="asign-to-dpcr-btn"><i class="fas fa-save"></i> Save</button>
-                        </div>
-                    </div>
-                </div>
-            </form>
         </div>
     </div>
 </div>

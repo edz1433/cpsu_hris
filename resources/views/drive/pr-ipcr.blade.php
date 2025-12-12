@@ -257,13 +257,13 @@
                     @if(!in_array($status, [2, 5]))
                         <td class="b-none text-center">
                             <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
-                            data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></i>
+                            data-target="#ipcrMfoData" data-mfoid="{{ $core->id }}"></i>
                         </td>
                     @endif
                 @else
                     <td class="b-none text-center">
                         <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
-                        data-target="#opcrMfoData" data-mfoid="{{ $core->id }}"></i>
+                        data-target="#ipcrMfoData" data-mfoid="{{ $core->id }}"></i>
                     </td>
                 @endif
             </tr>
@@ -278,11 +278,11 @@
             <tr id="mfodata{{ $Ipcrmfodata->id }}-{{ $Ipcrmfodata->ipcr_mfo_id }}" data-group="core{{ $Ipcrmfodata->ipcr_mfo_id }}"
                 @if(!in_array($userid, $pmtsmember ?? []) && $guard == 'employee')
                     @if(!in_array($status, [2, 5]))
-                        onclick="showOpcrMfoData({{ $Ipcrmfodata->id }},{{ $Ipcrmfodata->ipcr_mfo_id }}, {{ $core->count }}, {{ $Ipcrmfodata->lock }})"
+                        onclick="showipcrMfoData({{ $Ipcrmfodata->id }},{{ $Ipcrmfodata->ipcr_mfo_id }}, {{ $core->count }}, {{ $Ipcrmfodata->lock }})"
                         style="cursor: pointer;"
                     @endif
                 @else
-                    onclick="showOpcrMfoData({{ $Ipcrmfodata->id }},{{ $Ipcrmfodata->ipcr_mfo_id }}, {{ $core->count }}, {{ $Ipcrmfodata->lock }})"
+                    onclick="showipcrMfoData({{ $Ipcrmfodata->id }},{{ $Ipcrmfodata->ipcr_mfo_id }}, {{ $core->count }}, {{ $Ipcrmfodata->lock }})"
                     style="cursor: pointer;"
                 @endif
             >
@@ -418,13 +418,13 @@
                     @if(!in_array($status, [2, 5]))
                         <td class="b-none text-center">
                             <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
-                            data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i>
+                            data-target="#ipcrMfoData" data-mfoid="{{ $strat->id }}"></i>
                         </td>
                     @endif
                 @else
                     <td class="b-none text-center">
                         <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
-                        data-target="#opcrMfoData" data-mfoid="{{ $strat->id }}"></i>
+                        data-target="#ipcrMfoData" data-mfoid="{{ $strat->id }}"></i>
                     </td>
                 @endif
             </tr>
@@ -436,7 +436,7 @@
             @endphp
 
             @foreach($filteredIpcrmfodatas as $Ipcrmfodata)
-                <tr id="mfodata{{ $Ipcrmfodata->id }}-{{ $Ipcrmfodata->ipcr_mfo_id }}" data-group="strategic{{ $Ipcrmfodata->ipcr_mfo_id }}" onclick="showOpcrMfoData({{ $Ipcrmfodata->id }}, {{ $Ipcrmfodata->ipcr_mfo_id }}, {{ $strat->count }}, {{ $Ipcrmfodata->lock }})" style="cursor: pointer;">
+                <tr id="mfodata{{ $Ipcrmfodata->id }}-{{ $Ipcrmfodata->ipcr_mfo_id }}" data-group="strategic{{ $Ipcrmfodata->ipcr_mfo_id }}" onclick="showipcrMfoData({{ $Ipcrmfodata->id }}, {{ $Ipcrmfodata->ipcr_mfo_id }}, {{ $strat->count }}, {{ $Ipcrmfodata->lock }})" style="cursor: pointer;">
                 <td class="text-left align-top" width="210">{!! displayValue($Ipcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Ipcrmfodata->measure) . '%', displayValue($Ipcrmfodata->target)) !!}
@@ -566,13 +566,13 @@
                     @if(!in_array($status, [2, 5]))
                         <td class="b-none text-center">
                             <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
-                            data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i>
+                            data-target="#ipcrMfoData" data-mfoid="{{ $supp->id }}"></i>
                         </td>
                     @endif
                 @else
                     <td class="b-none text-center">
                         <i class="fas fa-plus text-secondary pl-1 mfo-data" data-toggle="modal" style="cursor: pointer;"
-                        data-target="#opcrMfoData" data-mfoid="{{ $supp->id }}"></i>
+                        data-target="#ipcrMfoData" data-mfoid="{{ $supp->id }}"></i>
                     </td>
                 @endif
             </tr>
@@ -584,7 +584,7 @@
             @endphp
 
             @foreach($filteredIpcrmfodatas as $Ipcrmfodata)
-                <tr id="mfodata{{ $Ipcrmfodata->id }}-{{ $Ipcrmfodata->ipcr_mfo_id }}" data-group="support{{ $Ipcrmfodata->ipcr_mfo_id }}" onclick="showOpcrMfoData({{ $Ipcrmfodata->id }},{{ $Ipcrmfodata->ipcr_mfo_id }}, {{ $supp->count }}, {{ $Ipcrmfodata->lock }})" style="cursor: pointer;">
+                <tr id="mfodata{{ $Ipcrmfodata->id }}-{{ $Ipcrmfodata->ipcr_mfo_id }}" data-group="support{{ $Ipcrmfodata->ipcr_mfo_id }}" onclick="showipcrMfoData({{ $Ipcrmfodata->id }},{{ $Ipcrmfodata->ipcr_mfo_id }}, {{ $supp->count }}, {{ $Ipcrmfodata->lock }})" style="cursor: pointer;">
                 <td class="text-left align-top" width="210">{!! displayValue($Ipcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">
                     {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Ipcrmfodata->measure) . '%', displayValue($Ipcrmfodata->target)) !!}
@@ -771,7 +771,7 @@
 </script>
 <script>
     let canDelete = @json($guard == 'web' || in_array($userid, $pmtsmember ?? []));
-    function showOpcrMfoData(id, mfoid, count, lock) {
+    function showipcrMfoData(id, mfoid, count, lock) {
         Swal.fire({
             title: 'Choose an action',
             icon: 'question',
@@ -792,7 +792,7 @@
                 $('#ipcr-mfo-data-id').val(id);
                 $('#count1').val(count);
             } else if (result.isDenied) {
-                editOpcrData(id);
+                editIpcrData(id);
                 $('#ipcr-mfo-id').val(mfoid);
 
                 $.ajax({
@@ -822,12 +822,12 @@
     }
 
 
-    function editOpcrData(id) {
+    function editIpcrData(id) {
         // Set hidden input value
-        document.getElementById('opcrdata_id').value = id;
+        document.getElementById('ipcrdata_id').value = id;
 
         // Show the modal
-        $('#opcrMfoData').modal('show');
+        $('#ipcrMfoData').modal('show');
     }
 
     function confirmDeleteipcrData(id,mfoid) {
@@ -878,7 +878,6 @@
         var mfoid = $(this).data('mfoid');
         $('#opcr-mfo-id').val(mfoid);
         $('#opcrdata_id').val(0);
-
         $('#opcr_by').val('');
         $('#mfo').val('');
         $('#target').val('');
