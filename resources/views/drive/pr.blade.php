@@ -200,7 +200,7 @@
                         {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
                     </td>
                     <td class="text-center">
-                        {{-- @php
+                        @php
                             $inSupportValue = displayValue($opcrmfodata->link_source);
                         @endphp
                         @if($inSupportValue)
@@ -209,7 +209,7 @@
                             </a>
                         @else
                             <span class="text-muted"><i class="fas fa-globe fa-2x"></i></span>
-                        @endif --}}
+                        @endif
                     </td>
                     <td class="text-left pl-2" width="210" 
                         onmouseover="if(this.querySelector('.dropdown-menu')) this.querySelector('.dropdown-menu').classList.add('show');" 
@@ -346,7 +346,7 @@
                         {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
                     </td>
                     <td class="text-center">
-                        {{-- @php
+                        @php
                             $inSupportValue = displayValue($opcrmfodata->link_source);
                         @endphp
                         @if($inSupportValue)
@@ -355,7 +355,7 @@
                             </a>
                         @else
                             <span class="text-muted"><i class="fas fa-globe fa-2x"></i></span>
-                        @endif --}}
+                        @endif
                     </td>
                     <td class="text-left pl-2" width="210" 
                         onmouseover="if(this.querySelector('.dropdown-menu')) this.querySelector('.dropdown-menu').classList.add('show');" 
@@ -489,7 +489,7 @@
                         {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
                     </td>
                     <td class="text-center">
-                        {{-- @php
+                        @php
                             $inSupportValue = displayValue($opcrmfodata->link_source);
                         @endphp
                         @if($inSupportValue)
@@ -498,7 +498,7 @@
                             </a>
                         @else
                             <span class="text-muted"><i class="fas fa-globe fa-2x"></i></span>
-                        @endif --}}
+                        @endif
                     </td>
                     <td class="text-left pl-2" width="210" 
                         onmouseover="if(this.querySelector('.dropdown-menu')) this.querySelector('.dropdown-menu').classList.add('show');" 
