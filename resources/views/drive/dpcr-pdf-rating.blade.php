@@ -433,25 +433,24 @@
                     @endforeach
             </tbody>
         </table>
-        <table class="table-form" style="margin-top: 30px; margin-left: -20px;">
-            @foreach ($selectedEmployees as $asignatory)
-                @php
-                    $fullName = $asignatory->fname . ' ' .
-                                ($asignatory->mname ? strtoupper(substr($asignatory->mname, 0, 1)) . '. ' : '') .
-                                $asignatory->lname;
-                @endphp
-                <th style="border: none !important; padding: 1px !important:">
-                <div class="signatory-col">
-                    <div class="line">_________________________________</div>
-                    <div class="name">
-                        {{ $fullName ?? 'N/A' }}{{ $asignatory->suffixes ? ', ' . $asignatory->suffixes : '' }}
-                    </div>
-                    <div class="designation">
-                        {{ ucwords(strtolower($asignatory->designation)) ?? 'N/A' }}
-                    </div>
-                </div>
-                </th>
-            @endforeach
+        <table style="width: 100%; border-collapse: collapse; border: none; margin-top: 30px;">
+            <tr>
+                @foreach ($selectedEmployees as $asignatory)
+                    @php
+                        $fullName = $asignatory->fname . ' ' .
+                                    ($asignatory->mname ? strtoupper(substr($asignatory->mname, 0, 1)) . '. ' : '') .
+                                    $asignatory->lname;
+                    @endphp
+
+                    <th style="text-align: center; border: none; padding: 10px; font-size: 9.7px;">
+                        <div><strong>_________________________________</strong></div>
+                        <div>
+                            <strong>{{ $fullName ?? 'N/A' }}{{ $asignatory->suffixes ? ', ' . $asignatory->suffixes : '' }}</strong>
+                        </div>
+                        <div>{{ $asignatory->designation ?? 'N/A' }}</div>
+                    </th>
+                @endforeach
+            </tr>
         </table>
     </div>
 </body>
