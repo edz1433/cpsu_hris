@@ -167,7 +167,7 @@
                     </div>
                     <label for="Employee">Employee</label>
                     <select class="form-control form-control-sm select2" name="empid[]" id="employees" required multiple>
-                        <option value="01">All Personnel</option>
+                        {{-- <option value="01">All Personnel</option> --}}
                         @foreach($employees as $emp)
                             @if($emp->id != $dempid)
                                 <option value="{{ $emp->id }}" 

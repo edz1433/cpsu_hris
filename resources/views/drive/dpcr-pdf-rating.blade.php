@@ -465,7 +465,7 @@
             }
 
             $font = $fontMetrics->get_font("DejaVu Sans", "normal");
-            $size = 7;
+            $size = 6;
             $color = array(0,0,0);
             $word_space = 0.0;
             $char_space = 0.0;

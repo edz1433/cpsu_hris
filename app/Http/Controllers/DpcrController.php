@@ -577,7 +577,7 @@ class DpcrController extends Controller
                 $data['div_account'] = $divaccount;
                 
                 $data['pr_number'] = $opcr->pr_number ?? null;
-                $data['dpcr_mfo_id'] = $ipcrmfofind->id;
+                $data['ipcr_mfo_id'] = $ipcrmfofind->id;
                 $data['dpcr_mfo_data_id'] = $id;
                 $data['user_id'] = $empid;
 
