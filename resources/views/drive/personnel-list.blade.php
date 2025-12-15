@@ -275,8 +275,9 @@
                                                                     <a href="{{ route('spmsPersonnEdit', ['cat' => ($cat == 'pmt') ? 'pmt' : 'personnel', 'id' => $record->personid]) }}" 
                                                                         class="btn btn-info btn-sm p-1" 
                                                                         style="font-size: 8px; line-height: 0.6;">
-                                                                        <i class="fas fa-exclamation-circle fa-xs"></i>
+                                                                        <i class="fas fa-exclamation-circle fa-xs" style="margin-top: 11px;"></i>
                                                                     </a>
+                                                                    
                                                                     <button value="{{ $record->personid }}" 
                                                                             class="btn btn-danger btn-sm p-1 person-delete" 
                                                                             style="font-size: 8px; line-height: 0.6;">

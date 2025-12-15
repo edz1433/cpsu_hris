@@ -87,7 +87,7 @@
                     <span class="input-group-text"><i class="fas fa-filter"></i></span>
                 </div>
             </div>
-            <div class="dropdown d-inline mr-1 position-relative">
+            <div class="dropdown d-inline mr-1 position-relative ml-1">
                 <button class="btn btn-info btn-sm dropdown-toggle open-comments" 
                         type="button" 
                         id="notifDropdown" 
@@ -134,14 +134,14 @@
                     </a>
                     
                     @if(!in_array($userid, $pmtsmember ?? []) && $guard == "employee")
-                        @if($status == 3)
+                        {{-- @if($status == 3) --}}
                             <a class="dropdown-item" href="#" data-toggle="modal" data-cat="2" data-target="#modal-rating">DPCR</a>
-                        @else
+                        {{-- @else
                             <a class="dropdown-item text-muted" href="javascript:void(0);" title="Not yet available"
                             style="cursor: not-allowed; pointer-events: none; color: #6c757d !important; background-color: transparent !important;">
                                 <i class="fas fa-lock me-1 text-secondary fa-sm"></i> DPCR
                             </a>
-                        @endif
+                        @endif --}}
                     @else
                         <a class="dropdown-item" href="#" data-toggle="modal" data-cat="2" data-target="#modal-rating">DPCR</a>
                     @endif

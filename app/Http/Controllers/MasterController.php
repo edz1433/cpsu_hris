@@ -17,6 +17,7 @@ use App\Models\WorkExperience;
 use App\Models\LearningDev; 
 use App\Models\VoluntaryWork;
 use App\Models\Application;
+use App\Models\SpmsPersonnel;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -111,15 +112,33 @@ class MasterController extends Controller
     public function drive()
     {
         $guard = $this->getGuard();
-        $docFolder = DocuFolder::all()->where('folder_category', 'mainfolder');
-        $offices = Office::all();
+
+        $docFolder = DocuFolder::where('folder_category', 'mainfolder')->get();
+        $offices   = Office::all();
+
+        $category = null;
+
+        if ($guard === 'employee') {
+            $userid = auth()->guard('employee')->user()->id;
+
+            // ✅ returns int or null
+            $category = SpmsPersonnel::where('empid', $userid)
+                ->value('category');
+        }
 
         $office = null;
         if (\Auth::guard('employee')->check()) {
             $uid = auth()->guard('employee')->user()->id;
             $office = Office::where('office_head_id', $uid)->first();
         }
-        return view("drive.drive", compact('docFolder', 'office', 'offices', 'guard'));
+
+        return view('drive.drive', compact(
+            'docFolder',
+            'category',
+            'office',
+            'offices',
+            'guard'
+        ));
     }
 
     public function logout()

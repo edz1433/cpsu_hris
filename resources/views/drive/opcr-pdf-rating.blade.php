@@ -107,7 +107,7 @@
 </head>
 <body>
     <div style="text-align: center; margin-top: -7px;" class="header">
-        <img src="{{ asset('Uploads/spms-header.jpg') }}" width="25%" alt="Header Image"><br><br>
+        <img src="{{ asset('Uploads/spms-header.png') }}" width="25%" alt="Header Image"><br><br>
         <b>OFFICE PERFORMANCE COMMITMENT AND REVIEW (OPCR)</b><br>
         For the Rating Period:@if($cat == 1 || $cat == 0)
                 January to June

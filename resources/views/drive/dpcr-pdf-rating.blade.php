@@ -107,7 +107,7 @@
 </head>
 <body>
     <div style="text-align: center; margin-top: -7px;" class="header">
-        <img src="{{ asset('Uploads/spms-header.jpg') }}" width="25%" alt="Header Image"><br><br>
+        <img src="{{ asset('Uploads/spms-header.png') }}" width="25%" alt="Header Image"><br><br>
         <b>DEPARTMENT PERFORMANCE COMMITMENT AND REVIEW (DPCR)</b><br>
         For the Rating Period:@if($cat == 1 || $cat == 0)
                 January to June
@@ -124,6 +124,7 @@
                     <th rowspan="5" class="text-center">MFO/PAPs</th>
                     <th rowspan="2" class="text-center" width="180">Success Indicators</th>
                     <th colspan="2" class="text-center">Evidence</th>
+                    <th rowspan="3" class="text-center" >Allotted<br>Budget</th>
                     <th rowspan="5" class="text-center">Division/<br>Individuals<br>Accountable</th>
                     <th rowspan="2" colspan="6" class="text-center border-b-n">Rating Guide/Accomplishment</th>
                     <th rowspan="2"></th>
@@ -168,6 +169,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
+                        <td></td>
                         <td class="trborder"></td>
                     </tr>
                     {{-- Core MFO Rows --}}
@@ -179,6 +181,7 @@
                                 @endif
                             </td>
                             <td class="text-center">{{ displayValue($core->target) }}</td>
+                            <td class="text-center"></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
@@ -215,6 +218,7 @@
                             </td>
                             <td class="text-center">{{ $dpcrmfodata->in_support }}</td>
                             <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
+                            <td></td>
                             <td class="text-center">                    
                                 @if(!empty($names))
                                     @foreach($names as $index => $name)
@@ -265,6 +269,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
+                        <td></td>
                         <td class="trborder"></td>
                     </tr>
 
@@ -277,6 +282,7 @@
                                 @endif
                             </td>
                             <td class="text-center">{{ displayValue($strat->target) }}</td>
+                            <td class="text-center"></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
@@ -305,6 +311,7 @@
                             </td>
                             <td class="text-center">{{ $dpcrmfodata->in_support }}</td>
                             <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
+                            <td></td>
                             <td class="text-center">                    
                                 @if(!empty($names))
                                     @foreach($names as $index => $name)
@@ -356,6 +363,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
+                        <td></td>
                         <td class="trborder"></td>
                     </tr>
 
@@ -368,6 +376,7 @@
                                 @endif
                             </td>
                             <td class="text-center">{{ displayValue($supp->target) }}</td>
+                            <td class="text-center"></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
@@ -396,6 +405,7 @@
                             </td>
                             <td class="text-center">{{ $dpcrmfodata->in_support }}</td>
                             <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
+                            <td></td>
                             <td class="text-center">                    
                                 @if(!empty($names))
                                     @foreach($names as $index => $name)
@@ -433,6 +443,7 @@
                     @endforeach
             </tbody>
         </table>
+        {{-- Dynamic Footer Script --}}
         <table style="width: 100%; border-collapse: collapse; border: none; margin-top: 30px;">
             <tr>
                 @foreach ($selectedEmployees as $asignatory)
@@ -454,26 +465,6 @@
         </table>
     </div>
 </body> 
-{{-- Dynamic Footer Script --}}
-<table style="width: 100%; border-collapse: collapse; border: none; margin-top: 30px;">
-    <tr>
-        @foreach ($selectedEmployees as $asignatory)
-            @php
-                $fullName = $asignatory->fname . ' ' .
-                            ($asignatory->mname ? strtoupper(substr($asignatory->mname, 0, 1)) . '. ' : '') .
-                            $asignatory->lname;
-            @endphp
-
-            <th style="text-align: center; border: none; padding: 10px; font-size: 9.7px;">
-                <div><strong>_________________________________</strong></div>
-                <div>
-                    <strong>{{ $fullName ?? 'N/A' }}{{ $asignatory->suffixes ? ', ' . $asignatory->suffixes : '' }}</strong>
-                </div>
-                <div>{{ $asignatory->designation ?? 'N/A' }}</div>
-            </th>
-        @endforeach
-    </tr>
-</table>
 <script type="text/php">
     if (isset($pdf)) {
         $pdf->page_script('

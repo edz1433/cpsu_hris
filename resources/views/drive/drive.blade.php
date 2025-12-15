@@ -20,41 +20,85 @@
                 </nav>
                 <div class="card-body folder-grid">
                     @php
-                        $useroffid = ($guard == 'employee') ? (empty($office)) ? auth()->guard('employee')->user()->emp_dept : $office->id  : null;
+                        $useroffid = ($guard == 'employee')
+                            ? (empty($office)
+                                ? auth()->guard('employee')->user()->emp_dept
+                                : $office->id)
+                            : null;
                     @endphp
 
-                    @forelse ($docFolder as $folder) 
-                        @php 
-                            $officearray = explode(',', $folder->office_access); 
+                    @forelse ($docFolder as $folder)
+                        @php
+                            $officearray = explode(',', $folder->office_access);
                             $checkaccess = !in_array($useroffid, $officearray);
                             $isUserInPmts = in_array($userid, $pmtsmember ?? []);
-                            $isUserOfficeHead = in_array($userid, $officeHeads ?? []);
-                            
-                            $finalcond = $guard == 'employee' && $checkaccess && $folder->office_access != "All";
-                            $isFirstArray = $loop->first && $guard == 'employee' && !$isUserInPmts;
-                            $isSecondArray = $loop->iteration == 2 && $guard == 'employee' && !$isUserOfficeHead && !$isUserInPmts;
 
-                            // Open folders 1,2,3 if user is in $pmtsmember
-                            $isOpen = false;
-                            if ($isUserInPmts && in_array($loop->iteration, [1,2,3])) {
-                                $isOpen = true;
+                            // Base office-access check
+                            $finalcond = $guard == 'employee'
+                                && $checkaccess
+                                && $folder->office_access != "All";
+
+                            // CATEGORY & PMTS ACCESS RULES
+                            $categoryAllowed = false;
+
+                            if ($guard == 'employee' && !$isUserInPmts) {
+                                // Category 1–5 → folders 2 & 3
+                                if (in_array($category, [1,2,3,4,5]) && in_array($loop->iteration, [2,3])) {
+                                    $categoryAllowed = true;
+                                }
+
+                                // Category 6–7 → folder 3 only
+                                if (in_array($category, [6,7]) && $loop->iteration == 3) {
+                                    $categoryAllowed = true;
+                                }
                             }
+
+                            // PMTS override → folders 1,2,3 always open
+                            if ($isUserInPmts && in_array($loop->iteration, [1,2,3])) {
+                                $categoryAllowed = true;
+                            }
+
+                            // FINAL LOCK: lock if employee and not allowed
+                            $isLocked = ($guard == 'employee') && !$categoryAllowed;
                         @endphp
-                        <div class="@if(($finalcond || $isFirstArray || $isSecondArray) && !$isOpen) folder-items @else folder-item @endif;" id="folder-{{ $folder->id }}">
-                            <a href="{{ route('sub-folder', shortEncrypt($folder->id)) }}" style="pointer-events: @if(($finalcond || $isFirstArray || $isSecondArray) && !$isOpen) none @endif;">
+
+                        <div class="{{ $isLocked ? 'folder-items' : 'folder-item' }}"
+                            id="folder-{{ $folder->id }}">
+
+                            <a href="{{ route('sub-folder', shortEncrypt($folder->id)) }}"
+                            style="pointer-events: {{ $isLocked ? 'none' : 'auto' }}">
+
                                 <i class="folder-icon fas"></i>
-                                @if(($finalcond || $isFirstArray || $isSecondArray) && !$isOpen)
-                                    <i class="fas fa-lock fa-2x" style="margin-left: -25px; color: rgb(255, 255, 255); box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);"></i>
+
+                                @if($isLocked)
+                                    <i class="fas fa-lock fa-2x"
+                                    style="margin-left:-25px;color:#fff;
+                                            box-shadow:4px 4px 8px rgba(0,0,0,.2);">
+                                    </i>
                                 @endif
+
                                 <span class="folder-name">{{ $folder->folder_name }}</span>
                             </a>
+
                             @if($guard !== 'employee' && $folder->default_folder == 0)
                                 <div class="folder-options">
                                     <div class="dropdown">
-                                        <i class="fas fa-ellipsis-v" id="folderOptionsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
-                                        <div class="dropdown-menu" aria-labelledby="folderOptionsDropdown">
-                                            <a class="dropdown-item" data-toggle="modal" data-target="#editFolderModal" onclick="editFolder({{ $folder->id }}, '{{$folder->folder_name}}')">Edit</a>
-                                            <button class="dropdown-item" onclick="confirmDelete({{ $folder->id }})">Delete</button>
+                                        <i class="fas fa-ellipsis-v"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true"
+                                        aria-expanded="false"></i>
+
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item"
+                                            data-toggle="modal"
+                                            data-target="#editFolderModal"
+                                            onclick="editFolder({{ $folder->id }}, '{{ $folder->folder_name }}')">
+                                                Edit
+                                            </a>
+                                            <button class="dropdown-item"
+                                                    onclick="confirmDelete({{ $folder->id }})">
+                                                Delete
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -63,7 +107,7 @@
                     @empty
                         <div class="no-folders">No folders found..</div>
                     @endforelse
-                </div>                
+                </div>
             </div>
         </div>
     </div>

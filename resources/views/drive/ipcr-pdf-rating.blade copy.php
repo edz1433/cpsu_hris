@@ -107,7 +107,7 @@
 </head>
 <body>
     <div style="text-align: center; margin-top: -7px;" class="header">
-        <img src="{{ asset('Uploads/spms-header.png') }}" width="25%" alt="Header Image"><br><br>
+        <img src="{{ asset('Uploads/spms-header.jpg') }}" width="25%" alt="Header Image"><br><br>
         <b>INDIVIDUAL PERFORMANCE COMMITMENT AND REVIEW (IPCR)</b><br>
         For the Rating Period:@if($cat == 1 || $cat == 0)
                 January to June
@@ -124,6 +124,8 @@
                     <th rowspan="5" class="text-center">MFO/PAPs</th>
                     <th rowspan="2" class="text-center" width="180">Success Indicators</th>
                     <th colspan="2" class="text-center">Evidence</th>
+                    <th rowspan="5" class="text-center">Allotted<br>Budget</th>
+                    <th rowspan="5" class="text-center">Division/<br>Individuals<br>Accountable</th>
                     <th rowspan="2" colspan="6" class="text-center border-b-n">Rating Guide/Accomplishment</th>
                     <th rowspan="2"></th>
                     <th rowspan="2" class="text-center">Remarks/ Accomplishment</th>
@@ -166,6 +168,8 @@
                         <td></td>
                         <td></td>
                         <td></td>
+                        <td></td>
+                        <td></td>
                         <td class="trborder"></td>
                     </tr>
                     {{-- Core MFO Rows --}}
@@ -181,7 +185,10 @@
                             <td class="text-center"></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
-                            <td class="text-center">{{ displayValue($core->report_sup) }}</td>                            <td class="text-center">{{ displayValue($core->qrate) }}</td>
+                            <td class="text-center">{{ displayValue($core->report_sup) }}</td>
+                            <td class="text-center">{{ displayValue($core->alloted) }}</td>
+                            <td class="text-center">{{ displayValue($core->div_account) }}</td>
+                            <td class="text-center">{{ displayValue($core->qrate) }}</td>
                             <td class="text-center">{{ displayValue($core->erate) }}</td>
                             <td class="text-center">{{ displayValue($core->trate) }}</td>
                             <td class="text-center">{{ displayValue($core->a) }}</td>
@@ -203,6 +210,8 @@
                             </td>
                             <td></td>
                             <td class="text-center"></td>
+                            <td class="text-center"></td>
+                            <td class="text-center">{!! displayValue($Ipcrmfodata->div_account) !!}</td>
                             <td class="text-center">{!! displayValue($Ipcrmfodata->quality) !!}</td>
                             <td class="text-center">{!! displayValue($Ipcrmfodata->q_score) !!}</td>
                             <td class="text-center">{!! nl2br(e(displayValue($Ipcrmfodata->efficiency))) !!}</td>
@@ -218,6 +227,8 @@
                     {{-- STRATEGIC PRIORITY MFO HEADER --}}
                     <tr>
                         <td><b>{{ $prs[1]->mfo ?? '' }} ({{ $prs[1]->percent ?? '' }}%)</b></td>
+                        <td></td>
+                        <td></td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -245,7 +256,9 @@
                             <td class="text-center"></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
-                            <td class="text-center">{{ displayValue($strat->report_sup) }}</td>    
+                            <td class="text-center">{{ displayValue($strat->report_sup) }}</td>
+                            <td class="text-center">{{ displayValue($strat->alloted) }}</td>
+                            <td class="text-center">{{ displayValue($strat->div_account) }}</td>
                             <td class="text-center">{{ displayValue($strat->qrate) }}</td>
                             <td class="text-center">{{ displayValue($strat->erate) }}</td>
                             <td class="text-center">{{ displayValue($strat->trate) }}</td>
@@ -268,6 +281,8 @@
                             </td>
                             <td></td>
                             <td class="text-center"></td>
+                            <td class="text-center"></td>
+                            <td class="text-center">{!! displayValue($Ipcrmfodata->div_account) !!}</td>
                             <td class="text-center">{!! displayValue($Ipcrmfodata->quality) !!}</td>
                             <td class="text-center">{!! displayValue($Ipcrmfodata->q_score) !!}</td>
                             <td class="text-center">{!! nl2br(e(displayValue($Ipcrmfodata->efficiency))) !!}</td>
@@ -295,6 +310,8 @@
                         <td></td>
                         <td></td>
                         <td></td>
+                        <td></td>
+                        <td></td>
                         <td class="trborder"></td>
                     </tr>
 
@@ -311,7 +328,10 @@
                             <td class="text-center"></td>
                             <td class="text-center"></td>
                             <td class="text-center"></td>
-                            <td class="text-center">{{ displayValue($supp->report_sup) }}</td>                            <td class="text-center">{{ displayValue($supp->qrate) }}</td>
+                            <td class="text-center">{{ displayValue($supp->report_sup) }}</td>
+                            <td class="text-center">{{ displayValue($supp->alloted) }}</td>
+                            <td class="text-center">{{ displayValue($supp->div_account) }}</td>
+                            <td class="text-center">{{ displayValue($supp->qrate) }}</td>
                             <td class="text-center">{{ displayValue($supp->erate) }}</td>
                             <td class="text-center">{{ displayValue($supp->trate) }}</td>
                             <td class="text-center">{{ displayValue($supp->a) }}</td>
@@ -333,6 +353,8 @@
                             </td>
                             <td></td>
                             <td class="text-center"></td>
+                            <td class="text-center"></td>
+                            <td class="text-center">{!! displayValue($Ipcrmfodata->div_account) !!}</td>
                             <td class="text-center">{!! displayValue($Ipcrmfodata->quality) !!}</td>
                             <td class="text-center">{!! displayValue($Ipcrmfodata->q_score) !!}</td>
                             <td class="text-center">{!! nl2br(e(displayValue($Ipcrmfodata->efficiency))) !!}</td>
