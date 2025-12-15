@@ -805,8 +805,6 @@ class OpcrController extends Controller
                 ->select('dpcr_mfos.*')
                 ->first();
 
-            dd($opcrmfodata);
-
             if ($opcrmfodata && $dpcrmfofind) {
                 $data = $opcrmfodata->toArray();
                 unset($data['id'], $data['created_at'], $data['updated_at']);
@@ -829,7 +827,7 @@ class OpcrController extends Controller
             }
         }
 
-        // return redirect()->back()->with('success', 'Assigned successfully!');
+        return redirect()->back()->with('success', 'Assigned successfully!');
     }
 
     // public function assignOpcr(Request $request)
