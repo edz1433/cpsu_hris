@@ -805,7 +805,7 @@ class OpcrController extends Controller
                 ->select('dpcr_mfos.*')
                 ->first();
 
-            dd($dpcrmfofind);
+            dd($opcrmfodata);
 
             if ($opcrmfodata && $dpcrmfofind) {
                 $data = $opcrmfodata->toArray();
