@@ -100,20 +100,17 @@
                                     $fullName = Str::upper("{$employee->fname} {$employee->mname} {$employee->lname}");
                                     $year = $employee->year;
                                     $status = $employee->status ?? 0;
-
-                                    // 🔥 FIX: trim removes spaces & invalid filenames
-                                    $profileFile = trim($employee->profile ?? '');
-
+                                    $profileFile = $employee->profile ?? '';
                                     $sex = $employee->sex ?? 'Male';
                                     $profilePath = public_path('Profile/Employee/' . $profileFile);
 
-                                    if ($profileFile && file_exists($profilePath)) {
+                                    if (!empty($profileFile) && file_exists($profilePath)) {
                                         $image = asset('Profile/Employee/' . $profileFile);
                                     } else {
                                         $defaultImage = $sex === 'Female' ? 'default-female.png' : 'default.png';
                                         $image = asset('Profile/Employee/' . $defaultImage);
                                     }
-
+                                    
                                     $currentStatus = $statusLabels[$status] ?? $statusLabels[0];
                                 @endphp
                                 <tr 
