@@ -770,7 +770,10 @@
     });
 </script>
 <script>
-    let canDelete = @json($guard == 'web' || in_array($userid, $pmtsmember ?? []));
+    let canDelete = @json(
+        ($guard == 'web' || in_array($userid, $pmtsmember ?? []))
+        && ($dempid != auth()->guard($guard)->user()->id)
+    );
     function showipcrMfoData(id, mfoid, count, lock) {
         Swal.fire({
             title: 'Choose an action',

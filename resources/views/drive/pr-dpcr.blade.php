@@ -280,7 +280,7 @@
                 $ids = explode(',', $dpcrmfodata->emp_ids ?? '');
                 $evidences = explode(',', $dpcrmfodata->emp_evidences ?? '');
             @endphp
-            <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="core{{ $dpcrmfodata->dpcr_mfo_id }}"
+            <tr class="{{ ($dpcrmfodata->lock == 2) ? 'bg-warm' : '' }}" id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" data-group="core{{ $dpcrmfodata->dpcr_mfo_id }}"
                 @if(!in_array($userid, $pmtsmember ?? []) && $guard == 'employee')
                     @if(!in_array($status, [2, 5]))
                         onclick="showDpcrMfoData({{ $dpcrmfodata->id }}, {{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})"
