@@ -121,7 +121,7 @@
         <table class="table-form">
             <thead>
                 <tr>
-                    <th rowspan="5" class="text-center">MFO/PAPs</th>
+                    <th rowspan="5" class="text-center" style="width: 15%;">MFO/PAPs</th>
                     <th rowspan="2" class="text-center" width="180">Success Indicators</th>
                     <th colspan="2" class="text-center">Evidence</th>
                     <th rowspan="5" class="text-center">Allotted<br>Budget</th>
@@ -137,11 +137,11 @@
                 </tr>
                 <tr>
                     <th rowspan="3" class="text-center">(Targets + Measures)</th>
-                    <th rowspan="3" class="text-center">Q</th>
+                    <th rowspan="3" style="width: 10%;" class="text-center">Q</th>
                     <th rowspan="3" class="text-center"></th>
-                    <th rowspan="3" class="text-center">E</th>
+                    <th rowspan="3" style="width: 10%;"class="text-center">E</th>
                     <th rowspan="3" class="text-center"></th>
-                    <th rowspan="3" class="text-center">T</th>
+                    <th rowspan="3" style="width: 10%;"class="text-center">T</th>
                     <th rowspan="3" class="text-center"></th>
                     <th rowspan="3" class="text-center">A</th>
                     <th rowspan="3" class="text-center"></th>
@@ -175,7 +175,7 @@
                     {{-- Core MFO Rows --}}
                     @foreach($cores as $core)
                         <tr>
-                            <td>
+                            <td style="width: 15%;">
                                 @if(displayValue($core->mfo) || displayValue($core->functions) || displayValue($core->percent))
                                     {{ displayValue($core->mfo) }} {{ displayValue($core->functions) }} ({{ displayValue($core->percent) }}%)
                                 @endif
@@ -210,7 +210,7 @@
                             });
                         @endphp
                         <tr id="mfodata{{ $Opcrmfodata->id }}-{{ $Opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $Opcrmfodata->id }},{{ $Opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
-                            <td class="text-left align-top" width="210">{!! displayValue($Opcrmfodata->mfo) !!}</td>
+                            <td class="text-left align-top" style="width: 15%;">{!! displayValue($Opcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Opcrmfodata->measure) . '%', displayValue($Opcrmfodata->target)) !!}
                             </td>
@@ -318,7 +318,7 @@
                             });
                         @endphp
                         <tr id="mfodata{{ $Opcrmfodata->id }}-{{ $Opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $Opcrmfodata->id }},{{ $Opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
-                            <td class="text-left align-top" width="210">{!! displayValue($Opcrmfodata->mfo) !!}</td>
+                            <td class="text-left align-top" style="width: 15%;">{!! displayValue($Opcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Opcrmfodata->measure) . '%', displayValue($Opcrmfodata->target)) !!}
                             </td>
@@ -427,7 +427,7 @@
                             });
                         @endphp
                         <tr id="mfodata{{ $Opcrmfodata->id }}-{{ $Opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $Opcrmfodata->id }},{{ $Opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
-                            <td class="text-left align-top" width="210">{!! displayValue($Opcrmfodata->mfo) !!}</td>
+                            <td class="text-left align-top" style="width: 15%;">{!! displayValue($Opcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
                                 {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Opcrmfodata->measure) . '%', displayValue($Opcrmfodata->target)) !!}
                             </td>
