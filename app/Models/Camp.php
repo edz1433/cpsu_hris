@@ -9,6 +9,12 @@ class Camp extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'campus_name',
+        'campus_abbr',
+        'short',
+    ];
+
     protected $connection = 'dbcpsuhris';
     protected $table = 'campuses';
 }
