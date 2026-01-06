@@ -34,6 +34,7 @@ Route::prefix('app')->group(function() {
 
     // ── Public/employee flows (primary UX) ─────────────────────────────
     Route::post('/check-restriction-level', [TimeEntryController::class, 'checkRestrictionLevel']);
+    Route::post('/fetch-license', [TimeEntryController::class, 'fetchLicense']);
     Route::post('/fetch-logzones-with-campuses', [TimeEntryController::class, 'fetchLogzonesWithCampuses']);
     Route::post('/validate-qr', [TimeEntryController::class, 'validateQr']);
     Route::post('/face-claim', [TimeEntryController::class, 'faceClaim']);

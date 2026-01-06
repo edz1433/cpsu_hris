@@ -131,6 +131,31 @@ class TimeEntryController extends Controller
             'message'     => $allowed ? null : ($message ?? 'Action not available.'),
         ]);
     }
+    public function fetchLicense(Request $request)
+    {
+        // Optional: very light rate limit (per IP)
+        $key = 'facesdk:license:' . $request->ip();
+        if (!Cache::add($key, 1, now()->addSeconds(10))) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'Too many requests'
+            ], 429);
+        }
+
+        $license = DB::table('settings')->value('te_key');
+
+        if (!is_string($license) || trim($license) === '') {
+            return response()->json([
+                'ok' => false,
+                'message' => 'License not configured'
+            ], 500);
+        }
+
+        return response()->json([
+            'ok'      => true,
+            'license' => $license,
+        ], 200);
+    }
     public function fetchLogzonesWithCampuses(Request $request) {
         $ttl = 60;
         $payload = Cache::remember('logzones:payload', $ttl, function () {
