@@ -95,7 +95,7 @@
                                 
                                 <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Age</label>
-                                    <input type="text" value="{{ $employee->age }}" name="age" class="form-control form-control-sm" id="age" readonly>
+                                    <input type="text" value="{{ \Carbon\Carbon::parse($employee->bdate)->diffInYears(now()) }}" name="age" class="form-control form-control-sm" id="age" readonly>
                                 </div>
 
                                 <div class="col-md-3">
