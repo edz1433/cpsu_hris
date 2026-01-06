@@ -220,7 +220,16 @@
             <span class="font">Name of Employee :</span> <span class="header" style="relative; display: inline-block; width: 73%; text-align: left;">&nbsp; @if(isset($employee)) {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(substr($employee->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->suffix)) }}@endif</span>
         </div>
         <div style="margin-top: -9px;">
-            <span class="font">Office/Campus/College : </span> <span class="header" style="relative; display: inline-block; width: 67.5%; text-align: left;">&nbsp;{{ isset($employee) ? strtoupper(ucwords($employee->campus_name)) : '' }}</span>
+            <span class="font">Office/Campus/College : </span>
+            <span class="header" style="position: relative; display: inline-block; width: 67.5%; text-align: left;">
+                &nbsp;
+                {{ isset($employee)
+                    ? ($employee->camp_id == 1
+                        ? strtoupper(ucwords($employee->office_name))
+                        : strtoupper(ucwords($employee->campus_name)))
+                    : ''
+                }}
+            </span>
         </div>
         <div style="margin-top: -9px;">
             <span class="font">For the month of : </span> <span class="header" style="relative; display: inline-block; width: 37%; text-align: left;">&nbsp;{{ isset($employee) ? $startDate : '' }} - {{ isset($employee) ? $endDate : '' }}</span>, <span class="header" style="relative; display: inline-block; width: 36%; text-align: left;">&nbsp;{{ isset($employee) ? $year : '' }}</span>
@@ -371,7 +380,16 @@
             <span class="font">Name of Employee :</span> <span class="header" style="relative; display: inline-block; width: 73%; text-align: left;">&nbsp; @if(isset($employee)) {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(substr($employee->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->suffix)) }}@endif</span>
         </div>
         <div style="margin-top: -9px;">
-            <span class="font">Office/Campus/College : </span> <span class="header" style="relative; display: inline-block; width: 67.5%; text-align: left;">&nbsp;{{ isset($employee) ? strtoupper(ucwords($employee->office_name)) : '' }}</span>
+            <span class="font">Office/Campus/College : </span>
+            <span class="header" style="position: relative; display: inline-block; width: 67.5%; text-align: left;">
+                &nbsp;
+                {{ isset($employee)
+                    ? ($employee->camp_id == 1
+                        ? strtoupper(ucwords($employee->office_name))
+                        : strtoupper(ucwords($employee->campus_name)))
+                    : ''
+                }}
+            </span>
         </div>
         <div style="margin-top: -9px;">
             <span class="font">For the month of : </span> <span class="header" style="relative; display: inline-block; width: 37%; text-align: left;">&nbsp;{{ isset($employee) ? $startDate : '' }} - {{ isset($employee) ? $endDate : '' }}</span>, <span class="header" style="relative; display: inline-block; width: 36%; text-align: left;">&nbsp;{{ isset($employee) ? $year : '' }}</span>
