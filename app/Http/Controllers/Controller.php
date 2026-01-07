@@ -211,7 +211,7 @@ class Controller extends BaseController
                 'notifications.created_at as notif_created_at',
                 
                 // Only select needed columns from employees
-                'leave_emp.emp_ID as leave_emp_id',
+                'leave_emp.id as leave_emp_id',
                 'leave_emp.profile as leave_emp_profile',
                 DB::raw("CONCAT(leave_emp.fname, ' ', leave_emp.lname) as leave_emp_fullname"),
 
