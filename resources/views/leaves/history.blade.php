@@ -27,7 +27,7 @@
                 </div>           
                 <div class="card-body">
                     <div class="tab-content">
-                        <table class="table table-collapsed table-hover" id="example1">
+                        <table class="table table-collapsed table-hover" id="leaveHistory">
                             <thead>
                                 <tr>
                                     <th>LEAVE TYPE</th>
@@ -66,13 +66,14 @@
                                             $formattedStartDate = \Carbon\Carbon::parse($startDate)->format('M d, Y');
                                             $formattedEndDate = \Carbon\Carbon::parse($endDate)->format('M d, Y');
                                         } else {
+                                            $startDate = $leaves->date_range;
                                             $formattedStartDate = \Carbon\Carbon::parse($leaves->date_range)->format('M d, Y');
                                             $formattedEndDate = null;
                                         }
                                     @endphp
                                     <tr>
                                         <td>{{ strtoupper($leavetype[$leaves->leave_type]) }}</td>
-                                        <td>
+                                        <td data-order="{{ \Carbon\Carbon::parse($startDate)->format('Y-m-d') }}">
                                             @if($formattedEndDate)
                                                 {{ strtoupper($formattedStartDate) }} - {{ strtoupper($formattedEndDate) }}
                                             @else
@@ -81,7 +82,9 @@
                                         </td>
                                         <td class="text-center">{{ $leaves->days }}</td>
                                         <td class="text-center">{{ ($leaves->day_wpay) ? $leaves->day_wpay : '' }}</td>
-                                        <td>{{ isset($leaves->date_filing) ? strtoupper(\Carbon\Carbon::parse($leaves->date_filing)->format('M d, Y')) : '' }}</td>
+                                        <td data-order="{{ isset($leaves->date_filing) ? \Carbon\Carbon::parse($leaves->date_filing)->format('Y-m-d') : '' }}">
+                                            {{ isset($leaves->date_filing) ? strtoupper(\Carbon\Carbon::parse($leaves->date_filing)->format('M d, Y')) : '' }}
+                                        </td>
                                         <td width="100">
                                             @if($leaves->remarks_stat == 0)
                                                 <span class="badge badge-success">approved</span>
@@ -113,13 +116,14 @@
                                             $formattedStartDate = \Carbon\Carbon::parse($startDate)->format('M d, Y');
                                             $formattedEndDate = \Carbon\Carbon::parse($endDate)->format('M d, Y');
                                         } else {
+                                            $startDate = $leaves->date_range;
                                             $formattedStartDate = \Carbon\Carbon::parse($leaves->date_range)->format('M d, Y');
                                             $formattedEndDate = null;
                                         }
                                     @endphp
                                     <tr>
                                         <td>{{ strtoupper($leavetype[$leaves->leave_type]) }}</td>
-                                        <td>
+                                        <td data-order="{{ \Carbon\Carbon::parse($startDate)->format('Y-m-d') }}">
                                             @if($formattedEndDate)
                                                 {{ strtoupper($formattedStartDate) }} - {{ strtoupper($formattedEndDate) }}
                                             @else
@@ -128,7 +132,9 @@
                                         </td>
                                         <td class="text-center">{{ $leaves->days }}</td>
                                         <td class="text-center">{{ ($leaves->day_wpay) ? $leaves->day_wpay : '' }}</td>
-                                        <td>{{ isset($leaves->date_filing) ? strtoupper(\Carbon\Carbon::parse($leaves->date_filing)->format('M d, Y')) : '' }}</td>
+                                        <td data-order="{{ isset($leaves->date_filing) ? \Carbon\Carbon::parse($leaves->date_filing)->format('Y-m-d') : '' }}">
+                                            {{ isset($leaves->date_filing) ? strtoupper(\Carbon\Carbon::parse($leaves->date_filing)->format('M d, Y')) : '' }}
+                                        </td>
                                         <td width="100">
                                             @if($leaves->remarks_stat == 0)
                                                 <span class="badge badge-success">approved</span>

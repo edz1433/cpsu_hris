@@ -243,6 +243,14 @@
                 toastr.error(errorMessage);
         @endif
 
+        $("#leaveHistory").DataTable({
+            "responsive": false,
+            "lengthChange": false, 
+            "autoWidth": true,
+            order: [[1, 'desc']],
+            //"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+        }).buttons().container().appendTo('.col-md-6:eq(0)');
+
         $("#example1").DataTable({
             "responsive": false,
             "lengthChange": false, 
