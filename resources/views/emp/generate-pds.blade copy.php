@@ -4,23 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{{ strtoupper($datas['employee']->lname ?? 'N/A') }} {{ strtoupper($datas['employee']->fname ?? 'N/A') }} {{ strtoupper($datas['employee']->suffix ?? 'N/A') }} {{ strtoupper($datas['employee']->mname ?? 'N/A') }}</title>
+    <title>{{ strtoupper($datas['employee']->lname) }} {{ strtoupper($datas['employee']->fname) }} {{ strtoupper($datas['employee']->suffix) }} {{ strtoupper($datas['employee']->mname) }}</title>
     <style>
         .div {
             height: 100%;
             font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
         }
-       
+        
         .table{
             width: 100% !important;
             background-color: transparent;
             border: 1px solid black;
-            border-collapse: collapse;
+            border-collapse: collapse;            
             padding: 0px;
             font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-            font-size: 9px;
+            font-size: 9px; 
         }
-       
+        
         .bg1{
             background-color: #989494;
             font-style: italic;
@@ -29,31 +29,39 @@
             font-size: 12px;
             height: 15px !important;
         }
-       
+        
         .td-bordered{
+
         }
         .th-bordered{
-       
+        
         }
+
         .pl1{
             padding-left: 11.5px !important;
             padding: 1px;
         }
+
         .pl2{
             padding: 1px;
         }
+
         .bordered{
             border: 1px solid black;
         }
+
         .tl{
             text-align: left;
         }
+
         .f1{
-            font-size: 9px;
+            font-size: 9px; 
         }
+
         .vlt{
             vertical-align: top;
         }
+
         .bb{
             border-bottom: 1px solid black;
         }
@@ -64,96 +72,117 @@
             transform: scale(0.8);
             margin-bottom: -11px;
         }
+
         .checkbox-label{
             font-size: 7px;
         }
-        .table1 td,
+
+        .table1 td, 
         .table1 th {
             height: 18px !important;
             padding: 2px;
         }
-        .table2 td,
+
+        .table2 td, 
         .table2 th{
             height: 21px !important;
             padding: 2px;
         }
+
         .address-column{
-            float: left;
-            text-align: center;
-            width: 50%;
-            font-size: 9px;
+            float: left; 
+            text-align: center; 
+            width: 50%; 
+            font-size: 9px; 
             margin-top: 3.5px;
         }
+
         .vcenter {
             align-items: center;
             text-align: center;
             vertical-align: middle;
-            font-size: 7.5px;
+            font-size: 7.5px; 
         }
+
         .f2{
             font-size: 8px !important;
         }
+
         .bg2{
             background-color: #eaeaea;
         }
+
         .text-red{
             color: red;
         }
+
         .h-1{
             height: 100px !important;
             font-size: 10px;
             vertical-align: top;
         }
+
         .h-2{
             height: 54px !important;
             font-size: 10px;
             vertical-align: top;
         }
+
         .h-3{
             height: 53px !important;
             font-size: 10px;
             vertical-align: top;
         }
+
         .h-4{
             height: 32px !important;
             font-size: 10px;
             vertical-align: top;
         }
+
         .h-5{
             height: 141px !important;
             font-size: 10px;
             vertical-align: top;
         }
+
         .p4-ml{
             margin-left: 15px;
         }
+
         .hide{
             display: none;
         }
     </style>
 </head>
 @php
-    $fam_child_string = $datas['familyBg']->name_child ?? '';
-    $fam_child_string_bday = $datas['familyBg']->date_birth ?? '';
+    $fam_child_string = $datas['familyBg']->name_child;
+    $fam_child_string_bday = $datas['familyBg']->date_birth;
+
     $children_array = explode(',', $fam_child_string);
     $children_bday = explode(',', $fam_child_string_bday);
-    $otherinfo_skills_hob_string = $datas['otherinfo']->skills_hob ?? '';
-    $otherinfo_recognition_string = $datas['otherinfo']->recognition ?? '';
-    $otherinfo_mem_org_string = $datas['otherinfo']->mem_org ?? '';
-    $otherinfo_question_string = $datas['infoquestion']->question ?? '';
-    $otherinfo_questiondetail_string = $datas['infoquestion']->qdetails ?? '';
+
+    $otherinfo_skills_hob_string = $datas['otherinfo']->skills_hob;
+    $otherinfo_recognition_string = $datas['otherinfo']->recognition;
+    $otherinfo_mem_org_string = $datas['otherinfo']->mem_org;
+    $otherinfo_question_string = $datas['infoquestion']->question;
+    $otherinfo_questiondetail_string = $datas['infoquestion']->qdetails;
+
     $otherinfo_skills_hob = explode(',', $otherinfo_skills_hob_string);
     $otherinfo_recognition = explode(',', $otherinfo_recognition_string);
     $otherinfo_mem_org = explode(',', $otherinfo_mem_org_string);
     $otherinfo_question = explode(',', $otherinfo_question_string);
     $otherinfo_questiondetail = explode(',', $otherinfo_questiondetail_string);
-    $refname_string = $datas['references']->refname ?? '';
-    $refadd_string = $datas['references']->refadd ?? '';
-    $reftelno_string = $datas['references']->reftelno ?? '';
+
+    $refname_string = $datas['references']->refname;
+    $refadd_string = $datas['references']->refadd;
+    $reftelno_string = $datas['references']->reftelno;
+
     $refname = explode(';', $refname_string);
     $refadd = explode(';', $refadd_string);
     $reftelno = explode(';', $reftelno_string);
-    $govid_string = $datas['govids']->govid ?? '';
+
+    $govid_string = $datas['govids']->govid;
     $govids = explode(',', $govid_string);
 @endphp
 <body>
@@ -162,7 +191,7 @@
             <thead>
                 <tr>
                     <th colspan="9" class="bg1">
-                        <img src="{{ asset('Uploads/pds-header-2025.png') }}" width="100.1%" alt="" srcset="">
+                        <img src="{{ public_path('Uploads/pds-header.png') }}" width="100.1%" alt="" srcset="">
                     </th>
                 </tr>
             </thead>
@@ -171,69 +200,66 @@
                     <th colspan="9" class="bg1">I. PERSONAL INFORMATION</th>
                 </tr>
                 <tr>
-                    <td class="pl2 bt bg2" width="100">1. SURNAME</td>
-                    <th colspan="8" class="bordered pl1 tl">{{ strtoupper($datas['employee']->lname ?? 'N/A') }}</th>
+                    <td class="pl2 bt bg2" width="100">2. SURNAME</td>
+                    <th colspan="8" class="bordered pl1 tl">{{ strtoupper($datas['employee']->lname) }}</th>
                 </tr>
-                <tr>
                     <td class="pl1 bg2">FIRST NAME</td>
-                    <th colspan="7" class="bordered pl1 tl">{{ strtoupper($datas['employee']->fname ?? 'N/A') }}</th>
-                    <th width="135.5" class="tl" style=""><span style="font-size: 5px; display: block;">NAME EXTENSION (JR., SR)</span> <span class="f1">{{ strtoupper($datas['employee']->suffix ?? 'N/A') }}</span></th>
+                    <th colspan="7" class="bordered pl1 tl">{{ strtoupper($datas['employee']->fname) }}</th>
+                    <th width="135.5" class="tl bg2" style=""><span style="font-size: 5px; display: block;">EXTENSION (JR, SR.)</span> <span class="f1">{{ strtoupper($datas['employee']->suffix) }}</span></th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">MIDDLE NAME</td>
-                    <th colspan="8" class="bordered pl1 tl">{{ strtoupper($datas['employee']->mname ?? 'N/A') }}</th>
+                    <th colspan="8" class="bordered pl1 tl">{{ strtoupper($datas['employee']->mname) }}</th>
                 </tr>
-                <tr>
-                    <td class="bordered pl2 bg2">3. DATE OF BIRTH &nbsp;&nbsp;&nbsp;&nbsp;(dd/mm/yyyy)</td>
-                    <th class="bordered pl2" colspan="2" width="1000">{{ $datas['employee']->bdate ? \Carbon\Carbon::parse($datas['employee']->bdate)->format('d/m/Y') : 'N/A' }}</th>
+                <tr> 
+                    <td class="bordered pl2 bg2">3. DATE OF BIRTH &nbsp;&nbsp;&nbsp;&nbsp;(mm/dd/yyyy)</td>
+                    <th class="bordered pl2" colspan="2" width="1000">{{ \Carbon\Carbon::parse($datas['employee']->bdate)->format('m/d/Y') }}</th>
                     <td class="bordered pl2 text-align-top-left bg2" rowspan="3" colspan="2" width="740">16. CITIZENSHIP <p style="text-align: center;">if holder of dual citizenship, </p> <p style="text-align: center; margin-top: -5px;">please indicate the details.</p> </td>
                     <td class="bordered pl2" colspan="4" rowspan="2">
                         <div style="float: left;">
-                            <input type="checkbox" class="checkbox1" style="margin-bottom: -8px;" @if(isset($datas['employee']->citizenship) && $datas['employee']->citizenship == 1) checked @endif><span>Filipino</span><br>
-                            <input type="checkbox" class="checkbox1" style="margin-bottom: -8px; margin-left: 70px;" @if(isset($datas['employee']->c_category) && $datas['employee']->c_category == 1) checked @endif><span>by birth</span><br>
+                            <input type="checkbox" class="checkbox1" style="margin-bottom: -8px;" @if($datas['employee']->citizenship == 1) checked @endif><span>Filipino</span><br>
+                            <input type="checkbox" class="checkbox1" style="margin-bottom: -8px; margin-left: 70px;" @if($datas['employee']->c_category == 1) checked @endif><span>by birth</span><br>
                         </div>
                         <div style="float: right; margin-right: 17px;">
-                            <input type="checkbox" class="checkbox1" style="margin-bottom: -8px; margin-left: -73px;" @if(isset($datas['employee']->citizenship) && $datas['employee']->citizenship == 2) checked @endif><span>Dual Citizenship</span><br>
-                            <input type="checkbox" class="checkbox1" style="margin-bottom: -8px;" @if(isset($datas['employee']->c_category) && $datas['employee']->c_category == 2) checked @endif><span>by naturalization</span>
+                            <input type="checkbox" class="checkbox1" style="margin-bottom: -8px; margin-left: -73px;" @if($datas['employee']->citizenship == 2) checked @endif><span>Dual Citizenship</span><br>
+                            <input type="checkbox" class="checkbox1" style="margin-bottom: -8px;" @if($datas['employee']->c_category == 2) checked @endif><span>by naturalization</span> 
                         </div><br><br><br>
                         <span style="margin-left: 85px">Pls. indicate country:</span>
                     </td>
                 </tr>
                 <tr>
                     <td class="bordered pl2 bg2">4. PLACE OF BIRTH</td>
-                    <th class="bordered pl2" colspan="2">{{ strtoupper($datas['employee']->b_place ?? 'N/A') }}</th>
+                    <th class="bordered pl2" colspan="2">{{ strtoupper($datas['employee']->b_place) }}</th>
                 </tr>
                 <tr>
-                    <td class="bordered pl2 bg2">5. SEX AT BIRTH</td>
+                    <td class="bordered pl2 bg2">5. SEX</td>
                     <td class="bordered pl2" colspan="2">
-                        <input type="checkbox" class="checkbox1" style="margin-bottom: -7px; margin-left: 1.4px;" {{ (isset($datas['employee']->sex) && $datas['employee']->sex == "Male") ? 'checked' : '' }}> <span style="margin-top: -50px;">Male</span>
-                        <input type="checkbox" class="checkbox1" style="margin-bottom: -7px; margin-left: 22.9%;" {{ (isset($datas['employee']->sex) && $datas['employee']->sex == "Female") ? 'checked' : '' }}><span style="margin-top: -50px;">Female</span>
+                        <input type="checkbox" class="checkbox1" style="margin-bottom: -7px; margin-left: 1.4px;" {{ ($datas['employee']->sex == "Male") ? 'checked' : '' }}> <span style="margin-top: -50px;">Male</span> 
+                        <input type="checkbox" class="checkbox1" style="margin-bottom: -7px; margin-left: 22.9%;" {{ ($datas['employee']->sex == "Female") ? 'checked' : '' }}><span style="margin-top: -50px;">Female</span> 
                     </td>
-                    <th class="bordered pl2" colspan="4">{{ strtoupper($datas['employee']->country ?? 'N/A') }}</th>
+                    <th class="bordered pl2" colspan="4">{{ strtoupper($datas['employee']->country) }}</th>
                 </tr>
                 <tr>
                     <td class="bordered bg2" rowspan="2" style="text-align: left; vertical-align: top;">6. CIVIL STATUS</td>
                     <td class="bordered" colspan="2" rowspan="2">
                         <div style="float: left; margin-top: -6px;">
-                            <input type="checkbox" class="checkbox1" {{ (isset($datas['employee']->civil_status) && $datas['employee']->civil_status == "Single") ? 'checked' : '' }}><br>
-                            <input type="checkbox" class="checkbox1" {{ (isset($datas['employee']->civil_status) && $datas['employee']->civil_status == "Widowed") ? 'checked' : '' }}><br>
-                            <input type="checkbox" class="checkbox1" {{ (isset($datas['employee']->civil_status) && $datas['employee']->civil_status == "Others") ? 'checked' : '' }}><br>
+                            <input type="checkbox" class="checkbox1" {{ ($datas['employee']->civil_status == "Single") ? 'checked' : '' }}><br>
+                            <input type="checkbox" class="checkbox1" {{ ($datas['employee']->civil_status == "Widowed") ? 'checked' : '' }}><br>
+                            <input type="checkbox" class="checkbox1" {{ ($datas['employee']->civil_status == "Other") ? 'checked' : '' }}><br>
                         </div>
                         <div style="float: left; padding-top: 2px;">
                             <span>Single</span><br>
                             <span>Widowed</span><br>
-                            <span>Others</span>
+                            <span>Other/s</span> 
                         </div>
-                       
-                        <div style="float: right; margin-right: 17px; padding-top: 2px;">
+                        
+                        <div style="float: right;  margin-right: 17px; padding-top: 2px;">
                             <span>Married</span><br>
-                            <span>Separated</span><br>
-                            <span>Solo Parent</span>
+                            <span>Separated</span> 
                         </div>
                         <div style="float: right; margin-top: -6px;">
-                            <input type="checkbox" class="checkbox1" {{ (isset($datas['employee']->civil_status) && $datas['employee']->civil_status == "Married") ? 'checked' : '' }}><br>
-                            <input type="checkbox" class="checkbox1" {{ (isset($datas['employee']->civil_status) && $datas['employee']->civil_status == "Separated") ? 'checked' : '' }}><br>
-                            <input type="checkbox" class="checkbox1" {{ (isset($datas['employee']->civil_status) && $datas['employee']->civil_status == "Solo Parent") ? 'checked' : '' }}>
+                            <input type="checkbox" class="checkbox1" {{ ($datas['employee']->civil_status == "Married") ? 'checked' : '' }}><br>
+                            <input type="checkbox" class="checkbox1" {{ ($datas['employee']->civil_status == "Separated") ? 'checked' : '' }}>
                         </div>
                     </td>
                     <td class="bordered tl bg2" rowspan="4" colspan="1" width="97" style="vertical-align: top; text-align: left;">
@@ -241,103 +267,102 @@
                     </td>
                     <td class="bb" colspan="5">
                         <div class="address-column">
-                            <b>{{ strtoupper($datas['employee']->add_block ?? 'N/A') }}</b><br>House/Block/Lot No.
+                            <b>{{ strtoupper($datas['employee']->add_block) }}</b><br>House/Block/Lot No.
                         </div>
                         <div class="address-column">
-                            <b>{{ strtoupper($datas['employee']->add_street ?? 'N/A') }}</b><br>Street
+                            <b>{{ strtoupper($datas['employee']->add_street) }}</b><br>Street
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <td class="bb" colspan="5">
                         <div class="address-column">
-                            <b>{{ strtoupper($datas['employee']->add_village ?? 'N/A') }}</b><br>Subdivision/Village
+                            <b>{{ strtoupper($datas['employee']->add_village) }}</b><br>Subdivision/Village
                         </div>
                         <div class="address-column">
-                            <b>{{ isset($datas['barangay']->name) ? strtoupper($datas['barangay']->name) : 'N/A' }}</b><br>Barangay
+                            <b>{{ isset($datas['barangay']->name) ? strtoupper($datas['barangay']->name) : '' }}</b><br>Barangay
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <td class="bordered pl2 bg2">7. HEIGHT (m)</td>
-                    <th class="bordered pl2" colspan="2">{{ isset($datas['employee']->height_m) ? $datas['employee']->height_m.'m' : 'N/A' }}</th>
+                    <th class="bordered pl2" colspan="2">{{ isset($datas['employee']->height_cm) ? $datas['employee']->height_m.'m' : '' }}</th>
                     <td class="bordered pl2" colspan="5">
                         <div class="address-column">
-                            <b>{{ isset($datas['city']->name) ? strtoupper($datas['city']->name) : 'N/A' }}</b><br>City/Municipality
+                            <b>{{ isset($datas['city']->name) ? strtoupper($datas['city']->name) : '' }}</b><br>City/Municipality
                         </div>
                         <div class="address-column">
-                            <b>{{ isset($datas['province']->name) ? strtoupper($datas['province']->name) : 'N/A' }}</b><br>Province
+                            <b>{{ isset($datas['province']->name) ? strtoupper($datas['province']->name) : '' }}</b><br>Province
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <td class="bordered pl2 bg2">8. WEIGHT (kg)</td>
-                    <th class="bordered pl2" colspan="2">{{ isset($datas['employee']->weight_kg) ? $datas['employee']->weight_kg.'kgs' : 'N/A' }}</th>
-                    <th class="bordered pl2" colspan="5">{{ $datas['employee']->add_zcode ?? 'N/A' }}</th>
+                    <th class="bordered pl2" colspan="2">{{ isset($datas['employee']->weight_kg) ? $datas['employee']->weight_kg.'kgs' : '' }}</th>
+                    <th class="bordered pl2" colspan="5">{{ isset($datas['employee']->add_zcode) ? $datas['employee']->add_zcode : '' }}</th>
                 </tr>
                 <tr>
                     <td class="bordered pl2 bg2">9. BLOOD TYPE</td>
-                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->b_type ?? 'N/A' }}</th>
+                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->b_type }}</th>
                     <td class="bordered tl bg2" rowspan="4" colspan="1" width="97" style="vertical-align: top; text-align: left;">
                         18. PERMANENT ADDRESS<div style="margin-top: 70px; text-align: center;">ZIPCODE</div>
                     </td>
                     <td class="bb" colspan="5">
                         <div class="address-column">
-                            <b>{{ strtoupper($datas['employee']->padd_block ?? 'N/A') }}</b><br>House/Block/Lot No.
+                            <b>{{ strtoupper($datas['employee']->padd_block) }}</b><br>House/Block/Lot No.
                         </div>
                         <div class="address-column">
-                            <b>{{ strtoupper($datas['employee']->padd_street ?? 'N/A') }}</b><br>Street
+                            <b>{{ strtoupper($datas['employee']->padd_street) }}</b><br>Street
                         </div>
                     </td>
                 </tr>
                 <tr>
-                    <td class="bordered pl2 bg2">10. UMID ID NO.</td>
-                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->umid ?? 'N/A' }}</th>
+                    <td class="bordered pl2 bg2">10. GSIS ID NO.</td>
+                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->gsis }}</th>
                     <td class="bordered pl2" colspan="5">
                         <div class="address-column">
-                            <b>{{ strtoupper($datas['employee']->padd_village ?? 'N/A') }}</b><br>Subdivision/Village
+                            <b>{{ strtoupper($datas['employee']->padd_village) }}</b><br>Subdivision/Village
                         </div>
                         <div class="address-column">
-                            <b>{{ isset($datas['barangay1']->name) ? strtoupper($datas['barangay1']->name) : 'N/A' }}</b><br>Barangay
+                            <b>{{ isset($datas['barangay1']->name) ? strtoupper($datas['barangay1']->name) : '' }}</b><br>Barangay
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <td class="bordered pl2 bg2">11. PAG-IBIG ID NO.</td>
-                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->pagibig ?? 'N/A' }}</th>
+                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->pagibig }}</th>
                     <td class="bordered pl2" colspan="5">
                         <div class="address-column">
-                            <b>{{ isset($datas['city1']->name) ? strtoupper($datas['city1']->name) : 'N/A' }}</b><br>City/Municipality
+                            <b>{{ isset($datas['city1']->name) ? strtoupper($datas['city1']->name) : '' }}</b><br>City/Municipality
                         </div>
                         <div class="address-column">
-                            <b>{{ isset($datas['province1']->name) ? strtoupper($datas['province1']->name) : 'N/A' }}</b><br>Province
+                            <b>{{ isset($datas['province1']->name) ? strtoupper($datas['province1']->name) : '' }}</b><br>Province
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <td class="bordered pl2 bg2">12. PHILHEALTH NO.</td>
-                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->philhealth ?? 'N/A' }}</th>
-                    <th class="bordered pl2" colspan="5">{{ $datas['employee']->padd_zcode ?? 'N/A' }}</th>
+                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->philhealth }}</th>
+                    <th class="bordered pl2" colspan="5">{{ isset($datas['employee']->padd_zcode) ? $datas['employee']->padd_zcode : '' }}</th>
                 </tr>
                 <tr>
-                    <td class="bordered pl2 bg2">13. PhilSys Number (PSN)</td>
-                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->philsys ?? 'N/A' }}</th>
+                    <td class="bordered pl2 bg2">13. SSS NO.</td>
+                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->sss }}</th>
                     <td class="bordered pl2 bg2">19. TELEPHONE NO.</td>
-                    <th class="bordered pl2" colspan="5">{{ $datas['employee']->telephone ?? 'N/A' }}</th>
+                    <th class="bordered pl2" colspan="5">{{ $datas['employee']->telephone }}</th>
                 </tr>
                 <tr>
                     <td class="bordered pl2 bg2">14. TIN NO.</td>
-                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->tin ?? 'N/A' }}</th>
+                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->tin }}</th>
                     <td class="bordered pl2 bg2">20. MOBILE NO.</td>
-                    <th class="bordered pl2" colspan="5">{{ $datas['employee']->mobile ?? 'N/A' }}</th>
+                    <th class="bordered pl2" colspan="5">{{ $datas['employee']->mobile }}</th>
                 </tr>
                 <tr>
                     <td class="bordered pl2 bg2">15. AGENCY EMPLOYEE NO.</td>
-                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->emp_ID ?? 'N/A' }}</th>
+                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->emp_ID }}</th>
                     <td class="bordered pl2 bg2">21. E-MAIL ADDRESS (if any)</td>
-                    <th class="bordered pl2" colspan="5">{{ $datas['employee']->org_email ?? 'N/A' }}</th>
+                    <th class="bordered pl2" colspan="5">{{ $datas['employee']->org_email }}</th>
                 </tr>
-            </tbody>
         </table>
         <table class="table table1">
             <thead>
@@ -348,104 +373,104 @@
             </thead>
             <tbody>
                 <tr>
-                    <th colspan="9" class="bg1">II. FAMILY BACKGROUND</th>
+                    <th colspan="9" class="bg1">I. FAMILY BACKGROUND</th>
                 </tr>
                 <tr>
                     <td class="pl2 bt bg2" width="100">22. SPOUSE'S SURNAME</td>
-                    <th colspan="3" class="bordered pl1 tl" width="245">{{ strtoupper($datas['familyBg']->spouse_sname ?? 'N/A') }}</th>
+                    <th colspan="3" class="bordered pl1 tl" width="245">{{ strtoupper($datas['familyBg']->spouse_sname) }}</th>
                     <td class="bordered bg2" colspan="3" width="160" style="font-size: 7px">23. NAME of CHILDREN (Write full name and list all)</td>
-                    <td class="bordered bg2" colspan="2" width="90" style="font-size: 7px">DATE OF BIRTH (dd/mm/yyyy)</td>
+                    <td class="bordered bg2" colspan="2" width="90" style="font-size: 7px">DATE OF BIRTH (mm/dd/yyyy)</td>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">&nbsp;&nbsp;FIRST NAME</td>
-                    <th colspan="2" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->spouse_fname ?? 'N/A') }}</th>
-                    <th class="tl bg2"><span style="font-size: 5px; display: block;">NAME EXTENSION (JR., SR)</span> <span class="f1">{{ strtoupper($datas['familyBg']->spouse_ext ?? 'N/A') }}</span></th>
-                    <th class="bordered" colspan="3">{{ isset($children_array[0]) ? strtoupper(trim($children_array[0])) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[0]) && !empty($children_bday[0]) ? \Carbon\Carbon::parse(trim($children_bday[0]))->format('d/m/Y') : 'N/A' }}</th>
+                    <th colspan="2" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->spouse_fname) }}</th>
+                    <th class="tl bg2"><span style="font-size: 5px; display: block;">EXTENSION (JR, SR.)</span> <span class="f1">{!! isset($datas['familyBg']->spouse_ext) ? $datas['familyBg']->spouse_ext : '<span style="color:#eaeaea;">.</span>' !!}</span></th>
+                    <th class="bordered" colspan="3">{{ isset($children_array[0]) ? strtoupper(trim($children_array[0])) : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[0]) && !empty($children_bday[0]) ? \Carbon\Carbon::parse(trim($children_bday[0]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">&nbsp;&nbsp;MIDDLE NAME</td>
-                    <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->spouse_mname ?? 'N/A') }}</th>
-                    <th class="bordered" colspan="3">{{ isset($children_array[1]) ? strtoupper(trim($children_array[1])) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[1]) && !empty($children_bday[1]) ? \Carbon\Carbon::parse(trim($children_bday[1]))->format('d/m/Y') : 'N/A' }}</th>
+                    <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->spouse_mname) }}</th>
+                    <th class="bordered" colspan="3">{{ isset($children_array[1]) ? strtoupper(trim($children_array[1])) : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[1]) && !empty($children_bday[1]) ? \Carbon\Carbon::parse(trim($children_bday[1]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">&nbsp;&nbsp;OCCUPATION</td>
-                    <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->occupation ?? 'N/A') }}</th>
-                    <th class="bordered" colspan="3">{{ isset($children_array[2]) ? strtoupper(trim($children_array[2])) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[2]) && !empty($children_bday[2]) ? \Carbon\Carbon::parse(trim($children_bday[2]))->format('d/m/Y') : 'N/A' }}</th>
+                    <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->occupation) }}</th>
+                    <th class="bordered" colspan="3">{{ isset($children_array[2]) ? strtoupper(trim($children_array[2])) : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[2]) && !empty($children_bday[2]) ? \Carbon\Carbon::parse(trim($children_bday[2]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2" style="font-size: 8px;">&nbsp;&nbsp;EMPLOYER/BUSINESS NAME</td>
-                    <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->bus_name ?? 'N/A') }}</th>
-                    <th class="bordered" colspan="3">{{ isset($children_array[3]) ? strtoupper(trim($children_array[3])) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[3]) && !empty($children_bday[3]) ? \Carbon\Carbon::parse(trim($children_bday[3]))->format('d/m/Y') : 'N/A' }}</th>
+                    <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->bus_name) }}</th>
+                    <th class="bordered" colspan="3">{{ isset($children_array[3]) ? strtoupper(trim($children_array[3])) : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[3]) && !empty($children_bday[3]) ? \Carbon\Carbon::parse(trim($children_bday[3]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">&nbsp;&nbsp;BUSINESS ADDRESS</td>
-                    <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->bus_address ?? 'N/A') }}</th>
-                    <th class="bordered" colspan="3">{{ isset($children_array[4]) ? strtoupper(trim($children_array[4])) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[4]) && !empty($children_bday[4]) ? \Carbon\Carbon::parse(trim($children_bday[4]))->format('d/m/Y') : 'N/A' }}</th>
+                    <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['familyBg']->bus_address) }}</th>
+                    <th class="bordered" colspan="3">{{ isset($children_array[4]) ? strtoupper(trim($children_array[4])) : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[4]) && !empty($children_bday[4]) ? \Carbon\Carbon::parse(trim($children_bday[4]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">&nbsp;&nbsp;TELEPHONE NO.</td>
-                    <th colspan="3" class="bordered pl1 tl">{{ $datas['familyBg']->telephone ?? 'N/A' }}</th>
-                    <th class="bordered" colspan="3">{{ isset($children_array[5]) ? strtoupper(trim($children_array[5])) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[5]) && !empty($children_bday[5]) ? \Carbon\Carbon::parse(trim($children_bday[5]))->format('d/m/Y') : 'N/A' }}</th>
+                    <th colspan="3" class="bordered pl1 tl">{{ $datas['familyBg']->telephone }}</th>
+                    <th class="bordered" colspan="3">{{ isset($children_array[5]) ? strtoupper(trim($children_array[5])) : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[5]) && !empty($children_bday[5]) ? \Carbon\Carbon::parse(trim($children_bday[5]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl2 bt bg2" width="100">24. FATHER'S SURNAME</td>
-                    <th colspan="3" class="bordered pl1 tl">{{ str_replace('ñ', 'Ñ', mb_strtoupper($datas['familyBg']->father_sname ?? 'N/A')) }}</th>
-                    <th colspan="3" class="bordered">{{ isset($children_array[6]) ? strtoupper(trim($children_array[6])) : 'N/A' }}</th>
-                    <th colspan="2" class="bordered">{{ isset($children_bday[6]) && !empty($children_bday[6]) ? \Carbon\Carbon::parse(trim($children_bday[6]))->format('d/m/Y') : 'N/A' }}</th>
+                    <th colspan="3" class="bordered pl1 tl">{{ str_replace('ñ', 'Ñ', mb_strtoupper($datas['familyBg']->father_sname)) }}</th>
+                    <th colspan="3" class="bordered pl1 tl">{{ isset($children_array[6]) ? strtoupper(trim($children_array[6])) : ''; }}</th>
+                    <th colspan="2" class="bordered pl1 tl">{{ isset($children_bday[6]) && !empty($children_bday[6]) ? \Carbon\Carbon::parse(trim($children_bday[6]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">&nbsp;&nbsp;FIRST NAME</td>
-                    <th colspan="2" class="bordered pl1 tl">{{ str_replace('ñ', 'Ñ', mb_strtoupper($datas['familyBg']->father_fname ?? 'N/A')) }}</th>
-                    <th class="tl bg2" style=""><span style="font-size: 5px; display: block;">NAME EXTENSION (JR, SR)</span> <span class="f1">{{ strtoupper($datas['familyBg']->father_ext ?? 'N/A') }}</span></th>
-                    <th class="bordered" colspan="3">{{ isset($children_array[7]) ? strtoupper(trim($children_array[7])) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[7]) && !empty($children_bday[7]) ? \Carbon\Carbon::parse(trim($children_bday[7]))->format('d/m/Y') : 'N/A' }}</th>
+                    <th colspan="2" class="bordered pl1 tl">{{ str_replace('ñ', 'Ñ', mb_strtoupper($datas['familyBg']->father_fname)) }}</th>
+                    <th class="tl bg2" style=""><span style="font-size: 5px; display: block;">EXTENSION (JR, SR.)</span> <span class="f1">{!! isset($datas['familyBg']->father_ext) ? $datas['familyBg']->father_ext : '<span style="color:#eaeaea;">.</span>' !!}</span></th>
+                    <th class="bordered" colspan="3">{{ isset($children_array[7]) ? strtoupper(trim($children_array[7])) : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[7]) && !empty($children_bday[7]) ? \Carbon\Carbon::parse(trim($children_bday[7]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">&nbsp;&nbsp;MIDDLE NAME</td>
-                    <th colspan="3" class="bordered pl1 tl">{{ str_replace('ñ', 'Ñ', mb_strtoupper($datas['familyBg']->father_mname ?? 'N/A')) }}</th>
-                    <th class="bordered" colspan="3">{{ isset($children_array[8]) ? strtoupper(trim($children_array[8])) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[8]) && !empty($children_bday[8]) ? \Carbon\Carbon::parse(trim($children_bday[8]))->format('d/m/Y') : 'N/A' }}</th>
+                    <th colspan="3" class="bordered pl1 tl">{{ str_replace('ñ', 'Ñ', mb_strtoupper($datas['familyBg']->father_mname)) }}</th>
+                    <th class="bordered" colspan="3">{{ isset($children_array[8]) ? strtoupper(trim($children_array[8])) : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[8]) && !empty($children_bday[8]) ? \Carbon\Carbon::parse(trim($children_bday[8]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
-                    <td class="pl2 bt bg2" width="100" style="font-size: 8.8px !important;">25. MOTHER'S MAIDEN NAME</td>
-                    <th colspan="3" class="bordered pl1 tl">{{ str_replace('ñ', 'Ñ', mb_strtoupper($datas['familyBg']->mother_sname ?? 'N/A')) }}</th>
-                    <th colspan="3" class="bordered">{{ isset($children_array[9]) ? strtoupper(trim($children_array[9])) : 'N/A' }}</th>
-                    <th colspan="2" class="bordered">{{ isset($children_bday[9]) && !empty($children_bday[9]) ? \Carbon\Carbon::parse(trim($children_bday[9]))->format('d/m/Y') : 'N/A' }}</th>
+                    <td class="pl2 bt bg2" width="100" style="font-size: 8.8px !important; border-right: none !important;">25. MOTHER'S MAIDEN NAME</td>
+                    <td colspan="3" class="bordered pl1 bg2" style="border-left: none !important;"></td>
+                    <th colspan="3" class="bordered pl1 tl">{{ isset($children_array[9]) ? strtoupper(trim($children_array[9])) : ''; }}</th>
+                    <th colspan="2" class="bordered pl1 tl">{{ isset($children_bday[9]) && !empty($children_bday[9]) ? \Carbon\Carbon::parse(trim($children_bday[9]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">&nbsp;&nbsp;SURNAME</td>
-                    <th colspan="3" class="bordered pl1 tl">{{ str_replace('ñ', 'Ñ', mb_strtoupper($datas['familyBg']->mother_sname ?? 'N/A')) }}</th>
-                    <th class="bordered" colspan="3">{{ isset($children_array[10]) ? strtoupper(trim($children_array[10])) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[10]) && !empty($children_bday[10]) ? \Carbon\Carbon::parse(trim($children_bday[10]))->format('d/m/Y') : 'N/A' }}</th>
+                    <th colspan="3" class="bordered pl1 tl">{{ str_replace('ñ', 'Ñ', mb_strtoupper($datas['familyBg']->mother_sname)) }}</th>
+                    <th class="bordered" colspan="3">{{ isset($children_array[10]) ? strtoupper(trim($children_array[10])) : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[10]) && !empty($children_bday[10]) ? \Carbon\Carbon::parse(trim($children_bday[10]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bg2">&nbsp;&nbsp;FIRST NAME</td>
-                    <th colspan="3" class="bordered pl1 tl">{{ str_replace('ñ', 'Ñ', mb_strtoupper($datas['familyBg']->mother_fname ?? 'N/A')) }}</th>
-                    <th class="bordered" colspan="3">{{ isset($children_array[11]) ? strtoupper(trim($children_array[11])) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($children_bday[11]) && !empty($children_bday[11]) ? \Carbon\Carbon::parse(trim($children_bday[11]))->format('d/m/Y') : 'N/A' }}</th>
+                    <th colspan="3" class="bordered pl1 tl">{{ str_replace('ñ', 'Ñ', mb_strtoupper($datas['familyBg']->mother_fname)) }}</th>
+                    <th class="bordered" colspan="3">{{ isset($children_array[11]) ? strtoupper(trim($children_array[11])) : ''; }}</th>
+                    <th class="bordered" colspan="2">{{ isset($children_bday[11]) && !empty($children_bday[11]) ? \Carbon\Carbon::parse(trim($children_bday[11]))->format('m/d/Y') : ''; }}</th>
                 </tr>
                 <tr>
                     <td class="pl1 bb bg2">&nbsp;&nbsp;MIDDLE NAME</td>
-                    <th colspan="3" class="bordered pl1 tl">{{ str_replace('ñ', 'Ñ', mb_strtoupper($datas['familyBg']->mother_mname ?? 'N/A')) }}</th>
+                    <th colspan="3" class="bordered pl1 tl">{{ str_replace('ñ', 'Ñ', mb_strtoupper($datas['familyBg']->mother_mname)) }}</th>
                     <td class="bordered vcenter text-red" colspan="5">(Continue on separate sheet if necessary)</td>
                 </tr>
             </tbody>
-        </table>
+        </table>        
         <table class="table table1">
             <thead>
                 <tr>
-                    <th colspan="9" class="bg1">III. EDUCATIONAL BACKGROUND</th>
+                    <th colspan="9" class="bg1">I. EDUCATIONAL BACKGROUND</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td class="bordered bg2" rowspan="2" width="98.5">26. <span style="margin-left: 35px;">LEVEL</span></td>
+                    <td class="bordered  bg2" rowspan="2" width="98.5">26. <span style="margin-left: 35px;">LEVEL</span></td>
                     <td class="bordered vcenter bg2" rowspan="2" width="142">NAME OF SCHOOL<br>(Write in full)</td>
                     <td class="bordered vcenter bg2" rowspan="2" colspan="2" width="900">BASIC EDUCATION/DEGREE/COURSE<br>(Write in full)</td>
                     <td class="bordered vcenter bg2" colspan="2" width="260">PERIOD OF ATTENDANCE</td>
@@ -454,117 +479,99 @@
                     <td class="bordered vcenter bg2" rowspan="2" width="20">SCHOLARSHIP/ ACADEMIC HONORS RECEIVED</td>
                 </tr>
                 <tr>
-                    <td class="bordered vcenter bg2" width="23">
+                    <td  class="bordered vcenter bg2" width="23">
                         From
                     </td>
-                    <td class="bordered vcenter bg2" width="23">
+                    <td  class="bordered vcenter bg2" width="23">
                         To
                     </td>
                 </tr>
                 <tr>
                     <td class="bordered pl1 bg2">ELEMENTARY</td>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->elem_school ?? 'N/A') }}</th>
-                    <th class="bordered vcenter" colspan="2">{{ isset($datas['educBg']->elem_school) ? 'PRIMARY EDUCATION' : 'N/A'}}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->elem_period)[0]) ? strtoupper(explode('-', $datas['educBg']->elem_period)[0]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->elem_period)[1]) ? strtoupper(explode('-', $datas['educBg']->elem_period)[1]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->elem_level ?? 'N/A') }}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->elem_grad)[0]) ? strtoupper(explode('-', $datas['educBg']->elem_grad)[0]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->elem_honor ?? 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->elem_school) }}</th>
+                    <th class="bordered vcenter" colspan="2">{{ isset($datas['educBg']->elem_school) ? 'PRIMARY EDUCATION' : ''}}</th>
+                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->elem_period)[0]) ? strtoupper(explode('-', $datas['educBg']->elem_period)[0]) : '' }}</th>
+                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->elem_period)[1]) ? strtoupper(explode('-', $datas['educBg']->elem_period)[1]) : '' }}</th>
+                    <th class="bordered vcenter"></th>
+                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->elem_grad)[0]) ? strtoupper(explode('-', $datas['educBg']->elem_grad)[0]) : '' }}</th>
+                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->elem_honor) }}</th>
                 </tr>
                 <tr>
                     <td class="bordered pl1 bg2">SECONDARY</td>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->sec_school ?? 'N/A') }}</th>
-                    <th class="bordered vcenter" colspan="2">{{ isset($datas['educBg']->sec_school) ? 'SECONDARY EDUCATION' : 'N/A'}}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->sec_period)[0]) ? strtoupper(explode('-', $datas['educBg']->sec_period)[0]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->sec_period)[1]) ? strtoupper(explode('-', $datas['educBg']->sec_period)[1]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->sec_level ?? 'N/A') }}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->sec_grad)[0]) ? strtoupper(explode('-', $datas['educBg']->sec_grad)[0]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->sec_honor ?? 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->sec_school) }}</th>
+                    <th class="bordered vcenter" colspan="2">{{ isset($datas['educBg']->sec_school) ? 'SECONDARY EDUCATION' : ''}}</th>
+                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->sec_period)[0]) ? strtoupper(explode('-', $datas['educBg']->sec_period)[0]) : '' }}</th>
+                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->sec_period)[1]) ? strtoupper(explode('-', $datas['educBg']->sec_period)[1]) : '' }}</th>
+                    <th class="bordered vcenter"></th>
+                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->sec_grad)[0]) ? strtoupper(explode('-', $datas['educBg']->sec_grad)[0]) : '' }}</th>
+                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->sec_honor) }}</th>
                 </tr>
                 <tr>
                     <td class="bordered pl1 bg2">VOCATIONAL / TRADE COURSE</td>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->voc_school ?? 'N/A') }}</th>
-                    <th class="bordered vcenter" colspan="2">{{ strtoupper($datas['educBg']->voc_course ?? 'N/A') }}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->voc_period)[0]) ? strtoupper(explode('-', $datas['educBg']->voc_period)[0]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->voc_period)[1]) ? strtoupper(explode('-', $datas['educBg']->voc_period)[1]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->voc_level ?? 'N/A') }}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->voc_grad)[0]) ? strtoupper(explode('-', $datas['educBg']->voc_grad)[0]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->voc_honor ?? 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->voc_school) }}</th>
+                    <th class="bordered vcenter" colspan="2">{{ strtoupper($datas['educBg']->voc_course) }}</th>
+                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->voc_period)[0]) ? strtoupper(explode('-', $datas['educBg']->voc_period)[0]) : '' }}</th>
+                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->voc_period)[1]) ? strtoupper(explode('-', $datas['educBg']->voc_period)[1]) : '' }}</th>
+                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->voc_level) }}</th>
+                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->voc_grad)[0]) ? strtoupper(explode('-', $datas['educBg']->voc_grad)[0]) : '' }}</th>
+                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->voc_honor) }}</th>
                 </tr>
                 @if ($datas['educBg'])
                 @php
-                    $schools = explode(',', $datas['educBg']->coll_school ?? '');
-                    $courses = explode(',', $datas['educBg']->coll_course ?? '');
-                    $periods = explode(',', $datas['educBg']->coll_period ?? '');
-                    $levels = explode(',', $datas['educBg']->coll_level ?? '');
-                    $grads = explode(',', $datas['educBg']->coll_grad ?? '');
-                    $honors = explode(',', $datas['educBg']->coll_honor ?? '');
+                    $schools = explode(',', $datas['educBg']->coll_school);
+                    $courses = explode(',', $datas['educBg']->coll_course);
+                    $periods = explode(',', $datas['educBg']->coll_period);
+                    $levels = explode(',', $datas['educBg']->coll_level);
+                    $grads = explode(',', $datas['educBg']->coll_grad);
+                    $honors = explode(',', $datas['educBg']->coll_honor);
                     $maxRows = max(count($schools), count($courses), count($periods), count($levels), count($grads), count($honors));
-                    $gradSchools = explode(',', $datas['educBg']->grad_school ?? '');
-                    $gradCourses = explode(',', $datas['educBg']->grad_course ?? '');
-                    $gradPeriods = explode(',', $datas['educBg']->grad_period ?? '');
-                    $gradLevels = explode(',', $datas['educBg']->grad_level ?? '');
-                    $gradGrads = explode(',', $datas['educBg']->grad_grad ?? '');
-                    $gradHonors = explode(',', $datas['educBg']->grad_honor ?? '');
+
+                    $gradSchools = explode(',', $datas['educBg']->grad_school);
+                    $gradCourses = explode(',', $datas['educBg']->grad_course);
+                    $gradPeriods = explode(',', $datas['educBg']->grad_period);
+                    $gradLevels = explode(',', $datas['educBg']->grad_level);
+                    $gradGrads = explode(',', $datas['educBg']->grad_grad);
+                    $gradHonors = explode(',', $datas['educBg']->grad_honor);
+
                     $maxGradRows = max(count($gradSchools), count($gradCourses), count($gradPeriods), count($gradLevels), count($gradGrads), count($gradHonors));
-           
+            
                 @endphp
-           
+            
                     @for ($i = 0; $i < $maxRows; $i++)
                     <tr>
                         <td class="bordered pl1 bg2">COLLEGE</td>
-                        <th class="bordered vcenter">{{ strtoupper($schools[$i] ?? 'N/A') }}</th>
-                        <th class="bordered vcenter" colspan="2">{{ strtoupper($courses[$i] ?? 'N/A') }}</th>
+                        <th class="bordered vcenter">{{ strtoupper($schools[$i] ?? '') }}</th>
+                        <th class="bordered vcenter" colspan="2">{{ strtoupper($courses[$i] ?? '') }}</th>
                         <th class="bordered vcenter">
-                            {{ isset(explode('-', $periods[$i] ?? '')[0]) ? strtoupper(explode('-', $periods[$i])[0]) : 'N/A' }}
+                            {{ isset(explode('-', $periods[$i] ?? '')[0]) ? strtoupper(explode('-', $periods[$i])[0]) : '' }}
                         </th>
                         <th class="bordered vcenter">
-                            {{ isset(explode('-', $periods[$i] ?? '')[1]) ? strtoupper(explode('-', $periods[$i])[1]) : 'N/A' }}
+                            {{ isset(explode('-', $periods[$i] ?? '')[1]) ? strtoupper(explode('-', $periods[$i])[1]) : '' }}
                         </th>
-                        <th class="bordered vcenter">{{ strtoupper($levels[$i] ?? 'N/A') }}</th>
-                        <th class="bordered vcenter">{{ strtoupper($grads[$i] ?? 'N/A') }}</th>
-                        <th class="bordered vcenter">{{ strtoupper($honors[$i] ?? 'N/A') }}</th>
+                        <th class="bordered vcenter">{{ strtoupper($levels[$i] ?? '') }}</th>
+                        <th class="bordered vcenter">{{ strtoupper($grads[$i] ?? '') }}</th>
+                        <th class="bordered vcenter">{{ strtoupper($honors[$i] ?? '') }}</th>
                     </tr>
                     @endfor
+
                     @for ($i = 0; $i < $maxGradRows; $i++)
                         <tr>
                             <td class="bordered pl1 bg2">GRADUATE STUDIES</td>
-                            <th class="bordered vcenter">{{ strtoupper($gradSchools[$i] ?? 'N/A') }}</th>
-                            <th class="bordered vcenter" colspan="2">{{ strtoupper($gradCourses[$i] ?? 'N/A') }}</th>
+                            <th class="bordered vcenter">{{ strtoupper($gradSchools[$i] ?? '') }}</th>
+                            <th class="bordered vcenter" colspan="2">{{ strtoupper($gradCourses[$i] ?? '') }}</th>
                             <th class="bordered vcenter">
-                                {{ isset(explode('-', $gradPeriods[$i] ?? '')[0]) ? strtoupper(explode('-', $gradPeriods[$i])[0]) : 'N/A' }}
+                                {{ isset(explode('-', $gradPeriods[$i] ?? '')[0]) ? strtoupper(explode('-', $gradPeriods[$i])[0]) : '' }}
                             </th>
                             <th class="bordered vcenter">
-                                {{ isset(explode('-', $gradPeriods[$i] ?? '')[1]) ? strtoupper(explode('-', $gradPeriods[$i])[1]) : 'N/A' }}
+                                {{ isset(explode('-', $gradPeriods[$i] ?? '')[1]) ? strtoupper(explode('-', $gradPeriods[$i])[1]) : '' }}
                             </th>
-                            <th class="bordered vcenter">{{ strtoupper($gradLevels[$i] ?? 'N/A') }}</th>
-                            <th class="bordered vcenter">{{ strtoupper($gradGrads[$i] ?? 'N/A') }}</th>
-                            <th class="bordered vcenter">{{ strtoupper($gradHonors[$i] ?? 'N/A') }}</th>
+                            <th class="bordered vcenter">{{ strtoupper($gradLevels[$i] ?? '') }}</th>
+                            <th class="bordered vcenter">{{ strtoupper($gradGrads[$i] ?? '') }}</th>
+                            <th class="bordered vcenter">{{ strtoupper($gradHonors[$i] ?? '') }}</th>
                         </tr>
                     @endfor
-                @else
-                    <tr>
-                        <td class="bordered pl1 bg2">COLLEGE</td>
-                        <th class="bordered vcenter">N/A</th>
-                        <th class="bordered vcenter" colspan="2">N/A</th>
-                        <th class="bordered vcenter">N/A</th>
-                        <th class="bordered vcenter">N/A</th>
-                        <th class="bordered vcenter">N/A</th>
-                        <th class="bordered vcenter">N/A</th>
-                        <th class="bordered vcenter">N/A</th>
-                    </tr>
-                    <tr>
-                        <td class="bordered pl1 bg2">GRADUATE STUDIES</td>
-                        <th class="bordered vcenter">N/A</th>
-                        <th class="bordered vcenter" colspan="2">N/A</th>
-                        <th class="bordered vcenter">N/A</th>
-                        <th class="bordered vcenter">N/A</th>
-                        <th class="bordered vcenter">N/A</th>
-                        <th class="bordered vcenter">N/A</th>
-                        <th class="bordered vcenter">N/A</th>
-                    </tr>
                 @endif
-               
+                
                 <tr>
                     <td colspan="9" class="vcenter text-red" style="height: 5px !important;">(Continue on separate sheet if necessary)</td>
                 </tr>
@@ -572,12 +579,13 @@
                     <th class="bordered bg2"><em>SIGNATURE</em></th>
                     <th class="bordered" colspan="3"></th>
                     <th class="bordered bg2" colspan="2"><em>DATE</em></th>
-                    <th class="bordered" colspan="3">{{ \Carbon\Carbon::now()->format('d/m/Y') }}</th>
+                    <th class="bordered" colspan="3">{{ \Carbon\Carbon::now()->format('m/d/Y') }}</th>
                 </tr>
             </tbody>
         </table>
+        <em style="float: right; font-size: 8px;">CS FORM 212 (Revised 2017),  Page 1 of 4</em>
     </div>
-   
+    
     <div class="div">
         <table class="table table2">
             <thead>
@@ -587,7 +595,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td class="bordered f2 bg2" rowspan="2" width="170">27. CES/CSEE/CAREER SERVICE/RA 1080 (BOARD/ BAR)/UNDER SPECIAL LAWS/CATEGORY II/ IV ELIGIBILITY and ELIGIBILITIES FOR UNIFORMED PERSONNEL</td>
+                    <td class="bordered f2 bg2" rowspan="2" width="170">27. CAREER SERVICE/ RA 1080 (BOARD/ BAR) <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UNDER SPECIAL LAWS/ CES/ CSEE <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BARANGAY ELIGIBILITY / DRIVER'S LICENSE</td>
                     <td class="bordered vcenter f2 bg2" rowspan="2">RATING <br>(If Applicable)</td>
                     <td class="bordered vcenter f2 bg2" rowspan="2">DATE OF <br>EXAMINATION /<br> CONFERMENT</td>
                     <td class="bordered vcenter f2 bg2" rowspan="2">PLACE OF EXAMINATION / CONFERMENT</td>
@@ -595,29 +603,31 @@
                 </tr>
                 <tr>
                     <td class="bordered vcenter bg2">NUMBER</td>
-                    <td class="bordered vcenter bg2">Valid Until</td>
+                    <td class="bordered vcenter bg2">Date of <br>Validity</td>
                 </tr>
             </tbody>
             <tbody>
-                @foreach($datas['eligibility'] ?? [] as $eligble)
+                @foreach($datas['eligibility'] as $eligble)
                     <tr>
-                        <th class="bordered tl">{{ strtoupper($eligble->careereligible ?? 'N/A') }}</th>
-                        <th class="bordered">{{ $eligble->rating ?? 'N/A' }}</th>
-                        <th class="bordered">{{ $eligble->date_exam ? \Carbon\Carbon::parse($eligble->date_exam)->format('d/m/Y') : 'N/A' }}</th>
-                        <th class="bordered">{{ strtoupper($eligble->place_exam ?? 'N/A') }}</th>
-                        <th class="bordered">{{ $eligble->number ?? 'N/A' }}</th>
-                        <th class="bordered">{{ $eligble->date_valid ? \Carbon\Carbon::parse($eligble->date_valid)->format('d/m/Y') : 'N/A' }}</th>
+                        <th class="bordered tl">{{ strtoupper($eligble->careereligible  ) }}</th>
+                        <th class="bordered">{{ ($eligble->rating != NULL) ? $eligble->rating : 'N/A' }}</th>
+                        <th class="bordered">{{ ($eligble->date_exam) ? \Carbon\Carbon::parse($eligble->date_exam)->format('m/d/Y') : '' }}</th>
+                        <th class="bordered">{{ strtoupper($eligble->place_exam) }}</th>
+                        <th class="bordered">{{ $eligble->number }}</th>
+                        <th class="bordered">{{ ($eligble->date_valid) ? \Carbon\Carbon::parse($eligble->date_valid)->format('m/d/Y') : 'N/A' }}</th>
                     </tr>
                 @endforeach
-                @php $elicount = 7 - count($datas['eligibility'] ?? []); @endphp
-                @for($i = 1; $i <= $elicount; $i++)
+
+                @php $elicount = 7 - count($datas['eligibility']); @endphp
+
+                @for($i = 1;  $i <= $elicount; $i++)
                     <tr>
-                        <th class="bordered tl">N/A</th>
-                        <th class="bordered">N/A</th>
-                        <th class="bordered">N/A</th>
-                        <th class="bordered">N/A</th>
-                        <th class="bordered">N/A</th>
-                        <th class="bordered">N/A</th>
+                        <th class="bordered tl"></th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
                     </tr>
                 @endfor
                 <tr>
@@ -628,14 +638,16 @@
         <table class="table table2">
             <thead>
                 <tr>
-                    <th colspan="10" class="bg1">V. WORK EXPERIENCE<br><span style="font-size: 9.2px;">(Include private employment. Start from your recent work) Description of duties should be indicated in the attached Work Experience sheet.</span> </th>
+                    <th colspan="8" class="bg1">V. WORK EXPERIENCE<br><span style="font-size: 9.2px;">(Include private employment.  Start from your recent work) Description of duties should be indicated in the attached Work Experience sheet.</span> </th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td class="bordered f2 bg2" colspan="2">28. &nbsp;&nbsp;INCLUSIVE DATES<br><span style="margin-left: 30px;">(dd/mm/yyyy)</span></td>
-                    <td class="bordered vcenter f2 bg2" rowspan="2" colspan="3">POSITION TITLE <br> (Write in full/Do not abbreviate)</td>
-                    <td class="bordered vcenter f2 bg2" rowspan="2" colspan="3">DEPARTMENT / AGENCY / OFFICE / COMPANY <br> (Write in full/Do not abbreviate)</td>
+                    <td class="bordered f2 bg2" colspan="2">28. &nbsp;&nbsp;NCLUSIVE DATES<br><span style="margin-left: 30px;">(mm/dd/yyyy)</span></td>
+                    <td class="bordered vcenter f2 bg2" rowspan="2" width="120">POSITION TITLE <br> (Write in full/Do not abbreviate)</td>
+                    <td class="bordered vcenter f2 bg2" rowspan="2"  width="140">DEPARTMENT / AGENCY / OFFICE / COMPANY <br> (Write in full/Do not abbreviate)</td>
+                    <td class="bordered vcenter f2 bg2" rowspan="2" width="40">MONTHLY SALARY</td>
+                    <td class="bordered vcenter f2 bg2" rowspan="2" width="50">SALARY/ JOB/ <br> PAY GRADE (if<br> applicable)&<br> STEP  (Format <br>"00-0")/<br> INCREMENT</td>
                     <td class="bordered vcenter f2 bg2" rowspan="2">STATUS OF <br>APPOINTMENT</td>
                     <td class="bordered vcenter f2 bg2" rowspan="2" width="25">GOV'T <br>SERVICE <br>(Y/ N)</td>
                 </tr>
@@ -643,171 +655,184 @@
                     <td class="bordered vcenter f2 bg2" width="38">From</td>
                     <td class="bordered vcenter f2 bg2" width="38">To</td>
                 </tr>
-                @foreach($datas['workexperience'] ?? [] as $experience)
+
+                @foreach($datas['workexperience'] as $experience)
                     <tr>
-                        <th class="bordered">{{ $experience->inc_date1 ? \Carbon\Carbon::parse($experience->inc_date1)->format('d/m/Y') : 'N/A' }}</th>
-                        <th class="bordered">@if($experience->inc_date2 != null){{ $experience->inc_date2 ? \Carbon\Carbon::parse($experience->inc_date2)->format('d/m/Y') : 'N/A' }}@else PRESENT @endif</th>
-                        <th class="bordered" colspan="3">{{ strtoupper($experience->position ?? 'N/A') }}</th>
-                        <th class="bordered" colspan="3">{{ strtoupper($experience->department ?? 'N/A') }}</th>
-                        <th class="bordered">{!! nl2br(e(preg_replace('/(\s|\/|,|-)/', "$1\n", strtoupper($experience->stat_app ?? 'N/A')) )) !!}</th>
-                        <th class="bordered">{{ strtoupper($experience->service ?? 'N/A') }}</th>
+                        <th class="bordered">{{ ($experience->inc_date1) ? \Carbon\Carbon::parse($experience->inc_date1)->format('m/d/Y') : '' }}</th>
+                        <th class="bordered">@if($experience->inc_date2 != null){{ ($experience->inc_date2) ? \Carbon\Carbon::parse($experience->inc_date2)->format('m/d/Y') : '' }}@else PRESENT @endif</th>
+                        <th class="bordered">{{ strtoupper($experience->position) }}</th>
+                        <th class="bordered">{{ strtoupper($experience->department) }}</th>
+                        <th class="bordered">{{ $experience->salary }}</th>
+                        <th class="bordered">{{ strtoupper($experience->sg_grade) }}</th>
+                        <th class="bordered">{!! nl2br(e(preg_replace('/(\s|\/|,|-)/', "$1\n", strtoupper($experience->stat_app))) ) !!}</th>                        
+                        <th class="bordered">{{ strtoupper($experience->service) }}</th>
                     </tr>
                 @endforeach
-                @php $workcount = 28 - count($datas['workexperience'] ?? []); @endphp
+
+                @php $workcount = 28 - count($datas['workexperience']); @endphp
+
                 @for($i = 1; $i <= $workcount; $i++)
                     <tr>
-                        <th class="bordered">N/A</th>
-                        <th class="bordered">N/A</th>
-                        <th class="bordered" colspan="3">N/A</th>
-                        <th class="bordered" colspan="3">N/A</th>
-                        <th class="bordered">N/A</th>
-                        <th class="bordered">N/A</th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
                     </tr>
                 @endfor
+
                 <tr>
-                    <td colspan="10" class="vcenter text-red" style="height: 10px !important;">(Continue on separate sheet if necessary)</td>
+                    <td colspan="8" class="vcenter text-red" style="height: 10px !important;">(Continue on separate sheet if necessary)</td>
                 </tr>
                 <tr>
-                    <th class="bordered" colspan="3">SIGNATURE</th>
-                    <td class="bordered" colspan="3"></td>
+                    <th class="bordered" colspan="2">SIGNATURE</th>
+                    <td class="bordered" colspan="2"></td>
                     <th class="bordered" colspan="2">DATE</th>
-                    <th class="bordered" colspan="2">{{ \Carbon\Carbon::now()->format('d/m/Y') }}</th>
+                    <th class="bordered" colspan="2">{{ \Carbon\Carbon::now()->format('m/d/Y') }}</th>
                 </tr>
             </tbody>
         </table>
+        <em style="float: right; font-size: 8px;">CS FORM 212 (Revised 2017),  Page 2 of 4</em>
     </div>
+
     <div class="div">
         <table class="table table2">
             <thead>
                 <tr>
-                    <th colspan="7" class="bg1">VI. VOLUNTARY WORK OR INVOLVEMENT IN CIVIC / NON-GOVERNMENT / PEOPLE / VOLUNTARY ORGANIZATION/S</th>
+                    <th colspan="6" class="bg1">VI. VOLUNTARY WORK OR INVOLVEMENT IN CIVIC / NON-GOVERNMENT / PEOPLE / VOLUNTARY ORGANIZATION/S</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td class="bordered f2 bg2" rowspan="2" width="255">29.<span style="margin-left: 25%;">NAME & ADDRESS OF ORGANIZATION</span><br><span style="margin-left: 45%;">(Write in full)</span></td>
-                    <td class="bordered vcenter f2 bg2" colspan="2" width="100">INCLUSIVE DATES <br> (dd/mm/yyyy)</td>
-                    <td class="bordered vcenter f2 bg2" rowspan="2" width="45">NUMBER OF <br> HOURS</td>
-                    <td class="bordered vcenter f2 bg2" rowspan="2" colspan="3" width="130">POSITION / NATURE OF WORK</td>
+                    <td class="bordered vcenter f2 bg2" colspan="2" width="100">INCLUSIVE DATES <br> (mm/dd/yyyy)</td>
+                    <td class="bordered vcenter f2 bg2" rowspan="2"  width="45">NUMBER OF <br> HOURS</td>
+                    <td class="bordered vcenter f2 bg2" rowspan="2" colspan="2" width="130">POSITION / NATURE OF WORK</td>
                 </tr>
                 <tr>
                     <td class="bordered vcenter f2 bg2" width="38">From</td>
                     <td class="bordered vcenter f2 bg2" width="38">To</td>
                 </tr>
-                @foreach($datas['voluntaryworks'] ?? [] as $voluntary)
+
+                @foreach($datas['voluntaryworks'] as $voluntary)
                     <tr>
-                        <th class="bordered tl">{{ strtoupper($voluntary->org_name ?? 'N/A') }}</th>
-                        <th class="bordered">{{ $voluntary->inc_date1 ? \Carbon\Carbon::parse($voluntary->inc_date1)->format('d/m/Y') : 'N/A' }}</th>
-                        <th class="bordered">{{ $voluntary->inc_date2 ? \Carbon\Carbon::parse($voluntary->inc_date2)->format('d/m/Y') : 'N/A' }}</th>
-                        <th class="bordered">{{ $voluntary->num_hours.' Hrs.' ?? 'N/A' }}</th>
-                        <th class="bordered" colspan="3">{{ strtoupper($voluntary->position ?? 'N/A') }}</th>
+                        <th class="bordered tl">{{ strtoupper($voluntary->org_name) }}</th>
+                        <th class="bordered">{{ ($voluntary->inc_date1) ? \Carbon\Carbon::parse($voluntary->inc_date1)->format('m/d/Y') : '' }}</th>
+                        <th class="bordered">{{ ($voluntary->inc_date2) ? \Carbon\Carbon::parse($voluntary->inc_date2)->format('m/d/Y') : '' }}</th>
+                        <th class="bordered">{{ $voluntary->num_hours.' Hrs.' }}</th>
+                        <th class="bordered" colspan="2">{{ strtoupper($voluntary->position) }}</th>
                     </tr>
                 @endforeach
-                @php $voluntary = 7 - count($datas['voluntaryworks'] ?? []); @endphp
+
+                @php $voluntary = 7 - count($datas['voluntaryworks']); @endphp
+
                 @for($i = 1; $i <= $voluntary; $i++)
                     <tr>
-                        <th class="bordered">N/A</th>
-                        <th class="bordered">N/A</th>
-                        <th class="bordered">N/A</th>
-                        <th class="bordered">N/A</th>
-                        <th class="bordered" colspan="3">N/A</th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
+                        <th class="bordered" colspan="2"></th>
                     </tr>
                 @endfor
+
                 <tr>
-                    <td colspan="7" class="vcenter text-red" style="height: 10px !important;">(Continue on separate sheet if necessary)</td>
+                    <td colspan="6" class="vcenter text-red" style="height: 10px !important;">(Continue on separate sheet if necessary)</td>
                 </tr>
                 <tr>
-                    <th colspan="7" class="bg1 bordered">VII. LEARNING AND DEVELOPMENT (L&D) INTERVENTIONS/TRAINING PROGRAMS ATTENDED<br><span style="font-size: 8px;">(Start from the most recent L&D/training program and include only the relevant L&D/training taken for the last five (5) years for Division Chief/Executive/Managerial positions)</span></th>
+                    <th colspan="6" class="bg1 bordered">VII.  LEARNING AND DEVELOPMENT (L&D) INTERVENTIONS/TRAINING PROGRAMS ATTENDED<br><span style="font-size: 8px;">(Start from the most recent L&D/training program and include only the relevant L&D/training taken for the last five (5) years for Division Chief/Executive/Managerial positions)</span></th>
                 </tr>
                 <tr>
                     <td class="bordered f2 bg2" rowspan="2">30.<span style="margin-left: 2%;">TITLE OF LEARNING AND DEVELOPMENT INTERVENTIONS/TRAINING PROGRAMS</span><br><span style="margin-left: 45%;">(Write in full)</span></td>
-                    <td class="bordered vcenter f2 bg2" colspan="2">INCLUSIVE DATES OF<br> ATTENDANCE<br> (dd/mm/yyyy)</td>
+                    <td class="bordered vcenter f2 bg2" colspan="2">INCLUSIVE DATES OF<br> ATTENDANCE<br> (mm/dd/yyyy)</td>
                     <td class="bordered vcenter f2 bg2" rowspan="2">NUMBER OF <br> HOURS</td>
-                    <td class="bordered vcenter f2 bg2" rowspan="2">Type of L&D <br>( Managerial/ <br>Supervisory/<br>Technical/etc) </td>
-                    <td class="bordered vcenter f2 bg2" rowspan="2" colspan="2">CONDUCTED/ SPONSORED BY <br> (Write in full)</td>
+                    <td class="bordered vcenter f2 bg2" rowspan="2">Type of LD <br>( Managerial/ <br>Supervisory/<br>Technical/etc) </td>
+                    <td class="bordered vcenter f2 bg2" rowspan="2">CONDUCTED/ SPONSORED BY <br> (Write in full)</td>
                 </tr>
                 <tr>
                     <td class="bordered vcenter f2 bg2" width="38">From</td>
                     <td class="bordered vcenter f2 bg2" width="38">To</td>
                 </tr>
-                @foreach($datas['learningdev'] ?? [] as $learning)
+                @foreach($datas['learningdev'] as $learning)
                     <tr>
-                        <th class="bordered tl">{{ strtoupper($learning->learning_dev ?? 'N/A') }}</th>
-                        <th class="bordered">{{ $learning->inc_date1 ? \Carbon\Carbon::parse($learning->inc_date1)->format('d/m/Y') : 'N/A' }}</th>
-                        <th class="bordered">{{ $learning->inc_date2 ? \Carbon\Carbon::parse($learning->inc_date2)->format('d/m/Y') : 'N/A' }}</th>
-                        <th class="bordered">{{ $learning->num_hours.' Hrs.' ?? 'N/A' }}</th>
-                        <th class="bordered">{{ strtoupper($learning->types ?? 'N/A') }}</th>
-                        <th class="bordered" colspan="2">{{ strtoupper($learning->conducted ?? 'N/A') }}</th>
+                        <th class="bordered tl">{{ strtoupper($learning->learning_dev) }}</th>
+                        <th class="bordered">{{ \Carbon\Carbon::parse($learning->inc_date1)->format('m/d/Y') }}</th>
+                        <th class="bordered">{{ \Carbon\Carbon::parse($learning->inc_date2)->format('m/d/Y') }}</th>                        
+                        <th class="bordered">{{ $learning->num_hours.' Hrs.' }}</th>
+                        <th class="bordered">{{ strtoupper($learning->types) }}</th>
+                        <th class="bordered">{{ strtoupper($learning->conducted) }}</th>
                     </tr>
                 @endforeach
-                @php
-                    $current = count($datas['learningdev'] ?? []);
-                    $maxRows = $current > 21 ? 40 : 21;
-                    $learning = max(0, $maxRows - $current);
-                @endphp
 
-                @for ($i = 1; $i <= $learning; $i++)
+                @php $learning = 14 - count($datas['learningdev']); @endphp
+
+                @for($i = 1; $i <= $learning; $i++)
                     <tr>
-                        <th class="bordered">N/A</th>
-                        <th class="bordered">N/A</th>
-                        <th class="bordered">N/A</th>
-                        <th class="bordered">N/A</th>
-                        <th class="bordered">N/A</th>
-                        <th class="bordered" colspan="2">N/A</th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
+                        <th class="bordered"></th>
                     </tr>
                 @endfor
                 <tr>
-                    <td colspan="7" class="vcenter text-red" style="height: 10px !important;">(Continue on separate sheet if necessary)</td>
+                    <td colspan="6" class="vcenter text-red" style="height: 10px !important;">(Continue on separate sheet if necessary)</td>
                 </tr>
             </tbody>
         </table>
         <table class="table table2">
             <thead>
                 <tr>
-                    <th colspan="6" class="bg1 bordered">VIII. OTHER INFORMATION</th>
+                    <th colspan="6" class="bg1 bordered">VIII.  OTHER INFORMATION</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td class="bordered vcenter f2 bg2" colspan="2" width="200">31. <span style="margin-left: 20%;">SPECIAL SKILLS and HOBBIES</span><br><span style="color: #eaeaea;">.</span></td>
-                    <td class="bordered vcenter f2 bg2" colspan="2" width="200">32. <span style="margin-left: 8%;">NON-ACADEMIC DISTINCTIONS / RECOGNITION</span> <br> <span style="margin-left: 42%;">(Write in full)</span></td>
-                    <td class="bordered vcenter f2 bg2" colspan="2" width="2    00">33. <span style="margin-left: 7%;">MEMBERSHIP IN ASSOCIATION/ORGANIZATION</span> <br> <span style="margin-left: 42%;">(Write in full)</span></td>
-                </tr>
+                    <td class="bordered f2 bg2" colspan="2" width="200">31. <span style="margin-left: 20%;">SPECIAL SKILLS and HOBBIES</span><br><span style="color: #eaeaea;">.</span></td>
+                    <td class="bordered f2 bg2" colspan="2" width="200">32. <span style="margin-left: 8%;">NON-ACADEMIC DISTINCTIONS / RECOGNITION</span> <br> <span style="margin-left: 42%;">(Write in full)</span></td>
+                    <td class="bordered f2 bg2" colspan="2" width="200">33. <span style="margin-left: 7%;">MEMBERSHIP IN ASSOCIATION/ORGANIZATION</span> <br> <span style="margin-left: 42%;">(Write in full)</span></td>
+                </tr>    
+
                 <tr>
-                    <th class="bordered tl" colspan="2">{{ isset($otherinfo_skills_hob[0]) ? trim($otherinfo_skills_hob[0]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[0]) ? trim($otherinfo_recognition[0]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[0]) ? trim($otherinfo_mem_org[0]) : 'N/A' }}</th>
-                </tr>
+                    <th class="bordered tl" colspan="2">{{ isset($otherinfo_skills_hob[0]) ? trim($otherinfo_skills_hob[0]) : ''; }}<</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[0]) ? trim($otherinfo_recognition[0]) : ''; }}<</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[0]) ? trim($otherinfo_mem_org[0]) : ''; }}<</th>
+                </tr>    
                 <tr>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[1]) ? trim($otherinfo_skills_hob[1]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[1]) ? trim($otherinfo_recognition[1]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[1]) ? trim($otherinfo_mem_org[1]) : 'N/A' }}</th>
-                </tr>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[1]) ? trim($otherinfo_skills_hob[1]) : ''; }}<</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[1]) ? trim($otherinfo_recognition[1]) : ''; }}<</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[1]) ? trim($otherinfo_mem_org[1]) : ''; }}<</th>
+                </tr>  
                 <tr>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[2]) ? trim($otherinfo_skills_hob[2]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[2]) ? trim($otherinfo_recognition[2]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[2]) ? trim($otherinfo_mem_org[2]) : 'N/A' }}</th>
-                </tr>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[2]) ? trim($otherinfo_skills_hob[2]) : ''; }}<</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[2]) ? trim($otherinfo_recognition[2]) : ''; }}<</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[2]) ? trim($otherinfo_mem_org[2]) : ''; }}<</th>
+                </tr>  
                 <tr>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[3]) ? trim($otherinfo_skills_hob[3]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[3]) ? trim($otherinfo_recognition[3]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[3]) ? trim($otherinfo_mem_org[3]) : 'N/A' }}</th>
-                </tr>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[3]) ? trim($otherinfo_skills_hob[3]) : ''; }}<</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[3]) ? trim($otherinfo_recognition[3]) : ''; }}<</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[3]) ? trim($otherinfo_mem_org[3]) : ''; }}<</th>
+                </tr>  
                 <tr>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[4]) ? trim($otherinfo_skills_hob[4]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[4]) ? trim($otherinfo_recognition[4]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[4]) ? trim($otherinfo_mem_org[4]) : 'N/A' }}</th>
-                </tr>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[4]) ? trim($otherinfo_skills_hob[4]) : ''; }}<</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[4]) ? trim($otherinfo_recognition[4]) : ''; }}<</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[4]) ? trim($otherinfo_mem_org[4]) : ''; }}<</th>
+                </tr>  
                 <tr>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[5]) ? trim($otherinfo_skills_hob[5]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[5]) ? trim($otherinfo_recognition[5]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[5]) ? trim($otherinfo_mem_org[5]) : 'N/A' }}</th>
-                </tr>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[5]) ? trim($otherinfo_skills_hob[5]) : ''; }}<</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[5]) ? trim($otherinfo_recognition[5]) : ''; }}<</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[5]) ? trim($otherinfo_mem_org[5]) : ''; }}<</th>
+                </tr>  
                 <tr>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[6]) ? trim($otherinfo_skills_hob[6]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[6]) ? trim($otherinfo_recognition[6]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[6]) ? trim($otherinfo_mem_org[6]) : 'N/A' }}</th>
-                </tr>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[6]) ? trim($otherinfo_skills_hob[6]) : ''; }}<</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[6]) ? trim($otherinfo_recognition[6]) : ''; }}<</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[6]) ? trim($otherinfo_mem_org[6]) : ''; }}<</th>
+                </tr>  
+
                 <tr>
                     <td colspan="6" class="vcenter text-red" style="height: 10px !important;">(Continue on separate sheet if necessary)</td>
                 </tr>
@@ -815,11 +840,13 @@
                     <th class="bordered bg2" colspan="2">SIGNATURE</th>
                     <td class="bordered"></td>
                     <th class="bordered bg2">DATE</th>
-                    <th class="bordered" colspan="2">{{ \Carbon\Carbon::now()->format('d/m/Y') }}</th>
+                    <th class="bordered" colspan="2">{{ \Carbon\Carbon::now()->format('m/d/Y') }}</th>
                 </tr>
             </tbody>
         </table>
+        <em style="float: right; font-size: 8px;">CS FORM 212 (Revised 2017),  Page 3 of 4</em>
     </div>
+
     <div class="div">
         <table class="table">
             <tbody>
@@ -983,7 +1010,7 @@
         <table class="table">
             <thead>
                 <tr>
-                    <td class="bordered bg2" colspan="3">41. REFERENCES <span style="font-size: 8px !important;">(Person not related by consanguinity or affinity to applicant /appointee)</span></td>
+                    <td class="bordered bg2" colspan="3">41. REFERENCES <span class="text-red" style="font-size: 8px !important;">(Person not related by consanguinity or affinity to applicant /appointee)</span></td>
                     <td rowspan="6" width="27%" style="text-align: center; vertical-align: middle;">
                         <div style="border: 1px solid black; width: 65%; min-height: 150px; padding: 10px; box-sizing: border-box; margin: -18px auto 6px auto; display: block; text-align: center;">
                             <div style="margin-bottom: 10px;">
@@ -1004,8 +1031,8 @@
                 </tr>
                 <tr>
                     <td class="bordered vcenter bg2" width="120">NAME</td>
-                    <td class="bordered vcenter bg2" width="170">OFFICE / RESIDENTIAL ADDRESS</td>
-                    <td class="bordered vcenter bg2">CONTACT NO. <br>AND/OR EMAIL</td>
+                    <td class="bordered vcenter bg2" width="170">ADDRESS</td>
+                    <td class="bordered vcenter bg2">TEL. NO.</td>
                 </tr>
                 <tr>
                     <th class="bordered">{{ (isset($refname[0])) ? $refname[0] : ''}}</th>
@@ -1090,33 +1117,7 @@
                 </tr> 
             </thead>
         </table>
+        <em style="float: right; font-size: 8px;">CS FORM 212 (Revised 2017),  Page 4 of 4</em>
     </div>
 </body>
-<script type="text/php">
-if (isset($pdf)) {
-    $pdf->page_script('
-        // Skip footer on the last page
-        if ($PAGE_NUM == $PAGE_COUNT) {
-            return;
-        }
-
-        // Italic font
-        $font = $fontMetrics->get_font("DejaVu Sans", "italic");
-        $size = 6;
-        $color = array(0, 0, 0);
-
-        // Total pages excluding last page
-        $total_pages = $PAGE_COUNT - 1;
-
-        $footer_text = "CS FORM 212 (Revised 2025), Page " . $PAGE_NUM . " of " . $total_pages;
-
-        // Right-aligned position
-        $text_width = $fontMetrics->get_text_width($footer_text, $font, $size);
-        $x = $pdf->get_width() - $text_width - 40;
-        $y = $pdf->get_height() - 25;
-
-        $pdf->text($x, $y, $footer_text, $font, $size, $color);
-    ');
-}
-</script>
 </html>

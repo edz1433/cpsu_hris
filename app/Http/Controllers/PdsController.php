@@ -207,12 +207,15 @@ class PdsController extends Controller
 
        $customPaper = array(0, 0, 612, 990);
         $pdf = \PDF::loadView('emp.generate-pds', compact('datas'))->setPaper($customPaper, 'portrait');
-
-        $pdf->setOption('margin-top', 0);
-        $pdf->setOption('margin-right', 0);
-        $pdf->setOption('margin-bottom', 0);
-        $pdf->setOption('margin-left', 0);
-
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'enable_php' => true,
+            'margin-top' => 0,
+            'margin-right' => 0,
+            'margin-bottom' => 0,
+            'margin-left' => 0,
+        ]);
         $pdf->setCallbacks([
             'before_render' => function ($domPdf) {
                 $domPdf->getCanvas()->page_text(10, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, array(0, 0, 0));

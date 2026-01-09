@@ -75,6 +75,27 @@
                         <div class="form-group">
                             <div class="form-row">
                                 <div class="col-md-12">
+                                    <label for="exampleInputName">OIC</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="far fa-user"></i>
+                                            </span>
+                                        </div>
+                                        <select class="form-control select2" name="oic_id">
+                                            <option value=""> --- Select Employee --- </option>
+                                            @foreach($employee as $emp)
+                                                <option value="{{ $emp->id }}" @if($current_route == 'officeEdit') @if($emp->id == $offEdit->oic_id) selected @endif @endif>{{ $emp->emp_ID }} - {{ $emp->lname }} {{ $emp->fname }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> 
+
+                        <div class="form-group">
+                            <div class="form-row">
+                                <div class="col-md-12">
                                     <button type="submit" name="btn-submit" class="btn btn-success btn-sm">
                                         <i class="fas fa-save"></i> Save
                                     </button>
@@ -107,6 +128,7 @@
                                     <th>Office</th>
                                     <th>Abbreviation</th>
                                     <th>Office Head</th>
+                                    <th>OIC</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -121,6 +143,7 @@
                                         <td>{{ $office->office_name }}</td>
                                         <td>{{ $office->office_abbr }}</td>
                                         <td>{{ $office->efname }} {{ $office->elname }}</td>
+                                        <td>{{ $office->ofname }} {{ $office->olname }}</td>
                                         <td>
                                             <a href="{{ route('officeEdit', $office->id) }}" class="btn btn-info btn-xs">
                                                 <i class="fas fa-exclamation-circle"></i>

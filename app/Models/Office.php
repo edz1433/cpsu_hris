@@ -12,7 +12,7 @@ class Office extends Model
     protected $connection = 'payroll';
     protected $table = 'offices';
 
-    protected $fillable = ['office_name', 'office_abbr', 'office_head_id', 'group_by'];
+    protected $fillable = ['office_name', 'office_abbr', 'office_head_id', 'oic_id', 'group_by'];
 
     /**
      * Get modified office_abbr with special rules.

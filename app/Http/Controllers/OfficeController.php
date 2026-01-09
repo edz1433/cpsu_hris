@@ -21,7 +21,8 @@ class OfficeController extends Controller
     public function officeList() {
         $guard = $this->getGuaard();
         $office = Office::leftJoin('dbcpsuhris.employees', 'offices.office_head_id', '=', 'dbcpsuhris.employees.id')
-        ->get(['offices.*', 'dbcpsuhris.employees.fname as efname', 'dbcpsuhris.employees.lname as elname']);    
+                ->leftJoin('dbcpsuhris.employees as oic', 'offices.oic_id', '=', 'oic.id')
+                ->get(['offices.*', 'dbcpsuhris.employees.fname as efname', 'dbcpsuhris.employees.lname as elname' , 'oic.fname as ofname', 'oic.lname as olname']);      
         
         $employee = Employee::all()->where('emp_status', 1);
         
@@ -34,6 +35,7 @@ class OfficeController extends Controller
             'OfficeName'=>'required',
             'OfficeAbbreviation'=>'required',
             'office_head_id'=>'nullable',
+            'oic_id'=>'nullable',
             'GroupBy'=>'nullable',
         ]);
 
@@ -52,6 +54,7 @@ class OfficeController extends Controller
                     'office_name'=>$request->input('OfficeName'),
                     'office_abbr'=>$request->input('OfficeAbbreviation'),
                     'office_head_id'=>$request->input('office_head_id'),
+                    'oic_id'=>$request->input('oic_id'),
                     'group_by'=> '0',
                 ]);
                 
@@ -64,8 +67,9 @@ class OfficeController extends Controller
     {
         $guard = $this->getGuaard();
         $employee = Employee::all()->where('emp_status', 1);
-        $office = Office::leftJoin('dbcpsupms.employees', 'offices.office_head_id', '=', 'dbcpsupms.employees.id')
-        ->get(['offices.*', 'dbcpsupms.employees.fname as efname', 'dbcpsupms.employees.lname as elname']);    
+        $office = Office::leftJoin('dbcpsuhris.employees', 'offices.office_head_id', '=', 'dbcpsuhris.employees.id')
+                ->leftJoin('dbcpsuhris.employees as oic', 'offices.oic_id', '=', 'oic.id')
+                ->get(['offices.*', 'dbcpsuhris.employees.fname as efname', 'dbcpsuhris.employees.lname as elname', 'oic.fname as ofname', 'oic.lname as olname']);         
 
         $offEdit = Office::find($id);
 
@@ -77,6 +81,7 @@ class OfficeController extends Controller
             'OfficeName'=>'required',
             'OfficeAbbreviation'=>'required',
             'office_head_id'=> 'required',
+            'oic_id' => 'nullable',
             'GroupBy' => 'nullable',
         ]);
 
@@ -95,6 +100,7 @@ class OfficeController extends Controller
                     'office_name'=>$request->input('OfficeName'),
                     'office_abbr'=>$request->input('OfficeAbbreviation'),
                     'office_head_id'=>$request->input('office_head_id'),
+                    'oic_id'=>$request->input('oic_id'),
                     'group_by'=>'0',
                 ];
                 DB::table('dbcpsupms.offices')->where('id', $request->oid)->update($update);
