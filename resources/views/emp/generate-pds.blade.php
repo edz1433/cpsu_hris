@@ -833,7 +833,7 @@
                     <td class="bordered h-1 bg2" width="65%">
                         <span>34. Are you related by consanguinity or affinity to the appointing or recommending authority, or to the</span>,<br>
                         <span class="p4-ml">chief of bureau or office or to the person who has immediate supervision over you in the Office,</span><br>
-                        <span class="p4-ml">Bureau or Department where you will be apppointed,</span><br>
+                        <span class="p4-ml">Bureau or Department where you will be appointed,</span><br>
                         <span class="p4-ml">a. within the third degree?</span><br>
                         <span class="p4-ml">b. within the fourth degree (for Local Government Unit - Career Employees)?</span>
                     </td>
