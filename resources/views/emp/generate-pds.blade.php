@@ -739,7 +739,7 @@
                         <th class="bordered">{{ strtoupper($learning->types ?? 'N/A') }}</th>
                         @php
                             $text = strtoupper($learning->conducted ?? 'N/A');
-                            $fontSize = strlen($text) > 40 ? '6px' : '12px';
+                            $fontSize = strlen($text) > 40 ? '6px' : '8px';
                         @endphp
                         <th class="bordered" colspan="2" style="font-size: {{ $fontSize }};">
                             {{ $text }}
