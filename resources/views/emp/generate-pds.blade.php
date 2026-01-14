@@ -739,7 +739,7 @@
                         <th class="bordered">{{ strtoupper($learning->types ?? 'N/A') }}</th>
                         @php
                             $text = strtoupper($learning->conducted ?? 'N/A');
-                            $fontSize = strlen($text) > 40 ? '6px' : '8px';
+                            $fontSize = strlen($text) > 40 ? '6px' : '';
                         @endphp
                         <th class="bordered" colspan="2" style="font-size: {{ $fontSize }};">
                             {{ $text }}
@@ -777,42 +777,42 @@
                 <tr>
                     <td class="bordered vcenter f2 bg2" colspan="2" width="200">31. <span style="margin-left: 20%;">SPECIAL SKILLS and HOBBIES</span><br><span style="color: #eaeaea;">.</span></td>
                     <td class="bordered vcenter f2 bg2" colspan="2" width="200">32. <span style="margin-left: 8%;">NON-ACADEMIC DISTINCTIONS / RECOGNITION</span> <br> <span style="margin-left: 42%;">(Write in full)</span></td>
-                    <td class="bordered vcenter f2 bg2" colspan="2" width="2    00">33. <span style="margin-left: 7%;">MEMBERSHIP IN ASSOCIATION/ORGANIZATION</span> <br> <span style="margin-left: 42%;">(Write in full)</span></td>
+                    <td class="bordered vcenter f2 bg2" colspan="2" width="200">33. <span style="margin-left: 7%;">MEMBERSHIP IN ASSOCIATION/ORGANIZATION</span> <br> <span style="margin-left: 42%;">(Write in full)</span></td>
                 </tr>
                 <tr>
-                    <th class="bordered tl" colspan="2">{{ isset($otherinfo_skills_hob[0]) ? trim($otherinfo_skills_hob[0]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[0]) ? trim($otherinfo_recognition[0]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[0]) ? trim($otherinfo_mem_org[0]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[0]) && trim($otherinfo_skills_hob[0]) !== '' ? trim($otherinfo_skills_hob[0]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[0]) && trim($otherinfo_recognition[0]) !== '' ? trim($otherinfo_recognition[0]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[0]) && trim($otherinfo_mem_org[0]) !== '' ? trim($otherinfo_mem_org[0]) : 'N/A' }}</th>
                 </tr>
                 <tr>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[1]) ? trim($otherinfo_skills_hob[1]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[1]) ? trim($otherinfo_recognition[1]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[1]) ? trim($otherinfo_mem_org[1]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[1]) && trim($otherinfo_skills_hob[1]) !== '' ? trim($otherinfo_skills_hob[1]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[1]) && trim($otherinfo_recognition[1]) !== '' ? trim($otherinfo_recognition[1]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[1]) && trim($otherinfo_mem_org[1]) !== '' ? trim($otherinfo_mem_org[1]) : 'N/A' }}</th>
                 </tr>
                 <tr>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[2]) ? trim($otherinfo_skills_hob[2]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[2]) ? trim($otherinfo_recognition[2]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[2]) ? trim($otherinfo_mem_org[2]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[2]) && trim($otherinfo_skills_hob[2]) !== '' ? trim($otherinfo_skills_hob[2]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[2]) && trim($otherinfo_recognition[2]) !== '' ? trim($otherinfo_recognition[2]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[2]) && trim($otherinfo_mem_org[2]) !== '' ? trim($otherinfo_mem_org[2]) : 'N/A' }}</th>
                 </tr>
                 <tr>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[3]) ? trim($otherinfo_skills_hob[3]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[3]) ? trim($otherinfo_recognition[3]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[3]) ? trim($otherinfo_mem_org[3]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[3]) && trim($otherinfo_skills_hob[3]) !== '' ? trim($otherinfo_skills_hob[3]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[3]) && trim($otherinfo_recognition[3]) !== '' ? trim($otherinfo_recognition[3]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[3]) && trim($otherinfo_mem_org[3]) !== '' ? trim($otherinfo_mem_org[3]) : 'N/A' }}</th>
                 </tr>
                 <tr>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[4]) ? trim($otherinfo_skills_hob[4]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[4]) ? trim($otherinfo_recognition[4]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[4]) ? trim($otherinfo_mem_org[4]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[4]) && trim($otherinfo_skills_hob[4]) !== '' ? trim($otherinfo_skills_hob[4]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[4]) && trim($otherinfo_recognition[4]) !== '' ? trim($otherinfo_recognition[4]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[4]) && trim($otherinfo_mem_org[4]) !== '' ? trim($otherinfo_mem_org[4]) : 'N/A' }}</th>
                 </tr>
                 <tr>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[5]) ? trim($otherinfo_skills_hob[5]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[5]) ? trim($otherinfo_recognition[5]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[5]) ? trim($otherinfo_mem_org[5]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[5]) && trim($otherinfo_skills_hob[5]) !== '' ? trim($otherinfo_skills_hob[5]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[5]) && trim($otherinfo_recognition[5]) !== '' ? trim($otherinfo_recognition[5]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[5]) && trim($otherinfo_mem_org[5]) !== '' ? trim($otherinfo_mem_org[5]) : 'N/A' }}</th>
                 </tr>
                 <tr>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[6]) ? trim($otherinfo_skills_hob[6]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[6]) ? trim($otherinfo_recognition[6]) : 'N/A' }}</th>
-                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[6]) ? trim($otherinfo_mem_org[6]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_skills_hob[6]) && trim($otherinfo_skills_hob[6]) !== '' ? trim($otherinfo_skills_hob[6]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_recognition[6]) && trim($otherinfo_recognition[6]) !== '' ? trim($otherinfo_recognition[6]) : 'N/A' }}</th>
+                    <th class="bordered" colspan="2">{{ isset($otherinfo_mem_org[6]) && trim($otherinfo_mem_org[6]) !== '' ? trim($otherinfo_mem_org[6]) : 'N/A' }}</th>
                 </tr>
                 <tr>
                     <td colspan="6" class="vcenter text-red" style="height: 10px !important;">(Continue on separate sheet if necessary)</td>
