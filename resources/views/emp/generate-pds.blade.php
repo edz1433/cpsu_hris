@@ -992,16 +992,11 @@
                     <td class="bordered bg2" colspan="3">41. REFERENCES <span style="font-size: 8px !important;">(Person not related by consanguinity or affinity to applicant /appointee)</span></td>
                     <td rowspan="6" width="27%" style="text-align: center; vertical-align: middle;">
                         <div style="border: 1px solid black; width: 65%; min-height: 150px; padding: 10px; box-sizing: border-box; margin: -18px auto 6px auto; display: block; text-align: center;">
-                            <div style="margin-bottom: 10px;">
-                                <span>ID picture taken within</span><br>
-                                <span>the last 6 months</span><br>
-                                <span>4.5 cm. X 3.5 cm</span><br>
-                                <span>(passport size)</span>
-                            </div>
-                            <div>
-                                <span>Computer generated</span><br>
-                                <span>or photocopied picture</span><br>
-                                <span>is not acceptable</span>
+                            <div style="margin-top: 55px;">
+                                <span>Passport-sized unfiltered</span><br>
+                                <span>digital picture taken within</span><br>
+                                <span>the last  6 months</span><br>
+                                <span>4.5 cm. X 3.5 cm</span>
                             </div>
                         </div>
                         
