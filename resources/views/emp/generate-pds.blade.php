@@ -737,12 +737,18 @@
                         <th class="bordered">{{ $learning->inc_date2 ? \Carbon\Carbon::parse($learning->inc_date2)->format('d/m/Y') : 'N/A' }}</th>
                         <th class="bordered">{{ $learning->num_hours.' Hrs.' ?? 'N/A' }}</th>
                         <th class="bordered">{{ strtoupper($learning->types ?? 'N/A') }}</th>
-                        <th class="bordered" colspan="2">{{ strtoupper($learning->conducted ?? 'N/A') }}</th>
+                        @php
+                            $text = strtoupper($learning->conducted ?? 'N/A');
+                            $fontSize = strlen($text) > 40 ? '6px' : '12px';
+                        @endphp
+                        <th class="bordered" colspan="2" style="font-size: {{ $fontSize }};">
+                            {{ $text }}
+                        </th>
                     </tr>
                 @endforeach
                 @php
                     $current = count($datas['learningdev'] ?? []);
-                    $maxRows = $current > 21 ? 40 : 21;
+                    $maxRows = $current > 19 ? 40 : 19;
                     $learning = max(0, $maxRows - $current);
                 @endphp
 
