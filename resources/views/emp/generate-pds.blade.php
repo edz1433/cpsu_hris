@@ -463,33 +463,33 @@
                 </tr>
                 <tr>
                     <td class="bordered pl1 bg2">ELEMENTARY</td>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->elem_school ?? 'N/A') }}</th>
-                    <th class="bordered vcenter" colspan="2">{{ isset($datas['educBg']->elem_school) ? 'PRIMARY EDUCATION' : 'N/A'}}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->elem_period)[0]) ? strtoupper(explode('-', $datas['educBg']->elem_period)[0]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->elem_period)[1]) ? strtoupper(explode('-', $datas['educBg']->elem_period)[1]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->elem_level ?? 'N/A') }}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->elem_grad)[0]) ? strtoupper(explode('-', $datas['educBg']->elem_grad)[0]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->elem_honor ?? 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim($datas['educBg']->elem_school ?? '') ?: 'N/A') }}</th>
+                    <th class="bordered vcenter" colspan="2">{{ trim($datas['educBg']->elem_school ?? '') ? 'PRIMARY EDUCATION' : 'N/A' }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim(explode('-', trim($datas['educBg']->elem_period ?? ''))[0] ?? '') ?: 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim(explode('-', trim($datas['educBg']->elem_period ?? ''))[1] ?? '') ?: 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim($datas['educBg']->elem_level ?? '') ?: 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim($datas['educBg']->elem_grad ?? '') ?: 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim($datas['educBg']->elem_honor ?? '') ?: 'N/A') }}</th>
                 </tr>
                 <tr>
                     <td class="bordered pl1 bg2">SECONDARY</td>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->sec_school ?? 'N/A') }}</th>
-                    <th class="bordered vcenter" colspan="2">{{ isset($datas['educBg']->sec_school) ? 'SECONDARY EDUCATION' : 'N/A'}}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->sec_period)[0]) ? strtoupper(explode('-', $datas['educBg']->sec_period)[0]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->sec_period)[1]) ? strtoupper(explode('-', $datas['educBg']->sec_period)[1]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->sec_level ?? 'N/A') }}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->sec_grad)[0]) ? strtoupper(explode('-', $datas['educBg']->sec_grad)[0]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->sec_honor ?? 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim($datas['educBg']->sec_school ?? '') ?: 'N/A') }}</th>
+                    <th class="bordered vcenter" colspan="2">{{ trim($datas['educBg']->sec_school ?? '') ? 'SECONDARY EDUCATION' : 'N/A' }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim(explode('-', trim($datas['educBg']->sec_period ?? ''))[0] ?? '') ?: 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim(explode('-', trim($datas['educBg']->sec_period ?? ''))[1] ?? '') ?: 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim($datas['educBg']->sec_level ?? '') ?: 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim($datas['educBg']->sec_grad ?? '') ?: 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim($datas['educBg']->sec_honor ?? '') ?: 'N/A') }}</th>
                 </tr>
                 <tr>
                     <td class="bordered pl1 bg2">VOCATIONAL / TRADE COURSE</td>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->voc_school ?? 'N/A') }}</th>
-                    <th class="bordered vcenter" colspan="2">{{ strtoupper($datas['educBg']->voc_course ?? 'N/A') }}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->voc_period)[0]) ? strtoupper(explode('-', $datas['educBg']->voc_period)[0]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->voc_period)[1]) ? strtoupper(explode('-', $datas['educBg']->voc_period)[1]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->voc_level ?? 'N/A') }}</th>
-                    <th class="bordered vcenter">{{ isset(explode('-', $datas['educBg']->voc_grad)[0]) ? strtoupper(explode('-', $datas['educBg']->voc_grad)[0]) : 'N/A' }}</th>
-                    <th class="bordered vcenter">{{ strtoupper($datas['educBg']->voc_honor ?? 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim($datas['educBg']->voc_school ?? '') ?: 'N/A') }}</th>
+                    <th class="bordered vcenter" colspan="2">{{ strtoupper(trim($datas['educBg']->voc_course ?? '') ?: 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim(explode('-', trim($datas['educBg']->voc_period ?? ''))[0] ?? '') ?: 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim(explode('-', trim($datas['educBg']->voc_period ?? ''))[1] ?? '') ?: 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim($datas['educBg']->voc_level ?? '') ?: 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim($datas['educBg']->voc_grad ?? '') ?: 'N/A') }}</th>
+                    <th class="bordered vcenter">{{ strtoupper(trim($datas['educBg']->voc_honor ?? '') ?: 'N/A') }}</th>
                 </tr>
                 @if ($datas['educBg'])
                 @php
@@ -507,39 +507,39 @@
                     $gradGrads = explode(',', $datas['educBg']->grad_grad ?? '');
                     $gradHonors = explode(',', $datas['educBg']->grad_honor ?? '');
                     $maxGradRows = max(count($gradSchools), count($gradCourses), count($gradPeriods), count($gradLevels), count($gradGrads), count($gradHonors));
-           
+        
                 @endphp
-           
+        
                     @for ($i = 0; $i < $maxRows; $i++)
                     <tr>
                         <td class="bordered pl1 bg2">COLLEGE</td>
-                        <th class="bordered vcenter">{{ strtoupper($schools[$i] ?? 'N/A') }}</th>
-                        <th class="bordered vcenter" colspan="2">{{ strtoupper($courses[$i] ?? 'N/A') }}</th>
+                        <th class="bordered vcenter">{{ strtoupper(trim($schools[$i] ?? '') ?: 'N/A') }}</th>
+                        <th class="bordered vcenter" colspan="2">{{ strtoupper(trim($courses[$i] ?? '') ?: 'N/A') }}</th>
                         <th class="bordered vcenter">
-                            {{ isset(explode('-', $periods[$i] ?? '')[0]) ? strtoupper(explode('-', $periods[$i])[0]) : 'N/A' }}
+                            {{ strtoupper(trim(explode('-', trim($periods[$i] ?? ''))[0] ?? '') ?: 'N/A') }}
                         </th>
                         <th class="bordered vcenter">
-                            {{ isset(explode('-', $periods[$i] ?? '')[1]) ? strtoupper(explode('-', $periods[$i])[1]) : 'N/A' }}
+                            {{ strtoupper(trim(explode('-', trim($periods[$i] ?? ''))[1] ?? '') ?: 'N/A') }}
                         </th>
-                        <th class="bordered vcenter">{{ strtoupper($levels[$i] ?? 'N/A') }}</th>
-                        <th class="bordered vcenter">{{ strtoupper($grads[$i] ?? 'N/A') }}</th>
-                        <th class="bordered vcenter">{{ strtoupper($honors[$i] ?? 'N/A') }}</th>
+                        <th class="bordered vcenter">{{ strtoupper(trim($levels[$i] ?? '') ?: 'N/A') }}</th>
+                        <th class="bordered vcenter">{{ strtoupper(trim($grads[$i] ?? '') ?: 'N/A') }}</th>
+                        <th class="bordered vcenter">{{ strtoupper(trim($honors[$i] ?? '') ?: 'N/A') }}</th>
                     </tr>
                     @endfor
                     @for ($i = 0; $i < $maxGradRows; $i++)
                         <tr>
                             <td class="bordered pl1 bg2">GRADUATE STUDIES</td>
-                            <th class="bordered vcenter">{{ strtoupper($gradSchools[$i] ?? 'N/A') }}</th>
-                            <th class="bordered vcenter" colspan="2">{{ strtoupper($gradCourses[$i] ?? 'N/A') }}</th>
+                            <th class="bordered vcenter">{{ strtoupper(trim($gradSchools[$i] ?? '') ?: 'N/A') }}</th>
+                            <th class="bordered vcenter" colspan="2">{{ strtoupper(trim($gradCourses[$i] ?? '') ?: 'N/A') }}</th>
                             <th class="bordered vcenter">
-                                {{ isset(explode('-', $gradPeriods[$i] ?? '')[0]) ? strtoupper(explode('-', $gradPeriods[$i])[0]) : 'N/A' }}
+                                {{ strtoupper(trim(explode('-', trim($gradPeriods[$i] ?? ''))[0] ?? '') ?: 'N/A') }}
                             </th>
                             <th class="bordered vcenter">
-                                {{ isset(explode('-', $gradPeriods[$i] ?? '')[1]) ? strtoupper(explode('-', $gradPeriods[$i])[1]) : 'N/A' }}
+                                {{ strtoupper(trim(explode('-', trim($gradPeriods[$i] ?? ''))[1] ?? '') ?: 'N/A') }}
                             </th>
-                            <th class="bordered vcenter">{{ strtoupper($gradLevels[$i] ?? 'N/A') }}</th>
-                            <th class="bordered vcenter">{{ strtoupper($gradGrads[$i] ?? 'N/A') }}</th>
-                            <th class="bordered vcenter">{{ strtoupper($gradHonors[$i] ?? 'N/A') }}</th>
+                            <th class="bordered vcenter">{{ strtoupper(trim($gradLevels[$i] ?? '') ?: 'N/A') }}</th>
+                            <th class="bordered vcenter">{{ strtoupper(trim($gradGrads[$i] ?? '') ?: 'N/A') }}</th>
+                            <th class="bordered vcenter">{{ strtoupper(trim($gradHonors[$i] ?? '') ?: 'N/A') }}</th>
                         </tr>
                     @endfor
                 @else
@@ -564,7 +564,7 @@
                         <th class="bordered vcenter">N/A</th>
                     </tr>
                 @endif
-               
+            
                 <tr>
                     <td colspan="9" class="vcenter text-red" style="height: 5px !important;">(Continue on separate sheet if necessary)</td>
                 </tr>
