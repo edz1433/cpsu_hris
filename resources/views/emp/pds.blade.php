@@ -275,7 +275,7 @@
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label class="badge badge-secondary lbel">SSS</label><br>
+                                    <label class="badge badge-secondary lbel">UMID ID NO.</label><br>
                                     <input type="text" name="sss" id="sss" value="{{ $employee->sss }}" data-column-id="{{ $empid }}" data-column-name="sss" class="form-control form-control-sm update-field" placeholder="N/A">
                                 </div>
 
