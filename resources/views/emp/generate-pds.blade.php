@@ -414,7 +414,7 @@
                 </tr>
                 <tr>
                     <td class="pl2 bt bg2" width="100" style="font-size: 8.8px !important;">25. MOTHER'S MAIDEN NAME</td>
-                    <th colspan="3" class="bordered pl1 tl">{{ str_replace('ñ', 'Ñ', mb_strtoupper($datas['familyBg']->mother_sname ?? 'N/A')) }}</th>
+                    <th colspan="3" class="bordered pl1 tl">{{ strtoupper($datas['employee']->mname ?? 'N/A') }}</th>
                     <th colspan="3" class="bordered">{{ isset($children_array[9]) ? strtoupper(trim($children_array[9])) : 'N/A' }}</th>
                     <th colspan="2" class="bordered">{{ isset($children_bday[9]) && !empty($children_bday[9]) ? \Carbon\Carbon::parse(trim($children_bday[9]))->format('d/m/Y') : 'N/A' }}</th>
                 </tr>
