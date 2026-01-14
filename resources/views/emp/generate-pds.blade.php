@@ -304,7 +304,7 @@
                 </tr>
                 <tr>
                     <td class="bordered pl2 bg2">11. PAG-IBIG ID NO.</td>
-                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->pagibig ?? 'N/A' }}</th>
+                    <th class="bordered pl2" colspan="2">{{ $datas['employee']->sss ?? 'N/A' }}</th>
                     <td class="bordered pl2" colspan="5">
                         <div class="address-column">
                             <b>{{ isset($datas['city1']->name) ? strtoupper($datas['city1']->name) : 'N/A' }}</b><br>City/Municipality
