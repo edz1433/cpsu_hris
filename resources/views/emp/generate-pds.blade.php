@@ -12,7 +12,8 @@
         }
        
         .table{
-            width: 100% !important;
+            width: 107.5% !important;
+            margin-left: -25px !important;
             background-color: transparent;
             border: 1px solid black;
             border-collapse: collapse;
