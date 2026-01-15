@@ -1115,7 +1115,7 @@ if (isset($pdf)) {
         // Right-aligned position
         $text_width = $fontMetrics->get_text_width($footer_text, $font, $size);
         $x = $pdf->get_width() - $text_width - 40;
-        $y = $pdf->get_height() - 25;
+        $y = $pdf->get_height() - 45;
 
         $pdf->text($x, $y, $footer_text, $font, $size, $color);
     ');
