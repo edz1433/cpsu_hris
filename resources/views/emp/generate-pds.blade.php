@@ -1097,28 +1097,29 @@
 <script type="text/php">
 if (isset($pdf)) {
     $pdf->page_script('
-        // Skip footer on the last page
         if ($PAGE_NUM == $PAGE_COUNT) {
             return;
         }
 
-        // Italic font
         $font = $fontMetrics->get_font("DejaVu Sans", "italic");
         $size = 6;
         $color = array(0, 0, 0);
 
-        // Total pages excluding last page
         $total_pages = $PAGE_COUNT - 1;
 
         $footer_text = "CS FORM 212 (Revised 2025), Page " . $PAGE_NUM . " of " . $total_pages;
 
-        // Right-aligned position
         $text_width = $fontMetrics->get_text_width($footer_text, $font, $size);
-        $x = $pdf->get_width() - $text_width - 40;
+
+        // MOVE LEFT (away from page edge)
+        $x = $pdf->get_width() - $text_width - 14;
+
+        // Keep vertical position
         $y = $pdf->get_height() - 45;
 
         $pdf->text($x, $y, $footer_text, $font, $size, $color);
     ');
 }
 </script>
+
 </html>
