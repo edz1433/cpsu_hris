@@ -101,12 +101,12 @@
             color: red;
         }
         .h-1{
-            height: 100px !important;
+            height: 140px !important;
             font-size: 10px;
             vertical-align: top;
         }
         .h-2{
-            height: 54px !important;
+            height: 66px !important;
             font-size: 10px;
             vertical-align: top;
         }
@@ -130,6 +130,9 @@
         }
         .hide{
             display: none;
+        }
+        .pb-1{
+            padding-bottom: 15px !important;
         }
     </style>
 </head>
@@ -832,7 +835,7 @@
             <tbody>
                 <tr>
                     <td class="bordered h-1 bg2" width="65%">
-                        <span>34. Are you related by consanguinity or affinity to the appointing or recommending authority, or to the</span>,<br>
+                        <span class="pb-1">34. Are you related by consanguinity or affinity to the appointing or recommending authority, or to the</span>,<br>
                         <span class="p4-ml">chief of bureau or office or to the person who has immediate supervision over you in the Office,</span><br>
                         <span class="p4-ml">Bureau or Department where you will be appointed,</span><br>
                         <span class="p4-ml">a. within the third degree?</span><br>
@@ -1084,7 +1087,7 @@
                             <div style="height: 80%; border-bottom: 1px solid black; padding: 2px; color: #FFFF;">
                                 .
                             </div>
-                            <div class="bg2" style="height: 17.7px">
+                            <div class="bg2" style="height: 10.7px; font-size: 9px; ">
                                 Person Administering Oath
                             </div> 
                         </div>                        
