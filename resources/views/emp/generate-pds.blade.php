@@ -1118,7 +1118,7 @@ if (isset($pdf)) {
         $x = $pdf->get_width() - $text_width - 14;
 
         // Keep vertical position
-        $y = $pdf->get_height() - 45;
+        $y = $pdf->get_height() - 60;
 
         $pdf->text($x, $y, $footer_text, $font, $size, $color);
     ');
