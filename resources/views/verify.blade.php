@@ -74,7 +74,7 @@
                     <span class="text-light">Verify Your Email</span>
                 </p>
 
-                <p class="text-light text-center" style="font-size: 12px;">
+                <p class="text-light text-center" style="font-size: 16px;">
                     A 6-digit verification code has been sent to your email.
                 </p>
 
@@ -93,11 +93,11 @@
                         <input type="text" class="otp-input" maxlength="1" inputmode="numeric">
                     </div>
 
-                    <div class="form-group mt-4">
+                    <!-- <div class="form-group mt-4">
                         <button type="submit" class="btn btn-warn btn-block w-100">
                             <i class="fas fa-check-circle"></i> Verify
                         </button>
-                    </div>
+                    </div> -->
                 </form>
 
             </div>
@@ -108,56 +108,58 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
-        $(document).ready(function () {
+    $(document).ready(function () {
 
-            const inputs = $(".otp-input");
+        const inputs = $(".otp-input");
+        let submitted = false;
 
-            inputs.first().focus();
+        inputs.first().focus();
 
-            // Handle manual typing
-            inputs.on("input", function () {
-                this.value = this.value.replace(/[^0-9]/g, '');
-                if (this.value && $(this).next('.otp-input').length) {
-                    $(this).next('.otp-input').focus();
-                }
-                updateCode();
-            });
-
-            // Handle backspace
-            inputs.on("keydown", function (e) {
-                if (e.key === "Backspace" && !this.value && $(this).prev('.otp-input').length) {
-                    $(this).prev('.otp-input').focus();
-                }
-            });
-
-            // Handle paste
-            inputs.on("paste", function (e) {
-                e.preventDefault();
-                const pasteData = (e.originalEvent.clipboardData || window.clipboardData).getData('text');
-                const digits = pasteData.replace(/\D/g, '').split('');
-                inputs.each(function (index) {
-                    $(this).val(digits[index] || '');
-                });
-                updateCode();
-            });
-
-            function updateCode() {
-                let code = "";
-                inputs.each(function () {
-                    code += $(this).val();
-                });
-                $("#verification_code").val(code);
-                if (code.length === 6) {
-                    $("#otpForm").submit();
-                }
+        inputs.on("input", function () {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value && $(this).next('.otp-input').length) {
+                $(this).next('.otp-input').focus();
             }
-
-            // Redirect if email is missing
-            if (!$('#email').val()) {
-                window.location.href = "{{ route('getLogin') }}";
-            }
-
+            updateCode();
         });
+
+        inputs.on("keydown", function (e) {
+            if (e.key === "Backspace" && !this.value && $(this).prev('.otp-input').length) {
+                $(this).prev('.otp-input').focus();
+            }
+        });
+
+        inputs.on("paste", function (e) {
+            e.preventDefault();
+            const pasteData = (e.originalEvent.clipboardData || window.clipboardData).getData('text');
+            const digits = pasteData.replace(/\D/g, '').split('');
+            inputs.each(function (index) {
+                $(this).val(digits[index] || '');
+            });
+            updateCode();
+        });
+
+        function updateCode() {
+            let code = "";
+            inputs.each(function () {
+                code += $(this).val();
+            });
+
+            $("#verification_code").val(code);
+
+            if (code.length === 6 && !submitted) {
+                submitted = true;
+                inputs.prop('disabled', true);
+                $("#otpForm").submit();
+            }
+        }
+
+        if (!$('#email').val()) {
+            window.location.href = "{{ route('getLogin') }}";
+        }
+
+    });
     </script>
+
 </body>
 </html>
