@@ -357,11 +357,11 @@
         </div>
         <div>
             <span class="font"><b>@if(isset($supervisor))
-                @if(in_array($supervisor->prefix, ['Dr.', 'Eng.']))
+                @if(in_array($supervisor->prefix, ['Dr.', 'Engr.']))
                     {{ strtoupper(ucwords($supervisor->prefix)) }}
                 @endif
                 {{ strtoupper(ucwords($supervisor->fname)) }} {{ strtoupper(substr($supervisor->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($supervisor->lname)) }}{{ ($supervisor->suffix) ? ', '.$supervisor->suffix : ''}}
-                @if(!in_array($supervisor->prefix, ['Dr.', 'Eng.']))
+                @if(!in_array($supervisor->prefix, ['Dr.', 'Engr.']))
                     {{ ', '.strtoupper(ucwords($supervisor->prefix)) }}
                 @endif
                 @endif
@@ -517,11 +517,11 @@
         <div>
             <span class="font">
             <b>@if(isset($supervisor))
-                @if(in_array($supervisor->prefix, ['Dr.', 'Eng.']))
+                @if(in_array($supervisor->prefix, ['Dr.', 'Engr.']))
                     {{ strtoupper(ucwords($supervisor->prefix)) }}
                 @endif
                 {{ strtoupper(ucwords($supervisor->fname)) }} {{ strtoupper(substr($supervisor->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($supervisor->lname)) }}{{ ($supervisor->suffix) ? ', '.$supervisor->suffix : ''}}
-                @if(!in_array($supervisor->prefix, ['Dr.', 'Eng.']))
+                @if(!in_array($supervisor->prefix, ['Dr.', 'Engr.']))
                     {{ ', '.strtoupper(ucwords($supervisor->prefix)) }}
                 @endif
                 @endif
