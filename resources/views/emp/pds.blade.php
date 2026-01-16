@@ -60,7 +60,7 @@
                                         <option value="Ph.D." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "Ph.D.") selected @endif>Ph.D.</option>
                                         <option value="Atty." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "Atty.") selected @endif>Atty.</option>
                                         <option value="Dr." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "Dr.") selected @endif>Dr.</option>
-                                        <option value="Eng." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "Eng.") selected @endif>Eng.</option>
+                                        <option value="Engr." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "Engr.") selected @endif>Engr.</option>
                                         <option value="RChE." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "RChE.") selected @endif>RChE.</option>
                                         <option value="J.D." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "J.D.") selected @endif>J.D.</option>
                                         <option value="M.S.W." data-column-id="{{ $empid }}" data-column-name="prefix" @if($employee->prefix == "M.S.W.") selected @endif>M.S.W.</option>
