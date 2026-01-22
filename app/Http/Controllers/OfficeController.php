@@ -70,7 +70,7 @@ class OfficeController extends Controller
         $office = Office::leftJoin('dbcpsuhris.employees', 'offices.office_head_id', '=', 'dbcpsuhris.employees.id')
                 ->leftJoin('dbcpsuhris.employees as oic', 'offices.oic_id', '=', 'oic.id')
                 ->get(['offices.*', 'dbcpsuhris.employees.fname as efname', 'dbcpsuhris.employees.lname as elname', 'oic.fname as ofname', 'oic.lname as olname']);         
-
+ 
         $offEdit = Office::find($id);
 
         return view("offdept.officelist", compact('offEdit', 'office', 'employee', 'guard'));

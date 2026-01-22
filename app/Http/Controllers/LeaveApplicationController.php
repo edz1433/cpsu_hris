@@ -8,6 +8,7 @@ use App\Models\PayrollEmployee;
 use App\Models\LeaveCredit;
 use App\Models\LeaveApplication;
 use App\Models\Notification;
+use App\Models\Office;
 use App\Models\Setting;
 use Carbon\Carbon;
 use Picqer\Barcode\BarcodeGeneratorPNG;
@@ -122,7 +123,20 @@ class LeaveApplicationController extends Controller
         $guard = $this->getGuard();
         $empid = ($id) ? $id : auth()->guard($guard)->user()->id;
         $employee = Employee::find($empid);
-        
+
+        $oic = Office::leftJoin('dbcpsuhris.employees as oic', 'offices.oic_id', '=', 'oic.id')
+            ->where('offices.id', $employee->emp_dept)
+            ->select(
+                'offices.*',
+                'oic.fname as ofname',
+                'oic.lname as olname',
+                'oic.mname as omname',
+                'oic.suffix as osuffix'
+            )
+            ->first();
+        // dd($oic);
+        $isOfficeHead = Office::where('office_head_id', $employee->id)->first();
+
         $leavesapp = LeaveApplication::where('empid', $employee->emp_ID)
         ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
         ->join('employees as emp', 'emp.emp_ID', '=', 'leave_applications.empid')
@@ -165,8 +179,18 @@ class LeaveApplicationController extends Controller
             ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
             ->join('employees as hr', 'hr.id', '=', 'leave_applications.hr');
 
+        // if ($setting->suc_pres !== auth()->guard($guard)->user()->id) {
+        //     $leavesapphead->where('leave_applications.supervisor', auth()->guard($guard)->user()->id);
+        // }else{
+        //     $leavesapphead->whereIn('leave_applications.status', [3]);
+        // }
+
         if ($setting->suc_pres !== auth()->guard($guard)->user()->id) {
-            $leavesapphead->where('leave_applications.supervisor', auth()->guard($guard)->user()->id);
+            if ($oic == null) {
+                $leavesapphead->where('leave_applications.supervisor', auth()->guard($guard)->user()->id);
+            }else{
+                $leavesapphead->where('leave_applications.empid', '!=', $employee->emp_ID);
+            }
         }else{
             $leavesapphead->whereIn('leave_applications.status', [3]);
         }
@@ -198,7 +222,7 @@ class LeaveApplicationController extends Controller
         
         $emplalls = Employee::where('emp_status', 1)->get();
 
-        return view("leaves.status", compact('guard', 'setting', 'employee', 'leavesapp', 'leavesapphead', 'emplalls', 'empid'));
+        return view("leaves.status", compact('guard', 'setting', 'employee', 'leavesapp', 'isOfficeHead', 'leavesapphead', 'oic', 'emplalls', 'empid'));
     }
 
     public function leaveWpay(Request $request)
