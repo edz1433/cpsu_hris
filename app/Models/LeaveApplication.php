@@ -26,6 +26,7 @@ class LeaveApplication extends Model
         'recommend',
         'emp_esign',
         'supervisor',
+        'oic',
         'sup_prefix',
         'sup_sign',
         'sup_sdate',

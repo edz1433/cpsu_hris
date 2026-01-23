@@ -92,7 +92,7 @@ class PdsController extends Controller
     public function uploadSignature(Request $request, $id = null)
     {
         $request->validate([
-            'signature' => 'required|image|mimes:png|max:2048',
+            'signature' => 'required|image|mimes:png',
         ]);
 
         $employee = Employee::findOrFail($id);

@@ -513,6 +513,9 @@ class LeaveApplicationController extends Controller
             'by' => 'required|integer|min:0|max:3',
             'day_wpay' => 'nullable|numeric',
         ]);
+
+        $guard = $this->getGuard();
+        $authid = auth()->guard($guard)->user()->id;
         
         $leaveApplication = LeaveApplication::find($request->id);
         $currdate1 = Carbon::now('Asia/Manila')->format('F j, Y h:i A');
@@ -599,8 +602,15 @@ class LeaveApplicationController extends Controller
         if($request->by == 2){
             $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
             $leaveApplication->sup_sdate = Carbon::now();
-            $leaveApplication->sup_sign = 2;
             $leaveApplication->hr_sign = 2;
+
+            $officeoic = Office::find($employee->emp_dept);
+
+            if($officeoic && $officeoic->oic_id && $authid !== $employee->supervisor && $authid == $officeoic->oic_id){
+                $leaveApplication->oic = $authid;
+            }else{
+                $leaveApplication->sup_sign = 2;
+            }
 
             $employee->vl = $employee->vl ?? 0;
             $employee->sl = $employee->sl ?? 0;
@@ -933,6 +943,7 @@ class LeaveApplicationController extends Controller
         $leaveApplication = LeaveApplication::with(['office:id,office_name,office_abbr'])
             ->join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
             ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
+            ->join('employees as oic', 'oic.id', '=', 'leave_applications.oic')
             ->join('employees as pres', 'pres.id', '=', 'leave_applications.president')
             ->join('employees as hr', 'hr.id', '=', 'leave_applications.hr')
             ->select('leave_applications.*', 
@@ -940,6 +951,8 @@ class LeaveApplicationController extends Controller
                 'employees.lname', 'employees.fname', 'employees.mname', 'employees.suffix',             
                 'sup.lname as supervisor_lname', 'sup.fname as supervisor_fname', 'sup.mname as supervisor_mname', 
                 'sup.suffix as supervisor_suffix', 'sup.prefix as supervisor_prefix',
+                'oic.lname as oic_lname', 'oic.fname as oic_fname', 'oic.mname as oic_mname', 
+                'oic.suffix as oic_suffix', 'oic.prefix as oic_prefix',
                 'hr.lname as hr_lname', 'hr.fname as hr_fname', 'hr.mname as hr_mname', 
                 'hr.suffix as hr_suffix',
                 'pres.lname as president_lname', 'pres.fname as president_fname', 'pres.mname as president_mname', 
@@ -1010,6 +1023,7 @@ class LeaveApplicationController extends Controller
         $leaveApplication = LeaveApplication::with(['office:id,office_name,office_abbr'])
             ->join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
             ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
+            ->leftjoin('employees as oic', 'oic.id', '=', 'leave_applications.oic')
             ->join('employees as pres', 'pres.id', '=', 'leave_applications.president')
             ->join('employees as hrhead', 'hrhead.id', '=', 'leave_applications.hr') // <--- add this
             ->select(
@@ -1027,6 +1041,13 @@ class LeaveApplicationController extends Controller
                 'sup.suffix as supervisor_suffix', 
                 'sup.prefix as supervisor_prefix',
                 'sup.esign as supervisor_esign',
+
+                'oic.lname as oic_lname', 
+                'oic.fname as oic_fname', 
+                'oic.mname as oic_mname', 
+                'oic.suffix as oic_suffix', 
+                'oic.prefix as oic_prefix',
+                'oic.esign as oic_esign',
 
                 'pres.lname as president_lname', 
                 'pres.fname as president_fname', 
@@ -1054,6 +1075,11 @@ class LeaveApplicationController extends Controller
         if ($leaveApplication->supervisor_esign) {
             $decrypted = Crypt::decrypt($leaveApplication->supervisor_esign);
             $leaveApplication->supervisor_esign = 'data:image/png;base64,' . base64_encode($decrypted);
+        }
+
+        if ($leaveApplication->oic_esign) {
+            $decrypted = Crypt::decrypt($leaveApplication->oic_esign);
+            $leaveApplication->oic_esign = 'data:image/png;base64,' . base64_encode($decrypted);
         }
 
         if ($leaveApplication->president_esign) {

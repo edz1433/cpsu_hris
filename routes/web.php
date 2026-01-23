@@ -391,7 +391,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         
         Route::post('/leaves-report', [LeaveApplicationController::class, 'leaveReport'])->name('leaveReport');
     });
-
+    
     // events
     Route::prefix('event')->group(function() {
         Route::get('/', [EventController::class, 'eventIndex'])->name('eventIndex');

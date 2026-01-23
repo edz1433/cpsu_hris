@@ -102,7 +102,7 @@
         </thead>
         <tbody>
             <tr>
-                <td class="fh ml1 font1"><span class="ml1">{{ $leaveApplication->office->office_name }}</span></td>
+                <td class="fh ml1 font1"><span class="ml1">{{ $leaveApplication->office->office_name ?? '' }}</span></td>
                 <td></td>
                 <td></td>
                 <td class="fh b font1">{{ strtoupper($leaveApplication->lname) }} {{ strtoupper($leaveApplication->suffix) }}</td>
@@ -270,13 +270,13 @@
                         <span style="font-size: 8px !important; color: white;">.</span>
                     </div>
                     <div style="margin-top: -2.10%">
-                    <span style="font-size: 7px;  margin-top: -2.35%; float: right; margin-right: 10px;">
+                    <span style="font-size: 7px;  margin-top: {{ $leaveApplication->oic == null ? '-2.35%;' : '3%;' }}; float: right; margin-right: 10px;">
                         <em>Total earned  and balances are for reconciliation.</em>
                     </span>
                     </div>
-                    <div style="margin-top: 2.45%">
+                    <div style="{{ $leaveApplication->oic == null ? 'margin-top: 2.45%;' : 'margin-top: 7.50%;' }}">
                         @if($leaveApplication->hr_sign == 2)
-                            <img src="{{ $leaveApplication->hr_esign }}" class="signature" width="100" height="40" style="position: absolute; top: 71%; left: 26.7%; transform: translateX(-50%); z-index: 10;">
+                            <img src="{{ $leaveApplication->hr_esign }}" class="signature" width="100" height="40" style="position: absolute; top: {{ $leaveApplication->oic == null ? '71%;' : '73%;' }} left: 26.7%; transform: translateX(-50%); z-index: 10;">
                         @endif
                         <center><span class="font1" style="width: 90%; display: inline-block; margin-top:7.3;  border-bottom: 1px solid black;"><b>{{ strtoupper($leaveApplication->hr_fname) }} {{ isset($leaveApplication->hr_mname) ? substr($leaveApplication->hr_mname, 0, 1).'.' : ''}} {{ strtoupper($leaveApplication->hr_lname) }} {{ strtoupper($leaveApplication->hr_suffix) }}{{ ($leaveApplication->hr_prefix) ? strtoupper(', '.$leaveApplication->hr_prefix) : '' }}</b></span></center>
                         <center>Human Resource Management Officer</center>
@@ -301,11 +301,22 @@
                         <input type="checkbox" class="checkbox1" @if($leaveApplication->remarks_stat !== 0) checked @endif> For disapproval due to <span style="width: 56.8%; display: inline-block; margin-bottom: -3px;  border-bottom: 1px solid black;"><span style="color: white;">.</span> {{ ($firstFiveWords && $leaveApplication->remarks_stat !== 0) ? $firstFiveWords : '' }} </span></div>
                         <div style="margin-top: 2px; margin-left: 33px;"><span style="width: 95.7%; display: inline-block;  border-bottom: 1px solid black;"><span style="color: white;">.</span> {{ ($nextSixWords && $leaveApplication->remarks_stat !== 0) ? $nextSixWords : '' }}</span></div>
                         <div style="margin-top: 2px; margin-left: 33px;"><span style="width: 95.7%; display: inline-block;  border-bottom: 1px solid black;"><span style="color: white;">.</span> {{ ($thirdSixWords && $leaveApplication->remarks_stat !== 0) ? $thirdSixWords : '' }}</span></div>
+                        @if($leaveApplication->oic == null)
                         <div style="margin-top: 7px; margin-left: 33px;"><span style="width: 95.7%; display: inline-block;  border-bottom: 1px solid black;"><span style="color: white;">.</span> {{ ($remainingWords && $leaveApplication->remarks_stat !== 0) ? $remainingWords : '' }}</span></div>
+                        @endif
+                        @if($leaveApplication->oic != null)
+                            <img src="{{ $leaveApplication->oic_esign }}" class="signature" width="100" height="40" style="position: absolute; top: 68.2%; left: 77%; transform: translateX(-50%); z-index: 10;">
+                            <div style="margin-top: 12px; margin-left: 33px;"><span class="font1" style="width: 95.7%; display: inline-block;  border-bottom: 1px solid black;"><center><span style="color: white;">.</span><b><span style="padding-right: 26px;">for: {{ strtoupper($leaveApplication->oic_fname) }} {{ isset($leaveApplication->oic_mname) ? substr($leaveApplication->oic_mname, 0, 1).'.' : '' }} {{ strtoupper($leaveApplication->oic_lname) }} {{ strtoupper($leaveApplication->oic_suffix) }}
+                                {{-- {{ ($leaveApplication->oic_prefix) ? strtoupper(', '.$leaveApplication->oic_prefix) : '' }} --}}
+                            </span></b></span></center></div>
+                            <center>Officer-In-Charge</center>
+                        @endif
                         @if($leaveApplication->sup_sign == 2 && ($leaveApplication->supervisor !== $leaveApplication->president))
                             <img src="{{ $leaveApplication->supervisor_esign }}" class="signature" width="100" height="40" style="position: absolute; top: 70.2%; left: 77%; transform: translateX(-50%); z-index: 10;">
                         @endif
-                        <div style="margin-top: 12px; margin-left: 33px;"><span class="font1" style="width: 95.7%; display: inline-block;  border-bottom: 1px solid black;"><center><span style="color: white;">.</span><b><span style="padding-right: 26px;">{{ strtoupper($leaveApplication->supervisor_fname) }} {{ isset($leaveApplication->supervisor_mname) ? substr($leaveApplication->supervisor_mname, 0, 1).'.' : '' }} {{ strtoupper($leaveApplication->supervisor_lname) }} {{ strtoupper($leaveApplication->supervisor_suffix) }}{{ ($leaveApplication->supervisor_prefix) ? strtoupper(', '.$leaveApplication->supervisor_prefix) : '' }}</span></b></span></center></div>
+                        <div style="margin-top: 12px; margin-left: 33px;"><span class="font1" style="width: 95.7%; display: inline-block;  border-bottom: 1px solid black;"><center><span style="color: white;">.</span><b><span style="padding-right: 26px;">{{ strtoupper($leaveApplication->supervisor_fname) }} {{ isset($leaveApplication->supervisor_mname) ? substr($leaveApplication->supervisor_mname, 0, 1).'.' : '' }} {{ strtoupper($leaveApplication->supervisor_lname) }} {{ strtoupper($leaveApplication->supervisor_suffix) }}
+                            {{-- {{ ($leaveApplication->supervisor_prefix) ? strtoupper(', '.$leaveApplication->supervisor_prefix) : '' }} --}}
+                        </span></b></span></center></div>
                         <center>Immediate Supervisor</center>
                         <center>(Signature over Printed Name)</center>
                     </div>
