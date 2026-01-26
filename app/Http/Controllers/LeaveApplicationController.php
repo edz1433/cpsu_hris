@@ -188,11 +188,9 @@ class LeaveApplicationController extends Controller
         if ($setting->suc_pres !== auth()->guard($guard)->user()->id) {
             if ($oic == null) {
                 $leavesapphead->where('leave_applications.supervisor', auth()->guard($guard)->user()->id);
-                $leavesapphead->where('employees.emp_dept', auth()->guard($guard)->user()->emp_dept);
                 $leavesapphead->where('sup.emp_dept', auth()->guard($guard)->user()->emp_dept);
             }else{
                 $leavesapphead->where('leave_applications.empid', '!=', $employee->emp_ID);
-                $leavesapphead->where('employees.emp_dept', auth()->guard($guard)->user()->emp_dept);
                 $leavesapphead->where('sup.emp_dept', auth()->guard($guard)->user()->emp_dept);
             }
         }else{
