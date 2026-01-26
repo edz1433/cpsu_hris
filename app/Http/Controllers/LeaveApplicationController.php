@@ -195,6 +195,7 @@ class LeaveApplicationController extends Controller
             }
         }else{
             $leavesapphead->whereIn('leave_applications.status', [3]);
+            $leavesapphead->where('sup.emp_dept', auth()->guard($guard)->user()->emp_dept);
         }
         
         $leavesapphead = $leavesapphead->select(
