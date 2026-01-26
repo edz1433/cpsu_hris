@@ -268,6 +268,7 @@
 
                             @if(($oic->oic_id == auth()->guard($guard)->user()->id) || ($isOfficeHead))
                                 @foreach($leavesapphead as $leaves)
+                                    @if($leaves->supervisor_emp_dept == auth()->guard($guard)->user()->emp_dept)
                                     <div class="timeline timeline-inverse">
                                         <!-- Step 1 -->
                                         <div class="time-label">
@@ -453,10 +454,10 @@
                                             </button>
                                         </div>
                                     </div>
+                                    @endif
                                 @endforeach
                             @endif
                         </div>
-                    
                     </div>                    
                 </div>
             </div>                        
