@@ -266,7 +266,7 @@
                                 </div>
                             @endforeach
 
-                            @if(($oic->oic_id == auth()->guard($guard)->user()->id) || ($isOfficeHead))
+                            @if(($oic->oic_id == auth()->guard($guard)->user()->id) || ($isOfficeHead) || ($setting->suc_pres == auth()->guard($guard)->user()->id))
                                 @foreach($leavesapphead as $leaves)
                                     @if($leaves->supervisor_emp_dept == auth()->guard($guard)->user()->emp_dept)
                                     <div class="timeline timeline-inverse">
