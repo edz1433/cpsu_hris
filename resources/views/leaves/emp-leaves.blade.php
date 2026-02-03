@@ -161,12 +161,12 @@
                                         <b>Solo Parent Leave</b> <span class="ft">(R.A. No. 8972/CSC MC No. 8, s. 2004)</span>
                                     </label>
                                 </div>
-                                <div class="form-check">
+                                {{-- <div class="form-check">
                                     <input class="form-check-input leave-type" type="radio" value="15" name="leave_type" required>
                                     <label class="form-check-label" for="radio3">
                                         <b>Wellness Leave</b> <span class="ft"></span>
                                     </label>
-                                </div>
+                                </div> --}}
                             </div>   
                             <div class="col-md-6"><br>
                                 <div class="form-check">
