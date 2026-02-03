@@ -17,7 +17,7 @@ class LoginAuthController extends Controller
         }elseif(Auth::guard('employee')->check()){
             return redirect()->route('drive');
         }
-
+        
         return view('login-page');
     }
 
