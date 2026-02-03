@@ -187,8 +187,12 @@
                     @endphp
                     {{ $formatted }}
                 </td>
-                <td class="text-center">{{ ($row['remarks_stat'] <= 0) ? '✓' : '' }}</td>
-                <td class="text-center">{{ ($row['remarks_stat'] > 0) ? '✓' : '' }}</td>  
+                <td class="text-center">
+                    {{-- {{ ($row['remarks_stat'] <= 0) ? '✓' : '' }} --}}
+                </td>
+                <td class="text-center">
+                    {{-- {{ ($row['remarks_stat'] > 0) ? '✓' : '' }} --}}
+                </td>  
                 </tr>
             @endforeach
             </tbody>
