@@ -85,7 +85,24 @@
                                                     </button>
                                                 @endif
                                                 <span class="badge badge-success"><b>#{{ $leaves->transnum }}</b></span><br> 
-                                                <span><b>TYPE OF LEAVE TO AVAILED OF :</b> {{ $leaveTypes[$leaves->leave_type] }}</span><br>
+                                                @php
+                                                    $leaveTypeName = $leaveTypes[$leaves->leave_type] ?? 'Unknown';
+
+                                                    // Only check Emergency if leave_type is 15
+                                                    $emergency = '';
+                                                    if($leaves->leave_type == 15) {
+                                                        $dates = explode(' to ', $leaves->date_range);
+                                                        $startDate = new DateTime($dates[0]);
+                                                        $filingDate = new DateTime($leaves->date_filing);
+
+                                                        if($startDate < $filingDate) {
+                                                            $emergency = ' "Emergency"';
+                                                        }
+                                                    }
+                                                @endphp
+
+                                                <span><b>TYPE OF LEAVE TO AVAILED OF :</b> {{ $leaveTypeName }}{!! $emergency !!}</span>
+                                                <br>
                                                 <span><b>DETAILS OF LEAVE :</b> {{ $leavedetails[$leaves->leave_purpose] ?? null }} @if($leaves->leave_detail) ({{ $leaves->leave_detail }}) @endif</span><br>
                                                 <span><b>INCLUSIVE DATES :</b> {{ $leaves->date_range }}</span><br>
                                                 <span><b>DAYS :</b> {{ ($leaves->emp_esign == 0) ? $leaves->days : ($leaves->days + $leaves->holiday) }}</span><br>
@@ -285,7 +302,22 @@
                                                         <i class="fas fa-file-pdf"></i>
                                                     </button>
                                                     <span class="badge badge-success"><b>#{{ $leaves->transnum }}</b></span><br>    
-                                                    <span><b>TYPE OF LEAVE TO AVAILED OF :</b> {{ $leaveTypes[$leaves->leave_type] }}</span><br>
+                                                    @php
+                                                        $leaveTypeName = $leaveTypes[$leaves->leave_type] ?? 'Unknown';
+
+                                                        // Only check Emergency if leave_type is 15
+                                                        $emergency = '';
+                                                        if($leaves->leave_type == 15) {
+                                                            $dates = explode(' to ', $leaves->date_range);
+                                                            $startDate = new DateTime($dates[0]);
+                                                            $filingDate = new DateTime($leaves->date_filing);
+
+                                                            if($startDate < $filingDate) {
+                                                                $emergency = ' "Emergency"';
+                                                            }
+                                                        }
+                                                    @endphp
+                                                    <span><b>TYPE OF LEAVE TO AVAILED OF :</b> {{ $leaveTypeName }}{!! $emergency !!}</span><br>
                                                     <span><b>DETAILS OF LEAVE :</b> {{ $leavedetails[$leaves->leave_purpose] ?? null }} @if($leaves->leave_detail) ({{ $leaves->leave_detail }}) @endif</span><br>
                                                     <span><b>INCLUSIVE DATES :</b> {{ $leaves->date_range }}</span><br>
                                                     <span><b>DAYS :</b> {{ $leaves->days }}</span><br>

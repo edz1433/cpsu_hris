@@ -171,7 +171,22 @@
                 {{ isset($row['mname']) ? strtoupper(substr($row['mname'], 0, 1)).'.' : '' }}
                 </td>
                 <td class="text-center">{{ $leaveTypes[$row['leave_type']] }}</td>
-                <td class="text-center">{{ Carbon::parse($row['date_filing'])->format('F j, Y') }}</td>
+                <td class="text-center">
+                    @php
+                        $dates = explode(' to ', $row['date_range']); // split if it's a range
+
+                        if(count($dates) === 2) {
+                            // It's a range
+                            $start = (new DateTime($dates[0]))->format('M j, Y');
+                            $end   = (new DateTime($dates[1]))->format('M j, Y');
+                            $formatted = "$start - $end";
+                        } else {
+                            // Single date
+                            $formatted = (new DateTime($dates[0]))->format('M j, Y');
+                        }
+                    @endphp
+                    {{ $formatted }}
+                </td>
                 <td class="text-center">{{ ($row['remarks_stat'] <= 0) ? '✓' : '' }}</td>
                 <td class="text-center">{{ ($row['remarks_stat'] > 0) ? '✓' : '' }}</td>  
                 </tr>

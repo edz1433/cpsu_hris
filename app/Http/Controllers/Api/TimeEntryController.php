@@ -559,45 +559,48 @@ class TimeEntryController extends Controller
         ], 200);
     }
     public function printDtr(Request $request)
-    {
-        $empId = $request->input('emp_id');
+{
+    $encrypted = $request->input('e');   // ← matches what frontend sends
 
-        if (!$empId) {
-            return response()->json([
-                'error' => 'Missing emp_id'
-            ], 400);
-            // or return response('Missing emp_id', 400);
-        }
-
-        // Optional: Add basic validation / security
-        // e.g. check if employee exists
-        $employee = DB::table('employees')
-            ->where('emp_ID', $empId)
-            ->where('stat_1', 1)
-            ->select('emp_ID', 'fname', 'lname')
-            ->first();
-
-        if (!$employee) {
-            return response()->json([
-                'error' => 'Employee not found or inactive'
-            ], 404);
-        }
-
-        // Fetch DTR data (example - adjust to your actual structure)
-        $logs = DB::table('dtrs')
-            ->where('emp_ID', $empId)
-            ->orderByDesc('date')
-            ->limit(60) // last 2 months or so
-            ->get();
-
-        // Return HTML view
-        return view('print_dtr', [
-            'empId'   => $empId,
-            'employee' => $employee,
-            'logs'    => $logs,
-            'generated_at' => now()->format('M d, Y h:i A'),
-        ]);
+    if (!$encrypted) {
+        return response()->json([
+            'error' => 'Missing encrypted parameter'
+        ], 400);
     }
+
+    // Try to decrypt (same logic as validate-qr / face-claim)
+    try {
+        $decrypted = $this->shortDecrypt($encrypted);
+
+        // For demo: just return plain text showing we received & decrypted it
+        $html = "<!DOCTYPE html>
+<html>
+<head><title>DTR Debug</title></head>
+<body style='font-family:Arial; padding:40px;'>
+    <h1>DTR Download – Debug Mode</h1>
+    <p style='font-size:1.2em;'>
+        Received encrypted value: <code>" . htmlspecialchars($encrypted) . "</code><br>
+        Decrypted emp_id: <strong>" . htmlspecialchars($decrypted) . "</strong>
+    </p>
+    <p style='color:#555; margin-top:2rem;'>
+        If you see your correct employee ID above → encryption round-trip works.<br>
+        In real version this page would show your full DTR table.
+    </p>
+    <button onclick='window.print()' style='padding:12px 24px; font-size:16px; margin-top:20px;'>
+        Print Test Page
+    </button>
+</body>
+</html>";
+
+        return response($html)->header('Content-Type', 'text/html');
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Decryption failed',
+            'message' => $e->getMessage()
+        ], 400);
+    }
+}
     public function adminFaceClaim(Request $request) {
         // 1) Validate embedding input
         $embedding = $request->input('embedding');
