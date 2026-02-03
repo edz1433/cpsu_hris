@@ -292,7 +292,7 @@ class LeaveApplicationController extends Controller
         }
 
         if($leavetype == 15) {
-            if ($daysdeduct > $employee->wellness_leave) {
+            if ($daysdeduct > $employee->well_leave) {
                 return response()->json(['error' => 'Insufficient leave credits'], 400);
             }
         }
@@ -638,7 +638,7 @@ class LeaveApplicationController extends Controller
                 $employee->servcred_leave -= ($leaveApplication->days - $leaveApplication->day_wpay);
             }
             if($leaveApplication->leave_type == 15){
-                $employee->wellness_leave -= ($leaveApplication->days - $leaveApplication->day_wpay);
+                $employee->well_leave -= ($leaveApplication->days - $leaveApplication->day_wpay);
             }
 
             $employee->save();
@@ -799,7 +799,7 @@ class LeaveApplicationController extends Controller
                     $employee->servcred_leave += ($leaveApplication->days - $leaveApplication->day_wpay);
                 }
                 if($leaveApplication->leave_type == 15){
-                    $employee->wellness_leave += ($leaveApplication->days - $leaveApplication->day_wpay);
+                    $employee->well_leave += ($leaveApplication->days - $leaveApplication->day_wpay);
                 }
 
                 $employee->save();
@@ -888,7 +888,7 @@ class LeaveApplicationController extends Controller
                 }if($leaveApplication->leave_type == 14){
                     $employee->servcred_leave += ($leaveApplication->days - $leaveApplication->day_wpay);
                 }if($leaveApplication->leave_type == 15){
-                    $employee->wellness_leave += ($leaveApplication->days - $leaveApplication->day_wpay);
+                    $employee->well_leave += ($leaveApplication->days - $leaveApplication->day_wpay);
                 }
                 
                 $employee->save();
@@ -1296,7 +1296,7 @@ class LeaveApplicationController extends Controller
             'calamity_leave' => $employee->calamity_leave,
             'adopt_leave' => $employee->adopt_leave,
             'servcred_leave' => $employee->servcred_leave,
-            'wellness_leave' => $employee->wellness_leave,
+            'well_leave' => $employee->well_leave,
         ]);
     }
     

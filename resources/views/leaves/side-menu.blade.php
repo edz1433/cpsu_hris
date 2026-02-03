@@ -68,6 +68,9 @@
                 <li class="list-group-item">
                     <b>Vacation Service Credit</b> <span class="float-right mt-1 badge badge-info" id="servcred-leave">{{ $employee->servcred_leave ?? 0 }}</span>
                 </li>
+                <li class="list-group-item">
+                    <b>Wellness Leave</b> <span class="float-right mt-1 badge badge-info" id="wellness-leave">{{ $employee->well_leave ?? 0 }}</span>
+                </li>
             </ul>
         </div>
         <!-- /.card-body -->
