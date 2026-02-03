@@ -215,7 +215,7 @@
 <body>
     
     <div class="column1"> 
-        <img src="{{ asset('Uploads/dtr-header.png') }}" width="110%" style="margin-top: 1px;" alt="Header Image">
+        <img src="{{ asset('Uploads/dtr-header.png') }}" width="110%" class="mt-2" alt="Header Image">
         <div>
             <span class="font">Name of Employee :</span> <span class="header" style="relative; display: inline-block; width: 73%; text-align: left;">&nbsp; @if(isset($employee)) {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(substr($employee->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->suffix)) }}@endif</span>
         </div>
@@ -375,7 +375,7 @@
         </p>
     </div>
     <div class="column2"> 
-        <img src="{{ asset('Uploads/dtr-header.png') }}" width="110%" style="margin-top: -5px;" alt="Header Image">
+        <img src="{{ asset('Uploads/dtr-header.png') }}" width="110%" class="mt-2" alt="Header Image">
         <div>
             <span class="font">Name of Employee :</span> <span class="header" style="relative; display: inline-block; width: 73%; text-align: left;">&nbsp; @if(isset($employee)) {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(substr($employee->mname, 0, 1)) . '.' }} {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->suffix)) }}@endif</span>
         </div>
