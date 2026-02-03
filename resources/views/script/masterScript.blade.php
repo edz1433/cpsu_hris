@@ -28,6 +28,10 @@
 <script defer src="{{ asset('template/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
 <script defer src="{{ asset('template/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
 <script defer src="{{ asset('template/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
+<!-- daterangepicker -->
+<link rel="stylesheet" href="{{ asset('template/plugins/daterangepicker/daterangepicker.css') }}">
+<script src="{{ asset('template/plugins/moment/moment.min.js') }}"></script>
+<script src="{{ asset('template/plugins/daterangepicker/daterangepicker.js') }}"></script>
 
 <script defer src="{{ asset('app.js') }}"></script>
 
@@ -483,3 +487,27 @@ $(function() {
   });
 });
 </script>
+<script>
+$(function () {
+    $('#dateRange').daterangepicker({
+        autoUpdateInput: false,
+        locale: {
+            format: 'YYYY-MM-DD',
+            cancelLabel: 'Clear'
+        }
+    });
+
+    $('#dateRange').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(
+            picker.startDate.format('YYYY-MM-DD') +
+            ' to ' +
+            picker.endDate.format('YYYY-MM-DD')
+        );
+    });
+
+    $('#dateRange').on('cancel.daterangepicker', function(ev, picker) {
+        $(this).val('');
+    });
+});
+</script>
+

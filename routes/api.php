@@ -40,6 +40,7 @@ Route::prefix('app')->group(function() {
     Route::post('/face-claim', [TimeEntryController::class, 'faceClaim']);
     Route::post('/log-attendance', [TimeEntryController::class, 'logAttendance']);
     Route::post('/fetch-latest-logs', [TimeEntryController::class, 'fetchLatestLogs']);
+    Route::get('/print-dtr', [TimeEntryController::class, 'printDtr']);
 
     // ── Admin/kiosk flows ──────────────────────────────────────────────
     Route::post('/admin-face-claim', [TimeEntryController::class, 'adminFaceClaim']);

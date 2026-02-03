@@ -1083,7 +1083,6 @@ class LeaveApplicationController extends Controller
             ->where('leave_applications.id', $id)
             ->first();
 
-
         if ($leaveApplication->employee_esign) {
             $decrypted = Crypt::decrypt($leaveApplication->employee_esign);
             $leaveApplication->employee_esign = 'data:image/png;base64,' . base64_encode($decrypted);
@@ -1192,91 +1191,121 @@ class LeaveApplicationController extends Controller
         return response()->json(['error' => 'PDF not found'], 404);
     }
 
-    public function leaveReport(Request $request){
-        
-        $filingdate = $request->input('date');
-        $startDate = null;
-        $endDate = null;
+public function leaveReport(Request $request)
+{
+    $filingdate = trim($request->input('date'));
 
-        $setting = Setting::join('employees as hr', 'hr.id', '=', 'settings.hr')
+    $setting = Setting::join('employees as hr', 'hr.id', '=', 'settings.hr')
         ->join('employees as sucpres', 'sucpres.id', '=', 'settings.suc_pres')
         ->select(
-            'settings.*', 
-            'hr.lname as hr_lname', 
-            'hr.fname as hr_fname', 
-            'hr.mname as hr_mname', 
+            'settings.*',
+            'hr.lname as hr_lname',
+            'hr.fname as hr_fname',
+            'hr.mname as hr_mname',
             'hr.suffix as hr_suffix',
-            'sucpres.lname as sucpres_lname', 
-            'sucpres.fname as sucpres_fname', 
-            'sucpres.mname as sucpres_mname', 
-            'sucpres.suffix as sucpres_suffix',
+            'sucpres.lname as sucpres_lname',
+            'sucpres.fname as sucpres_fname',
+            'sucpres.mname as sucpres_mname',
+            'sucpres.suffix as sucpres_suffix'
         )
         ->first();
 
-        if (strpos($filingdate, 'to') !== false) {
-            list($startDate, $endDate) = explode(' to ', $filingdate);
-        
-            $startDateObj = Carbon::parse($startDate)->startOfDay();
-            $endDateObj = Carbon::parse($endDate)->endOfDay();
-        
-            if ($startDateObj->format('F') === $endDateObj->format('F')) {
-                $formattedDateRange = $startDateObj->format('F j') . '-' . $endDateObj->format('j, Y');
-            } else {
-                $formattedDateRange = $startDateObj->format('F j, Y') . ' - ' . $endDateObj->format('F j, Y');
-            }
-        
-            $applications = LeaveApplication::whereBetween('date_filing', [$startDateObj, $endDateObj])
-                                            ->join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
-                                            // ->where('history', 2)
-                                            ->whereIn('leave_applications.status', [3])
-                                            ->where('leave_applications.remarks_stat', 0)
-                                            ->orderBy('date_filing', 'asc')
-                                            ->select('leave_applications.*', 
-                                            'employees.lname', 
-                                            'employees.fname', 
-                                            'employees.mname', 
-                                            'employees.suffix',   
-                                            )
-                                        ->get();
+    // ===============================
+    // DATE RANGE (e.g., 2026-02-01 to 2026-02-28)
+    // ===============================
+    if (str_contains($filingdate, 'to')) {
+
+        [$startDate, $endDate] = array_map('trim', explode('to', $filingdate));
+
+        $startDateObj = Carbon::parse($startDate);
+        $endDateObj   = Carbon::parse($endDate);
+
+        // Format label
+        if ($startDateObj->format('F') === $endDateObj->format('F')) {
+            $formattedDateRange = $startDateObj->format('F j') . '-' . $endDateObj->format('j, Y');
         } else {
-            $filingdateObj = Carbon::parse($filingdate)->startOfDay();
-        
-            $formattedDateRange = $filingdateObj->format('F j, Y');
-        
-            $applications = LeaveApplication::join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
-                                            ->whereDate('leave_applications.date_filing', '=', $filingdateObj->toDateString())
-                                            // ->where('history', 2)
-                                            ->whereIn('leave_applications.status', [3])
-                                            ->where('leave_applications.remarks_stat', 0)
-                                            ->orderBy('leave_applications.date_filing', 'asc')
-                                            ->select(
-                                                'leave_applications.*', 
-                                                'employees.lname', 
-                                                'employees.fname', 
-                                                'employees.mname', 
-                                                'employees.suffix'
-                                            )
-                                            ->get();
+            $formattedDateRange = $startDateObj->format('F j, Y') . ' - ' . $endDateObj->format('F j, Y');
         }
-        
-        $customPaper = array(0, 0, 612, 1008);
-        $pdf = \PDF::loadView('leaves.leave-report', compact('applications', 'formattedDateRange', 'setting'))->setPaper($customPaper, 'portrait');
 
-        $pdf->setOption('margin-top', 0);
-        $pdf->setOption('margin-right', 0);
-        $pdf->setOption('margin-bottom', 0);
-        $pdf->setOption('margin-left', 0);
+        $applications = LeaveApplication::join(
+                'employees',
+                'leave_applications.empid',
+                '=',
+                'employees.emp_ID'
+            )
+            ->whereDate('leave_applications.created_at', '>=', $startDateObj->toDateString())
+            ->whereDate('leave_applications.created_at', '<=', $endDateObj->toDateString())
+            ->whereIn('leave_applications.status', [3])
+            ->where('leave_applications.remarks_stat', 0)
+            ->orderBy('leave_applications.created_at', 'asc')
+            ->select(
+                'leave_applications.*',
+                'employees.lname',
+                'employees.fname',
+                'employees.mname',
+                'employees.suffix'
+            )
+            ->get();
 
-        $pdf->setCallbacks([
-            'before_render' => function ($domPdf) {
-                $domPdf->getCanvas()->page_text(10, 10, "Page {PAGE_NUM} of {PAGE_COUNT}", null, 10, array(0, 0, 0));
-            },
-        ]);
+    } 
+    // ===============================
+    // SINGLE DATE
+    // ===============================
+    else {
 
-        $pdf->render();
+        $dateObj = Carbon::parse($filingdate);
 
-        return $pdf->stream();
+        $formattedDateRange = $dateObj->format('F j, Y');
+
+        $applications = LeaveApplication::join(
+                'employees',
+                'leave_applications.empid',
+                '=',
+                'employees.emp_ID'
+            )
+            ->whereDate('leave_applications.created_at', $dateObj->toDateString())
+            ->whereIn('leave_applications.status', [3])
+            ->where('leave_applications.remarks_stat', 0)
+            ->orderBy('leave_applications.created_at', 'asc')
+            ->select(
+                'leave_applications.*',
+                'employees.lname',
+                'employees.fname',
+                'employees.mname',
+                'employees.suffix'
+            )
+            ->get();
     }
+
+    $customPaper = [0, 0, 612, 1008];
+
+    $pdf = \PDF::loadView(
+        'leaves.leave-report',
+        compact('applications', 'formattedDateRange', 'setting')
+    )->setPaper($customPaper, 'portrait');
+
+    $pdf->setOption('margin-top', 0);
+    $pdf->setOption('margin-right', 0);
+    $pdf->setOption('margin-bottom', 0);
+    $pdf->setOption('margin-left', 0);
+
+    $pdf->setCallbacks([
+        'before_render' => function ($domPdf) {
+            $domPdf->getCanvas()->page_text(
+                10,
+                10,
+                "Page {PAGE_NUM} of {PAGE_COUNT}",
+                null,
+                10,
+                [0, 0, 0]
+            );
+        },
+    ]);
+
+    return $pdf->stream();
+}
+
+
 
     public function leaveLive($id = null)
     {

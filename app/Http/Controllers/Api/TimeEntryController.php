@@ -558,6 +558,46 @@ class TimeEntryController extends Controller
             'logs'           => $out,
         ], 200);
     }
+    public function printDtr(Request $request)
+    {
+        $empId = $request->input('emp_id');
+
+        if (!$empId) {
+            return response()->json([
+                'error' => 'Missing emp_id'
+            ], 400);
+            // or return response('Missing emp_id', 400);
+        }
+
+        // Optional: Add basic validation / security
+        // e.g. check if employee exists
+        $employee = DB::table('employees')
+            ->where('emp_ID', $empId)
+            ->where('stat_1', 1)
+            ->select('emp_ID', 'fname', 'lname')
+            ->first();
+
+        if (!$employee) {
+            return response()->json([
+                'error' => 'Employee not found or inactive'
+            ], 404);
+        }
+
+        // Fetch DTR data (example - adjust to your actual structure)
+        $logs = DB::table('dtrs')
+            ->where('emp_ID', $empId)
+            ->orderByDesc('date')
+            ->limit(60) // last 2 months or so
+            ->get();
+
+        // Return HTML view
+        return view('print_dtr', [
+            'empId'   => $empId,
+            'employee' => $employee,
+            'logs'    => $logs,
+            'generated_at' => now()->format('M d, Y h:i A'),
+        ]);
+    }
     public function adminFaceClaim(Request $request) {
         // 1) Validate embedding input
         $embedding = $request->input('embedding');

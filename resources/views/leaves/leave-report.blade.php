@@ -110,7 +110,8 @@
             11 => 'SLBW', // Special Leave Benefits for Women
             12 => 'SEL', // Special Emergency (Calamity) Leave
             13 => 'AL', // Adoption Leave
-            14 => 'Others'
+            14 => 'VSC', // Vacation Service Credit
+            15 => 'WL' // Wellness Leave
         ];
     @endphp
     <header>

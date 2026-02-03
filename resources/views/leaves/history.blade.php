@@ -26,6 +26,49 @@
                     @include("leaves.top-menu")
                 </div>           
                 <div class="card-body">
+                    @if($guard == "web")
+                    <div class="row justify-content-end">
+                        <div class="col-md-6"> <!-- HALF WIDTH -->
+
+                            <form action="{{ route('leaveReport') }}" method="POST" target="_blank">
+                                @csrf
+
+                                <div class="row align-items-end mb-3">
+
+                                    <!-- LEFT: Date Range -->
+                                    <div class="col-md-11 mb-0">
+                                        <div class="form-group mb-0">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <i class="far fa-calendar-alt"></i>
+                                                    </span>
+                                                </div>
+                                                <input
+                                                    type="text"
+                                                    class="form-control"
+                                                    name="date"
+                                                    id="dateRange"
+                                                    placeholder="Select date or date range"
+                                                    required
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- RIGHT: Generate Button -->
+                                    <div class="col-md-1">
+                                        <button type="submit" class="btn btn-danger btn-block">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                    @endif
                     <div class="tab-content">
                         <table class="table table-collapsed table-hover" id="leaveHistory">
                             <thead>
@@ -55,7 +98,8 @@
                                         '11' => 'Special Leave Benefits for Women',
                                         '12' => 'Special Emergency (Calamity) Leave',
                                         '13' => 'Adoption Leave',
-                                        '14' => 'Others',
+                                        '14' => 'Vacation Service Credit',
+                                        '15' => 'Wellness Leave'
                                     ];
                                 @endphp
                                 @foreach($leaveApplication as $leaves)
