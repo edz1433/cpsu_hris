@@ -126,7 +126,12 @@
                         <div class="col-md-3 mt-1">                            
                             <input class="form-control form-control-sm text-center update-field" type="number" name="servcred_leave" value="{{ $employee->servcred_leave }}" data-column-id="{{ $empid ?? null }}" data-column-name="servcred_leave" step="0.001" min="0" max="30" placeholder="0.00" autocomplete="off">
                         </div>
-
+                        <div class="col-md-9 mt-1">
+                            <strong>Wellness Leave</strong>
+                        </div>
+                        <div class="col-md-3 mt-1">                            
+                            <input class="form-control form-control-sm text-center update-field" type="number" name="wellness_leave" value="{{ $employee->wellness_leave }}" data-column-id="{{ $empid ?? null }}" data-column-name="wellness_leave" step="0.001" min="0" max="30" placeholder="0.00" autocomplete="off">
+                        </div>
                         </div>
                     </div>
                 </form>            

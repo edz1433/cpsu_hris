@@ -97,7 +97,8 @@ class LeaveApplicationController extends Controller
             11 => 'Special Leave Benefits for Women',
             12 => 'Special Emergency (Calamity) Leave',
             13 => 'Adoption Leave',
-            14 => 'Vacation Service Credit'
+            14 => 'Vacation Service Credit',
+            15 => 'Wellness Leave'
         ];
         
         Notification::create([
@@ -286,6 +287,12 @@ class LeaveApplicationController extends Controller
 
         if($leavetype == 14) {
             if ($daysdeduct > $employee->servcred_leave) {
+                return response()->json(['error' => 'Insufficient leave credits'], 400);
+            }
+        }
+
+        if($leavetype == 15) {
+            if ($daysdeduct > $employee->wellness_leave) {
                 return response()->json(['error' => 'Insufficient leave credits'], 400);
             }
         }
@@ -557,7 +564,8 @@ class LeaveApplicationController extends Controller
             11 => 'Special Leave Benefits for Women',
             12 => 'Special Emergency (Calamity) Leave',
             13 => 'Adoption Leave',
-            14 => 'Vacation Service Credit'
+            14 => 'Vacation Service Credit',
+            15 => 'Wellness Leave'
         ];
         
         if($request->by == 0){
@@ -628,6 +636,9 @@ class LeaveApplicationController extends Controller
             }
             if($leaveApplication->leave_type == 14){
                 $employee->servcred_leave -= ($leaveApplication->days - $leaveApplication->day_wpay);
+            }
+            if($leaveApplication->leave_type == 15){
+                $employee->wellness_leave -= ($leaveApplication->days - $leaveApplication->day_wpay);
             }
 
             $employee->save();
@@ -787,6 +798,9 @@ class LeaveApplicationController extends Controller
                 if($leaveApplication->leave_type == 14){
                     $employee->servcred_leave += ($leaveApplication->days - $leaveApplication->day_wpay);
                 }
+                if($leaveApplication->leave_type == 15){
+                    $employee->wellness_leave += ($leaveApplication->days - $leaveApplication->day_wpay);
+                }
 
                 $employee->save();
                 
@@ -873,6 +887,8 @@ class LeaveApplicationController extends Controller
                     $employee->special_pl += ($leaveApplication->days - $leaveApplication->day_wpay);
                 }if($leaveApplication->leave_type == 14){
                     $employee->servcred_leave += ($leaveApplication->days - $leaveApplication->day_wpay);
+                }if($leaveApplication->leave_type == 15){
+                    $employee->wellness_leave += ($leaveApplication->days - $leaveApplication->day_wpay);
                 }
                 
                 $employee->save();
@@ -1210,18 +1226,18 @@ class LeaveApplicationController extends Controller
             }
         
             $applications = LeaveApplication::whereBetween('date_filing', [$startDateObj, $endDateObj])
-                                             ->join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
-                                             // ->where('history', 2)
-                                             ->whereIn('leave_applications.status', [3])
-                                             ->where('leave_applications.remarks_stat', 0)
-                                             ->orderBy('date_filing', 'asc')
-                                             ->select('leave_applications.*', 
-                                             'employees.lname', 
-                                             'employees.fname', 
-                                             'employees.mname', 
-                                             'employees.suffix',   
-                                             )
-                                            ->get();
+                                            ->join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
+                                            // ->where('history', 2)
+                                            ->whereIn('leave_applications.status', [3])
+                                            ->where('leave_applications.remarks_stat', 0)
+                                            ->orderBy('date_filing', 'asc')
+                                            ->select('leave_applications.*', 
+                                            'employees.lname', 
+                                            'employees.fname', 
+                                            'employees.mname', 
+                                            'employees.suffix',   
+                                            )
+                                        ->get();
         } else {
             $filingdateObj = Carbon::parse($filingdate)->startOfDay();
         
@@ -1280,6 +1296,7 @@ class LeaveApplicationController extends Controller
             'calamity_leave' => $employee->calamity_leave,
             'adopt_leave' => $employee->adopt_leave,
             'servcred_leave' => $employee->servcred_leave,
+            'wellness_leave' => $employee->wellness_leave,
         ]);
     }
     
