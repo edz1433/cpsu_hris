@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Employee;
 use App\Models\Dtr;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -15,8 +16,7 @@ class TimeEntryController extends Controller
     // ==== CONFIG ====
     private int   $embeddingLimit = 7;
     private float $dedupeThr2     = 0.28 * 0.28;
-    private float $acceptThr2     = 0.65 * 0.65;
-    
+    private float $acceptThr2     = 0.65 * 0.65;    
     // ==== HELPERS ====
     private function shortDecrypt($encrypted) { $key = 'fA7xB93kL0pTzWmQ'; $cipher = 'AES-128-ECB'; $encrypted = strtr($encrypted, '-_', '+/'); return openssl_decrypt(base64_decode($encrypted), $cipher, $key, 0); }
     private function l2Normalize(array $v): array {
@@ -75,8 +75,7 @@ class TimeEntryController extends Controller
             if (!is_finite((float)$x)) return false; // guard NaN/INF
         }
         return true;
-    }
-    
+    }    
     // ==== APIs ====
     public function checkRestrictionLevel(Request $request) {
         $ttl = 30; // seconds
@@ -131,8 +130,7 @@ class TimeEntryController extends Controller
             'message'     => $allowed ? null : ($message ?? 'Action not available.'),
         ]);
     }
-    public function fetchLicense(Request $request)
-    {
+    public function fetchLicense(Request $request) {
         // Optional: very light rate limit (per IP)
         $key = 'facesdk:license:' . $request->ip();
         if (!Cache::add($key, 1, now()->addSeconds(10))) {
@@ -141,16 +139,13 @@ class TimeEntryController extends Controller
                 'message' => 'Too many requests'
             ], 429);
         }
-
         $license = DB::table('settings')->value('te_key');
-
         if (!is_string($license) || trim($license) === '') {
             return response()->json([
                 'ok' => false,
                 'message' => 'License not configured'
             ], 500);
         }
-
         return response()->json([
             'ok'      => true,
             'license' => $license,
@@ -197,11 +192,9 @@ class TimeEntryController extends Controller
             ->setEtag($etag)
             ->header('Cache-Control', 'no-store, max-age=0');
     }
-    public function validateQr(Request $request)
-    {
+    public function validateQr(Request $request) {
         $qrRaw = $request->input('qr');
         $mode  = $request->input('mode', 'emp');
-
         // 200-only responses to keep frontend compatible
         if (!in_array($mode, ['emp', 'admin'], true)) {
             return response()->json(['valid' => false, 'message' => 'Invalid mode.'], 200);
@@ -209,7 +202,6 @@ class TimeEntryController extends Controller
         if (!is_string($qrRaw) || trim($qrRaw) === '') {
             return response()->json(['valid' => false, 'message' => 'Invalid QR code (missing).'], 200);
         }
-
         try {
             $empId = trim((string) $this->shortDecrypt($qrRaw));
         } catch (\Throwable $e) {
@@ -218,7 +210,6 @@ class TimeEntryController extends Controller
         if ($empId === '') {
             return response()->json(['valid' => false, 'message' => 'Invalid QR code.'], 200);
         }
-
         // JSON-aware face check in SQL; avoids roundtripping the blob
         $row = DB::table('employees')
             ->select([
@@ -238,15 +229,12 @@ class TimeEntryController extends Controller
             ->where('emp_ID', $empId)
             ->where('stat_1', 1)
             ->first();
-
         if (!$row) {
             return response()->json(['valid' => false, 'message' => 'Employee not found or inactive.'], 200);
         }
-
         if (!(bool) $row->has_face) {
             return response()->json(['valid' => false, 'message' => 'No face registered for this employee.'], 200);
         }
-
         $isAdmin = false;
         if ($mode === 'admin') {
             $csv = (string) DB::table('settings')->value('hr_kiosk');
@@ -256,9 +244,7 @@ class TimeEntryController extends Controller
             }
             $isAdmin = true;
         }
-
         $name = trim(preg_replace('/\s+/', ' ', "{$row->fname} {$row->lname}"));
-
         return response()->json([
             'valid'    => true,
             'emp_id'   => $row->emp_ID,
@@ -432,14 +418,12 @@ class TimeEntryController extends Controller
             ], 500);
         }
     }
-    public function fetchLatestLogs(Request $request)
-    {
+    public function fetchLatestLogs(Request $request) {
         $MAX_DATES = 16;
         $empId = $request->input('empId');
         if (!$empId) {
             return response()->json(['error' => 'Missing empId'], 400);
         }
-
         // Burst control: 1 request per 3s per employee
         $key = 'latestlogs:' . $empId;
         $cooldown = 3;
@@ -448,12 +432,10 @@ class TimeEntryController extends Controller
                 ->json(['error' => 'Too many requests'], 429)
                 ->header('Retry-After', (string)$cooldown);
         }
-
         // Default labels
         $DEFAULT_CAMPUS = 'TBD';
         $DEFAULT_LABEL  = 'TBD';
-
-        // 1️⃣ Fetch recent date window
+        // Fetch recent date window
         $dates = DB::table('dtrs')
             ->where('emp_ID', $empId)
             ->where(function ($q) {
@@ -465,7 +447,6 @@ class TimeEntryController extends Controller
             ->limit($MAX_DATES)
             ->pluck('date')
             ->toArray();
-
         if (empty($dates)) {
             return response()->json([
                 'window_days'    => $MAX_DATES,
@@ -473,8 +454,7 @@ class TimeEntryController extends Controller
                 'logs'           => [],
             ], 200);
         }
-
-        // 2️⃣ Fetch all relevant rows for those dates
+        // Fetch all relevant rows for those dates
         $rows = DB::table('dtrs')
             ->join('employees', 'dtrs.emp_ID', '=', 'employees.emp_ID')
             ->where('dtrs.emp_ID', $empId)
@@ -482,11 +462,9 @@ class TimeEntryController extends Controller
             ->select('dtrs.*', 'employees.fname', 'employees.lname', 'employees.suffix')
             ->orderBy('dtrs.date', 'desc')
             ->get();
-
-        // 3️⃣ Collect unique positive/negative IDs
+        // Collect unique positive/negative IDs
         $deviceIds = [];
         $zoneIds   = [];
-
         foreach ($rows as $r) {
             $extractIds = function ($str) {
                 return array_filter(array_map('trim', explode(',', (string)$str)));
@@ -495,16 +473,13 @@ class TimeEntryController extends Controller
             foreach ($extractIds($r->device_id_out) as $id) $id > 0 ? $deviceIds[$id] = true : $zoneIds[$id] = true;
             foreach ($extractIds($r->device_id_over) as $id)$id > 0 ? $deviceIds[$id] = true : $zoneIds[$id] = true;
         }
-
-        // 4️⃣ Pull only needed lookups (sign rule preserved)
+        // Pull only needed lookups (sign rule preserved)
         $deviceById         = empty($deviceIds) ? [] : DB::table('f_devices')->whereIn('id', array_keys($deviceIds))->pluck('label', 'id')->toArray();
         $deviceCampusById   = empty($deviceIds) ? [] : DB::table('f_devices')->whereIn('id', array_keys($deviceIds))->pluck('camp_id', 'id')->toArray();
         $zoneById           = empty($zoneIds)   ? [] : DB::table('logzones')->whereIn('id', array_keys($zoneIds))->pluck('label', 'id')->toArray();
         $zoneCampusById     = empty($zoneIds)   ? [] : DB::table('logzones')->whereIn('id', array_keys($zoneIds))->pluck('camp_id', 'id')->toArray();
-
         $campusIds = array_unique(array_merge(array_values($deviceCampusById), array_values($zoneCampusById)));
         $campusById = empty($campusIds) ? [] : DB::table('campuses')->whereIn('id', $campusIds)->pluck('campus_name', 'id')->toArray();
-
         $campusName = function (?int $id) use ($deviceCampusById, $zoneCampusById, $campusById, $DEFAULT_CAMPUS) {
             if ($id === null) return $DEFAULT_CAMPUS;
             if ($id > 0) {
@@ -519,8 +494,7 @@ class TimeEntryController extends Controller
             return $id > 0 ? ($deviceById[$id] ?? $DEFAULT_LABEL)
                         : ($zoneById[$id] ?? $DEFAULT_LABEL);
         };
-
-        // 5️⃣ Expand all time fields
+        // Expand all time fields
         $out = [];
         foreach ($rows as $r) {
             $append = function ($times, $ids, $type) use (&$out, $r, $campusName, $labelName) {
@@ -547,60 +521,64 @@ class TimeEntryController extends Controller
             $append($r->time_out, $r->device_id_out, 'time_out');
             $append($r->time_over,$r->device_id_over,'time_over');
         }
-
-        // 6️⃣ Sort newest first (no Carbon needed)
+        // Sort newest first (no Carbon needed)
         usort($out, fn($a, $b) => strcmp($b['ts'], $a['ts']));
         foreach ($out as &$r) unset($r['ts']);
-
         return response()->json([
             'window_days'    => $MAX_DATES,
             'dates_included' => $dates,
             'logs'           => $out,
         ], 200);
     }
-    public function printDtr(Request $request)
-{
-    $encrypted = $request->input('e');   // ← matches what frontend sends
-
-    if (!$encrypted) {
-        return response()->json([
-            'error' => 'Missing encrypted parameter'
-        ], 400);
+    public function downloadDtr(Request $request) {
+        $encrypted = $request->input('e');
+        if (empty($encrypted)) {
+            return response('Missing encrypted parameter (e)', 400)
+                ->header('Content-Type', 'text/plain');
+        }
+        // Use your existing shortDecrypt (unchanged)
+        $empId = $this->shortDecrypt($encrypted);
+        $empId = trim($empId ?? '');
+        if (empty($empId)) {
+            return response('Invalid or corrupted employee data', 400)
+                ->header('Content-Type', 'text/plain');
+        }
+        // Employee lookup
+        $employee = Employee::where('emp_ID', $empId)
+            ->where('stat_1', 1)
+            ->first();
+        if (!$employee) {
+            return response('Employee not found or inactive', 404)
+                ->header('Content-Type', 'text/plain');
+        }
+        // Fetch DTR records
+        // $query = Dtr::where('emp_ID', $empId);
+        // $dateInput = $request->input('date'); // optional YYYY-MM
+        // if ($dateInput && preg_match('/^\d{4}-\d{2}$/', $dateInput)) {
+        //     $year  = substr($dateInput, 0, 4);
+        //     $month = substr($dateInput, 5, 2);
+        //     $query->whereYear('date', $year)
+        //         ->whereMonth('date', $month);
+        // } else {
+        //     // Default: last 6 months
+        //     $query->where('date', '>=', now()->subMonths(6)->startOfMonth())
+        //         ->orderBy('date', 'desc');
+        // }
+        // $dtr = $query->get();
+        // Return the printable view
+        // return view('print.dtr-print', [
+        //     'employee'     => $employee,
+        //     'dtr'          => $dtr,
+        //     'generated_at' => now()->format('M d, Y h:i A'),
+        //     'period'       => $dateInput ?? 'Last 6 months',
+        // ]);
+        $fullName = trim(
+            ($employee->fname ?? '') . ' ' .
+            ($employee->mname ?? '') . ' ' .
+            ($employee->lname ?? '')
+        );
+        return response($fullName, 200)->header('Content-Type', 'text/plain');
     }
-
-    // Try to decrypt (same logic as validate-qr / face-claim)
-    try {
-        $decrypted = $this->shortDecrypt($encrypted);
-
-        // For demo: just return plain text showing we received & decrypted it
-        $html = "<!DOCTYPE html>
-<html>
-<head><title>DTR Debug</title></head>
-<body style='font-family:Arial; padding:40px;'>
-    <h1>DTR Download – Debug Mode</h1>
-    <p style='font-size:1.2em;'>
-        Received encrypted value: <code>" . htmlspecialchars($encrypted) . "</code><br>
-        Decrypted emp_id: <strong>" . htmlspecialchars($decrypted) . "</strong>
-    </p>
-    <p style='color:#555; margin-top:2rem;'>
-        If you see your correct employee ID above → encryption round-trip works.<br>
-        In real version this page would show your full DTR table.
-    </p>
-    <button onclick='window.print()' style='padding:12px 24px; font-size:16px; margin-top:20px;'>
-        Print Test Page
-    </button>
-</body>
-</html>";
-
-        return response($html)->header('Content-Type', 'text/html');
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => 'Decryption failed',
-            'message' => $e->getMessage()
-        ], 400);
-    }
-}
     public function adminFaceClaim(Request $request) {
         // 1) Validate embedding input
         $embedding = $request->input('embedding');
