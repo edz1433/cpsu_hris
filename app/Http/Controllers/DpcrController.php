@@ -417,7 +417,7 @@ class DpcrController extends Controller
         $customPaper = [0, 0, 1008, 684];
 
         $pdf = \PDF::loadView('drive.dpcr-pdf-rating', compact('guard', 'datas', 'prs', 'cores', 'folder', 'strats', 'supports', 'employeesreg',
-            'cat', 'empid', 'employees', 'fullname', 'dempid', 'prnumber', 'dprnumber'))
+            'cat', 'empid', 'employee', 'employees', 'fullname', 'dempid', 'prnumber', 'dprnumber'))
             ->setPaper($customPaper, 'portrait')
             ->setOptions([
                 'isHtml5ParserEnabled' => true,

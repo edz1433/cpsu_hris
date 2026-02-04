@@ -745,15 +745,33 @@
     </div>
     <div class="col-md-12 text-center">
         <div class="row">
-            @foreach ($selectedEmployees as $asignatory)
+            @php
+                $employees = $selectedEmployees;
+
+                if (in_array($employee->id, [131, 2])) {
+                    $employees = $selectedEmployees->sortBy(function ($item) {
+                        return stripos($item->designation, 'president') !== false ? 1 : 0;
+                    });
+                }
+            @endphp
+
+            @foreach ($employees as $asignatory)
                 @php
                     $fullName = $asignatory->fname . ' ' .
-                                ($asignatory->mname ? strtoupper(substr($asignatory->mname, 0, 1)) . '. ' : '') .
+                                ($asignatory->mname
+                                    ? strtoupper(substr($asignatory->mname, 0, 1)) . '. '
+                                    : '') .
                                 $asignatory->lname;
                 @endphp
+
                 <div class="col text-center">
                     <div><strong>_________________________________</strong></div>
-                    <div><strong>{{ $fullName ?? 'N/A' }}{{ ($asignatory->suffixes) ? ', '.$asignatory->suffixes : '' }}</strong></div>
+                    <div>
+                        <strong>
+                            {{ $fullName ?? 'N/A' }}
+                            {{ $asignatory->suffixes ? ', '.$asignatory->suffixes : '' }}
+                        </strong>
+                    </div>
                     <div>{{ ucwords(strtolower($asignatory->designation)) ?? 'N/A' }}</div>
                 </div>
             @endforeach
