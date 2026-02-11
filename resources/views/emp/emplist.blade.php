@@ -78,7 +78,11 @@
                                             <td>{{ isset($hireDate) ? date('F d, Y', strtotime($hireDate)) : '' }}</td>
                                             <td class="text-center">
                                                 <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input" onchange="toggleStat(this.checked, {{ $emp->id }})" id="switch{{ $emp->id }}" {{ $emp->stat_1 == 1 ? 'checked' : '' }}>
+                                                    <input type="checkbox"
+                                                        class="custom-control-input"
+                                                        onchange="openToggleDialog(this, '{{ $emp->fname }} {{ $emp->mname }} {{ $emp->lname }}', {{ $emp->id }})"
+                                                        id="switch{{ $emp->id }}"
+                                                        {{ $emp->stat_1 == 1 ? 'checked' : '' }}>
                                                     <label class="custom-control-label" for="switch{{ $emp->id }}"></label>
                                                 </div>
                                             </td>
@@ -250,7 +254,50 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="toggleConfirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-white">Confirm Action</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4" id="confirmMessage" style="font-size: 16px;"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="confirmToggle">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
-    
+let pendingCheckbox = null;
+let pendingEmpId = null;
+let pendingNewState = null;
+function openToggleDialog(checkbox, fullname, empId) {
+    // Save original values
+    pendingNewState = checkbox.checked;
+    pendingEmpId = empId;
+    pendingCheckbox = checkbox;
+    // Immediately revert so UI does NOT visually toggle yet
+    checkbox.checked = !pendingNewState;
+    const action = pendingNewState ? "enable" : "disable";
+    document.getElementById("confirmMessage").innerHTML =
+        "Are you sure you want to <b>" + action + "</b> this employee?<br><br>" +
+        "<span class='text-primary font-weight-bold'>" + fullname + "</span>";
+    $("#toggleConfirmModal").modal("show");
+}
+document.getElementById("confirmToggle").onclick = function () {
+    $("#toggleConfirmModal").modal("hide");
+    // Now apply the new intended state
+    pendingCheckbox.checked = pendingNewState;
+    toggleStat(pendingNewState, pendingEmpId);
+    pendingCheckbox = null;
+};
 </script>
 @endsection
