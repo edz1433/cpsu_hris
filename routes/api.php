@@ -23,7 +23,7 @@ Route::get('/application/status/{appnumber}', [ApplicationController::class, 'ap
 
 // DTR
 Route::prefix('app-dtr')->group(function () {
-    Route::post('/{empid}', [TimeEntryDtrController::class, 'dtrRead'])->name('app-dtr-read');
+    Route::get('/{empid}', [TimeEntryDtrController::class, 'dtrRead'])->name('app-dtr-read');
     Route::post('/search', [TimeEntryDtrController::class, 'dtrSearch'])->name('app-dtr-search');
     Route::get('/pdf/{empid}/{period}/{date}/{overtime}/{filename}', [TimeEntryDtrController::class, 'dtrPdf'])->name('app-dtr-pdf');
     // Route::get('/logs/{empid}', [TimeEntryDtrController::class, 'dtrLogs'])->name('app-dtr-logs');
