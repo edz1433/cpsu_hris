@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\DtrController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\TimeEntryController;
+use App\Http\Controllers\Api\TimeEntryDtrController;
 use App\Http\Controllers\Api\JobHiringController;
 use App\Http\Controllers\Api\ApplicationController;
 use App\Http\Controllers\Api\ClinicController;
@@ -20,6 +21,13 @@ Route::post('/application/store', [ApplicationController::class, 'applicationSto
 Route::get('/application/check/{jid}/{email}', [ApplicationController::class, 'applicationCheck'])->name('application.check');
 Route::get('/application/status/{appnumber}', [ApplicationController::class, 'applicationStatus'])->name('application.status');
 
+// DTR
+Route::prefix('app-dtr')->group(function () {
+    Route::get('/{empid}', [TimeEntryDtrController::class, 'dtrRead'])->name('app-dtr-read');
+    Route::post('/search', [TimeEntryDtrController::class, 'dtrSearch'])->name('app-dtr-search');
+    Route::get('/pdf/{empid}/{period}/{date}/{overtime}/{filename}', [TimeEntryDtrController::class, 'dtrPdf'])->name('app-dtr-pdf');
+    // Route::get('/logs/{empid}', [TimeEntryDtrController::class, 'dtrLogs'])->name('app-dtr-logs');
+});
 // Route::get('/emp-sig',[CoasController::class,'empSig'])->name('empSig');
 
 Route::prefix('app')->group(function() {
