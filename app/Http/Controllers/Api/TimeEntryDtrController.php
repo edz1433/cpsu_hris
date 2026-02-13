@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Models\Employee;
 use App\Models\Dtr;
 use App\Models\OfficialTime;
@@ -46,6 +47,44 @@ class TimeEntryDtrController extends Controller
         ]);
     }
 
+    // public function dtrSearch(Request $request)
+    // {
+    //     $request->validate([
+    //         'emp_id' => 'required|exists:employees,emp_ID',
+    //         'period' => 'required|in:1,2,3',
+    //         'date'   => 'required|date_format:Y-m',
+    //     ]);
+
+    //     $empdata = Employee::where('emp_ID', $request->emp_id)->firstOrFail();
+
+    //     $period   = (int) $request->period;
+    //     $date     = $request->date;
+    //     $overtime = $request->boolean('overtime');
+
+    //     $carbonDate   = Carbon::createFromFormat('Y-m', $date);
+    //     $monthName    = strtoupper($carbonDate->format('F'));
+    //     $year         = $carbonDate->format('Y');
+    //     $daysInMonth  = $carbonDate->daysInMonth;
+
+    //     $periodLabel = match ($period) {
+    //         1 => "1-15",
+    //         2 => "16-$daysInMonth",
+    //         3 => "1-$daysInMonth",
+    //         default => 'Invalid'
+    //     };
+
+    //     $dtrFilename = strtoupper("{$empdata->fname}_{$empdata->lname}_DTR_{$periodLabel}_{$monthName}_{$year}.pdf");
+    //     $dtrLogsFilename = strtoupper("{$empdata->fname}_{$empdata->lname}_DTR_LOGS_{$periodLabel}_{$monthName}_{$year}.pdf");
+
+    //     return view('dtr.app-dtr', compact(
+    //         'empdata',
+    //         'period',
+    //         'date',
+    //         'overtime',
+    //         'dtrFilename',
+    //         'dtrLogsFilename'
+    //     ));
+    // }
     public function dtrSearch(Request $request)
     {
         $request->validate([
@@ -60,20 +99,29 @@ class TimeEntryDtrController extends Controller
         $date     = $request->date;
         $overtime = $request->boolean('overtime');
 
-        $carbonDate   = Carbon::createFromFormat('Y-m', $date);
-        $monthName    = strtoupper($carbonDate->format('F'));
-        $year         = $carbonDate->format('Y');
-        $daysInMonth  = $carbonDate->daysInMonth;
+        $now       = now();
+        $yearMonth = $now->format('Ym');     // YYYYMM
+        $timePart  = $now->format('Hisv');   // HHMMSSMS
 
-        $periodLabel = match ($period) {
-            1 => "1-15",
-            2 => "16-$daysInMonth",
-            3 => "1-$daysInMonth",
-            default => 'Invalid'
-        };
+        $halfLabel = in_array($period, [1, 2]) ? "H{$period}" : null;
 
-        $dtrFilename = strtoupper("{$empdata->fname}_{$empdata->lname}_DTR_{$periodLabel}_{$monthName}_{$year}.pdf");
-        $dtrLogsFilename = strtoupper("{$empdata->fname}_{$empdata->lname}_DTR_LOGS_{$periodLabel}_{$monthName}_{$year}.pdf");
+        // Base timestamp (without OT)
+        $parts = array_filter([$yearMonth, $halfLabel, $timePart]);
+        $timestamp = implode('-', $parts);
+
+        // Append _OT if overtime
+        if ($overtime) { $timestamp .= '_OT'; }
+
+        $lname = str_replace(' ', '', ucwords(strtolower($empdata->lname)));
+        $fname = str_replace(' ', '', ucwords(strtolower($empdata->fname)));
+        $mname = $empdata->mname
+            ? str_replace(' ', '', ucwords(strtolower($empdata->mname)))
+            : '';
+
+        $baseName = "{$lname},{$fname}{$mname}";
+
+        $dtrFilename     = "{$baseName}_DTR_{$timestamp}.pdf";
+        $dtrLogsFilename = "{$baseName}_DTR-LOGS_{$timestamp}.pdf";
 
         return view('dtr.app-dtr', compact(
             'empdata',
