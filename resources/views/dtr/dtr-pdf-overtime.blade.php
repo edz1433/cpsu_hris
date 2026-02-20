@@ -17,19 +17,17 @@
             float: left;
             width: 52%;
             margin-left: -20px;
+            margin-top: 20px;
         }
         .column2 {
             margin-left: 15px;
             float: left;
             width: 52%;
+            margin-top: 20px;
         }
         .table-head{
             width: 100%;
             border-collapse: collapse;
-        }
-        .b-none{
-            border: none !important;
-            font-size: 10px;
         }
         .b-none{
             border: none !important;

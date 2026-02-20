@@ -47,44 +47,6 @@ class TimeEntryDtrController extends Controller
         ]);
     }
 
-    // public function dtrSearch(Request $request)
-    // {
-    //     $request->validate([
-    //         'emp_id' => 'required|exists:employees,emp_ID',
-    //         'period' => 'required|in:1,2,3',
-    //         'date'   => 'required|date_format:Y-m',
-    //     ]);
-
-    //     $empdata = Employee::where('emp_ID', $request->emp_id)->firstOrFail();
-
-    //     $period   = (int) $request->period;
-    //     $date     = $request->date;
-    //     $overtime = $request->boolean('overtime');
-
-    //     $carbonDate   = Carbon::createFromFormat('Y-m', $date);
-    //     $monthName    = strtoupper($carbonDate->format('F'));
-    //     $year         = $carbonDate->format('Y');
-    //     $daysInMonth  = $carbonDate->daysInMonth;
-
-    //     $periodLabel = match ($period) {
-    //         1 => "1-15",
-    //         2 => "16-$daysInMonth",
-    //         3 => "1-$daysInMonth",
-    //         default => 'Invalid'
-    //     };
-
-    //     $dtrFilename = strtoupper("{$empdata->fname}_{$empdata->lname}_DTR_{$periodLabel}_{$monthName}_{$year}.pdf");
-    //     $dtrLogsFilename = strtoupper("{$empdata->fname}_{$empdata->lname}_DTR_LOGS_{$periodLabel}_{$monthName}_{$year}.pdf");
-
-    //     return view('dtr.app-dtr', compact(
-    //         'empdata',
-    //         'period',
-    //         'date',
-    //         'overtime',
-    //         'dtrFilename',
-    //         'dtrLogsFilename'
-    //     ));
-    // }
     public function dtrSearch(Request $request)
     {
         $request->validate([
@@ -99,15 +61,11 @@ class TimeEntryDtrController extends Controller
         $date     = $request->date;
         $overtime = $request->boolean('overtime');
 
-        $now       = now();
-        $yearMonth = $now->format('Ym');     // YYYYMM
-        $timePart  = $now->format('Hisv');   // HHMMSSMS
-
         $halfLabel = in_array($period, [1, 2]) ? "H{$period}" : null;
 
         // Base timestamp (without OT)
-        $parts = array_filter([$yearMonth, $halfLabel, $timePart]);
-        $timestamp = implode('-', $parts);
+        $ym = str_replace('-', '', $date); // 2026-02 → 202602
+        $timestamp = $halfLabel ? $ym . $halfLabel : $ym;
 
         // Append _OT if overtime
         if ($overtime) { $timestamp .= '_OT'; }
@@ -121,7 +79,7 @@ class TimeEntryDtrController extends Controller
         $baseName = "{$lname},{$fname}{$mname}";
 
         $dtrFilename     = "{$baseName}_DTR_{$timestamp}.pdf";
-        $dtrLogsFilename = "{$baseName}_DTR-LOGS_{$timestamp}.pdf";
+        $dtrLogsFilename = "{$baseName}_DTRLogs_{$timestamp}.pdf";
 
         return view('dtr.app-dtr', compact(
             'empdata',

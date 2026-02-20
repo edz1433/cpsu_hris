@@ -257,7 +257,7 @@
 <div class="modal fade" id="toggleConfirmModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-primary">
+            <div class="modal-header bg-danger">
                 <h5 class="modal-title text-white">Confirm Action</h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span>&times;</span>
@@ -268,7 +268,7 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                     Cancel
                 </button>
-                <button type="button" class="btn btn-primary" id="confirmToggle">
+                <button type="button" class="btn btn-danger" id="confirmToggle">
                     Confirm
                 </button>
             </div>
@@ -288,8 +288,8 @@ function openToggleDialog(checkbox, fullname, empId) {
     checkbox.checked = !pendingNewState;
     const action = pendingNewState ? "enable" : "disable";
     document.getElementById("confirmMessage").innerHTML =
-        "Are you sure you want to <b>" + action + "</b> this employee?<br><br>" +
-        "<span class='text-primary font-weight-bold'>" + fullname + "</span>";
+        "Are you sure you want to <b>" + action + "</b> this employee's account?<br><br>" +
+        "<span class='text-dark font-weight-bold' style='font-size:18px;'>" + fullname + "</span>";
     $("#toggleConfirmModal").modal("show");
 }
 document.getElementById("confirmToggle").onclick = function () {

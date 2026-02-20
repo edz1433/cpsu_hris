@@ -26,10 +26,10 @@ Route::prefix('app-dtr')->group(function () {
     // Static routes MUST come before wildcard routes to avoid conflicts
     Route::post('/search', [TimeEntryDtrController::class, 'dtrSearch'])->name('app-dtr-search');
     // Route::get('/pdf/{empid}/{period}/{date}/{overtime}/{filename}', [TimeEntryDtrController::class, 'dtrPdf'])->name('app-dtr-pdf');
-Route::get('/pdf/{empid}/{period}/{date}/{overtime}/{filename}', 
-    [TimeEntryDtrController::class, 'dtrPdf']
-)->where('filename', '.*')
-->name('app-dtr-pdf');
+    Route::get('/pdf/{empid}/{period}/{date}/{overtime}/{filename}', 
+        [TimeEntryDtrController::class, 'dtrPdf']
+    )->where('filename', '.*')
+    ->name('app-dtr-pdf');
 
     // Route::get('/logs/{empid}', [TimeEntryDtrController::class, 'dtrLogs'])->name('app-dtr-logs');
     
