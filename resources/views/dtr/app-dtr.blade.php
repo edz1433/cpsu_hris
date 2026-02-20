@@ -168,10 +168,8 @@
             min-width: 0;
             overflow: hidden;
         }
-        .pdf-link:active {
-            opacity: 0.7;
-            transform: scale(0.98);
-            transition: all 0.1s;
+        .pdf-card:active {
+            background: #f8f9fa;
         }
         .pdf-icon {
             font-size: 2.4rem; /* Slightly reduced for better fit on narrow screens */
