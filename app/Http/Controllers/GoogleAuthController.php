@@ -127,10 +127,12 @@ class GoogleAuthController extends Controller
     {
         try {
             $google_user = Socialite::driver('google')->user();
-            $email = $google_user->getEmail();
+            $email = strtolower(trim($google_user->getEmail()));
 
-            $user = User::where('username', $email)->first();
-            $employee = Employee::where('username', $email)->first();
+            $user = User::whereRaw('LOWER(username) = ?', [$email])->first();
+            $employee = Employee::whereRaw('LOWER(username) = ?', [$email])
+                ->orWhereRaw('LOWER(org_email) = ?', [$email])
+                ->first();
             
             if (!$user && !$employee) {
                 return redirect()->back()->with('error', 'We couldn\'t find your email. Please contact HR for assistance.');
@@ -141,6 +143,7 @@ class GoogleAuthController extends Controller
 
             // 🧩 Determine recipient (User or Employee)
             $recipient = $user ?? $employee;
+            $recipientEmail = $user ? $user->username : ($employee->org_email ?? $employee->username);
             $recipient->verification_code = $verification_code;
             $recipient->save();
 
@@ -172,8 +175,8 @@ class GoogleAuthController extends Controller
             </div>';
 
             // ✉️ Send styled email (FROM values from .env)
-            Mail::send([], [], function ($message) use ($recipient, $body) {
-                $message->to($recipient->username)
+            Mail::send([], [], function ($message) use ($recipientEmail, $body) {
+                $message->to($recipientEmail)
                         ->from(config('mail.from.address'), config('mail.from.name'))
                         ->subject('CPSU Login Verification Code')
                         ->html($body);

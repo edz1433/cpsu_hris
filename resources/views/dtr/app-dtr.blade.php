@@ -406,7 +406,7 @@
                                             <div class="skeleton skeleton-filename"></div>
                                             <div class="skeleton skeleton-subtitle"></div>
                                         </div>
-                                        <strong class="filename-ellipsis" data-fullname="{{ $dtrLogsFilename }}">{{ $dtrLogsFilename }}</strong>
+                                        {{-- <strong class="filename-ellipsis" data-fullname="{{ $dtrLogsFilename }}">{{ $dtrLogsFilename }}</strong> --}}
                                         <small>Logs – Not available yet</small>
                                     </div>
                                 </div>
