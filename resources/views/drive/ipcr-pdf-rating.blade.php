@@ -199,7 +199,7 @@
                         <tr id="mfodata{{ $Ipcrmfodata->id }}-{{ $Ipcrmfodata->ipcr_mfo_id }}" onclick="showOpcrMfoData({{ $Ipcrmfodata->id }},{{ $Ipcrmfodata->ipcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
                             <td class="text-left align-top" width="210">{!! displayValue($Ipcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
-                                {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Ipcrmfodata->measure) . '%', displayValue($Ipcrmfodata->target)) !!}
+                                {!! displayValue($Ipcrmfodata->target) !!}
                             </td>
                             <td></td>
                             <td class="text-center"></td>
@@ -264,7 +264,7 @@
                         <tr id="mfodata{{ $Ipcrmfodata->id }}-{{ $Ipcrmfodata->ipcr_mfo_id }}" onclick="showOpcrMfoData({{ $Ipcrmfodata->id }},{{ $Ipcrmfodata->ipcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
                             <td class="text-left align-top" width="210">{!! displayValue($Ipcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
-                                {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Ipcrmfodata->measure) . '%', displayValue($Ipcrmfodata->target)) !!}
+                                {!! displayValue($Ipcrmfodata->target) !!}
                             </td>
                             <td></td>
                             <td class="text-center"></td>
@@ -329,7 +329,7 @@
                         <tr id="mfodata{{ $Ipcrmfodata->id }}-{{ $Ipcrmfodata->ipcr_mfo_id }}" onclick="showOpcrMfoData({{ $Ipcrmfodata->id }},{{ $Ipcrmfodata->ipcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
                             <td class="text-left align-top" width="210">{!! displayValue($Ipcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
-                                {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Ipcrmfodata->measure) . '%', displayValue($Ipcrmfodata->target)) !!}
+                                {!! displayValue($Ipcrmfodata->target) !!}
                             </td>
                             <td></td>
                             <td class="text-center"></td>

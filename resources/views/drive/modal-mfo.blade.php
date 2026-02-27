@@ -87,7 +87,7 @@
                                 <div class="form-group col-md-4">
                                     <label class="text-success1">MEASURE</label>
                                     <textarea name="measure" rows="3" class="form-control form-control-sm" id="measure" autocomplete="off"
-                                        oninput="this.value = this.value.replace(/[^\d\n.,]/g, '');"></textarea>
+                                        ></textarea>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label class="text-success1">Link to Sources</label>

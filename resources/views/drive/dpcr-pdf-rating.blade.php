@@ -214,7 +214,7 @@
                         <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
                             <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
-                                {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
+                                {!! displayValue($dpcrmfodata->target) !!}
                             </td>
                             <td class="text-center">{{ $dpcrmfodata->in_support }}</td>
                             <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
@@ -307,7 +307,7 @@
                         <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
                             <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
-                                {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
+                                {!! displayValue($dpcrmfodata->target) !!}
                             </td>
                             <td class="text-center">{{ $dpcrmfodata->in_support }}</td>
                             <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
@@ -401,7 +401,7 @@
                         <tr id="mfodata{{ $dpcrmfodata->id }}-{{ $dpcrmfodata->dpcr_mfo_id }}" onclick="showOpcrMfoData({{ $dpcrmfodata->id }},{{ $dpcrmfodata->dpcr_mfo_id }}, {{ $core->count }}, {{ $dpcrmfodata->lock }})" style="cursor: pointer;">
                             <td class="text-left align-top" width="210">{!! displayValue($dpcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
-                                {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($dpcrmfodata->measure) . '%', displayValue($dpcrmfodata->target)) !!}
+                                {!! displayValue($dpcrmfodata->target) !!}
                             </td>
                             <td class="text-center">{{ $dpcrmfodata->in_support }}</td>
                             <td class="text-center">{{ $dpcrmfodata->report_sup }}</td>
@@ -441,6 +441,21 @@
                         </tr>
                         @endforeach
                     @endforeach
+                     <tr>
+                        <td colspan="12" style="text-align: right;">Subtotal</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="12"  style="text-align: right;">Final Rating</td>
+                        <td ></td>
+                        <td ></td>
+                    </tr>
+                    <tr>
+                       <td colspan="12" style="text-align: right;">Adjectival Rating</td>
+                       <td ></td>
+                       <td ></td>
+                    </tr>
             </tbody>
         </table>
         {{-- Dynamic Footer Script --}}

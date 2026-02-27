@@ -197,7 +197,7 @@
                 <tr  id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" data-group="core{{ $opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
                     <td class="text-left align-top" width="210">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">
-                        {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
+                        {!! displayValue($opcrmfodata->target) !!}
                     </td>
                     <td class="text-center">
                         @php
@@ -343,7 +343,7 @@
                 <tr  id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" data-group="strategic{{ $opcrmfodata->opcr_mfo_id  }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }}, {{ $opcrmfodata->opcr_mfo_id }}, {{ $strat->count }})" style="cursor: pointer;">
                     <td class="text-left align-top" width="210">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">
-                        {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
+                        {!! displayValue($opcrmfodata->target) !!}
                     </td>
                     <td class="text-center">
                         @php
@@ -486,7 +486,7 @@
                 <tr  id="mfodata{{ $opcrmfodata->id }}-{{ $opcrmfodata->opcr_mfo_id }}" data-group="support{{ $opcrmfodata->opcr_mfo_id  }}" onclick="showOpcrMfoData({{ $opcrmfodata->id }},{{ $opcrmfodata->opcr_mfo_id }}, {{ $supp->count }})" style="cursor: pointer;">
                     <td class="text-left align-top" width="210">{!! displayValue($opcrmfodata->mfo) !!}</td>
                     <td class="text-left pl-1">
-                        {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($opcrmfodata->measure) . '%', displayValue($opcrmfodata->target)) !!}
+                        {!! displayValue($opcrmfodata->target) !!}
                     </td>
                     <td class="text-center">
                         @php

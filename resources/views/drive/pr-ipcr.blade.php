@@ -288,7 +288,7 @@
             >
             <td class="text-left align-top" width="210">{!! displayValue($Ipcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">
-                    {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Ipcrmfodata->measure) . '%', displayValue($Ipcrmfodata->target)) !!}
+                    {!! displayValue($Ipcrmfodata->target) !!}
                 </td>
                 <td class="text-center">
                     @php
@@ -439,7 +439,7 @@
                 <tr id="mfodata{{ $Ipcrmfodata->id }}-{{ $Ipcrmfodata->ipcr_mfo_id }}" data-group="strategic{{ $Ipcrmfodata->ipcr_mfo_id }}" onclick="showipcrMfoData({{ $Ipcrmfodata->id }}, {{ $Ipcrmfodata->ipcr_mfo_id }}, {{ $strat->count }}, {{ $Ipcrmfodata->lock }})" style="cursor: pointer;">
                 <td class="text-left align-top" width="210">{!! displayValue($Ipcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">
-                    {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Ipcrmfodata->measure) . '%', displayValue($Ipcrmfodata->target)) !!}
+                    {!! displayValue($Ipcrmfodata->target) !!}
                 </td>
                 <td class="text-center">
                     @php
@@ -587,7 +587,7 @@
                 <tr id="mfodata{{ $Ipcrmfodata->id }}-{{ $Ipcrmfodata->ipcr_mfo_id }}" data-group="support{{ $Ipcrmfodata->ipcr_mfo_id }}" onclick="showipcrMfoData({{ $Ipcrmfodata->id }},{{ $Ipcrmfodata->ipcr_mfo_id }}, {{ $supp->count }}, {{ $Ipcrmfodata->lock }})" style="cursor: pointer;">
                 <td class="text-left align-top" width="210">{!! displayValue($Ipcrmfodata->mfo) !!}</td>
                 <td class="text-left pl-1">
-                    {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Ipcrmfodata->measure) . '%', displayValue($Ipcrmfodata->target)) !!}
+                    {!! displayValue($Ipcrmfodata->target) !!}
                 </td>
                 <td class="text-center">
                     @php

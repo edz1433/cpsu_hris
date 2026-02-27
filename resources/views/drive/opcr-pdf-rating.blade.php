@@ -122,7 +122,7 @@
             <thead>
                 <tr>
                     <th rowspan="5" class="text-center" style="width: 15%;">MFO/PAPs</th>
-                    <th rowspan="2" class="text-center" width="180">Success Indicators</th>
+                    <th rowspan="2" class="text-center" width="120">Success Indicators</th>
                     <th colspan="2" class="text-center">Evidence</th>
                     <th rowspan="5" class="text-center">Allotted<br>Budget</th>
                     <th rowspan="5" class="text-center">Division/<br>Individuals<br>Accountable</th>
@@ -212,7 +212,7 @@
                         <tr id="mfodata{{ $Opcrmfodata->id }}-{{ $Opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $Opcrmfodata->id }},{{ $Opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
                             <td class="text-left align-top" style="width: 15%;">{!! displayValue($Opcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
-                                {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Opcrmfodata->measure) . '%', displayValue($Opcrmfodata->target)) !!}
+                                {!! displayValue($Opcrmfodata->target) !!}
                             </td>
                             <td class="text-center">
                                 {!! displayValue($Opcrmfodata->in_support) !!}
@@ -320,7 +320,7 @@
                         <tr id="mfodata{{ $Opcrmfodata->id }}-{{ $Opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $Opcrmfodata->id }},{{ $Opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
                             <td class="text-left align-top" style="width: 15%;">{!! displayValue($Opcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
-                                {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Opcrmfodata->measure) . '%', displayValue($Opcrmfodata->target)) !!}
+                                {!! displayValue($Opcrmfodata->target) !!}
                             </td>
                             <td class="text-center">
                                 {!! displayValue($Opcrmfodata->in_support) !!}
@@ -429,7 +429,7 @@
                         <tr id="mfodata{{ $Opcrmfodata->id }}-{{ $Opcrmfodata->opcr_mfo_id }}" onclick="showOpcrMfoData({{ $Opcrmfodata->id }},{{ $Opcrmfodata->opcr_mfo_id }}, {{ $core->count }})" style="cursor: pointer;">
                             <td class="text-left align-top" style="width: 15%;">{!! displayValue($Opcrmfodata->mfo) !!}</td>
                             <td class="text-left pl-1">
-                                {!! preg_replace('/^(\S+)/', '$1 ' . displayValue($Opcrmfodata->measure) . '%', displayValue($Opcrmfodata->target)) !!}
+                                {!! displayValue($Opcrmfodata->target) !!}
                             </td>
                             <td class="text-center">
                                 {!! displayValue($Opcrmfodata->in_support) !!}
@@ -478,6 +478,22 @@
                         </tr>
                         @endforeach
                     @endforeach
+                    <tr>
+                        <td colspan="12" style="text-align: right;">Subtotal</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="13"  style="text-align: right;">Final Rating</td>
+                        <td ></td>
+                        <td ></td>
+                    </tr>
+                    <tr>
+                       <td colspan="13" style="text-align: right;">Adjectival Rating</td>
+                       <td ></td>
+                       <td ></td>
+                    </tr>
             </tbody>
         </table>
         <table style="width: 100%; border-collapse: collapse; border: none; margin-top: 30px;">
