@@ -533,12 +533,12 @@
                     @endphp
 
                     <th style="text-align: center; border: none; padding: 10px; font-size: 9.7px;">
-                        <div><strong>_________________________________</strong></div>
+                        {{-- <div><strong>_________________________________</strong></div> --}}
                         <div>
                             <strong>{{ $displayName ?? 'N/A' }}</strong>
                         </div>
                         <div>{{ $designation }}</div>
-                        <div><strong>_________________________________</strong></div>
+                        <div><strong>____________________</strong></div>
                         <div>Date</div>
                     </th>
                 @endforeach
