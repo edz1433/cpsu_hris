@@ -198,8 +198,8 @@
 
                         @php
                             $filteredOpcrMfoDatas = in_array($cat, [1, 2])
-                                ? $datas->where('opcr_mfo_id', $core->id)->where('category', $cat)
-                                : $datas->where('opcr_mfo_id', $core->id);
+                                ? $datas->where('opcr_mfo_id', $core->id)->where('category', $cat)->sortBy('order')
+                                : $datas->where('opcr_mfo_id', $core->id)->sortBy('order');
                         @endphp
 
                         @foreach($filteredOpcrMfoDatas as $Opcrmfodata)
@@ -306,8 +306,8 @@
 
                         @php
                             $filteredOpcrMfoDatas = in_array($cat, [1, 2])
-                                ? $datas->where('opcr_mfo_id', $strat->id)->where('category', $cat)
-                                : $datas->where('opcr_mfo_id', $strat->id);
+                                ? $datas->where('opcr_mfo_id', $strat->id)->where('category', $cat)->sortBy('order')
+                                : $datas->where('opcr_mfo_id', $strat->id)->sortBy('order');
                         @endphp
 
                         @foreach($filteredOpcrMfoDatas as $Opcrmfodata)
@@ -415,8 +415,8 @@
 
                         @php
                             $filteredOpcrMfoDatas = in_array($cat, [1, 2])
-                                ? $datas->where('opcr_mfo_id', $supp->id)->where('category', $cat)
-                                : $datas->where('opcr_mfo_id', $supp->id);
+                                ? $datas->where('opcr_mfo_id', $supp->id)->where('category', $cat)->sortBy('order')
+                                : $datas->where('opcr_mfo_id', $supp->id)->sortBy('order');
                         @endphp
 
                         @foreach($filteredOpcrMfoDatas as $Opcrmfodata)

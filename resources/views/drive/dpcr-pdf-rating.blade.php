@@ -198,8 +198,8 @@
 
                         @php
                             $filteredDpcrMfoDatas = in_array($cat, [1, 2])
-                                ? $datas->where('dpcr_mfo_id', $core->id)->where('category', $cat)
-                                : $datas->where('dpcr_mfo_id', $core->id);
+                                ? $datas->where('dpcr_mfo_id', $core->id)->where('category', $cat)->sortBy('order')
+                                : $datas->where('dpcr_mfo_id', $core->id)->sortBy('order');
                         @endphp
 
                         @foreach($filteredDpcrMfoDatas as $dpcrmfodata)
@@ -299,8 +299,8 @@
 
                         @php
                             $filteredDpcrMfoDatas = in_array($cat, [1, 2])
-                                ? $datas->where('dpcr_mfo_id', $strat->id)->where('category', $cat)
-                                : $datas->where('dpcr_mfo_id', $strat->id);
+                                ? $datas->where('dpcr_mfo_id', $strat->id)->where('category', $cat)->sortBy('order')
+                                : $datas->where('dpcr_mfo_id', $strat->id)->sortBy('order');
                         @endphp
 
                         @foreach($filteredDpcrMfoDatas as $dpcrmfodata)
@@ -393,8 +393,8 @@
 
                         @php
                             $filteredDpcrMfoDatas = in_array($cat, [1, 2])
-                                ? $datas->where('dpcr_mfo_id', $supp->id)->where('category', $cat)
-                                : $datas->where('dpcr_mfo_id', $supp->id);
+                                ? $datas->where('dpcr_mfo_id', $supp->id)->where('category', $cat)->sortBy('order')
+                                : $datas->where('dpcr_mfo_id', $supp->id)->sortBy('order');
                         @endphp
 
                         @foreach($filteredDpcrMfoDatas as $dpcrmfodata)
