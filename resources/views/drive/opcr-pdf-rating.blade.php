@@ -538,6 +538,8 @@
                             <strong>{{ $displayName ?? 'N/A' }}</strong>
                         </div>
                         <div>{{ $designation }}</div>
+                        <div><strong>_________________________________</strong></div>
+                        <div>Date</div>
                     </th>
                 @endforeach
             </tr>
