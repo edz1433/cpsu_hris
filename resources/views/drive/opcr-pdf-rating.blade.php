@@ -508,21 +508,21 @@
                         // Base name in uppercase
                         $baseName = strtoupper(trim($asignatory->fname . ' ' . $middleInitial . $asignatory->lname));
 
-                        // Prefixes that go BEFORE the name
+                        // Prefixes that go BEFORE the name (from your select list)
                         $frontPrefixes = ['Dr.', 'Engr.', 'Atty.', 'RChE.'];
 
                         $displayName = $baseName;
                         $suffix = '';
 
-                        // Check current prefix value
-                        if (!empty($asignatory->suffixes)) {  // assuming 'suffixes' is your prefix/suffix field
-                            $prefixValue = trim($asignatory->suffixes);
+                        // Check empprefix value
+                        if (!empty($asignatory->empprefix)) {
+                            $prefixValue = trim($asignatory->empprefix);
 
                             if (in_array($prefixValue, $frontPrefixes)) {
-                                // Front (before name)
+                                // BEFORE name
                                 $displayName = strtoupper($prefixValue) . ' ' . $baseName;
                             } else {
-                                // All others → after name (suffix)
+                                // AFTER name (the rest of your list)
                                 $suffix = ', ' . strtoupper($prefixValue);
                                 $displayName = $baseName . $suffix;
                             }
