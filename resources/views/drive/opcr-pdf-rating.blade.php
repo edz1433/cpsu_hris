@@ -500,17 +500,44 @@
             <tr>
                 @foreach ($selectedEmployees as $asignatory)
                     @php
-                        $fullName = $asignatory->fname . ' ' .
-                                    ($asignatory->mname ? strtoupper(substr($asignatory->mname, 0, 1)) . '. ' : '') .
-                                    $asignatory->lname;
+                        // Middle initial (uppercase)
+                        $middleInitial = $asignatory->mname 
+                            ? strtoupper(substr(trim($asignatory->mname), 0, 1)) . '. ' 
+                            : '';
+
+                        // Base name in uppercase
+                        $baseName = strtoupper(trim($asignatory->fname . ' ' . $middleInitial . $asignatory->lname));
+
+                        // Prefixes that go BEFORE the name
+                        $frontPrefixes = ['Dr.', 'Engr.', 'Atty.', 'RChE.'];
+
+                        $displayName = $baseName;
+                        $suffix = '';
+
+                        // Check current prefix value
+                        if (!empty($asignatory->suffixes)) {  // assuming 'suffixes' is your prefix/suffix field
+                            $prefixValue = trim($asignatory->suffixes);
+
+                            if (in_array($prefixValue, $frontPrefixes)) {
+                                // Front (before name)
+                                $displayName = strtoupper($prefixValue) . ' ' . $baseName;
+                            } else {
+                                // All others → after name (suffix)
+                                $suffix = ', ' . strtoupper($prefixValue);
+                                $displayName = $baseName . $suffix;
+                            }
+                        }
+
+                        // Designation in uppercase
+                        $designation = strtoupper($asignatory->designation ?? 'N/A');
                     @endphp
 
                     <th style="text-align: center; border: none; padding: 10px; font-size: 9.7px;">
                         <div><strong>_________________________________</strong></div>
                         <div>
-                            <strong>{{ $fullName ?? 'N/A' }}{{ $asignatory->suffixes ? ', ' . $asignatory->suffixes : '' }}</strong>
+                            <strong>{{ $displayName ?? 'N/A' }}</strong>
                         </div>
-                        <div>{{ $asignatory->designation ?? 'N/A' }}</div>
+                        <div>{{ $designation }}</div>
                     </th>
                 @endforeach
             </tr>
