@@ -32,7 +32,7 @@
 @php
     $selectedEmployees = \App\Models\SpmsAsignatory::where('pr_number', $dprnumber)
         ->join('employees', 'spms_asignatories.empid', '=', 'employees.emp_ID')
-        ->select('employees.fname', 'employees.lname', 'employees.mname', 'spms_asignatories.*')
+        ->select('employees.fname', 'employees.lname', 'employees.mname', 'spms_asignatories.*', 'employees.prefix as empprefix')
         ->get();
 
     function displayValue($value) {
@@ -568,22 +568,48 @@
     <div class="col-md-12 text-right mt-3" style="cursor: pointer;">
         <i class="fas fa-cog mr-2" style="font-size: 16px;" data-toggle="modal" data-target="#setupModal"></i>
     </div>
-    <div class="col-md-12 text-center">
-        <div class="row">
-            @foreach ($selectedEmployees as $asignatory)
-                @php
-                    $fullName = $asignatory->fname . ' ' .
-                                ($asignatory->mname ? strtoupper(substr($asignatory->mname, 0, 1)) . '. ' : '') .
-                                $asignatory->lname ;
-                @endphp
-                <div class="col text-center">
-                    <div><strong>_________________________________</strong></div>
-                    <div><strong>{{ $fullName ?? 'N/A' }}{{ ($asignatory->suffixes) ? ', '.$asignatory->suffixes : '' }}</strong></div>
-                    <div>{{ $asignatory->designation ?? 'N/A' }}</div>
-                </div>
-            @endforeach
-        </div>
-    </div> 
+    <div class="row">
+       @foreach ($selectedEmployees as $asignatory)
+            @php
+                // Middle initial (uppercase)
+                $middleInitial = $asignatory->mname 
+                    ? strtoupper(substr(trim($asignatory->mname), 0, 1)) . '. ' 
+                    : '';
+
+                // Base name parts (uppercase)
+                $baseName = strtoupper(trim($asignatory->fname . ' ' . $middleInitial . $asignatory->lname));
+
+                // The exact list from your <select>
+                $frontPrefixes = ['Dr.', 'Engr.', 'Atty.', 'RChE.'];
+
+                $displayName = $baseName;
+                $suffix = '';
+
+                if (!empty($asignatory->empprefix)) {
+                    $prefixRaw = trim($asignatory->empprefix);
+
+                    // If it matches one of the "front" titles → put it BEFORE the name
+                    if (in_array($prefixRaw, $frontPrefixes)) {
+                        $displayName = $prefixRaw . ' ' . $baseName;
+                    } 
+                    // All other values from your list go AFTER the name
+                    else {
+                        $suffix = ', ' . $prefixRaw;
+                        $displayName = $baseName . $suffix;
+                    }
+                }
+
+                // Designation in uppercase
+                $designation = strtoupper($asignatory->designation ?? 'N/A');
+            @endphp
+
+            <div class="col text-center">
+                <div><strong>_________________________________</strong></div>
+                <div><strong>{{ $displayName }}</strong></div>
+                <div>{{ $designation }}</div>
+            </div>
+        @endforeach
+    </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
