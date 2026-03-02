@@ -97,7 +97,7 @@
     @php
         $selectedEmployees = \App\Models\SpmsAsignatory::where('pr_number', $dprnumber)
             ->join('employees', 'spms_asignatories.empid', '=', 'employees.emp_ID')
-            ->select('employees.fname', 'employees.lname', 'employees.mname', 'spms_asignatories.*')
+            ->select('employees.fname', 'employees.lname', 'employees.mname', 'spms_asignatories.*', 'employees.prefix as empprefix')
             ->get();
 
         function displayValue($value) {
