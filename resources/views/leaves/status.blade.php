@@ -279,12 +279,13 @@
                                             id="preview{{ $leaves->id }}" 
                                             class="btn {{ ($leaves->status == 4 || $leaves->status == 5) ? 'btn-danger' : 'btn-secondary' }} btn-sm mt-3 ml-5 download">
                                             <i class="fas fa-file-pdf"></i> Preview
-                                        </button>
+                                        </button>:
                                     </div>
                                 </div>
                             @endforeach
 
-                            @if(($oic->oic_id == auth()->guard($guard)->user()->id) || ($isOfficeHead) || ($setting->suc_pres == auth()->guard($guard)->user()->id))
+                            {{-- @if(($oic->oic_id == auth()->guard($guard)->user()->id) || ($isOfficeHead) || ($setting->suc_pres == auth()->guard($guard)->user()->id)) --}}
+                            @if( (optional($oic)->oic_id ?? 0) == auth()->guard($guard)->user()->id || $isOfficeHead || (optional($setting)->suc_pres ?? 0) == auth()->guard($guard)->user()->id )
                                 @foreach($leavesapphead as $leaves)
                                     @if($leaves->supervisor_emp_dept == auth()->guard($guard)->user()->emp_dept || $setting->suc_pres == auth()->guard($guard)->user()->id)
                                     <div class="timeline timeline-inverse">
