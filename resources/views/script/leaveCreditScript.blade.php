@@ -225,6 +225,7 @@
             const endDate = selectedDates[1];
 
             const weekdayCount = countWeekdays(startDate, endDate);
+            
             daysField.value = weekdayCount;
         } else {
             daysField.value = '';
