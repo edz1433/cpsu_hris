@@ -92,8 +92,8 @@ class EmployeeController extends Controller
     
         // Create the employee query with Eloquent relationships
         $employee = Employee::join('dbcpsupms.offices', 'employees.emp_dept', '=', 'dbcpsupms.offices.id')
-            ->join('dbcpsupms.statuses', 'employees.emp_status', '=', 'dbcpsupms.statuses.id')
-            ->join('campuses', 'employees.camp_id', '=', 'campuses.id')
+            ->leftjoin('dbcpsupms.statuses', 'employees.emp_status', '=', 'dbcpsupms.statuses.id')
+            ->leftjoin('campuses', 'employees.camp_id', '=', 'campuses.id')
             ->select(
                 'employees.id',
                 'employees.emp_ID',
