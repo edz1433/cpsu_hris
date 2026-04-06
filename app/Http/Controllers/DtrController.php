@@ -95,6 +95,7 @@ class DtrController extends Controller
         ]);
     
         $employeeId = $request->input('employee');
+        dd($employeeId);
         $period = $request->input('period');
         $date = $request->input('date');
         $overtime = $request->input('overtime');
