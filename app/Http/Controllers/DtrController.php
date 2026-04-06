@@ -131,9 +131,13 @@ class DtrController extends Controller
         )
         ->first();
 
-        $supervisor = Employee::where('id', $employee->supervisor)
-        ->select('employees.fname', 'employees.lname', 'employees.mname', 'employees.prefix')
-        ->first();
+        $supervisor = null;
+
+        if ($employee->supervisor) {
+            $supervisor = Employee::where('id', $employee->supervisor)
+                ->select('employees.fname', 'employees.lname', 'employees.mname', 'employees.prefix')
+                ->first();
+        }
         
         $dtrRecords = Dtr::where('emp_ID', $employeeId)
                         ->whereYear('date', $year)
