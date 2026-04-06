@@ -95,7 +95,6 @@ class DtrController extends Controller
         ]);
     
         $employeeId = $request->input('employee');
-        dd($employeeId);
         $period = $request->input('period');
         $date = $request->input('date');
         $overtime = $request->input('overtime');
@@ -123,8 +122,8 @@ class DtrController extends Controller
         }
     
         $employee = Employee::where('employees.emp_ID', $employeeId)
-        ->join('campuses', 'employees.camp_id', '=', 'campuses.id')
-        ->join('dbcpsupms.offices', 'employees.emp_dept', '=', 'dbcpsupms.offices.id')
+        ->leftjoin('campuses', 'employees.camp_id', '=', 'campuses.id')
+        ->leftjoin('dbcpsupms.offices', 'employees.emp_dept', '=', 'dbcpsupms.offices.id')
         ->select(
             'employees.*',
             'campuses.campus_name',
@@ -132,13 +131,9 @@ class DtrController extends Controller
         )
         ->first();
 
-        $supervisor = null;
-
-        if ($employee?->supervisor) {
-            $supervisor = Employee::where('id', $employee->supervisor)
-                ->select('employees.fname', 'employees.lname', 'employees.mname', 'employees.prefix')
-                ->first();
-        }
+        $supervisor = Employee::where('id', $employee->supervisor)
+        ->select('employees.fname', 'employees.lname', 'employees.mname', 'employees.prefix')
+        ->first();
         
         $dtrRecords = Dtr::where('emp_ID', $employeeId)
                         ->whereYear('date', $year)
