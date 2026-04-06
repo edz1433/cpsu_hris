@@ -133,7 +133,7 @@ class DtrController extends Controller
 
         $supervisor = null;
 
-        if ($employee->supervisor) {
+        if ($employee?->supervisor) {
             $supervisor = Employee::where('id', $employee->supervisor)
                 ->select('employees.fname', 'employees.lname', 'employees.mname', 'employees.prefix')
                 ->first();
