@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\JobHiringController;
 use App\Http\Controllers\Api\ApplicationController;
 use App\Http\Controllers\Api\ClinicController;
 use App\Http\Controllers\Api\CoasController;
+use App\Http\Controllers\Api\GadController;
 
 Route::post('/dtrs', [DtrController::class, 'syncDtr'])->name('api.syncDtr');
 Route::post('/dtrs-batch', [DtrController::class, 'syncDtrBatch'])->name('api.syncDtrBatch');
@@ -20,6 +21,7 @@ Route::get('/job-list', [JobHiringController::class, 'jobList'])->name('api.jobL
 Route::post('/application/store', [ApplicationController::class, 'applicationStore'])->name('application.status');
 Route::get('/application/check/{jid}/{email}', [ApplicationController::class, 'applicationCheck'])->name('application.check');
 Route::get('/application/status/{appnumber}', [ApplicationController::class, 'applicationStatus'])->name('application.status');
+Route::get('/gad-gender-count', [GadController::class, 'genderCount'])->name('gender-count');
 
 // DTR
 Route::prefix('app-dtr')->group(function () {
