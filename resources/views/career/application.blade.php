@@ -28,6 +28,7 @@
                                     <th>Mobile</th>
                                     <th>Email</th>
                                     <th>Files</th>
+                                    <th>Date Applied</th>
                                     <th>Status</th>
                                     <th class="text-center">Action</th>
                                 </tr>
@@ -76,7 +77,7 @@
                                             </div>
                                         @endif
                                     </td>
-
+                                    <td class="text-center align-middle bold">{{ strtoupper($app->created_at->format('M. d, Y h:i A')) }}</td>
                                     {{-- 🔹 Status --}}
                                     <td class="text-center align-middle">
                                         @php
@@ -106,7 +107,6 @@
                                             {{ $status_labels[$app->status] ?? 'Unknown' }}
                                         </span>
                                     </td>
-
                                     {{-- 🔹 Actions --}}
                                     <td class="text-center align-middle">
                                         @if ($app->status == 1)
