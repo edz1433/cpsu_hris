@@ -62,7 +62,7 @@ class JobHiringController extends Controller
             return redirect()->back()->with('error', 'Job not found.');
         }
 
-        return view("job-hiring.list", compact('jobs', 'jEdit', 'guard'));
+        return view("career.list", compact('jobs', 'jEdit', 'guard'));
     }
 
     public function jUpdate(Request $request)
