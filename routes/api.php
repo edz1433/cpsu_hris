@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\ClinicController;
 use App\Http\Controllers\Api\CoasController;
 use App\Http\Controllers\Api\GadController;
 
+
 Route::post('/dtrs', [DtrController::class, 'syncDtr'])->name('api.syncDtr');
 Route::post('/dtrs-batch', [DtrController::class, 'syncDtrBatch'])->name('api.syncDtrBatch');
 Route::get('/event-list/{passcode}', [EventController::class, 'eventList'])->name('api.eventList');

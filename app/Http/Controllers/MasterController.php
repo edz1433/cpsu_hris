@@ -19,12 +19,201 @@ use App\Models\VoluntaryWork;
 use App\Models\Application;
 use App\Models\SpmsPersonnel;
 use App\Models\Setting;
+use App\Models\OfficialTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
 
 class MasterController extends Controller
 {
+    private function dtrTimes($value)
+    {
+        if (!$value) {
+            return collect();
+        }
+
+        return collect(explode(',', $value))
+            ->map(fn ($time) => trim($time))
+            ->filter()
+            ->sortBy(fn ($time) => strtotime($time))
+            ->values();
+    }
+
+    private function formatDtrTime($value)
+    {
+        if (!$value) {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($value)->format('h:i A');
+        } catch (\Exception $e) {
+            return $value;
+        }
+    }
+
+    private function arrangedDtrPunches($dtr)
+    {
+        if (!$dtr) {
+            return collect();
+        }
+
+        return $this->dtrTimes($dtr->time_in)
+            ->map(fn ($time) => ['time' => $time, 'label' => 'IN'])
+            ->merge($this->dtrTimes($dtr->time_out)->map(fn ($time) => ['time' => $time, 'label' => 'OUT']))
+            ->merge($this->dtrTimes($dtr->time_over)->map(fn ($time) => ['time' => $time, 'label' => 'OT']))
+            ->sortBy(fn ($punch) => strtotime($punch['time']))
+            ->values()
+            ->map(function ($punch) {
+                $punch['formatted'] = $this->formatDtrTime($punch['time']);
+
+                return $punch;
+            });
+    }
+
+    private function firstDtrIn($dtr)
+    {
+        return $this->formatDtrTime($this->dtrTimes(optional($dtr)->time_in)->first());
+    }
+
+    private function lastDtrOut($dtr)
+    {
+        return $this->formatDtrTime($this->dtrTimes(optional($dtr)->time_out)->last());
+    }
+
+    private function parseOfficialRange($range, $fallbackStart, $fallbackEnd)
+    {
+        $times = $range ? explode('-', $range) : [];
+
+        return [
+            $times[0] ?? $fallbackStart,
+            $times[1] ?? $fallbackEnd,
+        ];
+    }
+
+    private function officialScheduleForDate($officialTime, $date)
+    {
+        $day = strtolower(Carbon::parse($date)->format('D'));
+        $dayMap = [
+            'mon' => ['morn_mon', 'aft_mon'],
+            'tue' => ['morn_tue', 'aft_tue'],
+            'wed' => ['morn_wed', 'aft_wed'],
+            'thu' => ['morn_thu', 'aft_thu'],
+            'fri' => ['morn_fri', 'aft_fri'],
+        ];
+
+        if (!$officialTime || !isset($dayMap[$day])) {
+            return [
+                'mornin' => '08:00:00',
+                'mornout' => '12:00:00',
+                'aftin' => '13:00:00',
+                'aftout' => '17:00:00',
+            ];
+        }
+
+        [$morningField, $afternoonField] = $dayMap[$day];
+        [$mornIn, $mornOut] = $this->parseOfficialRange($officialTime->{$morningField}, '08:00:00', '12:00:00');
+        [$aftIn, $aftOut] = $this->parseOfficialRange($officialTime->{$afternoonField}, '13:00:00', '17:00:00');
+
+        return [
+            'mornin' => $mornIn,
+            'mornout' => $mornOut,
+            'aftin' => $aftIn,
+            'aftout' => $aftOut,
+        ];
+    }
+
+    private function dailyWorkPunches($dtr, $schedule = null)
+    {
+        $timeIns = $this->dtrTimes(optional($dtr)->time_in);
+        $timeOuts = $this->dtrTimes(optional($dtr)->time_out);
+        $schedule = $schedule ?: [
+            'mornin' => '08:00:00',
+            'mornout' => '12:00:00',
+            'aftin' => '13:00:00',
+            'aftout' => '17:00:00',
+        ];
+
+        $latestUsefulTimeIn = Carbon::parse($schedule['aftin'])->copy()->addMinutes(30)->format('H:i');
+        $earliestUsefulTimeOut = Carbon::parse($schedule['mornout'])->copy()->subMinutes(60)->format('H:i');
+
+        $dailyTimeIns = $timeIns
+            ->filter(fn ($time) => substr($time, 0, 5) <= $latestUsefulTimeIn)
+            ->values();
+
+        $dailyTimeOuts = $timeOuts
+            ->filter(fn ($time) => substr($time, 0, 5) >= $earliestUsefulTimeOut)
+            ->values();
+
+        return [
+            'am_in' => $dailyTimeIns->first(),
+            'am_out' => $dailyTimeOuts->first(),
+            'pm_in' => $dailyTimeIns->count() >= 2 ? $dailyTimeIns->last() : null,
+            'pm_out' => $dailyTimeOuts->count() >= 2 ? $dailyTimeOuts->last() : null,
+        ];
+    }
+
+    private function minutesAfter($time, $limit)
+    {
+        if (!$time) {
+            return 0;
+        }
+
+        $actual = Carbon::createFromFormat('H:i', substr($time, 0, 5));
+        $expected = Carbon::createFromFormat('H:i', $limit);
+
+        return $actual->greaterThan($expected) ? $actual->diffInMinutes($expected) : 0;
+    }
+
+    private function minutesBefore($time, $limit)
+    {
+        if (!$time) {
+            return 0;
+        }
+
+        $actual = Carbon::createFromFormat('H:i', substr($time, 0, 5));
+        $expected = Carbon::createFromFormat('H:i', $limit);
+
+        return $actual->lessThan($expected) ? $actual->diffInMinutes($expected) : 0;
+    }
+
+    private function dtrTardinessSummary($dtrRecords, $officialTime = null)
+    {
+        return $dtrRecords->reduce(function ($summary, $dtr) use ($officialTime) {
+            $schedule = $this->officialScheduleForDate($officialTime, $dtr->date);
+            $punches = $this->dailyWorkPunches($dtr, $schedule);
+
+            $lateMinutes = $this->minutesAfter($punches['am_in'], substr($schedule['mornin'], 0, 5))
+                + $this->minutesAfter($punches['pm_in'], substr($schedule['aftin'], 0, 5));
+            $undertimeMinutes = $this->minutesBefore($punches['am_out'], substr($schedule['mornout'], 0, 5))
+                + $this->minutesBefore($punches['pm_out'], substr($schedule['aftout'], 0, 5));
+
+            $summary['late_minutes'] += $lateMinutes;
+            $summary['undertime_minutes'] += $undertimeMinutes;
+            $summary['late_days'] += $lateMinutes > 0 ? 1 : 0;
+            $summary['undertime_days'] += $undertimeMinutes > 0 ? 1 : 0;
+
+            return $summary;
+        }, [
+            'late_minutes' => 0,
+            'undertime_minutes' => 0,
+            'late_days' => 0,
+            'undertime_days' => 0,
+        ]);
+    }
+
+    private function formatMinutes($minutes)
+    {
+        $hours = floor($minutes / 60);
+        $remainingMinutes = $minutes % 60;
+
+        if ($hours <= 0) {
+            return $remainingMinutes . ' min';
+        }
+
+        return $hours . ' hr' . ($hours == 1 ? '' : 's') . ' ' . $remainingMinutes . ' min';
+    }
+
     public function getGuard()
     {
         if(\Auth::guard('web')->check()) {
@@ -34,7 +223,7 @@ class MasterController extends Controller
         }
     }
 
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         $guard = $this->getGuard();
         $userCount = User::all();
@@ -84,7 +273,103 @@ class MasterController extends Controller
         }
     
         if (\Auth::guard('employee')->check()) {
-            return view("home.dashboard", compact('campCount', 'offCount', 'userCount', 'chartEmployee', 'guard'));
+            $employee = \Auth::guard('employee')->user();
+            $officialTime = OfficialTime::where('empid', $employee->emp_ID)->first();
+            $today = Carbon::now('Asia/Manila')->toDateString();
+            $dateFrom = $request->input('date_from', Carbon::now('Asia/Manila')->startOfWeek()->toDateString());
+            $dateTo = $request->input('date_to', Carbon::now('Asia/Manila')->endOfWeek()->toDateString());
+
+            if (Carbon::parse($dateFrom)->greaterThan(Carbon::parse($dateTo))) {
+                [$dateFrom, $dateTo] = [$dateTo, $dateFrom];
+            }
+
+            $todayDtr = Dtr::where('emp_ID', $employee->emp_ID)
+                ->whereDate('date', $today)
+                ->orderBy('time_in')
+                ->first();
+
+            $filteredDtrs = Dtr::where('emp_ID', $employee->emp_ID)
+                ->whereBetween('date', [$dateFrom, $dateTo])
+                ->orderBy('date', 'desc')
+                ->orderBy('time_in', 'desc')
+                ->get();
+
+            $recentDtrs = $filteredDtrs;
+            $isRegularEmployee = (int) $employee->emp_status === 1;
+
+            $leaveApplications = $isRegularEmployee
+                ? LeaveApplication::where('empid', $employee->emp_ID)
+                    ->orderBy('created_at', 'desc')
+                    ->take(5)
+                    ->get()
+                : collect();
+
+            $leaveCount = $isRegularEmployee
+                ? LeaveApplication::where('empid', $employee->emp_ID)->count()
+                : 0;
+            $serviceYears = $employee->date_hired
+                ? Carbon::parse($employee->date_hired)->diffInYears(Carbon::now('Asia/Manila'))
+                : null;
+            $todayTimeIn = $this->firstDtrIn($todayDtr);
+            $todayTimeOut = $this->lastDtrOut($todayDtr);
+            $todayPunches = $this->arrangedDtrPunches($todayDtr);
+            $todaySchedule = $this->officialScheduleForDate($officialTime, $today);
+            $todayDailyPunchesRaw = $this->dailyWorkPunches($todayDtr, $todaySchedule);
+            $todayDailyPunches = [
+                'am_in' => $this->formatDtrTime($todayDailyPunchesRaw['am_in']),
+                'am_out' => $this->formatDtrTime($todayDailyPunchesRaw['am_out']),
+                'pm_in' => $this->formatDtrTime($todayDailyPunchesRaw['pm_in']),
+                'pm_out' => $this->formatDtrTime($todayDailyPunchesRaw['pm_out']),
+            ];
+            $tardinessSummary = $this->dtrTardinessSummary($filteredDtrs, $officialTime);
+            $totalLate = $this->formatMinutes($tardinessSummary['late_minutes']);
+            $totalUndertime = $this->formatMinutes($tardinessSummary['undertime_minutes']);
+            $recentDtrs = $recentDtrs->map(function ($dtr) use ($officialTime) {
+                $schedule = $this->officialScheduleForDate($officialTime, $dtr->date);
+                $dailyPunches = $this->dailyWorkPunches($dtr, $schedule);
+
+                $dtr->formatted_time_in = $this->firstDtrIn($dtr);
+                $dtr->formatted_time_out = $this->lastDtrOut($dtr);
+                $dtr->arranged_punches = $this->arrangedDtrPunches($dtr);
+                $dtr->official_schedule = [
+                    'am' => $this->formatDtrTime($schedule['mornin']) . ' - ' . $this->formatDtrTime($schedule['mornout']),
+                    'pm' => $this->formatDtrTime($schedule['aftin']) . ' - ' . $this->formatDtrTime($schedule['aftout']),
+                ];
+                $dtr->daily_punches = [
+                    'am_in' => $this->formatDtrTime($dailyPunches['am_in']),
+                    'am_out' => $this->formatDtrTime($dailyPunches['am_out']),
+                    'pm_in' => $this->formatDtrTime($dailyPunches['pm_in']),
+                    'pm_out' => $this->formatDtrTime($dailyPunches['pm_out']),
+                ];
+
+                return $dtr;
+            });
+
+            return view("home.dashboard", compact(
+                'campCount',
+                'offCount',
+                'userCount',
+                'chartEmployee',
+                'guard',
+                'employee',
+                'todayDtr',
+                'todayTimeIn',
+                'todayTimeOut',
+                'todayPunches',
+                'todayDailyPunches',
+                'officialTime',
+                'dateFrom',
+                'dateTo',
+                'filteredDtrs',
+                'tardinessSummary',
+                'totalLate',
+                'totalUndertime',
+                'recentDtrs',
+                'leaveApplications',
+                'leaveCount',
+                'serviceYears',
+                'isRegularEmployee'
+            ));
         }
     }
     

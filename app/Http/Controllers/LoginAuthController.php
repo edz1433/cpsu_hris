@@ -15,7 +15,7 @@ class LoginAuthController extends Controller
         if (Auth::guard('web')->check()) {
             return redirect()->route('dashboard');
         }elseif(Auth::guard('employee')->check()){
-            return redirect()->route('drive');
+            return redirect()->route('dashboard');
         }
         
         return view('login-page');
@@ -26,7 +26,7 @@ class LoginAuthController extends Controller
         if (Auth::guard('web')->check()) {
             return redirect()->route('dashboard');
         }elseif(Auth::guard('employee')->check()){
-            return redirect()->route('drive');
+            return redirect()->route('dashboard');
         }
 
         return view('login');
@@ -64,7 +64,7 @@ class LoginAuthController extends Controller
                     'username' => $request->username,
                     'password' => $request->password,
                 ])) {
-                    return redirect()->route('empPDS')->with('success', 'Login Successfully');
+                    return redirect()->route('dashboard')->with('success', 'Login Successfully');
                 } else {
                     return redirect()->back()->with('error', 'Invalid Credentials');
                 }

@@ -18,12 +18,16 @@
 </li> --}}
 
 @php
+    $initials = function ($name) {
+        $words = preg_split('/\s+/', trim((string) $name));
+        $letters = collect($words)->filter()->take(2)->map(fn ($word) => strtoupper(substr($word, 0, 1)))->implode('');
+        return $letters ?: 'HR';
+    };
+
     $id = auth()->guard($guard)->user()->id; // Get the authenticated user's ID
     $employee = \App\Models\Employee::find($id); // Fetch the employee record using the ID
 
-    // Ensure notifications1 is a collection
     $notifications1 = collect($notifications1); 
-    $notificationsCount1 = collect($notificationsCount1);
 
     if ($employee) {
         $notifications1 = $notifications1
@@ -31,7 +35,7 @@
             ->where('notifstat', 0) // Filter by notification status
             ->sortByDesc('notif_created_at'); // Sort by descending creation date
             
-        $notificationsCount1 = $notificationsCount1->where('empid', $employee->emp_ID)->count();
+        $notificationsCount1 = $notifications1->count();
     } else {
         $notifications1 = collect(); // Empty collection
         $notificationsCount1 = 0; // Default count
@@ -39,12 +43,41 @@
 @endphp
 
 <li class="nav-item dropdown">
+    <style>
+        .notification-initials {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #eaf7f0;
+            color: #187744;
+            font-weight: 700;
+            border: 1px solid #cfe8d9;
+        }
+        .notification-mark-all {
+            border: 0;
+            background: transparent;
+            color: #187744;
+            font-size: 12px;
+            padding: 0;
+        }
+    </style>
     <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
         <i class="fas fa-bell text-success1"></i>
         <span class="badge badge-warning navbar-badge">{{ ($notificationsCount1 != 0) ? $notificationsCount1 : '' }}</span>
     </a>
     <div class="dropdown-menu notifications dropdown-notification dropdown-menu-lg dropdown-menu-right" style="left: inherit; right: 0; max-height: 400px; overflow-y: auto;">
-        <span class="dropdown-item dropdown-header">{{ ($notificationsCount1 != 0) ? $notificationsCount1 : '' }} Notifications</span>
+        <div class="dropdown-item dropdown-header d-flex justify-content-between align-items-center">
+            <span>{{ ($notificationsCount1 != 0) ? $notificationsCount1 : 'No' }} Notifications</span>
+            @if($notificationsCount1 > 0)
+                <form method="POST" action="{{ route('notifications.markAllRead') }}">
+                    @csrf
+                    <button type="submit" class="notification-mark-all">Mark all as read</button>
+                </form>
+            @endif
+        </div>
         <div class="dropdown-divider"></div>
         <div id="notifications-container">
             @php 
@@ -90,7 +123,7 @@
                         @endswitch
                         <a href="{{ route('leaveStatus') }}" class="dropdown-item d-flex align-items-center">
                             <div class="mr-3">
-                                <img src="{{ asset('Profile/human-resource.png') }}" class="img-circle" alt="User Image" width="40" height="40">
+                                <span class="notification-initials">HR</span>
                             </div>
                             <div>
                                 <p class="mb-0">
@@ -135,7 +168,7 @@
                             @case(4)
                             @case(4.1)
                                 @php
-                                    $action = ($notif->category == 3) ? 'approved' : 'declined';
+                                    $action = ($notif->category == 4) ? 'approved' : 'declined';
                                     $remarks = "Your submitted new Learning and Development at <b>$notif->learning_devs_learning_dev</b> has been $action by HR.";
                                     $profile = $notif->pds_emp_learndev_profile;
                                     $route = route('learning-dev');
@@ -144,9 +177,9 @@
                             @break
                         @endswitch
             
-                        <a href="{{ $route }}" onclick="notif('')" class="dropdown-item d-flex align-items-center">
+                        <a href="{{ $route }}" class="dropdown-item d-flex align-items-center">
                             <div class="mr-3">
-                                <img src="{{ asset('Profile/Employee/'.$profile) }}" class="img-circle" alt="User Image" width="40" height="40">
+                                <span class="notification-initials">HR</span>
                             </div>
                             <div>
                                 <p class="mb-0">

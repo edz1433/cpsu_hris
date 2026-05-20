@@ -10,7 +10,7 @@
             <div class="modal-body">
                 <form id="eventForm" action="{{ route('eventCreate') }}" method="POST">
                     @csrf
-                    <input type="hidden" name="user_id" value="{{ Auth::user()->id }}">
+                    <input type="hidden" name="user_id" value="{{ auth()->guard($guard)->user()->id }}">
                     <div class="form-group">
                         <label for="eventTitle">Event Title</label>
                         <input type="text" class="form-control" id="eventTitle" name="title">

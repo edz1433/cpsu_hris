@@ -224,7 +224,7 @@ class GoogleAuthController extends Controller
     
             if ($employee->stat_1 == 1) {
                 Auth::guard('employee')->login($employee);
-                return redirect()->route('empPDS')->with('success', 'Login Successfully');
+                return redirect()->route('dashboard')->with('success', 'Login Successfully');
             } else {
                 return redirect()->back()->with('error', 'Account Suspended');
             }

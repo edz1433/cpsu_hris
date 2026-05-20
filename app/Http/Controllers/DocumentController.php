@@ -486,19 +486,65 @@ class DocumentController extends Controller
     {
         $employeeInputs = $request->input('employee', []);
         $designationInputs = $request->input('designation', []);
+        $suffixInputs = $request->input('suffixes', []);
+        $deleteIds = array_filter($request->input('delete_ids', []));
+        $prNumber = $request->input('pr_number');
+        $spmsType = $request->input('spms_type');
+
+        if (!empty($deleteIds) && $prNumber) {
+            SpmsAsignatory::whereIn('id', $deleteIds)
+                ->where('pr_number', $prNumber)
+                ->delete();
+        }
 
         foreach ($employeeInputs as $id => $empId) {
-            $designation = $designationInputs[$id] ?? null;
+            if (in_array($id, $deleteIds)) {
+                continue;
+            }
 
-            if ($empId && $designation) {
-                $asignatory = SpmsAsignatory::find($id);
+            $designation = $designationInputs[$id] ?? null;
+            $suffixes = $suffixInputs[$id] ?? null;
+
+            if ($empId) {
+                $asignatory = SpmsAsignatory::where('id', $id)
+                    ->when($prNumber, function ($query) use ($prNumber) {
+                        return $query->where('pr_number', $prNumber);
+                    })
+                    ->first();
 
                 if ($asignatory) {
                     $asignatory->empid = $empId;
-                    $asignatory->designation = $designation;
+                    $asignatory->suffixes = $suffixes ?: null;
+                    $asignatory->designation = $designation ?: null;
                     $asignatory->save();
                 }
             }
+        }
+
+        $newEmployees = $request->input('new_employee', []);
+        $newDesignations = $request->input('new_designation', []);
+        $newSuffixes = $request->input('new_suffixes', []);
+        $newLabels = $request->input('new_label', []);
+
+        foreach ($newEmployees as $index => $empId) {
+            if (!$empId || !$prNumber) {
+                continue;
+            }
+
+            $label = $newLabels[$index] ?? 'Employee';
+
+            SpmsAsignatory::updateOrCreate(
+                [
+                    'pr_number' => $prNumber,
+                    'empid' => $empId,
+                    'spms_type' => $spmsType,
+                    'label' => $label,
+                ],
+                [
+                    'suffixes' => ($newSuffixes[$index] ?? null) ?: null,
+                    'designation' => ($newDesignations[$index] ?? null) ?: null,
+                ]
+            );
         }
 
         return redirect()->back()->with('success', 'Signatories updated successfully!');

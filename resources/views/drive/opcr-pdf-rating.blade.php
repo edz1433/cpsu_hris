@@ -498,6 +498,9 @@
         </table>
         <table style="width: 100%; border-collapse: collapse; border: none; margin-top: 30px;">
             <tr>
+                @php
+                    $printedAsignatoryLabels = [];
+                @endphp
                 @foreach ($selectedEmployees as $asignatory)
                     @php
                         // Middle initial (uppercase)
@@ -530,16 +533,26 @@
 
                         // Designation in uppercase
                         $designation = strtoupper($asignatory->designation ?? 'N/A');
+                        $asignatoryLabel = ($asignatory->label ?? 'Employee') === 'Approved:'
+                            ? 'Final Rating by:'
+                            : ($asignatory->label ?? 'Employee');
+                        $showAsignatoryLabel = !in_array($asignatoryLabel, $printedAsignatoryLabels);
+                        if ($showAsignatoryLabel) {
+                            $printedAsignatoryLabels[] = $asignatoryLabel;
+                        }
                     @endphp
 
                     <th style="text-align: center; border: none; padding: 10px; font-size: 9.7px;">
-                        {{-- <div><strong>_________________________________</strong></div> --}}
-                        <div>
-                            <strong>{{ $displayName ?? 'N/A' }}</strong>
+                        <div style="display: inline-block; min-width: 180px; text-align: center;">
+                            <div style="text-align: left; margin-bottom: 24px; color: {{ $showAsignatoryLabel ? 'inherit' : '#fff' }};">{{ $asignatoryLabel }}</div>
+                            {{-- <div><strong>_________________________________</strong></div> --}}
+                            <div>
+                                <strong>{{ $displayName ?? 'N/A' }}</strong>
+                            </div>
+                            <div>{{ $designation }}</div>
+                            <div><strong>____________________</strong></div>
+                            <div>Date</div>
                         </div>
-                        <div>{{ $designation }}</div>
-                        <div><strong>____________________</strong></div>
-                        <div>Date</div>
                     </th>
                 @endforeach
             </tr>

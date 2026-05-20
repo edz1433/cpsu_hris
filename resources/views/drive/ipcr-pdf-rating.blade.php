@@ -348,14 +348,25 @@
             </tbody>
         </table>
         <table class="table-form" style="margin-top: 30px; margin-left: -20px;">
+            @php
+                $printedAsignatoryLabels = [];
+            @endphp
             @foreach ($selectedEmployees as $asignatory)
                 @php
                     $fullName = $asignatory->fname . ' ' .
                                 ($asignatory->mname ? substr($asignatory->mname, 0, 1) . '. ' : '') .
                                 $asignatory->lname;
+                    $asignatoryLabel = ($asignatory->label ?? 'Employee') === 'Approved:'
+                        ? 'Final Rating by:'
+                        : ($asignatory->label ?? 'Employee');
+                    $showAsignatoryLabel = !in_array($asignatoryLabel, $printedAsignatoryLabels);
+                    if ($showAsignatoryLabel) {
+                        $printedAsignatoryLabels[] = $asignatoryLabel;
+                    }
                 @endphp
                 <th style="border: none !important; padding: 1px !important:">
-                <div class="signatory-col">
+                <div class="signatory-col" style="display: inline-block; min-width: 180px; text-align: center;">
+                    <div style="text-align: left; margin-bottom: 24px; color: {{ $showAsignatoryLabel ? 'inherit' : '#fff' }};">{{ $asignatoryLabel }}</div>
                     <div class="line">_________________________________</div>
                     <div class="name">
                         {{ $fullName ?? 'N/A' }}{{ $asignatory->suffixes ? ', ' . $asignatory->suffixes : '' }}

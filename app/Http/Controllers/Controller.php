@@ -192,6 +192,10 @@ class Controller extends BaseController
 
     public function __construct()
     {   
+        $employeeEmpId = Auth::guard('employee')->check()
+            ? Auth::guard('employee')->user()->emp_ID
+            : null;
+
         // Count of HR notifications (status 0)
         $notificationsCount = Notification::where('utype', 'hr')
             ->where('status', 0)
@@ -200,6 +204,7 @@ class Controller extends BaseController
         // Employee notifications excluding leavecredit modules
         $notificationsCount1 = Notification::where('utype', 'employee')
             ->whereNotIn('module', ['leavecredit', 'leavecreditadd'])
+            ->when($employeeEmpId, fn ($query) => $query->where('empid', $employeeEmpId))
             ->where('status', 0)
             ->count();
 
@@ -213,6 +218,8 @@ class Controller extends BaseController
                 // Only select needed columns from employees
                 'leave_emp.id as leave_emp_id',
                 'leave_emp.profile as leave_emp_profile',
+                'leave_applications.leave_type',
+                'leave_applications.transnum',
                 DB::raw("CONCAT(leave_emp.fname, ' ', leave_emp.lname) as leave_emp_fullname"),
 
                 'pds_emp_eligi.emp_ID as pds_emp_eligi_id',
@@ -291,6 +298,8 @@ class Controller extends BaseController
                 'notifications.empid as notifempid',
                 'notifications.status as notifstat',
                 'notifications.created_at as notif_created_at',
+                'leave_applications.leave_type',
+                'leave_applications.transnum',
                 
                 'pds_emp_eligi.profile as pds_emp_eligi_profile',
                 'pds_emp_workexp.profile as pds_emp_workexp_profile',
@@ -303,6 +312,11 @@ class Controller extends BaseController
                 'learning_devs.learning_dev as learning_devs_learning_dev'
             )
             ->where('utype', 'employee')
+            ->when($employeeEmpId, fn ($query) => $query->where('notifications.empid', $employeeEmpId))
+            ->leftJoin('leave_applications', function ($join) {
+                $join->on('notifications.lapp_id', '=', 'leave_applications.id')
+                    ->where('notifications.module', 'leave');
+            })
             ->leftJoin('eligibilities', 'notifications.lapp_id', '=', 'eligibilities.id')
             ->leftJoin('work_experiences', 'notifications.lapp_id', '=', 'work_experiences.id')
             ->leftJoin('voluntary_works', 'notifications.lapp_id', '=', 'voluntary_works.id')

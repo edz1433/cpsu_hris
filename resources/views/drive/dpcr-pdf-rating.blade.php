@@ -469,6 +469,8 @@
                         return stripos($item->designation, 'president') !== false ? 1 : 0;
                     });
                 }
+
+                $printedAsignatoryLabels = [];
             @endphp
 
             @foreach ($employees as $asignatory)
@@ -478,17 +480,27 @@
                                     ? strtoupper(substr($asignatory->mname, 0, 1)) . '. '
                                     : '') .
                                 $asignatory->lname;
+                    $asignatoryLabel = ($asignatory->label ?? 'Employee') === 'Approved:'
+                        ? 'Final Rating by:'
+                        : ($asignatory->label ?? 'Employee');
+                    $showAsignatoryLabel = !in_array($asignatoryLabel, $printedAsignatoryLabels);
+                    if ($showAsignatoryLabel) {
+                        $printedAsignatoryLabels[] = $asignatoryLabel;
+                    }
                 @endphp
 
                 <th style="text-align: center; border: none; padding: 10px; font-size: 9.7px;">
-                    <div><strong>_________________________________</strong></div>
-                    <div>
-                        <strong>
-                            {{ $fullName ?? 'N/A' }}
-                            {{ $asignatory->suffixes ? ', ' . $asignatory->suffixes : '' }}
-                        </strong>
+                    <div style="display: inline-block; min-width: 180px; text-align: center;">
+                        <div style="text-align: left; margin-bottom: 24px; color: {{ $showAsignatoryLabel ? 'inherit' : '#fff' }};">{{ $asignatoryLabel }}</div>
+                        <div><strong>_________________________________</strong></div>
+                        <div>
+                            <strong>
+                                {{ $fullName ?? 'N/A' }}
+                                {{ $asignatory->suffixes ? ', ' . $asignatory->suffixes : '' }}
+                            </strong>
+                        </div>
+                        <div>{{ $asignatory->designation ?? 'N/A' }}</div>
                     </div>
-                    <div>{{ $asignatory->designation ?? 'N/A' }}</div>
                 </th>
             @endforeach
             </tr>

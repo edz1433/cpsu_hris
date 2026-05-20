@@ -19,6 +19,11 @@ $leaveTypes = [
 
 @foreach ($notifications as $notif)
 @php 
+    $initials = function ($name) {
+        $words = preg_split('/\s+/', trim((string) $name));
+        $letters = collect($words)->filter()->take(2)->map(fn ($word) => strtoupper(substr($word, 0, 1)))->implode('');
+        return $letters ?: 'NA';
+    };
     $timeDifference = $notif->notif_created_at 
         ? \Carbon\Carbon::parse($notif->notif_created_at)->timezone('Asia/Manila')->diffForHumans() 
         : ''; 
@@ -33,8 +38,7 @@ $leaveTypes = [
         @endphp
         <a href="{{ route('leaveStatus', $notif->leave_emp_id) }}" class="dropdown-item d-flex align-items-center">
             <div class="mr-3">
-                <img src="{{ file_exists(public_path('Profile/Employee/' . $notif->leave_emp_profile)) ? asset('Profile/Employee/' . $notif->leave_emp_profile) : 
-                asset('Profile/Employee/default.png') }}" class="img-circle" alt="User Image" width="40" height="40">
+                <span class="notification-initials">{{ $initials($notif->leave_emp_fullname) }}</span>
             </div>                            
             <div>
                 <p class="mb-0">
@@ -94,12 +98,7 @@ $leaveTypes = [
 
         <a href="{{ route('updateNotif', ['menid' => $menid, 'lappid' => $lappid, 'menu' => $menu]) }}" class="dropdown-item d-flex align-items-center">
             <div class="mr-3">
-                @php
-                    $profileUrl = asset('Profile/Employee/' . $profile);
-                    $profilePath = public_path('Profile/Employee/' . $profile);
-                @endphp
-                <img src="{{ file_exists($profilePath) && $profile ? $profileUrl : asset('Profile/Employee/default.png') }}" 
-                     class="img-circle" alt="User Image" width="40" height="40">
+                <span class="notification-initials">{{ $initials($fullname) }}</span>
             </div>
             <div>
                 <p class="mb-0">

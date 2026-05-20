@@ -159,7 +159,7 @@
         </div>
 
         <div class="section center" style="margin-left: -10%;">
-            <div class="bold" style="margin-left: -43%; margin-bottom: -3.5%;">APPROVED:</div>
+            <div class="bold" style="margin-left: -43%; margin-bottom: -3.5%;">FINAL RATING BY:</div>
 
             <div class="name-block bold underline">
                 {{-- ALADINO C. MORACA, Ph.D. --}}

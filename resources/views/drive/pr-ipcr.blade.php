@@ -658,16 +658,29 @@
     </div>
     <div class="col-md-12 text-center">
         <div class="row">
+            @php
+                $printedAsignatoryLabels = [];
+            @endphp
             @foreach ($selectedEmployees as $asignatory)
                 @php
                     $fullName = $asignatory->fname . ' ' .
                                 ($asignatory->mname ? strtoupper(substr($asignatory->mname, 0, 1)) . '. ' : '') .
                                 $asignatory->lname;
+                    $asignatoryLabel = ($asignatory->label ?? 'Employee') === 'Approved:'
+                        ? 'Final Rating by:'
+                        : ($asignatory->label ?? 'Employee');
+                    $showAsignatoryLabel = !in_array($asignatoryLabel, $printedAsignatoryLabels);
+                    if ($showAsignatoryLabel) {
+                        $printedAsignatoryLabels[] = $asignatoryLabel;
+                    }
                 @endphp
                 <div class="col text-center">
-                    <div><strong>_________________________________</strong></div>
-                    <div><strong>{{ $fullName ?? 'N/A' }}{{ ($asignatory->suffixes) ? ', '.$asignatory->suffixes : '' }}</strong></div>
-                    <div>{{ ucwords(strtolower($asignatory->designation)) ?? 'N/A' }}</div>
+                    <div class="d-inline-block text-center" style="min-width: 180px;">
+                        <div class="text-left" style="margin-bottom: 24px; color: {{ $showAsignatoryLabel ? 'inherit' : '#fff' }};">{{ $asignatoryLabel }}</div>
+                        <div><strong>_________________________________</strong></div>
+                        <div><strong>{{ $fullName ?? 'N/A' }}{{ ($asignatory->suffixes) ? ', '.$asignatory->suffixes : '' }}</strong></div>
+                        <div>{{ ucwords(strtolower($asignatory->designation)) ?? 'N/A' }}</div>
+                    </div>
                 </div>
             @endforeach
         </div>

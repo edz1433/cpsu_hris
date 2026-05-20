@@ -47,7 +47,7 @@ Route::get('/', function () {
     if (Auth::guard('web')->check()) {
         return redirect()->route('dashboard');
     }elseif(Auth::guard('employee')->check()){
-        return redirect()->route('drive');
+        return redirect()->route('dashboard');
     }
     return view('login');
 });
@@ -366,6 +366,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         // Route::get('/load/{page}', [NotificationController::class, 'loadMore'])->name('notificationload');
         Route::get('/load', [NotificationController::class, 'loadMore'])->name('notificationload');
         Route::get('/update-notif/{menid}/{lappid}/{menu}', [NotificationController::class, 'updateNotif'])->name('updateNotif');
+        Route::post('/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
     });
 
     // leave
@@ -406,6 +407,4 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     Route::get('/leave/disapprove', [LeaveApplicationController::class, 'leaveDisapprove']);
     Route::post('/logout', [MasterController::class, 'logout'])->name('logout');
 });
-
-
 

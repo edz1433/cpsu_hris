@@ -753,6 +753,8 @@
                         return stripos($item->designation, 'president') !== false ? 1 : 0;
                     });
                 }
+
+                $printedAsignatoryLabels = [];
             @endphp
 
             @foreach ($employees as $asignatory)
@@ -762,17 +764,27 @@
                                     ? strtoupper(substr($asignatory->mname, 0, 1)) . '. '
                                     : '') .
                                 $asignatory->lname;
+                    $asignatoryLabel = ($asignatory->label ?? 'Employee') === 'Approved:'
+                        ? 'Final Rating by:'
+                        : ($asignatory->label ?? 'Employee');
+                    $showAsignatoryLabel = !in_array($asignatoryLabel, $printedAsignatoryLabels);
+                    if ($showAsignatoryLabel) {
+                        $printedAsignatoryLabels[] = $asignatoryLabel;
+                    }
                 @endphp
 
                 <div class="col text-center">
-                    <div><strong>_________________________________</strong></div>
-                    <div>
-                        <strong>
-                            {{ $fullName ?? 'N/A' }}
-                            {{ $asignatory->suffixes ? ', '.$asignatory->suffixes : '' }}
-                        </strong>
+                    <div class="d-inline-block text-center" style="min-width: 180px;">
+                        <div class="text-left" style="margin-bottom: 24px; color: {{ $showAsignatoryLabel ? 'inherit' : '#fff' }};">{{ $asignatoryLabel }}</div>
+                        <div><strong>_________________________________</strong></div>
+                        <div>
+                            <strong>
+                                {{ $fullName ?? 'N/A' }}
+                                {{ $asignatory->suffixes ? ', '.$asignatory->suffixes : '' }}
+                            </strong>
+                        </div>
+                        <div>{{ ucwords(strtolower($asignatory->designation)) ?? 'N/A' }}</div>
                     </div>
-                    <div>{{ ucwords(strtolower($asignatory->designation)) ?? 'N/A' }}</div>
                 </div>
             @endforeach
         </div>

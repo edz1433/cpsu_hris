@@ -569,6 +569,9 @@
         <i class="fas fa-cog mr-2" style="font-size: 16px;" data-toggle="modal" data-target="#setupModal"></i>
     </div>
     <div class="row">
+       @php
+            $printedAsignatoryLabels = [];
+       @endphp
        @foreach ($selectedEmployees as $asignatory)
             @php
                 // Middle initial (uppercase)
@@ -601,12 +604,22 @@
 
                 // Designation in uppercase
                 $designation = strtoupper($asignatory->designation ?? 'N/A');
+                $asignatoryLabel = ($asignatory->label ?? 'Employee') === 'Approved:'
+                    ? 'Final Rating by:'
+                    : ($asignatory->label ?? 'Employee');
+                $showAsignatoryLabel = !in_array($asignatoryLabel, $printedAsignatoryLabels);
+                if ($showAsignatoryLabel) {
+                    $printedAsignatoryLabels[] = $asignatoryLabel;
+                }
             @endphp
 
             <div class="col text-center">
-                <div><strong>_________________________________</strong></div>
-                <div><strong>{{ $displayName }}</strong></div>
-                <div>{{ $designation }}</div>
+                <div class="d-inline-block text-center" style="min-width: 180px;">
+                    <div class="text-left" style="margin-bottom: 24px; color: {{ $showAsignatoryLabel ? 'inherit' : '#fff' }};">{{ $asignatoryLabel }}</div>
+                    <div><strong>_________________________________</strong></div>
+                    <div><strong>{{ $displayName }}</strong></div>
+                    <div>{{ $designation }}</div>
+                </div>
             </div>
         @endforeach
     </div>

@@ -18,12 +18,48 @@
 </li>
 
 <li class="nav-item dropdown">
+    @php
+        $initials = function ($name) {
+            $words = preg_split('/\s+/', trim((string) $name));
+            $letters = collect($words)->filter()->take(2)->map(fn ($word) => strtoupper(substr($word, 0, 1)))->implode('');
+            return $letters ?: 'NA';
+        };
+    @endphp
+    <style>
+        .notification-initials {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #eaf7f0;
+            color: #187744;
+            font-weight: 700;
+            border: 1px solid #cfe8d9;
+        }
+        .notification-mark-all {
+            border: 0;
+            background: transparent;
+            color: #187744;
+            font-size: 12px;
+            padding: 0;
+        }
+    </style>
     <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
         <i class="fas fa-bell text-success1"></i>
         <span class="badge badge-warning navbar-badge">{{ ($notificationsCount != 0) ? $notificationsCount : '' }}</span>
     </a>
     <div class="dropdown-menu notifications dropdown-notification dropdown-menu-lg dropdown-menu-right" style="left: inherit; right: 0; max-height: 400px; overflow-y: auto;">
-        <span class="dropdown-item dropdown-header">{{ ($notificationsCount != 0) ? $notificationsCount : '' }} Notifications</span>
+        <div class="dropdown-item dropdown-header d-flex justify-content-between align-items-center">
+            <span>{{ ($notificationsCount != 0) ? $notificationsCount : 'No' }} Notifications</span>
+            @if($notificationsCount > 0)
+                <form method="POST" action="{{ route('notifications.markAllRead') }}">
+                    @csrf
+                    <button type="submit" class="notification-mark-all">Mark all as read</button>
+                </form>
+            @endif
+        </div>
         <div class="dropdown-divider"></div>
         <div id="notifications-container">
             @php 
@@ -61,8 +97,7 @@
                         @endphp
                         <a href="{{ route('leaveStatus', $notif->leave_emp_id) }}" class="dropdown-item d-flex align-items-center">
                             <div class="mr-3">
-                                <img src="{{ file_exists(public_path('Profile/Employee/' . $notif->leave_emp_profile)) ? asset('Profile/Employee/' . $notif->leave_emp_profile) : 
-                                asset('Profile/Employee/default.png') }}" class="img-circle" alt="User Image" width="40" height="40">
+                                <span class="notification-initials">{{ $initials($notif->leave_emp_fullname) }}</span>
                             </div>                            
                             <div>
                                 <p class="mb-0">
@@ -122,12 +157,7 @@
             
                         <a href="{{ route('updateNotif', ['menid' => $menid, 'lappid' => $lappid, 'menu' => $menu]) }}" class="dropdown-item d-flex align-items-center">
                             <div class="mr-3">
-                                @php
-                                    $profileUrl = asset('Profile/Employee/' . $profile);
-                                    $profilePath = public_path('Profile/Employee/' . $profile);
-                                @endphp
-                                <img src="{{ file_exists($profilePath) && $profile ? $profileUrl : asset('Profile/Employee/default.png') }}" 
-                                     class="img-circle" alt="User Image" width="40" height="40">
+                                <span class="notification-initials">{{ $initials($fullname) }}</span>
                             </div>
                             <div>
                                 <p class="mb-0">

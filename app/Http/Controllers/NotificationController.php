@@ -146,6 +146,8 @@ class NotificationController extends Controller
                     ->where('notifications.module', 'leave');
             })
             ->addSelect(
+                'leave_applications.leave_type',
+                'leave_applications.transnum',
                 'leave_emp.id as leave_emp_id',
                 'leave_emp.fname as leave_emp_fname',
                 'leave_emp.lname as leave_emp_lname',
@@ -260,5 +262,26 @@ class NotificationController extends Controller
         }  
 
         return redirect()->route($menu, $menid);
+    }
+
+    public function markAllRead()
+    {
+        $guard = $this->getGuard();
+
+        if ($guard === 'web') {
+            Notification::where('utype', 'hr')
+                ->where('status', 0)
+                ->update(['status' => 1]);
+        }
+
+        if ($guard === 'employee') {
+            Notification::where('utype', 'employee')
+                ->where('empid', auth()->guard('employee')->user()->emp_ID)
+                ->whereNotIn('module', ['leavecredit', 'leavecreditadd'])
+                ->where('status', 0)
+                ->update(['status' => 1]);
+        }
+
+        return redirect()->back()->with('success', 'Notifications marked as read');
     }
 }
