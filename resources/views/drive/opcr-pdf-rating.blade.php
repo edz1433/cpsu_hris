@@ -137,11 +137,11 @@
                 </tr>
                 <tr>
                     <th rowspan="3" class="text-center">(Targets + Measures)</th>
-                    <th rowspan="3" style="width: 10%;" class="text-center">Q</th>
+                    <th rowspan="3" style="width: 160;" class="text-center">Q</th>
                     <th rowspan="3" class="text-center"></th>
-                    <th rowspan="3" style="width: 10%;"class="text-center">E</th>
+                    <th rowspan="3" style="width: 100;"class="text-center">E</th>
                     <th rowspan="3" class="text-center"></th>
-                    <th rowspan="3" style="width: 10%;"class="text-center">T</th>
+                    <th rowspan="3" style="width: 100;"class="text-center">T</th>
                     <th rowspan="3" class="text-center"></th>
                     <th rowspan="3" class="text-center">A</th>
                     <th rowspan="3" class="text-center"></th>
