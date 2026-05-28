@@ -267,6 +267,7 @@ class OpcrController extends Controller
             'quality' => 'nullable|string',
             'efficiency' => 'nullable|string',
             'timeliness' => 'nullable|string',
+            'remarks' => 'nullable|string',
             'category' => 'required',
         ]);
 
@@ -296,6 +297,7 @@ class OpcrController extends Controller
                     'quality' => $request->input('quality'),
                     'efficiency' => $request->input('efficiency'),
                     'timeliness' => $request->input('timeliness'),
+                    'remarks' => $request->input('remarks'),
                     'category' => $category,
                     'user_id' => $setting->suc_pres,
                     'order' => $order,
@@ -318,6 +320,7 @@ class OpcrController extends Controller
                     'quality' => $request->input('quality'),
                     'efficiency' => $request->input('efficiency'),
                     'timeliness' => $request->input('timeliness'),
+                    'remarks' => $request->input('remarks'),
                     'category' => $request->input('category'),
                 ]);
 
@@ -333,6 +336,7 @@ class OpcrController extends Controller
                     'quality'    => $request->input('quality'),
                     'efficiency' => $request->input('efficiency'),
                     'timeliness' => $request->input('timeliness'),
+                    'remarks'    => $request->input('remarks'),
                     'category'   => $request->input('category'),
                 ]);
             } else {

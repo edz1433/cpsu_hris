@@ -244,7 +244,7 @@ class ApplicationController extends Controller
 
         // 📧 Send email to HR and applicant
         try {
-            $toEmail = 'cpsu_main@cpsu.edu.ph';
+            $toEmail = 'cpsu_recordsmain@cpsu.edu.ph';
             $green = '#187744';
             $trackingUrl = 'https://cpsu.edu.ph/jobs';
 

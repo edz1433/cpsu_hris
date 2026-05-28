@@ -40,28 +40,91 @@ class IpcrController extends Controller
         return openssl_decrypt(base64_decode($encrypted), $cipher, $key, 0);
     }
 
+    public function updateIpcrMfo(Request $request)
+    {
+        $request->validate([
+            'ipcr-id' => 'required|integer',
+            'mfo' => 'required|array',
+            'mfo.*' => 'string',
+            'functions' => 'required|array',
+            'functions.*' => 'string|nullable',
+            'percent' => 'required|array',
+            'percent.*' => 'numeric|min:0|max:100'
+        ]);
+
+        $cat = $request->input('ipcr-cat');
+        $ipcrId = $request->input('ipcr-id');
+        $functionArray = $request->input('functions');
+        $percentArray = $request->input('percent');
+        $totalPercent = array_sum($percentArray);
+
+        $ipcr = Ipcr::find($ipcrId);
+        $employee = $ipcr ? Employee::find($ipcr->user_id) : null;
+        $prSetting = $employee ? PrSetting::find($employee->strat_function) : null;
+
+        if (!$ipcr || !$employee || !$prSetting) {
+            return redirect()->back()->with('error', 'IPCR record not found!');
+        }
+
+        switch ($cat) {
+            case 1:
+                $expectedPercentSum = $prSetting->core_sum;
+                break;
+            case 2:
+                $expectedPercentSum = $prSetting->strat_sum;
+                break;
+            default:
+                $expectedPercentSum = $prSetting->support_sum;
+        }
+
+        if ($totalPercent != $expectedPercentSum) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'percent' => "The total percent must be exactly $expectedPercentSum%. Current total: $totalPercent"
+                ]);
+        }
+
+        $existingMfos = IpcrMfo::where('ipcr_id', $ipcrId)
+            ->orderBy('id', 'asc')
+            ->get();
+
+        foreach ($existingMfos as $index => $mfoRecord) {
+            $mfoRecord->update([
+                'functions' => $functionArray[$index] ?? '',
+                'percent' => $percentArray[$index],
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'MFO saved successfully!');
+    }
+
     public function createIpcrMfoData(Request $request)
     {
         $request->validate([
-            'dpcr_mfo_id' => 'required|integer',
-            'dpcrdata_id' => 'required|integer',
-            'user_id' => 'required',
+            'ipcr_mfo_id' => 'nullable|integer',
+            'dpcr_mfo_id' => 'nullable|integer',
+            'ipcrdata_id' => 'nullable|integer',
+            'dpcrdata_id' => 'nullable|integer',
+            'user_id' => 'nullable',
             'mfo' => 'required|string', 
             'target' => 'nullable|string',
+            'measure' => 'nullable|string',
             'in_support' => 'nullable|string',
             'report_sup' => 'nullable|string',
             'div_account' => 'nullable|string',
             'quality' => 'nullable|string',
             'efficiency' => 'nullable|string',
             'timeliness' => 'nullable|string',
+            'remarks' => 'nullable|string',
             'category' => 'required',
-            'dpcr_by' => 'required',
+            'dpcr_by' => 'nullable',
         ]);
 
         $guard = $this->getGuard();
-        $ipcrId = $request->input('ipcr_mfo_id');
-        $dpcrdataId = $request->input('dpcrdata_id');
-        $userId = $this->shortDecrypt($request->input('user_id'));
+        $ipcrId = $request->input('ipcr_mfo_id', $request->input('dpcr_mfo_id'));
+        $ipcrdataId = $request->input('ipcrdata_id', $request->input('dpcrdata_id', 0));
+        $userId = $request->filled('user_id') ? $this->shortDecrypt($request->input('user_id')) : null;
 
         $categories = $request->input('category') === 'All' ? [1, 2] : [$request->input('category')];
         
@@ -71,10 +134,16 @@ class IpcrController extends Controller
         // Start new order number
         $order = $lastOrder ? $lastOrder + 1 : 1;
 
-        if ($dpcrdataId == 0) {
+        if ($ipcrdataId == 0) {
+            if (!$ipcrId) {
+                return redirect()->back()->withInput()->withErrors([
+                    'ipcr_mfo_id' => 'The IPCR MFO field is required.',
+                ]);
+            }
+
             foreach ($categories as $category) {
                 IpcrMfoData::create([
-                    'ipcr_mfo_id' => $dpcrId,
+                    'ipcr_mfo_id' => $ipcrId,
                     'user_id' => $userId,
                     'mfo' => $request->input('mfo'),
                     'target' => $request->input('target'),
@@ -85,19 +154,20 @@ class IpcrController extends Controller
                     'quality' => $request->input('quality'),
                     'efficiency' => $request->input('efficiency'),
                     'timeliness' => $request->input('timeliness'),
+                    'remarks' => $request->input('remarks'),
                     'category' => $category,
-                    'opcr_by' => $request->input('opcr_by'),
+                    'dpcr_by' => $request->input('dpcr_by') ?? '',
                     'order' => $order,
-                    'lock' => ($guard === 'employee' && $userId == auth()->guard($guard)->user()->id) ? 2 : 1,
+                    'lock' => ($guard === 'employee' && $userId && $userId == auth()->guard($guard)->user()->id) ? 2 : 1,
                 ]);
 
                 $order++;
             }
         } else {
-            // dd($dpcrdataId);
-            $dpcrData = IpcrMfoData::find($dpcrdataId);
-            if ($dpcrData) {
-                $dpcrData->update([
+            // dd($ipcrdataId);
+            $ipcrData = IpcrMfoData::find($ipcrdataId);
+            if ($ipcrData) {
+                $ipcrData->update([
                     'mfo' => $request->input('mfo'),
                     'target' => $request->input('target'),
                     'measure' => $request->input('measure'),
@@ -107,11 +177,12 @@ class IpcrController extends Controller
                     'quality' => $request->input('quality'),
                     'efficiency' => $request->input('efficiency'),
                     'timeliness' => $request->input('timeliness'),
+                    'remarks' => $request->input('remarks'),
                     'category' => $request->input('category'),
-                    'opcr_by' => $request->input('opcr_by'),
+                    'dpcr_by' => $request->input('dpcr_by', $ipcrData->dpcr_by),
                 ]);
             } else {
-                return redirect()->back()->with('error', 'OPCR MFO Data not found!');
+                return redirect()->back()->with('error', 'IPCR MFO Data not found!');
             }
         }
 
@@ -132,7 +203,7 @@ class IpcrController extends Controller
         $cat = $request->input('cat');
         $id = $request->input('id');
 
-        $data = DpcrMfo::where('dpcr_id', $id)->get();
+        $data = IpcrMfo::where('ipcr_id', $id)->get();
         $prSetting = PrSetting::find(1);
 
         if($cat == 1){
@@ -454,7 +525,7 @@ class IpcrController extends Controller
                 $data['ipcr_mfo_id'] = $ipcrmfofind->id;
                 $data['dpcr_mfo_data_id'] = $id;
                 $data['user_id'] = $empid;
-                $data['dpcr_by'] = $data['opcr_by'];
+                $data['dpcr_by'] = $data['opcr_by'] ?? $data['dpcr_by'] ?? '';
 
                 $exists = IpcrMfoData::where('user_id', $empid)
                             ->where('dpcr_mfo_data_id', $id)

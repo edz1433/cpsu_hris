@@ -116,6 +116,7 @@ class DpcrController extends Controller
             'quality' => 'nullable|string',
             'efficiency' => 'nullable|string',
             'timeliness' => 'nullable|string',
+            'remarks' => 'nullable|string',
             'category' => 'required',
             'dpcr_by' => 'nullable',
         ]);
@@ -142,6 +143,7 @@ class DpcrController extends Controller
                     'quality' => $request->input('quality'),
                     'efficiency' => $request->input('efficiency'),
                     'timeliness' => $request->input('timeliness'),
+                    'remarks' => $request->input('remarks'),
                     'category' => $category,
                     'dpcr_by' => $request->input('dpcr_by') ?? '',
                     'order' => $order,
@@ -162,6 +164,7 @@ class DpcrController extends Controller
                     'quality' => $request->input('quality'),
                     'efficiency' => $request->input('efficiency'),
                     'timeliness' => $request->input('timeliness'),
+                    'remarks' => $request->input('remarks'),
                     'category' => $request->input('category'),
                     'dpcr_by' => $request->input('dpcr_by'),
                 ]);

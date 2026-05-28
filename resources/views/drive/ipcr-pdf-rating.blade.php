@@ -210,7 +210,7 @@
                             <td class="text-center">{!! displayValue($Ipcrmfodata->timeliness) !!}</td>
                             <td class="text-center">{!! displayValue($Ipcrmfodata->t_score) !!}</td>
                             <td class="text-center">{!! displayValue($Ipcrmfodata->average) !!}</td>
-                            <td class="text-center">{!! displayValue($Ipcrmfodata->remarks) !!}</td>
+                            <td class="text-center">{!! nl2br(e(displayValue($Ipcrmfodata->remarks))) !!}</td>
                             <td class="trborder"></td>
                         </tr>
                         @endforeach
@@ -275,7 +275,7 @@
                             <td class="text-center">{!! displayValue($Ipcrmfodata->timeliness) !!}</td>
                             <td class="text-center">{!! displayValue($Ipcrmfodata->t_score) !!}</td>
                             <td class="text-center">{!! displayValue($Ipcrmfodata->average) !!}</td>
-                            <td class="text-center">{!! displayValue($Ipcrmfodata->remarks) !!}</td>
+                            <td class="text-center">{!! nl2br(e(displayValue($Ipcrmfodata->remarks))) !!}</td>
                             <td class="trborder"></td>
                         </tr>
                         @endforeach
@@ -340,7 +340,7 @@
                             <td class="text-center">{!! displayValue($Ipcrmfodata->timeliness) !!}</td>
                             <td class="text-center">{!! displayValue($Ipcrmfodata->t_score) !!}</td>
                             <td class="text-center">{!! displayValue($Ipcrmfodata->average) !!}</td>
-                            <td class="text-center">{!! displayValue($Ipcrmfodata->remarks) !!}</td>
+                            <td class="text-center">{!! nl2br(e(displayValue($Ipcrmfodata->remarks))) !!}</td>
                             <td class="trborder"></td>
                         </tr>
                         @endforeach

@@ -256,7 +256,7 @@
                             <td class="text-center">{!! displayValue($Opcrmfodata->timeliness) !!}</td>
                             <td class="text-center">{!! displayValue($Opcrmfodata->t_score) !!}</td>
                             <td class="text-center">{!! displayValue($Opcrmfodata->average) !!}</td>
-                            <td class="text-center">{!! displayValue($Opcrmfodata->remarks) !!}</td>
+                            <td class="text-center">{!! nl2br(e(displayValue($Opcrmfodata->remarks))) !!}</td>
                             <td class="trborder"></td>
                         </tr>
                         @endforeach
@@ -364,7 +364,7 @@
                             <td class="text-center">{!! displayValue($Opcrmfodata->timeliness) !!}</td>
                             <td class="text-center">{!! displayValue($Opcrmfodata->t_score) !!}</td>
                             <td class="text-center">{!! displayValue($Opcrmfodata->average) !!}</td>
-                            <td class="text-center">{!! displayValue($Opcrmfodata->remarks) !!}</td>
+                            <td class="text-center">{!! nl2br(e(displayValue($Opcrmfodata->remarks))) !!}</td>
                             <td class="trborder"></td>
                         </tr>
                         @endforeach
@@ -473,7 +473,7 @@
                             <td class="text-center">{!! displayValue($Opcrmfodata->timeliness) !!}</td>
                             <td class="text-center">{!! displayValue($Opcrmfodata->t_score) !!}</td>
                             <td class="text-center">{!! displayValue($Opcrmfodata->average) !!}</td>
-                            <td class="text-center">{!! displayValue($Opcrmfodata->remarks) !!}</td>
+                            <td class="text-center">{!! nl2br(e(displayValue($Opcrmfodata->remarks))) !!}</td>
                             <td class="trborder"></td>
                         </tr>
                         @endforeach

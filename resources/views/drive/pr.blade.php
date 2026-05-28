@@ -258,7 +258,7 @@
                     <td class="text-center">{!! displayValue($opcrmfodata->timeliness) !!}</td>
                     <td class="text-center">{!! displayValue($opcrmfodata->t_score) !!}</td>
                     <td class="text-center">{!! displayValue($opcrmfodata->average) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->remarks) !!}</td>
+                    <td class="text-center">{!! nl2br(e(displayValue($opcrmfodata->remarks))) !!}</td>
                     <td class="text-center">
                         @if ($allHaveEvidence)
                             <span class="badge badge-success rounded-circle">
@@ -404,7 +404,7 @@
                     <td class="text-center">{!! displayValue($opcrmfodata->timeliness) !!}</td>
                     <td class="text-center">{!! displayValue($opcrmfodata->t_score) !!}</td>
                     <td class="text-center">{!! displayValue($opcrmfodata->average) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->remarks) !!}</td>
+                    <td class="text-center">{!! nl2br(e(displayValue($opcrmfodata->remarks))) !!}</td>
                     <td class="text-center">
                         @if ($allHaveEvidence)
                             <span class="badge badge-success rounded-circle">
@@ -547,7 +547,7 @@
                     <td class="text-center">{!! displayValue($opcrmfodata->timeliness) !!}</td>
                     <td class="text-center">{!! displayValue($opcrmfodata->t_score) !!}</td>
                     <td class="text-center">{!! displayValue($opcrmfodata->average) !!}</td>
-                    <td class="text-center">{!! displayValue($opcrmfodata->remarks) !!}</td>
+                    <td class="text-center">{!! nl2br(e(displayValue($opcrmfodata->remarks))) !!}</td>
                     <td class="text-center">
                         @if ($allHaveEvidence)
                             <span class="badge badge-success rounded-circle">
@@ -772,6 +772,7 @@
                         $('#quality').val(data.quality);
                         $('#efficiency').val(data.efficiency);
                         $('#timeliness').val(data.timeliness);
+                        $('#remarks').val(data.remarks);
                     },
                     error: function () {
                         Swal.fire('Error', 'Unable to fetch data for editing.', 'error');
@@ -849,6 +850,7 @@
         $('#quality').val('');
         $('#efficiency').val('');
         $('#timeliness').val('');
+        $('#remarks').val('');
     });
 </script>
 <script>

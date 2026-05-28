@@ -211,7 +211,7 @@
                         data-cat="1"
                         data-id="{{ $prs[0]->id }}"
                         data-folder="{{ $folder }}"
-                        data-target="#createOpcrMfoModal">
+                        data-target="#createIpcrMfoModal">
                         </i>
                     </td>
                     @endif
@@ -222,7 +222,7 @@
                         data-cat="1"
                         data-id="{{ $prs[0]->id }}"
                         data-folder="{{ $folder }}"
-                        data-target="#createOpcrMfoModal">
+                        data-target="#createIpcrMfoModal">
                         </i>
                     </td>
                 @endif
@@ -344,7 +344,7 @@
                 <td class="text-center">{!! displayValue($Ipcrmfodata->timeliness) !!}</td>
                 <td class="text-center">{!! displayValue($Ipcrmfodata->t_score) !!}</td>
                 <td class="text-center">{!! displayValue($Ipcrmfodata->average) !!}</td>
-                <td class="text-center">{!! displayValue($Ipcrmfodata->remarks) !!}</td>
+                <td class="text-center">{!! nl2br(e(displayValue($Ipcrmfodata->remarks))) !!}</td>
                 <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
             </tr>
             @endforeach
@@ -376,7 +376,7 @@
                             data-cat="2"
                             data-id="{{ $prs[1]->id }}"
                             data-folder="{{ $folder }}"
-                            data-target="#createOpcrMfoModal">
+                            data-target="#createIpcrMfoModal">
                             </i>
                         </td>
                     @endif
@@ -387,7 +387,7 @@
                         data-cat="2"
                         data-id="{{ $prs[1]->id }}"
                         data-folder="{{ $folder }}"
-                        data-target="#createOpcrMfoModal">
+                        data-target="#createIpcrMfoModal">
                         </i>
                     </td>
                 @endif
@@ -495,7 +495,7 @@
                     <td class="text-center">{!! displayValue($Ipcrmfodata->timeliness) !!}</td>
                     <td class="text-center">{!! displayValue($Ipcrmfodata->t_score) !!}</td>
                     <td class="text-center">{!! displayValue($Ipcrmfodata->average) !!}</td>
-                    <td class="text-center">{!! displayValue($Ipcrmfodata->remarks) !!}</td>
+                    <td class="text-center">{!! nl2br(e(displayValue($Ipcrmfodata->remarks))) !!}</td>
                     <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
                 </tr>
             @endforeach
@@ -527,7 +527,7 @@
                             data-cat="3"
                             data-id="{{ $prs[2]->id }}"
                             data-folder="{{ $folder }}"
-                            data-target="#createOpcrMfoModal">
+                            data-target="#createIpcrMfoModal">
                             </i>
                         </td>
                     @endif
@@ -538,7 +538,7 @@
                         data-cat="3"
                         data-id="{{ $prs[2]->id }}"
                         data-folder="{{ $folder }}"
-                        data-target="#createOpcrMfoModal">
+                        data-target="#createIpcrMfoModal">
                         </i>
                     </td>
                 @endif
@@ -643,7 +643,7 @@
                     <td class="text-center">{!! displayValue($Ipcrmfodata->timeliness) !!}</td>
                     <td class="text-center">{!! displayValue($Ipcrmfodata->t_score) !!}</td>
                     <td class="text-center">{!! displayValue($Ipcrmfodata->average) !!}</td>
-                    <td class="text-center">{!! displayValue($Ipcrmfodata->remarks) !!}</td>
+                    <td class="text-center">{!! nl2br(e(displayValue($Ipcrmfodata->remarks))) !!}</td>
                     <td class="text-center"><span class="badge badge-danger rounded-circle">X</span></td>
                 </tr>
             @endforeach
@@ -700,15 +700,15 @@
         let cat = $(this).data('cat');
         let id = $(this).data('id');
 
-        $('#opcr-cat').val(cat);
-        $('#opcr-id').val(id);
+        $('#ipcr-cat').val(cat);
+        $('#ipcr-id').val(id);
 
         if(cat == 1) {
-            $('#opcr-cat-text').text('CORE FUNCTION');
+            $('#ipcr-cat-text').text('CORE FUNCTION');
         } else if(cat == 2) {
-            $('#opcr-cat-text').text('STRATEGIC FUNCTION');
+            $('#ipcr-cat-text').text('STRATEGIC FUNCTION');
         } else {
-            $('#opcr-cat-text').text('SUPPORT FUNCTION');
+            $('#ipcr-cat-text').text('SUPPORT FUNCTION');
         }
         
         $('#form-data').empty();
@@ -809,7 +809,7 @@
                 $('#count1').val(count);
             } else if (result.isDenied) {
                 editIpcrData(id);
-                $('#ipcr-mfo-id').val(mfoid);
+                $('#ipcr_mfo_id').val(mfoid);
 
                 $.ajax({
                     url: `{{ route('ipcrmfoEditData', ':id') }}`.replace(':id', id),
@@ -826,6 +826,7 @@
                         $('#quality').val(data.quality);
                         $('#efficiency').val(data.efficiency);
                         $('#timeliness').val(data.timeliness);
+                        $('#remarks').val(data.remarks);
                     },
                     error: function () {
                         Swal.fire('Error', 'Unable to fetch data for editing.', 'error');
@@ -892,9 +893,9 @@
 
     $(document).on('click', '.mfo-data', function (event) {
         var mfoid = $(this).data('mfoid');
-        $('#opcr-mfo-id').val(mfoid);
-        $('#opcrdata_id').val(0);
-        $('#opcr_by').val('');
+        $('#ipcr_mfo_id').val(mfoid);
+        $('#ipcrdata_id').val(0);
+        $('#dpcr_by').val('');
         $('#mfo').val('');
         $('#target').val('');
         $('#in_support').val('');
@@ -903,6 +904,7 @@
         $('#quality').val('');
         $('#efficiency').val('');
         $('#timeliness').val('');
+        $('#remarks').val('');
     });
 </script>
 <script>

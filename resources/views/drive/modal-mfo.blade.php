@@ -105,6 +105,10 @@
                                     <label class="text-success1">TIMELINESS</label>
                                     <textarea name="timeliness" rows="3" class="form-control form-control-sm" id="timeliness" autocomplete="off"></textarea>
                                 </div>
+                                <div class="form-group col-md-4">
+                                    <label class="text-success1">REMARKS</label>
+                                    <textarea name="remarks" rows="3" class="form-control form-control-sm" id="remarks" autocomplete="off"></textarea>
+                                </div>
                             </div>
                             <div class="form-row">
                                 <div class="col-md-12 mt-2 text-right">
