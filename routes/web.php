@@ -202,6 +202,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
 
         // optional extra route if applicants can apply directly
         Route::get('/applications', [MasterController::class, 'appList'])->name('appList');
+        Route::get('/applications/report', [MasterController::class, 'applicationReport'])->name('applicationReport');
         Route::post('/applications/create', [ApplicationController::class, 'appCreate'])->name('appCreate');
         Route::post('/application/setCtrlNo', [ApplicationController::class, 'setCtrlNo'])->name('setCtrlNo');
         Route::post('/application/update-status', [ApplicationController::class, 'updateStatus'])->name('updateStatus');
@@ -407,4 +408,3 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     Route::get('/leave/disapprove', [LeaveApplicationController::class, 'leaveDisapprove']);
     Route::post('/logout', [MasterController::class, 'logout'])->name('logout');
 });
-

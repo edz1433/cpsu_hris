@@ -17,6 +17,7 @@ use App\Models\WorkExperience;
 use App\Models\LearningDev; 
 use App\Models\VoluntaryWork;
 use App\Models\Application;
+use App\Models\JobHiring;
 use App\Models\SpmsPersonnel;
 use App\Models\Setting;
 use App\Models\OfficialTime;
@@ -471,7 +472,69 @@ class MasterController extends Controller
         $applications = Application::join('job_hirings', 'applications.jid', '=', 'job_hirings.id')
             ->select('applications.*', 'job_hirings.title as position')
             ->get();
-        return view('career.application', compact('applications', 'guard'));
+        $jobs = JobHiring::orderBy('title')->get();
+
+        return view('career.application', compact('applications', 'jobs', 'guard'));
+    }
+
+    public function applicationReport(Request $request)
+    {
+        $statusLabels = [
+            0 => 'Application Submitted',
+            1 => 'Reviewing',
+            2 => 'Qualified / Ready for Interview',
+            3 => 'Disqualified',
+            4 => 'Qualified yet not selected',
+            5 => 'Top 5 / Psychological or Pre-Employment Test',
+            6 => 'Not Hired',
+            7 => 'Hired',
+        ];
+
+        $request->validate([
+            'position_id' => 'nullable|integer|exists:job_hirings,id',
+            'status' => 'nullable|integer|in:0,1,2,3,4,5,6,7',
+        ]);
+
+        $query = Application::join('job_hirings', 'applications.jid', '=', 'job_hirings.id')
+            ->select(
+                'applications.*',
+                'job_hirings.title as position',
+                'job_hirings.assignment as program',
+                'job_hirings.education as required_education',
+                'job_hirings.training as required_training',
+                'job_hirings.experience as required_experience'
+            );
+
+        if ($request->filled('position_id')) {
+            $query->where('applications.jid', $request->position_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('applications.status', $request->status);
+        }
+
+        $applications = $query
+            ->orderBy('job_hirings.title')
+            ->orderBy('applications.last_name')
+            ->orderBy('applications.first_name')
+            ->get();
+
+        $selectedPosition = $request->filled('position_id')
+            ? JobHiring::find($request->position_id)
+            : null;
+
+        $selectedStatus = $request->filled('status')
+            ? ($statusLabels[(int) $request->status] ?? 'Unknown')
+            : 'All Statuses';
+
+        $customPaper = [0, 0, 612, 1296];
+        $pdf = \PDF::loadView('career.application-report', compact(
+            'applications',
+            'selectedPosition',
+            'selectedStatus'
+        ))->setPaper($customPaper, 'landscape');
+
+        return $pdf->stream('application-report.pdf');
     }
 
     public function systemSetting(){

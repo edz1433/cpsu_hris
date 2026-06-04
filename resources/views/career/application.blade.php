@@ -3,6 +3,16 @@
 @section('body')
 @php
     $current_route = request()->route()->getName();
+    $status_labels = [
+        0 => 'Application Submitted',
+        1 => 'Reviewing',
+        2 => 'Qualified / Ready for Interview',
+        3 => 'Disqualified',
+        4 => 'Qualified yet not selected',
+        5 => 'Top 5 / Psychological or Pre-Employment Test',
+        6 => 'Not Hired',
+        7 => 'Hired',
+    ];
 @endphp
 
 <div class="container-fluid">
@@ -15,7 +25,38 @@
                     </h3>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
+                                        <form method="GET" action="{{ route('applicationReport') }}" target="_blank">
+                        <div class="row align-items-end">
+                            <div class="col-md-5">
+                                <div class="form-group mb-md-0">
+                                    <label for="position_id">Position</label>
+                                    <select name="position_id" id="position_id" class="form-control form-control-sm">
+                                        <option value="">All Positions</option>
+                                        @foreach($jobs as $job)
+                                            <option value="{{ $job->id }}">{{ $job->title }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group mb-md-0">
+                                    <label for="status">Status</label>
+                                    <select name="status" id="status" class="form-control form-control-sm">
+                                        <option value="">All Statuses</option>
+                                        @foreach($status_labels as $value => $label)
+                                            <option value="{{ $value }}">{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-danger btn-sm btn-block">
+                                    <i class="fas fa-file-pdf"></i> Generate
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="table-responsive mt-3">
                         <table id="example1" class="table table-bordered table-hover">
                             <thead class="thead-light">
                                 <tr>
