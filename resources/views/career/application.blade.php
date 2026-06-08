@@ -114,7 +114,15 @@
                                                 </a>
                                                 <a href="{{ asset('storage/' . $app->tor) }}" class="btn btn-sm btn-outline-danger" target="_blank" title="Transcript of Records">
                                                     <i class="fas fa-graduation-cap"></i> TOR
-                                                </a>                                        
+                                                </a>         
+                                                @if(!empty($app->coe))
+                                                    <a href="{{ asset('storage/' . $app->coe) }}"
+                                                    class="btn btn-sm btn-outline-info"
+                                                    target="_blank"
+                                                    title="Certificate of Employment">
+                                                        <i class="fas fa-briefcase"></i> COE
+                                                    </a>
+                                                @endif                         
                                                 @if(!empty($app->cert_training))
                                                     <a href="{{ asset('storage/' . $app->cert_training) }}"
                                                     class="btn btn-sm btn-outline-warning"
