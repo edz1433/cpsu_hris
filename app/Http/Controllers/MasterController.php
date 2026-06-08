@@ -527,12 +527,12 @@ class MasterController extends Controller
             ? ($statusLabels[(int) $request->status] ?? 'Unknown')
             : 'All Statuses';
 
-        $customPaper = [0, 0, 612, 1296];
+        $customPaper = [0, 0, 1296, 612];
         $pdf = \PDF::loadView('career.application-report', compact(
             'applications',
             'selectedPosition',
             'selectedStatus'
-        ))->setPaper($customPaper, 'landscape');
+        ))->setPaper($customPaper);
 
         return $pdf->stream('application-report.pdf');
     }

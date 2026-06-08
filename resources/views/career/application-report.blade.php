@@ -39,6 +39,11 @@
     <meta charset="utf-8">
     <title>Applicants Report</title>
     <style>
+        @page {
+            size: 18in 8.5in;
+            margin: 0.25in;
+        }
+
         * {
             box-sizing: border-box;
         }
