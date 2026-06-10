@@ -1,5 +1,5 @@
 <!-- Job Application Notifications -->
-@if(auth()->guard('employee')->user()->org_email === 'cbaligyan@cpsu.edu.ph') 
+@if(in_array(auth()->guard('employee')->user()->org_email, ['cbaligyan@cpsu.edu.ph','janetoledo@cpsu.edu.ph','wbantigue@cpsu.edu.ph']))
 <li class="nav-item dropdown">
     <a class="nav-link" href="#" data-toggle="dropdown" title="Job Applications">
         <i class="fas fa-envelope text-success1"></i>
@@ -16,7 +16,7 @@
         @foreach($jobapplication->take(6) as $jobs)
             <a href="{{ route('viewApplication', $jobs->id) }}" target="_blank" class="dropdown-item" style="white-space: normal;">
                 <div class="d-flex align-items-center w-100">
-
+                    
                     <div style="flex:1; min-width:0; padding-right:12px; line-height:1.3; word-break:break-word;">
                         <strong>
                             {{ $jobs->first_name }}

@@ -438,7 +438,7 @@ class ApplicationController extends Controller
 
         if (
             $user->username === 'hrisadmin@cpsu.edu.ph' ||
-            $user->org_email === 'cbaligyan@cpsu.edu.ph'
+                in_array($user->org_email, ['cbaligyan@cpsu.edu.ph','janetoledo@cpsu.edu.ph','wbantigue@cpsu.edu.ph'])
         ) {
             $applications = Application::join('job_hirings', 'applications.jid', '=', 'job_hirings.id')
                 ->where('applications.id', $appid)
