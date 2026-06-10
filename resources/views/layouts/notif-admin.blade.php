@@ -13,7 +13,7 @@
 
         <div class="dropdown-divider"></div>
 
-        @foreach($jobapplication->take(10) as $jobs)
+        @foreach($jobapplication->take(6) as $jobs)
             <a href="{{ route('viewApplication', $jobs->id) }}" target="_blank" class="dropdown-item" style="white-space: normal;">
                 <div class="d-flex align-items-center w-100">
 
