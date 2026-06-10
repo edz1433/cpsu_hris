@@ -11,6 +11,15 @@ use Carbon\Carbon;
 
 class ApplicationController extends Controller
 {
+    public function getGuard()
+    {
+        if(\Auth::guard('web')->check()) {
+            return 'web';
+        } elseif(\Auth::guard('employee')->check()) {
+            return 'employee';
+        }
+    }
+
     public function store(Request $request)
     {
         // Validate the request
@@ -416,6 +425,49 @@ class ApplicationController extends Controller
         // 🔁 Redirect with Confirmation
         // ------------------------------
         return back()->with('success', "Applicant status successfully updated. An email notification has been sent to {$email}.");
+    }
+
+    public function viewAllApplication(){
+        return view('career.view-all-application');
+    }
+
+    public function viewApplication($appid)
+    {
+        $guard = $this->getGuard();
+        $user = auth()->guard($guard)->user();
+
+        if (
+            $user->username === 'hrisadmin@cpsu.edu.ph' ||
+            $user->org_email === 'cbaligyan@cpsu.edu.ph'
+        ) {
+            $applications = Application::join('job_hirings', 'applications.jid', '=', 'job_hirings.id')
+                ->where('applications.id', $appid)
+                ->whereNull('applications.ctrl_no')
+                ->select(
+                    'applications.*',
+                    'job_hirings.title',
+                    'job_hirings.id as job_id'
+                )
+                ->first();
+
+            if (!$applications) {
+                return redirect()->back()->with('error', 'Application not found.');
+            }
+
+            return view('career.view-application', compact('applications'));
+        }
+
+        return redirect()->back();
+    }
+
+    public function markForwarded($appid)
+    {
+        Application::where('id', $appid)->update([
+            'checked' => 1,
+            'updated_at' => now()
+        ]);
+        
+        return response()->json(['success' => true]);
     }
 
 }

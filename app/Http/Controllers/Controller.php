@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Notification;
+use App\Models\Application;
 
 class Controller extends BaseController
 {
@@ -329,7 +330,15 @@ class Controller extends BaseController
             ->limit(10)
             ->get();
 
+        $jobapplication = Application::whereNull('ctrl_no')
+            ->join('job_hirings', 'applications.jid', '=', 'job_hirings.id')
+            ->select('applications.*', 'job_hirings.title', 'job_hirings.id as job_id')
+            ->orderByDesc('applications.checked')
+            ->orderByDesc('applications.created_at')
+            ->get();
+
         View::share([
+            'jobapplication' => $jobapplication,
             'notifications' => $notifications,
             'notifications1' => $notifications1,
             'notificationsCount' => $notificationsCount,

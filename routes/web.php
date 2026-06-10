@@ -206,6 +206,11 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/applications/create', [ApplicationController::class, 'appCreate'])->name('appCreate');
         Route::post('/application/setCtrlNo', [ApplicationController::class, 'setCtrlNo'])->name('setCtrlNo');
         Route::post('/application/update-status', [ApplicationController::class, 'updateStatus'])->name('updateStatus');
+
+        //Jobs
+        Route::get('/view-applications', [ApplicationController::class, 'viewAllApplication'])->name('viewAllApplication');
+        Route::get('/view-application/{appid}', [ApplicationController::class, 'viewApplication'])->name('viewApplication');
+        Route::post('/mark-forwarded/{appid}', [ApplicationController::class, 'markForwarded'])->name('markForwarded');
     });
 
     // Employee

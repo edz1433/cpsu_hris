@@ -35,6 +35,7 @@ class Application extends Model
         'interview_datetime',
         'venue',
         'status',
+        'checked',
         'is_complete'
     ];
 }
