@@ -25,7 +25,7 @@
                     </h3>
                 </div>
                 <div class="card-body">
-                                        <form method="GET" action="{{ route('applicationReport') }}" target="_blank">
+                    <form method="GET" action="{{ route('applicationReport') }}" target="_blank">
                         <div class="row align-items-end">
                             <div class="col-md-5">
                                 <div class="form-group mb-md-0">
@@ -38,7 +38,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-5">
+                            <div class="col-md-6">
                                 <div class="form-group mb-md-0">
                                     <label for="status">Status</label>
                                     <select name="status" id="status" class="form-control form-control-sm">
@@ -49,13 +49,192 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-1">
                                 <button type="submit" class="btn btn-danger btn-sm btn-block">
                                     <i class="fas fa-file-pdf"></i> Generate
                                 </button>
                             </div>
                         </div>
                     </form>
+                    <button class="btn btn-success btn-sm float-right mt-1 mb-1" data-toggle="modal" data-target="#add-applicant">+ ADD APPLICANT</button>
+                    <!-- Add Applicant Modal -->
+                    <div class="modal fade" id="add-applicant" role="dialog" aria-labelledby="addApplicantLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg" role="document">
+
+                            <form action="{{ route('applicationStore') }}" method="POST">
+                                @csrf
+
+                                <div class="modal-content">
+
+                                    <div class="modal-body" style="background-color: #e9ecef;">
+
+                                        <!-- Position -->
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label>Position Applied</label>
+                                                    <select name="jid" class="form-control select2" required>
+                                                        <option value="">Select Position</option>
+                                                        @foreach($jobs as $job)
+                                                            <option value="{{ $job->id }}">{{ $job->title }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Name -->
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>First Name</label>
+                                                    <input type="text" name="first_name" class="form-control" autocomplete="off" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Middle Name</label>
+                                                    <input type="text" name="middle_name" class="form-control" autocomplete="off">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Last Name</label>
+                                                    <input type="text" name="last_name" class="form-control" autocomplete="off" required>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Personal Info -->
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label>Age</label>
+                                                    <input type="number" name="age" class="form-control" min="18" max="65" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Sex</label>
+                                                    <select name="sex" class="form-control" required>
+                                                        <option value="">Select Sex</option>
+                                                        <option value="Male">Male</option>
+                                                        <option value="Female">Female</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Mobile No.</label>
+                                                    <input type="text" name="mobile" class="form-control" autocomplete="off" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Email Address</label>
+                                                    <input type="email" name="email" class="form-control" autocomplete="off" required>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Address -->
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label>Address</label>
+                                                    <textarea name="address" class="form-control" rows="2" required></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Education -->
+                                        <hr>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label class="mb-0"><strong>Educational Background</strong></label>
+                                            <button type="button" class="btn btn-success btn-sm" id="addEducation">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+
+                                        <div id="educationWrapper">
+                                            <div class="row education-row">
+                                                <div class="col-md-5">
+                                                    <div class="form-group">
+                                                        <label>School / Course / Description</label>
+                                                        <input type="text" name="education[]" class="form-control" required>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        <label>Level</label>
+                                                        <input type="text" name="elevel[]" class="form-control" placeholder="College, HS, etc." required>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                    <div class="form-group">
+                                                        <label>Year</label>
+                                                        <input type="text" name="eyear[]" class="form-control" placeholder="2020" required>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-1 d-flex align-items-center">
+                                                    <button type="button" class="btn btn-danger btn-sm removeEducation mt-3" disabled>
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Eligibility -->
+                                        <hr>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label class="mb-0"><strong>Eligibility</strong></label>
+                                            <button type="button" class="btn btn-success btn-sm" id="addEligibility">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+
+                                        <div id="eligibilityWrapper">
+                                            <div class="row eligibility-row">
+                                                <div class="col-md-11">
+                                                    <div class="form-group">
+                                                        <input type="text" name="eligibility[]" class="form-control" placeholder="Civil Service, PRC, etc.">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-1 d-flex align-items-center">
+                                                    <button type="button" class="btn btn-danger btn-sm removeEligibility mt-3" disabled>
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                            <i class="fas fa-times"></i> Close
+                                        </button>
+
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fas fa-save"></i> Save Applicant
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+
                     <div class="table-responsive mt-3">
                         <table id="example1" class="table table-bordered table-hover">
                             <thead class="thead-light">
@@ -100,21 +279,31 @@
                                             </button>
                                         @else
                                             <div class="d-flex flex-wrap" style="gap: 4px;">
+                                                @if(!empty($app->pds))
                                                 <a href="{{ asset('storage/' . $app->pds) }}" class="btn btn-sm btn-outline-primary" target="_blank" title="Personal Data Sheet">
                                                     <i class="fas fa-file-alt"></i> PDS
                                                 </a>
+                                                @endif
+                                                @if(!empty($app->wes))
                                                 <a href="{{ asset('storage/' . $app->wes) }}" class="btn btn-sm btn-outline-info" target="_blank" title="Work Experience Sheet">
                                                     <i class="fas fa-briefcase"></i> WES
                                                 </a>
+                                                @endif
+                                                @if(!empty($app->intent))
                                                 <a href="{{ asset('storage/' . $app->intent) }}" class="btn btn-sm btn-outline-secondary" target="_blank" title="Intent Letter">
                                                     <i class="fas fa-envelope-open-text"></i> Intent
                                                 </a>
+                                                @endif
+                                                @if(!empty($app->resume))
                                                 <a href="{{ asset('storage/' . $app->resume) }}" class="btn btn-sm btn-outline-success" target="_blank" title="Resume">
                                                     <i class="fas fa-user"></i> Resume
                                                 </a>
+                                                @endif
+                                                @if(!empty($app->tor))
                                                 <a href="{{ asset('storage/' . $app->tor) }}" class="btn btn-sm btn-outline-danger" target="_blank" title="Transcript of Records">
                                                     <i class="fas fa-graduation-cap"></i> TOR
                                                 </a>         
+                                                @endif
                                                 @if(!empty($app->coe))
                                                     <a href="{{ asset('storage/' . $app->coe) }}"
                                                     class="btn btn-sm btn-outline-info"
@@ -358,7 +547,7 @@
     </div>
   </div>
 </div>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     // Set Control No.
@@ -381,6 +570,78 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('dqAppId').value = btn.dataset.appId;
         });
     });
+});
+</script>
+<script>
+$(function () {
+
+    $('#add-applicant').on('shown.bs.modal', function () {
+        $('.select2').select2({
+            dropdownParent: $('#add-applicant'),
+            width: '100%',
+            placeholder: 'Search Position'
+        });
+    });
+
+    $('#addEducation').click(function () {
+        $('#educationWrapper').append(`
+            <div class="row education-row">
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label>School / Course / Description</label>
+                        <input type="text" name="education[]" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Level</label>
+                        <input type="text" name="elevel[]" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label>Year</label>
+                        <input type="text" name="eyear[]" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="col-md-1 d-flex align-items-center">
+                    <button type="button" class="btn btn-danger btn-sm removeEducation mt-3">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        `);
+    });
+
+    $(document).on('click', '.removeEducation', function () {
+        $(this).closest('.education-row').remove();
+    });
+
+    $('#addEligibility').click(function () {
+        $('#eligibilityWrapper').append(`
+            <div class="row eligibility-row">
+                <div class="col-md-11">
+                    <div class="form-group">
+                        <input type="text" name="eligibility[]" class="form-control" placeholder="Civil Service, PRC, etc.">
+                    </div>
+                </div>
+
+                <div class="col-md-1 d-flex align-items-center">
+                    <button type="button" class="btn btn-danger btn-sm removeEligibility mt-3">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        `);
+    });
+
+    $(document).on('click', '.removeEligibility', function () {
+        $(this).closest('.eligibility-row').remove();
+    });
+
 });
 </script>
 @endsection

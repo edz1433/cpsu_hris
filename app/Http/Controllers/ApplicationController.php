@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Application;
+use App\Models\JobHiring;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -18,6 +20,78 @@ class ApplicationController extends Controller
         } elseif(\Auth::guard('employee')->check()) {
             return 'employee';
         }
+    }
+
+    public function applicationStore(Request $request)
+    {
+        $request->validate([
+            'jid' => 'required|integer',
+            'first_name' => 'required|string',
+            'middle_name' => 'nullable|string',
+            'last_name' => 'required|string',
+            'age' => 'required|integer|min:18|max:65',
+            'sex' => 'required|string',
+            'mobile' => 'required|string',
+            'email' => 'required|email',
+            'address' => 'required|string',
+
+            'education' => 'required|array',
+            'elevel' => 'required|array',
+            'eyear' => 'required|array',
+            'eligibility' => 'nullable|array',
+        ]);
+
+        // Prevent duplicate application
+        $exists = Application::where('email', $request->email)
+            ->where('jid', $request->jid)
+            ->exists();
+
+        if ($exists) {
+            return redirect()->back()->with('error', 'Applicant have already applied for this position!');
+        }
+
+        // Combine education info
+        $educationList = [];
+
+        foreach ($request->education as $i => $desc) {
+            $educationList[] = $desc . ' (' .
+                ($request->elevel[$i] ?? '') . ', ' .
+                ($request->eyear[$i] ?? '') . ')';
+        }
+
+        $educationString = implode(', ', $educationList);
+
+        // Combine eligibilities
+        $eligibilityString = $request->eligibility
+            ? implode(', ', $request->eligibility)
+            : null;
+
+        // Generate unique application number
+        do {
+            $year = Carbon::now()->format('Y');
+            $randomDigits = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
+            $randomLetter = strtoupper(Str::random(1));
+            $applicationNumber = "APP-{$year}-{$randomDigits}{$randomLetter}";
+        } while (Application::where('app_number', $applicationNumber)->exists());
+
+        // Save application
+        $application = Application::create([
+            'jid' => $request->jid,
+            'app_number' => $applicationNumber,
+            'first_name' => $request->first_name,
+            'middle_name' => $request->middle_name,
+            'last_name' => $request->last_name,
+            'age' => $request->age,
+            'sex' => $request->sex,
+            'mobile' => $request->mobile,
+            'email' => $request->email,
+            'address' => $request->address,
+            'education' => $educationString,
+            'eligibility' => $eligibilityString,
+        ]);
+
+        return redirect()->back()->with('success', 'Applicatn Added Successfully.');
+    
     }
 
     public function store(Request $request)
@@ -428,7 +502,8 @@ class ApplicationController extends Controller
     }
 
     public function viewAllApplication(){
-        return view('career.view-all-application');
+        $jobs = JobHiring::all();
+        return view('career.view-all-application', compact('jobs'));
     }
 
     public function viewApplication($appid)

@@ -211,6 +211,9 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/view-applications', [ApplicationController::class, 'viewAllApplication'])->name('viewAllApplication');
         Route::get('/view-application/{appid}', [ApplicationController::class, 'viewApplication'])->name('viewApplication');
         Route::post('/mark-forwarded/{appid}', [ApplicationController::class, 'markForwarded'])->name('markForwarded');
+
+        //application-manual
+        Route::post('/application-store', [ApplicationController::class, 'applicationStore'])->name('applicationStore');
     });
 
     // Employee
