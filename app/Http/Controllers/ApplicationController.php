@@ -39,6 +39,7 @@ class ApplicationController extends Controller
             'elevel' => 'required|array',
             'eyear' => 'required|array',
             'eligibility' => 'nullable|array',
+            'created_at' => 'required',
         ]);
 
         // Prevent duplicate application
@@ -88,6 +89,7 @@ class ApplicationController extends Controller
             'address' => $request->address,
             'education' => $educationString,
             'eligibility' => $eligibilityString,
+            'created_at' => Carbon::parse($request->created_at),
         ]);
 
         return redirect()->back()->with('success', 'Applicatn Added Successfully.');

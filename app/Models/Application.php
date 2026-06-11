@@ -36,6 +36,7 @@ class Application extends Model
         'venue',
         'status',
         'checked',
-        'is_complete'
+        'is_complete',
+        'created_at'
     ];
 }

@@ -70,7 +70,7 @@
 
                                         <!-- Position -->
                                         <div class="row">
-                                            <div class="col-md-12">
+                                            <div class="col-md-8">
                                                 <div class="form-group">
                                                     <label>Position Applied</label>
                                                     <select name="jid" class="form-control select2" required>
@@ -79,6 +79,16 @@
                                                             <option value="{{ $job->id }}">{{ $job->title }}</option>
                                                         @endforeach
                                                     </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Date Applied</label>
+                                                    <input type="datetime-local"
+                                                        name="created_at"
+                                                        class="form-control"
+                                                        value="{{ now()->format('Y-m-d\TH:i') }}"
+                                                        required>
                                                 </div>
                                             </div>
                                         </div>
