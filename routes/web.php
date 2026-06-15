@@ -42,6 +42,7 @@ use App\Http\Controllers\PerformanceController;
 use App\Http\Controllers\EvidenceController;
 use App\Http\Controllers\JobHiringController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\EteEvaluationController;
 
 Route::get('/', function () {
     if (Auth::guard('web')->check()) {
@@ -214,6 +215,22 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
 
         //application-manual
         Route::post('/application-store', [ApplicationController::class, 'applicationStore'])->name('applicationStore');
+
+        //ETE-Evaluation
+        
+    });
+
+    Route::prefix('ete')->group(function () {
+        Route::get('/ete-evaluations',[EteEvaluationController::class, 'eteEvaluationList'])->name('eteEvaluationList');
+        Route::post('/ete-evaluations/store',[EteEvaluationController::class, 'eteEvaluationStore'])->name('eteEvaluationStore');
+        Route::get('/ete-evaluations/{id}',[EteEvaluationController::class, 'eteEvaluationShow'])->name('eteEvaluationShow');
+        Route::post('/ete-evaluations/splash',[EteEvaluationController::class, 'splashApplicant'])->name('eteSplashApplicant');
+        Route::get('/ete-evaluations/{id}/active-applicant',[EteEvaluationController::class, 'getActiveApplicant'])->name('eteActiveApplicant');
+        Route::get('/ete-evaluations/{id}/selected-consolidated',[EteEvaluationController::class, 'selectedApplicantConsolidated'])->name('eteSelectedApplicantConsolidated');
+        Route::get('/ete-evaluations/{id}/evaluator/{empId}',[EteEvaluationController::class, 'evaluatorRate'])->name('eteEvaluatorRate');
+        Route::post('/ete-evaluations/rating/update-ajax',[EteEvaluationController::class, 'eteRatingUpdateAjax'])->name('eteRatingUpdateAjax');
+        Route::get('/ete-evaluations/{id}/consolidated',[EteEvaluationController::class, 'consolidatedScreen'])->name('eteConsolidatedScreen');
+        Route::get('/ete-evaluations/{id}/consolidated-data',[EteEvaluationController::class, 'consolidatedData'])->name('eteConsolidatedData');
     });
 
     // Employee

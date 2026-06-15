@@ -104,7 +104,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link text-success1">
+                    <a href="{{ route('eteEvaluationList') }}" class="nav-link text-success1">
                         <i class="far fa-circle nav-icon"></i>
                         <p>ETE Evaluation</p>
                     </a>
@@ -112,7 +112,6 @@
             </ul>
         </li>
         @endif
-
 
         @if(auth()->guard($guard)->user()->role == "Administrator")
 
