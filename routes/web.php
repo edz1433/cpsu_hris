@@ -426,7 +426,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     Route::prefix('event')->group(function() {
         Route::get('/', [EventController::class, 'eventIndex'])->name('eventIndex');
         Route::post('/create', [EventController::class, 'eventCreate'])->name('eventCreate');
-        Route::get('/event-show', [EventController::class, 'eventShow'])->name('eventShow');
+        Route::get('/event-show', [EventController::class, 'eventShows'])->name('eventShows');
         Route::get('/reports', [EventController::class, 'showReport'])->name('showReport');
         Route::post('/reports', [EventController::class, 'searchReport'])->name('searchReport');
         Route::get('/reports-generate/{eventid}/{campusid}/{statusid}', [EventController::class, 'reportGenrate'])->name('reportGenrate');
