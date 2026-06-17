@@ -1,17 +1,108 @@
 @extends('layouts.master')
 
 @section('body')
-<div class="container-fluid">
+<style>
+    .ete-list-page .card {
+        border: 0;
+        border-radius: 16px;
+        box-shadow: 0 8px 28px rgba(15, 23, 42, .07);
+    }
+    .ete-list-head {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: space-between;
+        padding: 18px 20px;
+    }
+    .ete-list-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    .ete-list-page .table td,
+    .ete-list-page .table th {
+        vertical-align: middle;
+    }
+    .ete-list-page .badge {
+        white-space: normal;
+    }
+    .ete-list-page .modal-content {
+        border: 0;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    @media (max-width: 767.98px) {
+        .ete-list-page {
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+        .ete-list-head .btn {
+            width: 100%;
+        }
+        .ete-responsive-table thead {
+            display: none;
+        }
+        .ete-responsive-table,
+        .ete-responsive-table tbody,
+        .ete-responsive-table tr,
+        .ete-responsive-table td {
+            display: block;
+            width: 100%;
+        }
+        .ete-responsive-table tr {
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            padding: 8px 12px;
+        }
+        .ete-responsive-table td {
+            border: 0 !important;
+            min-height: 38px;
+            padding: 8px 0;
+            text-align: right !important;
+        }
+        .ete-responsive-table td::before {
+            color: #6c757d;
+            content: attr(data-label);
+            float: left;
+            font-weight: 700;
+            margin-right: 15px;
+            text-align: left;
+        }
+        .ete-responsive-table td:last-child {
+            border-top: 1px solid #edf0f2 !important;
+            margin-top: 4px;
+            padding-top: 12px;
+        }
+        .ete-responsive-table td:last-child .btn {
+            min-width: 44px;
+        }
+        .ete-list-page .modal-dialog {
+            margin: 8px;
+        }
+        .ete-list-page .modal-footer {
+            align-items: stretch;
+            flex-direction: column-reverse;
+        }
+        .ete-list-page .modal-footer .btn {
+            margin: 4px 0;
+            width: 100%;
+        }
+    }
+</style>
+<div class="container-fluid ete-list-page">
     <div class="row">
         <div class="col-lg-12 mb-2">
             <div class="card card-info card-outline">
 
-                <div class="card-header">
-                    <h3 class="card-title">
+                <div class="ete-list-head">
+                    <h1 class="ete-list-title">
                         <i class="fas fa-clipboard-check"></i> ETE Evaluation List
-                    </h3>
+                    </h1>
 
-                    <button class="btn btn-success btn-sm float-right"
+                    <button class="btn btn-success"
                             data-toggle="modal"
                             data-target="#add-ete-evaluation">
                         <i class="fas fa-plus"></i> ADD ETE EVALUATION
@@ -21,7 +112,7 @@
                 <div class="card-body">
 
                     <div class="table-responsive">
-                        <table id="example1" class="table table-bordered table-hover">
+                        <table id="example1" class="table table-hover ete-responsive-table">
                             <thead class="thead-light">
                                 <tr>
                                     <th>No</th>
@@ -39,31 +130,31 @@
                             <tbody>
                                 @foreach($eteEvaluations as $ete)
                                     <tr>
-                                        <td>{{ $loop->iteration }}</td>
+                                        <td data-label="No.">{{ $loop->iteration }}</td>
 
-                                        <td>{{ $ete->job->title ?? 'N/A' }}</td>
+                                        <td data-label="Position"><strong>{{ $ete->job->title ?? 'N/A' }}</strong></td>
 
-                                        <td>
+                                        <td data-label="Evaluation Date">
                                             {{ $ete->evaluation_date
                                                 ? $ete->evaluation_date->format('M. d, Y h:i A')
                                                 : '' }}
                                         </td>
 
-                                        <td>
+                                        <td data-label="Experience Years">
                                             <span class="badge badge-secondary">
                                                 {{ $ete->experience_years ?? 'N/A' }}
                                             </span>
                                         </td>
 
-                                        <td class="text-center">
+                                        <td data-label="Applicants" class="text-center">
                                             {{ $ete->employeeEvaluates->groupBy('application_id')->count() }}
                                         </td>
 
-                                        <td class="text-center">
+                                        <td data-label="Evaluators" class="text-center">
                                             {{ $ete->evaluators->count() }}
                                         </td>
 
-                                        <td>
+                                        <td data-label="Panel">
                                             @forelse($ete->evaluators as $panel)
                                                 <span class="badge badge-info mb-1">
                                                     {{ $panel->employee->lname ?? '' }},
@@ -74,13 +165,13 @@
                                             @endforelse
                                         </td>
 
-                                        <td>
+                                        <td data-label="Created">
                                             {{ $ete->created_at
                                                 ? $ete->created_at->format('M. d, Y h:i A')
                                                 : '' }}
                                         </td>
 
-                                        <td class="text-center">
+                                        <td data-label="Actions" class="text-center">
                                             <a href="{{ route('eteEvaluationShow', $ete->id) }}"
                                                class="btn btn-sm btn-primary"
                                                title="Manage ETE">

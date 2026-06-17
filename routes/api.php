@@ -19,7 +19,7 @@ Route::get('/event-login/{passcode}/{eventid}/{empid}', [EventController::class,
 Route::get('/event-logs/{passcode}/{eventid}', [EventController::class, 'eventLogs'])->name('api.eventLogs');
 
 Route::get('/job-list', [JobHiringController::class, 'jobList'])->name('api.jobList');
-Route::post('/application/store', [ApplicationController::class, 'applicationStore'])->name('application.status');
+Route::post('/application/store', [ApplicationController::class, 'applicationStore'])->name('application.store');
 Route::get('/application/check/{jid}/{email}', [ApplicationController::class, 'applicationCheck'])->name('application.check');
 Route::get('/application/status/{appnumber}', [ApplicationController::class, 'applicationStatus'])->name('application.status');
 Route::get('/gad-gender-count', [GadController::class, 'genderCount'])->name('gender-count');

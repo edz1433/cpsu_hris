@@ -2,156 +2,502 @@
 
 @section('body')
 <style>
-    .ete-board .card,
-    .ete-board .alert {
-        border-radius: 8px;
+    .ete-leaderboard {
+        --board-green: #16804b;
+        --board-dark: #13251c;
+        --board-muted: #68756e;
+        --board-surface: #f4f7f5;
+        padding-bottom: 24px;
     }
 
-    .ete-board .active-row {
-        background: #e9f7ef;
-        box-shadow: inset 4px 0 0 #28a745;
+    .ete-board-header,
+    .ete-live-summary,
+    .ete-rank-card {
+        border: 0;
+        border-radius: 18px;
+        box-shadow: 0 10px 32px rgba(20, 43, 31, .08);
     }
 
-    .ete-board-summary {
+    .ete-board-header {
         align-items: center;
-        background: #f8fafc;
-        border: 1px solid #dfe4ea;
-        border-radius: 8px;
+        background: linear-gradient(135deg, #153f2b, #16804b);
+        color: #fff;
+        display: flex;
+        gap: 18px;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        overflow: hidden;
+        padding: 22px 24px;
+        position: relative;
+    }
+
+    .ete-board-header::after {
+        background: rgba(255, 255, 255, .07);
+        border-radius: 50%;
+        content: "";
+        height: 180px;
+        position: absolute;
+        right: -50px;
+        top: -90px;
+        width: 180px;
+    }
+
+    .ete-board-header h1 {
+        font-size: 1.35rem;
+        font-weight: 800;
+        margin: 2px 0 0;
+    }
+
+    .ete-board-header .btn {
+        border-radius: 10px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .ete-live-summary {
+        align-items: center;
+        background: #fff;
+        display: flex;
+        gap: 14px;
+        justify-content: space-between;
+        margin-bottom: 18px;
+        padding: 15px 18px;
+    }
+
+    .ete-live-indicator {
+        align-items: center;
+        background: #eaf8f0;
+        border-radius: 999px;
+        color: var(--board-green);
+        display: inline-flex;
+        font-size: .78rem;
+        font-weight: 800;
+        gap: 7px;
+        padding: 7px 11px;
+        text-transform: uppercase;
+    }
+
+    .ete-live-dot {
+        animation: etePulse 1.5s infinite;
+        background: #22a562;
+        border-radius: 50%;
+        height: 8px;
+        width: 8px;
+    }
+
+    .ete-ranking-grid {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .ete-rank-card {
+        background: #fff;
+        border: 1px solid #e6ece8;
+        overflow: hidden;
+        padding: 13px;
+        position: relative;
+        transition: box-shadow .25s ease, border-color .25s ease, transform .5s ease;
+    }
+
+    .ete-rank-card.is-active {
+        border-color: #35a66d;
+        box-shadow: 0 12px 34px rgba(22, 128, 75, .17);
+    }
+
+    .ete-rank-card.is-active::before {
+        background: var(--board-green);
+        content: "";
+        height: 100%;
+        left: 0;
+        position: absolute;
+        top: 0;
+        width: 5px;
+    }
+
+    .ete-card-top {
+        align-items: center;
+        display: flex;
+        gap: 10px;
+    }
+
+    .ete-avatar {
+        align-items: center;
+        background: linear-gradient(145deg, #edf3ef, #dce8e1);
+        border: 3px solid #fff;
+        border-radius: 50%;
+        box-shadow: 0 3px 13px rgba(25, 65, 43, .12);
+        color: #819188;
+        display: flex;
+        flex: 0 0 46px;
+        font-size: 1.25rem;
+        height: 46px;
+        justify-content: center;
+        width: 46px;
+    }
+
+    .ete-applicant-info {
+        min-width: 0;
+        padding-top: 0;
+    }
+
+    .ete-applicant-info h2 {
+        color: var(--board-dark);
+        font-size: .9rem;
+        font-weight: 800;
+        margin: 0 0 4px;
+        overflow-wrap: anywhere;
+    }
+
+    .ete-applicant-number {
+        color: var(--board-muted);
+        font-size: .72rem;
+    }
+
+    .ete-rank-badge {
+        align-items: center;
+        background: #eef2f0;
+        border-radius: 9px;
+        color: #526159;
+        display: flex;
+        font-size: .72rem;
+        font-weight: 800;
+        justify-content: center;
+        margin-left: auto;
+        min-height: 34px;
+        min-width: 38px;
+        padding: 5px;
+    }
+
+    .ete-rank-card.rank-1 .ete-rank-badge {
+        background: #fff2bf;
+        color: #8a6500;
+    }
+
+    .ete-rank-card.rank-2 .ete-rank-badge {
+        background: #e8edf1;
+        color: #52616c;
+    }
+
+    .ete-rank-card.rank-3 .ete-rank-badge {
+        background: #f5dfcf;
+        color: #8c532d;
+    }
+
+    .ete-total-row {
+        align-items: flex-end;
+        border-bottom: 1px solid #edf1ee;
         display: flex;
         justify-content: space-between;
-        gap: 12px;
-        padding: 12px 14px;
-        margin-bottom: 15px;
+        margin: 11px 0 10px;
+        padding-bottom: 10px;
+    }
+
+    .ete-total-score {
+        color: var(--board-green);
+        font-size: 1.55rem;
+        font-weight: 900;
+        line-height: 1;
+    }
+
+    .ete-score-grid {
+        display: grid;
+        gap: 5px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .ete-score-item {
+        background: var(--board-surface);
+        border-radius: 8px;
+        padding: 6px 4px;
+        text-align: center;
+    }
+
+    .ete-score-item small {
+        color: var(--board-muted);
+        display: block;
+        font-size: .58rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .ete-score-item strong {
+        color: var(--board-dark);
+        display: block;
+        font-size: .82rem;
+    }
+
+    .ete-progress-row {
+        align-items: center;
+        display: flex;
+        gap: 10px;
+        justify-content: space-between;
+        margin-top: 9px;
+    }
+
+    .ete-progress-track {
+        background: #e7ece9;
+        border-radius: 999px;
+        flex: 1;
+        height: 5px;
+        overflow: hidden;
+    }
+
+    .ete-progress-fill {
+        background: linear-gradient(90deg, #16804b, #37ad72);
+        border-radius: inherit;
+        height: 100%;
+        transition: width .4s ease;
+    }
+
+    .ete-cast-tag {
+        background: #16804b;
+        border-radius: 999px;
+        color: #fff;
+        display: none;
+        font-size: .68rem;
+        font-weight: 800;
+        padding: 5px 9px;
+        position: absolute;
+        right: 13px;
+        text-transform: uppercase;
+        top: 58px;
+    }
+
+    .ete-rank-card.is-active .ete-cast-tag {
+        display: inline-block;
+    }
+
+    .ete-empty-state {
+        background: #fff;
+        border: 1px dashed #cfd9d3;
+        border-radius: 18px;
+        color: var(--board-muted);
+        grid-column: 1 / -1;
+        padding: 36px 20px;
+        text-align: center;
+    }
+
+    @keyframes etePulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(34, 165, 98, .35); }
+        50% { box-shadow: 0 0 0 6px rgba(34, 165, 98, 0); }
+    }
+
+    @media (max-width: 1199.98px) {
+        .ete-ranking-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        .ete-ranking-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .ete-leaderboard {
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+
+        .ete-board-header,
+        .ete-live-summary {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .ete-board-header .btn {
+            width: 100%;
+        }
+
+        .ete-ranking-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .ete-rank-card {
+            padding: 12px;
+        }
+
+        .ete-avatar {
+            flex-basis: 44px;
+            font-size: 1.2rem;
+            height: 44px;
+            width: 44px;
+        }
+
+        .ete-cast-tag {
+            right: 12px;
+            top: 55px;
+        }
     }
 </style>
 
-<div class="container-fluid ete-board">
-
-    <div class="card card-warning card-outline">
-
-        <div class="card-header">
-            <h3 class="card-title">
-                <i class="fas fa-trophy"></i>
-                Consolidated ETE Ranking - {{ $ete->job->title ?? '' }}
-            </h3>
-
-            <a href="{{ route('eteEvaluationShow', $ete->id) }}"
-               class="btn btn-secondary btn-sm float-right">
-                <i class="fas fa-arrow-left"></i> Back
-            </a>
+<div class="container-fluid ete-leaderboard">
+    <div class="ete-board-header">
+        <div>
+            <small class="text-white-50">Live ETE Leaderboard</small>
+            <h1><i class="fas fa-ranking-star mr-2"></i>{{ $ete->job->title ?? 'Applicant Ranking' }}</h1>
         </div>
-
-        <div class="card-body">
-
-            <div class="ete-board-summary">
-                <div>
-                    <small class="text-muted">Current splash applicant</small>
-                    <strong id="activeApplicantText" class="d-block">Waiting for active applicant...</strong>
-                </div>
-                <span class="badge badge-success"><i class="fas fa-sync-alt"></i> Live</span>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover" id="rankingTable">
-                    <thead class="thead-light">
-                        <tr>
-                            <th class="text-center">Rank</th>
-                            <th>App No.</th>
-                            <th>Applicant Name</th>
-                            <th class="text-center">Education</th>
-                            <th class="text-center">Training</th>
-                            <th class="text-center">Experience</th>
-                            <th class="text-center">Total Rating</th>
-                            <th class="text-center">Progress</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="rankingBody">
-                        <tr>
-                            <td colspan="8" class="text-center text-muted">
-                                Loading consolidated ratings...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-        </div>
-
+        <a href="{{ route('eteEvaluationShow', $ete->id) }}" class="btn btn-light">
+            <i class="fas fa-arrow-left mr-1"></i> Back to Evaluation
+        </a>
     </div>
 
+    <div class="ete-live-summary">
+        <div>
+            <small class="text-muted">Currently cast applicant</small>
+            <strong id="activeApplicantText" class="d-block">No applicant is currently cast.</strong>
+        </div>
+        <span class="ete-live-indicator">
+            <span class="ete-live-dot"></span>
+            Live ratings
+        </span>
+    </div>
+
+    <div id="rankingBoard" class="ete-ranking-grid">
+        <div class="ete-empty-state">
+            <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+            <div>Loading applicant rankings...</div>
+        </div>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(function () {
+    const board = document.getElementById('rankingBoard');
 
-    function loadConsolidatedRanking() {
-        $.ajax({
-            url: "{{ route('eteConsolidatedData', $ete->id) }}",
-            type: "GET",
-            success: function (response) {
-                let rows = '';
+    function escapeHtml(value) {
+        return $('<div>').text(value == null ? '' : value).html();
+    }
 
-                if (!response.success || response.data.length === 0) {
-                    rows = `
-                        <tr>
-                            <td colspan="8" class="text-center text-muted">
-                                No consolidated rating available.
-                            </td>
-                        </tr>
-                    `;
-                    $('#activeApplicantText').text('Waiting for active applicant...');
-                } else {
-                    let activeName = 'Waiting for active applicant...';
+    function rankLabel(rank) {
+        if (rank === 1) return '<i class="fas fa-crown"></i>&nbsp; 1';
+        if (rank === 2) return '<i class="fas fa-medal"></i>&nbsp; 2';
+        if (rank === 3) return '<i class="fas fa-award"></i>&nbsp; 3';
+        return '#' + rank;
+    }
 
-                    $.each(response.data, function (index, item) {
-                        let rank = index + 1;
-                        let rankBadge = '';
-                        let activeClass = '';
+    function cardMarkup(item, rank, activeApplicationId) {
+        const isActive = Number(item.application_id) === Number(activeApplicationId);
+        const evaluatorCount = Number(item.evaluator_count) || 0;
+        const completedCount = Number(item.completed_count) || 0;
+        const progress = evaluatorCount > 0
+            ? Math.min(100, Math.round((completedCount / evaluatorCount) * 100))
+            : 0;
 
-                        if (rank === 1) {
-                            rankBadge = '<span class="badge badge-success">1st</span>';
-                        } else if (rank === 2) {
-                            rankBadge = '<span class="badge badge-primary">2nd</span>';
-                        } else if (rank === 3) {
-                            rankBadge = '<span class="badge badge-warning">3rd</span>';
-                        } else {
-                            rankBadge = '<span class="badge badge-secondary">' + rank + '</span>';
-                        }
+        return `
+            <div class="ete-card-top">
+                <div class="ete-avatar" aria-label="Applicant profile placeholder">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="ete-applicant-info">
+                    <h2>${escapeHtml(item.name)}</h2>
+                    <div class="ete-applicant-number">${escapeHtml(item.app_number)}</div>
+                </div>
+                <div class="ete-rank-badge">${rankLabel(rank)}</div>
+            </div>
+            <span class="ete-cast-tag"><i class="fas fa-tower-broadcast mr-1"></i> Cast</span>
+            <div class="ete-total-row">
+                <div>
+                    <small class="text-muted d-block">Live total rating</small>
+                    <strong class="ete-total-score">${escapeHtml(item.total_avg)}</strong>
+                </div>
+                <small class="text-muted">Rank ${rank}</small>
+            </div>
+            <div class="ete-score-grid">
+                <div class="ete-score-item"><small>Education</small><strong>${escapeHtml(item.education_avg)}</strong></div>
+                <div class="ete-score-item"><small>Training</small><strong>${escapeHtml(item.training_avg)}</strong></div>
+                <div class="ete-score-item"><small>Experience</small><strong>${escapeHtml(item.experience_avg)}</strong></div>
+            </div>
+            <div class="ete-progress-row">
+                <div class="ete-progress-track">
+                    <div class="ete-progress-fill" style="width: ${progress}%"></div>
+                </div>
+                <small class="text-muted">${completedCount}/${evaluatorCount} rated</small>
+            </div>
+        `;
+    }
 
-                        if (parseInt(item.application_id) === parseInt(response.active_application_id)) {
-                            activeClass = 'active-row';
-                            activeName = item.name + ' (' + item.app_number + ')';
-                        }
+    function renderRanking(response) {
+        if (!response.success || !response.data || response.data.length === 0) {
+            board.innerHTML = `
+                <div class="ete-empty-state">
+                    <i class="fas fa-users fa-2x mb-3"></i>
+                    <div>No applicant ratings are available yet.</div>
+                </div>`;
+            $('#activeApplicantText').text('No applicant is currently cast.');
+            return;
+        }
 
-                        rows += `
-                            <tr class="${activeClass}">
-                                <td class="text-center font-weight-bold">${rankBadge}</td>
-                                <td>${item.app_number}</td>
-                                <td>${item.name}</td>
-                                <td class="text-center">${item.education_avg}</td>
-                                <td class="text-center">${item.training_avg}</td>
-                                <td class="text-center">${item.experience_avg}</td>
-                                <td class="text-center font-weight-bold">${item.total_avg}</td>
-                                <td class="text-center">
-                                    <span class="badge badge-light border">${item.completed_count} / ${item.evaluator_count}</span>
-                                </td>
-                            </tr>
-                        `;
-                    });
+        const oldPositions = {};
+        board.querySelectorAll('.ete-rank-card').forEach(function (card) {
+            oldPositions[card.dataset.applicationId] = card.getBoundingClientRect();
+        });
 
-                    $('#activeApplicantText').text(activeName);
-                }
+        let activeName = 'No applicant is currently cast.';
 
-                $('#rankingBody').html(rows);
+        response.data.forEach(function (item, index) {
+            const rank = index + 1;
+            const id = String(item.application_id);
+            let card = board.querySelector('[data-application-id="' + id + '"]');
+
+            if (!card) {
+                card = document.createElement('article');
+                card.className = 'ete-rank-card';
+                card.dataset.applicationId = id;
+            }
+
+            card.className = 'ete-rank-card rank-' + rank;
+            if (Number(item.application_id) === Number(response.active_application_id)) {
+                card.classList.add('is-active');
+                activeName = item.name + ' (' + item.app_number + ')';
+            }
+
+            card.innerHTML = cardMarkup(item, rank, response.active_application_id);
+            board.appendChild(card);
+        });
+
+        board.querySelectorAll('.ete-rank-card').forEach(function (card) {
+            const stillExists = response.data.some(function (item) {
+                return String(item.application_id) === card.dataset.applicationId;
+            });
+            if (!stillExists) card.remove();
+        });
+
+        board.querySelectorAll('.ete-empty-state').forEach(function (empty) {
+            empty.remove();
+        });
+
+        board.querySelectorAll('.ete-rank-card').forEach(function (card) {
+            const oldPosition = oldPositions[card.dataset.applicationId];
+            if (!oldPosition) return;
+
+            const newPosition = card.getBoundingClientRect();
+            const deltaX = oldPosition.left - newPosition.left;
+            const deltaY = oldPosition.top - newPosition.top;
+
+            if (deltaX || deltaY) {
+                card.style.transition = 'none';
+                card.style.transform = 'translate(' + deltaX + 'px, ' + deltaY + 'px)';
+                requestAnimationFrame(function () {
+                    card.style.transition = 'transform .5s ease, box-shadow .25s ease, border-color .25s ease';
+                    card.style.transform = '';
+                });
             }
         });
+
+        $('#activeApplicantText').text(activeName);
+    }
+
+    function loadConsolidatedRanking() {
+        $.get("{{ route('eteConsolidatedData', $ete->id) }}")
+            .done(renderRanking);
     }
 
     loadConsolidatedRanking();
-    setInterval(loadConsolidatedRanking, 1500);
-
+    window.setInterval(loadConsolidatedRanking, 1500);
 });
 </script>
 @endsection

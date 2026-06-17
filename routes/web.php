@@ -221,12 +221,15 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
 
     Route::prefix('ete')->group(function () {
+        Route::get('/my-active-evaluation',[EteEvaluationController::class, 'myActiveEvaluation'])->name('eteMyActiveEvaluation');
+        Route::get('/evaluate/{id}',[EteEvaluationController::class, 'myEvaluatorRate'])->name('eteMyEvaluatorRate');
         Route::get('/ete-evaluations',[EteEvaluationController::class, 'eteEvaluationList'])->name('eteEvaluationList');
         Route::post('/ete-evaluations/store',[EteEvaluationController::class, 'eteEvaluationStore'])->name('eteEvaluationStore');
         Route::get('/ete-evaluations/{id}',[EteEvaluationController::class, 'eteEvaluationShow'])->name('eteEvaluationShow');
         Route::post('/ete-evaluations/splash',[EteEvaluationController::class, 'splashApplicant'])->name('eteSplashApplicant');
         Route::get('/ete-evaluations/{id}/active-applicant',[EteEvaluationController::class, 'getActiveApplicant'])->name('eteActiveApplicant');
         Route::get('/ete-evaluations/{id}/selected-consolidated',[EteEvaluationController::class, 'selectedApplicantConsolidated'])->name('eteSelectedApplicantConsolidated');
+        Route::get('/ete-evaluations/{id}/applicant/{applicationId}/pdf',[EteEvaluationController::class, 'applicantEvaluationPdf'])->name('eteApplicantEvaluationPdf');
         Route::get('/ete-evaluations/{id}/evaluator/{empId}',[EteEvaluationController::class, 'evaluatorRate'])->name('eteEvaluatorRate');
         Route::post('/ete-evaluations/rating/update-ajax',[EteEvaluationController::class, 'eteRatingUpdateAjax'])->name('eteRatingUpdateAjax');
         Route::get('/ete-evaluations/{id}/consolidated',[EteEvaluationController::class, 'consolidatedScreen'])->name('eteConsolidatedScreen');

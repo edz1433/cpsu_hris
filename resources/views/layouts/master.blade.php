@@ -84,6 +84,16 @@
             
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
+                @if($guard == "employee")
+                    <li class="nav-item d-none" id="ete-active-evaluation-nav">
+                        <a class="nav-link text-success1 font-weight-bold" id="ete-active-evaluation-link" href="#">
+                            <i class="fas fa-star"></i>
+                            <span class="d-none d-md-inline">Evaluate Applicant</span>
+                            <span class="badge badge-danger ml-1">Live</span>
+                        </a>
+                    </li>
+                @endif
+
                 @if($guard == "web")
                     @include('layouts.notif-admin')
                 @else
@@ -100,6 +110,11 @@
                         <img src="{{ file_exists($profilePath) && isset(auth()->guard($guard)->user()->profile) ? $profileUrl : asset('Profile/Employee/default.png') }}" alt="User Image" class="profile-image">
                     </a>                    
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+                        @if($guard == "employee")
+                            <a class="dropdown-item d-none" id="ete-active-evaluation-account-link" href="#">
+                                <i class="fas fa-star fa-xs"></i> Evaluate Active Applicant
+                            </a>
+                        @endif
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: inline;">
                             @csrf
                             <button type="submit" class="dropdown-item">
@@ -205,6 +220,55 @@
 
             <script>
                 document.body.classList.add('modal-open');
+            </script>
+        @endif
+
+        @if($guard == "employee")
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const navItem = document.getElementById('ete-active-evaluation-nav');
+                    const navLink = document.getElementById('ete-active-evaluation-link');
+                    const accountLink = document.getElementById('ete-active-evaluation-account-link');
+
+                    function updateEteEvaluationButton() {
+                        fetch(@json(route('eteMyActiveEvaluation')), {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            cache: 'no-store'
+                        })
+                            .then(function (response) {
+                                if (!response.ok) {
+                                    throw new Error('Unable to check active ETE evaluation.');
+                                }
+
+                                return response.json();
+                            })
+                            .then(function (data) {
+                                const currentEmployeeId = @json((int) auth()->guard('employee')->user()->id);
+
+                                if (!data.active || Number(data.evaluator_id) !== currentEmployeeId) {
+                                    navItem.classList.add('d-none');
+                                    accountLink.classList.add('d-none');
+                                    return;
+                                }
+
+                                navLink.href = data.url;
+                                navLink.title = 'Evaluate ' + data.applicant_name + ' for ' + data.position;
+                                accountLink.href = data.url;
+                                accountLink.classList.remove('d-none');
+                                navItem.classList.remove('d-none');
+                            })
+                            .catch(function () {
+                                navItem.classList.add('d-none');
+                                accountLink.classList.add('d-none');
+                            });
+                    }
+
+                    updateEteEvaluationButton();
+                    window.setInterval(updateEteEvaluationButton, 1500);
+                });
             </script>
         @endif
 

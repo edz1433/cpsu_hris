@@ -69,7 +69,7 @@
                                     <td class="align-middle text-center">
                                         @if($application->checked == 1)
                                             <span class="badge bg-success">
-                                                <i class="fas fa-check-circle"></i> Forwarded to HR
+                                                <i class="fas fa-check-circle"></i> Forwarded to President Office
                                             </span>
                                         @else
                                             <span class="badge bg-warning text-dark">
