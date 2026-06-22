@@ -269,7 +269,9 @@
                                 <tr id="tr-{{ $app->id }}">
                                     <td class="align-middle">{{ $no++ }}</td>
                                     <td class="align-middle">{{ $app->app_number }}</td>
-                                    <td class="align-middle">{{ $app->ctrl_no }}</td>
+                                    <td class="align-middle">
+                                        <span>{{ $app->ctrl_no }}</span>
+                                    </td>
                                     <td class="align-middle">{{ $app->first_name }} {{ $app->middle_name }} {{ $app->last_name }}</td>
                                     <td class="align-middle">{{ $app->position }}</td>
                                     <td class="align-middle">{{ ucfirst($app->sex) }}</td>
@@ -365,6 +367,17 @@
                                     </td>
                                     {{-- 🔹 Actions --}}
                                     <td class="text-center align-middle">
+                                        @if($app->ctrl_no)
+                                            <button type="button"
+                                                    class="btn btn-sm btn-info set-ctrl"
+                                                    value="{{ $app->id }}"
+                                                    data-ctrl-no="{{ $app->ctrl_no }}"
+                                                    data-toggle="modal"
+                                                    data-target="#setCtrlModal"
+                                                    title="Edit Control Number">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        @endif
                                         @if ($app->status == 1)
                                             {{-- Qualified --}}
                                             <button type="button"
@@ -560,6 +573,28 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.edit-applicant').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const app = JSON.parse(btn.dataset.application || '{}');
+
+            document.getElementById('edit_app_id').value = app.id || '';
+            document.getElementById('edit_jid').value = app.jid || '';
+            document.getElementById('edit_first_name').value = app.first_name || '';
+            document.getElementById('edit_middle_name').value = app.middle_name || '';
+            document.getElementById('edit_last_name').value = app.last_name || '';
+            document.getElementById('edit_age').value = app.age || '';
+            document.getElementById('edit_sex').value = app.sex || '';
+            document.getElementById('edit_mobile').value = app.mobile || '';
+            document.getElementById('edit_email').value = app.email || '';
+            document.getElementById('edit_address').value = app.address || '';
+            document.getElementById('edit_education').value = app.education || '';
+            document.getElementById('edit_eligibility').value = app.eligibility || '';
+            document.getElementById('edit_created_at').value = app.created_at || '';
+
+            $('#edit_jid').trigger('change');
+        });
+    });
+
     // Set Control No.
     document.querySelectorAll('.set-ctrl').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -588,6 +623,14 @@ $(function () {
     $('#add-applicant').on('shown.bs.modal', function () {
         $('.select2').select2({
             dropdownParent: $('#add-applicant'),
+            width: '100%',
+            placeholder: 'Search Position'
+        });
+    });
+
+    $('#edit-applicant').on('shown.bs.modal', function () {
+        $('.select2-edit').select2({
+            dropdownParent: $('#edit-applicant'),
             width: '100%',
             placeholder: 'Search Position'
         });

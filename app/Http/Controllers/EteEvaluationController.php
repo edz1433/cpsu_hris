@@ -2,44 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Application;
+use App\Models\Employee;
+use App\Models\EteApplicantRating;
 use App\Models\EteEvaluation;
 use App\Models\Evaluator;
-use App\Models\EmployeeEvaluate;
 use App\Models\JobHiring;
-use App\Models\Employee;
-use App\Models\Application;
-use Illuminate\Http\Request;
+use App\Models\Office;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 
 class EteEvaluationController extends Controller
 {
     private function authorizeEteAdmin()
     {
         abort_unless(auth()->guard('web')->check(), 403, 'Only HR administrators can manage ETE evaluations.');
-    }
-
-    private function authorizeEvaluator(EmployeeEvaluate $rating)
-    {
-        if (auth()->guard('employee')->check()) {
-            abort_unless(
-                (int) auth()->guard('employee')->user()->id === (int) $rating->evaluator_id,
-                403,
-                'You can only submit your own ETE rating.'
-            );
-        }
-    }
-
-    private function authorizeEvaluatorPage($empId)
-    {
-        if (auth()->guard('employee')->check()) {
-            abort_unless(
-                (int) auth()->guard('employee')->user()->id === (int) $empId,
-                403,
-                'You can only open your own ETE rating page.'
-            );
-        }
     }
 
     private function experienceYears($value)
@@ -49,326 +28,197 @@ class EteEvaluationController extends Controller
         }
 
         if (str_contains($value, '-')) {
-            [$from, $to] = explode('-', $value, 2);
-            $from = (int) trim($from);
-            $to = (int) trim($to);
-
-            if ($from > $to) {
-                return [];
-            }
-
-            return range($from, $to);
+            [$from, $to] = array_map('intval', explode('-', $value, 2));
+            return $from <= $to ? range($to, $from) : [];
         }
 
-        return array_filter(array_map('trim', explode(',', $value)));
-    }
-
-    private function syncApplicationEvaluators(EteEvaluation $ete, Application $application)
-    {
-        if ((int) $application->jid !== (int) $ete->jid) {
-            abort(422, 'Applicant does not belong to this ETE position.');
-        }
-
-        $ete->loadMissing(['job', 'evaluators']);
-
-        foreach ($ete->evaluators as $panel) {
-            EmployeeEvaluate::firstOrCreate(
-                [
-                    'ete_id' => $ete->id,
-                    'application_id' => $application->id,
-                    'evaluator_id' => $panel->emp_id,
-                ],
-                [
-                    'jid' => $ete->jid,
-                    'position' => $ete->job->title ?? $application->position,
-                    'evaluation_date' => optional($ete->evaluation_date)->toDateString(),
-                    'education_score' => 0,
-                    'training_score' => 0,
-                    'experience_score' => 0,
-                    'experience_year_ratings' => null,
-                    'total_score' => 0,
-                    'remarks' => null,
-                ]
-            );
-        }
-    }
-
-    private function syncReviewingApplicants(EteEvaluation $ete)
-    {
-        $applications = Application::where('jid', $ete->jid)
-            ->where('status', 1)
-            ->get();
-
-        foreach ($applications as $application) {
-            $this->syncApplicationEvaluators($ete, $application);
-        }
+        $years = array_filter(array_map('trim', explode(',', $value)));
+        rsort($years, SORT_NUMERIC);
+        return $years;
     }
 
     private function applicantName($app)
     {
-        return trim(collect([
-            $app->first_name ?? null,
-            $app->middle_name ?? null,
-            $app->last_name ?? null,
-        ])->filter()->implode(' '));
+        return trim(collect([$app->first_name, $app->middle_name, $app->last_name])->filter()->implode(' '));
+    }
+
+    private function syncMinimumRequirementScore(EteApplicantRating $rating)
+    {
+        $minimumScore = collect([
+            $rating->education_met,
+            $rating->experience_met,
+            $rating->eligibility_met,
+            $rating->training_met,
+        ])->filter(fn ($value) => $value === true)->count() * 17.5;
+        $totalScore = $minimumScore
+            + (float) $rating->education_score
+            + (float) $rating->training_score
+            + (float) $rating->experience_score;
+
+        if ((float) $rating->minimum_requirement_score !== $minimumScore
+            || (float) $rating->total_score !== $totalScore) {
+            $rating->update([
+                'minimum_requirement_score' => $minimumScore,
+                'total_score' => $totalScore,
+            ]);
+        }
+    }
+
+    private function syncApplicationRating(EteEvaluation $ete, Application $application)
+    {
+        abort_if((int) $application->jid !== (int) $ete->jid, 422, 'Applicant does not belong to this ETE position.');
+        $ete->loadMissing(['job', 'office']);
+
+        $rating = EteApplicantRating::firstOrCreate(
+            ['ete_id' => $ete->id, 'application_id' => $application->id],
+            [
+                'jid' => $ete->jid,
+                'evaluation_date' => optional($ete->evaluation_date)->toDateString(),
+                'present_position' => $application->position,
+                'college_department' => optional($ete->office)->office_name,
+                'education_score' => 0,
+                'training_score' => 0,
+                'experience_score' => 0,
+                'total_score' => 0,
+                'created_by' => auth()->guard('web')->id(),
+            ]
+        );
+
+        if (!$rating->college_department && $ete->office) {
+            $rating->update(['college_department' => $ete->office->office_name]);
+        }
+
+        $this->syncMinimumRequirementScore($rating);
+
+        return $rating;
+    }
+
+    private function syncReviewingApplicants(EteEvaluation $ete)
+    {
+        Application::where('jid', $ete->jid)->where('status', 1)->get()
+            ->each(fn ($application) => $this->syncApplicationRating($ete, $application));
     }
 
     private function ratingCompleted($rating)
     {
-        return ($rating->updated_at && $rating->created_at && $rating->updated_at->gt($rating->created_at))
-            || $rating->education_met !== null
-            || $rating->experience_met !== null
-            || $rating->eligibility_met !== null
-            || $rating->training_met !== null
-            || (float) $rating->education_score > 0
-            || (float) $rating->training_score > 0
-            || (float) $rating->experience_score > 0
-            || !empty($rating->remarks);
+        return $rating && (
+            $rating->education_met !== null || $rating->experience_met !== null ||
+            $rating->eligibility_met !== null || $rating->training_met !== null ||
+            (float) $rating->total_score > 0 || !empty($rating->remarks)
+        );
     }
 
     public function eteEvaluationList()
     {
         $this->authorizeEteAdmin();
-
-        $eteEvaluations = EteEvaluation::with([
-                'job',
-                'evaluators.employee',
-                'employeeEvaluates.application',
-                'employeeEvaluates.evaluator',
-            ])
-            ->latest()
-            ->get();
-
+        $eteEvaluations = EteEvaluation::with(['job', 'office', 'evaluators.employee', 'applicantRatings.application'])
+            ->latest()->get();
         $jobs = JobHiring::orderBy('title')->get();
         $employees = Employee::orderBy('lname')->get();
+        $offices = Office::where('office_name', 'not like', '%UNKNOWN%')
+            ->where('office_name', 'not like', '%CAMPUS%')
+            ->orderBy('office_name')
+            ->get();
 
-        return view('ete.index', compact(
-            'eteEvaluations',
-            'jobs',
-            'employees'
-        ));
+        return view('ete.index', compact('eteEvaluations', 'jobs', 'employees', 'offices'));
     }
 
     public function eteEvaluationStore(Request $request)
     {
         $this->authorizeEteAdmin();
-
         $request->validate([
             'jid' => 'required|exists:job_hirings,id',
-            'evaluators' => 'required|array',
+            'off_id' => 'required|exists:payroll.offices,id',
+            'evaluators' => 'required|array|min:1',
             'evaluators.*' => 'exists:employees,id',
             'evaluation_date' => 'required|date',
             'experience_years' => 'required|string',
         ]);
 
-        $job = JobHiring::findOrFail($request->jid);
-
-        $applications = Application::where('jid', $request->jid)
-            ->where('status', 1)
-            ->get();
-
-        if ($applications->count() == 0) {
-            return redirect()->back()->with(
-                'error',
-                'No applicants with status Reviewing found for this position.'
-            );
+        $applications = Application::where('jid', $request->jid)->where('status', 1)->get();
+        if ($applications->isEmpty()) {
+            return back()->with('error', 'No applicants with status Reviewing found for this position.');
         }
 
-        $ete = EteEvaluation::create([
-            'jid' => $request->jid,
-            'evaluation_date' => Carbon::parse($request->evaluation_date),
-            'experience_years' => $request->experience_years,
-            'active_application_id' => null,
-        ]);
+        DB::transaction(function () use ($request, $applications) {
+            $ete = EteEvaluation::create([
+                'jid' => $request->jid,
+                'off_id' => $request->off_id,
+                'evaluation_date' => Carbon::parse($request->evaluation_date),
+                'experience_years' => $request->experience_years,
+                'active_application_id' => null,
+            ]);
 
-        foreach ($request->evaluators as $empId) {
-            Evaluator::create([
+            collect($request->evaluators)->unique()->each(fn ($empId) => Evaluator::create([
                 'ete_id' => $ete->id,
                 'emp_id' => $empId,
-            ]);
-        }
+            ]));
 
-        foreach ($applications as $application) {
-            foreach ($request->evaluators as $empId) {
-                EmployeeEvaluate::create([
-                    'ete_id' => $ete->id,
-                    'application_id' => $application->id,
-                    'jid' => $request->jid,
-                    'evaluator_id' => $empId,
-                    'position' => $job->title,
-                    'evaluation_date' => Carbon::parse($request->evaluation_date)->toDateString(),
-                    'education_score' => 0,
-                    'training_score' => 0,
-                    'experience_score' => 0,
-                    'experience_year_ratings' => null,
-                    'total_score' => 0,
-                    'remarks' => null,
-                ]);
-            }
-        }
+            $applications->each(fn ($application) => $this->syncApplicationRating($ete, $application));
+        });
 
-        return redirect()->back()->with('success', 'ETE Evaluation created successfully.');
+        return back()->with('success', 'ETE evaluation created successfully.');
     }
 
     public function eteEvaluationShow($id)
     {
         $this->authorizeEteAdmin();
+        $ete = EteEvaluation::with(['job', 'office', 'evaluators.employee'])->findOrFail($id);
+        $this->syncReviewingApplicants($ete);
+        $ete->load('applicantRatings.application');
+        $applicants = $ete->applicantRatings->pluck('application')->filter();
+        $ratingsByApplication = $ete->applicantRatings->keyBy('application_id');
 
-        $eteForSync = EteEvaluation::with(['job', 'evaluators'])->findOrFail($id);
-        $this->syncReviewingApplicants($eteForSync);
-
-        $ete = EteEvaluation::with([
-            'job',
-            'evaluators.employee',
-            'employeeEvaluates.application',
-            'employeeEvaluates.evaluator',
-        ])->findOrFail($id);
-
-        $applicants = $ete->employeeEvaluates
-            ->groupBy('application_id')
-            ->map(function ($items) {
-                return $items->first()->application;
-            });
-
-        return view('ete.show', compact('ete', 'applicants'));
+        return view('ete.show', compact('ete', 'applicants', 'ratingsByApplication'));
     }
 
-    public function splashApplicant(Request $request)
+    public function adminRating($id)
     {
         $this->authorizeEteAdmin();
+        $ete = EteEvaluation::with(['job', 'office'])->findOrFail($id);
+        $this->syncReviewingApplicants($ete);
+        $candidateRatings = $ete->applicantRatings()->with('application')->orderBy('application_id')->get();
+        abort_if($candidateRatings->isEmpty(), 404, 'No candidates are available for this ETE evaluation.');
 
-        $request->validate([
-            'ete_id' => 'required|exists:ete_evaluations,id',
-            'application_id' => 'required|exists:applications,id',
-            'action' => 'required|in:cast,uncast',
-        ]);
+        $selectedApplicationId = request()->integer('application_id');
+        $selectedIndex = $selectedApplicationId
+            ? $candidateRatings->search(fn ($item) => (int) $item->application_id === $selectedApplicationId)
+            : 0;
+        abort_if($selectedIndex === false, 404, 'Candidate does not belong to this ETE evaluation.');
 
-        $ete = EteEvaluation::with(['job', 'evaluators'])->findOrFail($request->ete_id);
-        $application = Application::findOrFail($request->application_id);
-
-        DB::transaction(function () use ($ete, $application, $request) {
-            $this->syncApplicationEvaluators($ete, $application);
-
-            if ($request->action === 'cast') {
-                EteEvaluation::where('id', '!=', $ete->id)
-                    ->whereNotNull('active_application_id')
-                    ->update(['active_application_id' => null]);
-
-                $ete->update([
-                    'active_application_id' => $application->id,
-                ]);
-            } elseif ((int) $ete->active_application_id === (int) $application->id) {
-                $ete->update(['active_application_id' => null]);
-            }
+        $selectedRating = $candidateRatings->get($selectedIndex);
+        $ratings = collect([$selectedRating]);
+        $previousRating = $selectedIndex > 0 ? $candidateRatings->get($selectedIndex - 1) : null;
+        $nextRating = $selectedIndex < $candidateRatings->count() - 1 ? $candidateRatings->get($selectedIndex + 1) : null;
+        $candidateRatings->each(function ($candidateRating) {
+            $candidateRating->is_completed = $this->ratingCompleted($candidateRating);
         });
-
-        return response()->json([
-            'success' => true,
-            'active_application_id' => $ete->fresh()->active_application_id,
-        ]);
-    }
-
-    public function getActiveApplicant($id)
-    {
-        $ete = EteEvaluation::findOrFail($id);
-
-        if (auth()->guard('employee')->check()) {
-            abort_unless(
-                $ete->evaluators()->where('emp_id', auth()->guard('employee')->user()->id)->exists(),
-                403,
-                'You are not assigned to this ETE evaluation.'
-            );
-        }
-
-        return response()->json([
-            'active_application_id' => $ete->active_application_id,
-        ]);
-    }
-
-    public function myActiveEvaluation()
-    {
-        abort_unless(auth()->guard('employee')->check(), 403);
-
-        $employeeId = auth()->guard('employee')->user()->id;
-
-        $ete = EteEvaluation::with(['job', 'activeApplication'])
-            ->whereNotNull('active_application_id')
-            ->whereHas('evaluators', function ($query) use ($employeeId) {
-                $query->where('emp_id', $employeeId);
-            })
-            ->whereHas('employeeEvaluates', function ($query) use ($employeeId) {
-                $query->where('evaluator_id', $employeeId)
-                    ->whereColumn(
-                        'employee_evaluates.application_id',
-                        'ete_evaluations.active_application_id'
-                    );
-            })
-            ->latest('updated_at')
-            ->first();
-
-        if (!$ete || !$ete->activeApplication) {
-            return response()->json(['active' => false]);
-        }
-
-        return response()->json([
-            'active' => true,
-            'ete_id' => $ete->id,
-            'evaluator_id' => $employeeId,
-            'application_id' => $ete->active_application_id,
-            'applicant_name' => $this->applicantName($ete->activeApplication),
-            'position' => $ete->job->title ?? $ete->activeApplication->position,
-            'url' => route('eteMyEvaluatorRate', $ete->id),
-        ]);
-    }
-
-    public function myEvaluatorRate($id)
-    {
-        abort_unless(auth()->guard('employee')->check(), 403);
-
-        return $this->evaluatorRate($id, auth()->guard('employee')->user()->id);
-    }
-
-    public function evaluatorRate($id, $empId)
-    {
-        $this->authorizeEvaluatorPage($empId);
-
-        $ete = EteEvaluation::with(['job', 'evaluators'])->findOrFail($id);
-
-        abort_unless(
-            $ete->evaluators->contains('emp_id', (int) $empId),
-            403,
-            'This employee is not assigned as evaluator for this ETE.'
-        );
-
-        if ($ete->active_application_id) {
-            $application = Application::find($ete->active_application_id);
-
-            if ($application) {
-                $this->syncApplicationEvaluators($ete, $application);
-            }
-        }
-
-        $ratings = EmployeeEvaluate::with(['application'])
-            ->where('ete_id', $id)
-            ->where('evaluator_id', $empId)
-            ->orderBy('application_id')
-            ->get();
-
-        $evaluator = Employee::findOrFail($empId);
         $years = $this->experienceYears($ete->experience_years);
 
         return view('ete.evaluator-rate', compact(
-            'ete',
-            'ratings',
-            'evaluator',
-            'years'
+            'ete', 'ratings', 'candidateRatings', 'selectedRating', 'previousRating', 'nextRating', 'years'
         ));
+    }
+
+    public function eteEvaluationDelete($id)
+    {
+        $this->authorizeEteAdmin();
+        DB::transaction(function () use ($id) {
+            $ete = EteEvaluation::findOrFail($id);
+            $ete->evaluators()->delete();
+            $ete->employeeEvaluates()->delete();
+            $ete->applicantRatings()->delete();
+            $ete->delete();
+        });
+
+        return redirect()->route('eteEvaluationList')->with('success', 'ETE evaluation deleted successfully.');
     }
 
     public function eteRatingUpdateAjax(Request $request)
     {
+        $this->authorizeEteAdmin();
         $request->validate([
-            'evaluate_id' => 'required|exists:employee_evaluates,id',
+            'evaluate_id' => 'required|exists:ete_applicant_ratings,id',
             'evaluation_date' => 'nullable|date',
             'present_position' => 'nullable|string|max:255',
             'college_department' => 'nullable|string|max:255',
@@ -377,53 +227,25 @@ class EteEvaluationController extends Controller
             'eligibility_met' => 'nullable|boolean',
             'training_met' => 'nullable|boolean',
             'education_ratings' => 'nullable|array',
-            'education_ratings.*' => 'nullable|boolean',
             'training_ratings' => 'nullable|array',
-            'training_ratings.scholarship_grant' => 'nullable|boolean',
-            'training_ratings.leadership_seminar' => 'nullable|boolean',
             'training_ratings.relevant_hours' => 'nullable|numeric|min:0|max:10000',
-            'remarks' => 'nullable|string',
             'experience_years' => 'nullable|array',
+            'experience_years.*.length' => 'nullable|numeric|min:0|max:12',
+            'remarks' => 'nullable|string',
         ]);
 
-        $rating = EmployeeEvaluate::with('eteEvaluation.evaluators')->findOrFail($request->evaluate_id);
-
-        $this->authorizeEvaluator($rating);
-
-        abort_unless(
-            $rating->eteEvaluation
-                && $rating->eteEvaluation->evaluators->contains('emp_id', (int) $rating->evaluator_id),
-            403,
-            'Invalid evaluator assignment.'
-        );
-
-        abort_unless(
-            (int) $rating->eteEvaluation->active_application_id === (int) $rating->application_id,
-            409,
-            'This applicant is no longer the active ETE applicant.'
-        );
-
+        $rating = EteApplicantRating::with('eteEvaluation')->findOrFail($request->evaluate_id);
         $educationCredits = [
-            'additional_four_year_course' => 2,
-            'masteral_1_18' => 1,
-            'masteral_19_30' => 2,
-            'masters_degree' => 4,
-            'doctoral_1_18' => 5,
-            'doctoral_19_36' => 6,
-            'doctoral_degree' => 10,
+            'additional_four_year_course' => 2, 'masteral_1_18' => 1,
+            'masteral_19_30' => 2, 'masters_degree' => 4,
+            'doctoral_1_18' => 5, 'doctoral_19_36' => 6, 'doctoral_degree' => 10,
         ];
         $educationRatings = [];
         $educationScore = 0;
-
         foreach ($educationCredits as $key => $credit) {
-            $selected = $request->boolean("education_ratings.$key");
-            $educationRatings[$key] = $selected;
-
-            if ($selected) {
-                $educationScore += $credit;
-            }
+            $educationRatings[$key] = $request->boolean("education_ratings.$key");
+            $educationScore += $educationRatings[$key] ? $credit : 0;
         }
-
         $educationScore = min(10, $educationScore);
 
         $trainingRatings = [
@@ -431,62 +253,55 @@ class EteEvaluationController extends Controller
             'leadership_seminar' => $request->boolean('training_ratings.leadership_seminar'),
             'relevant_hours' => max(0, (float) $request->input('training_ratings.relevant_hours', 0)),
         ];
-        $trainingScore = ($trainingRatings['scholarship_grant'] ? 3 : 0)
-            + ($trainingRatings['leadership_seminar'] ? 2 : 0)
-            + floor($trainingRatings['relevant_hours'] / 50);
-        $trainingScore = min(5, $trainingScore);
+        $trainingScore = min(5,
+            ($trainingRatings['scholarship_grant'] ? 3 : 0) +
+            ($trainingRatings['leadership_seminar'] ? 2 : 0) +
+            floor($trainingRatings['relevant_hours'] / 50)
+        );
+
+        $submittedExperienceRows = $request->input('experience_years', []);
+        $orderedYears = $this->experienceYears(optional($rating->eteEvaluation)->experience_years);
+        $levelOneYears = array_slice(array_reverse($orderedYears), 0, 5);
+        $experienceRows = [];
         $experienceScore = 0;
-
-        if ($request->experience_years) {
-            foreach ($request->experience_years as $year => $data) {
-                $experienceScore += floatval($data['credit'] ?? 0);
-            }
+        foreach ($orderedYears as $year) {
+            $row = $submittedExperienceRows[$year] ?? [];
+            $months = max(0, min(12, (float) ($row['length'] ?? 0)));
+            $experienceLevel = in_array($year, $levelOneYears) ? 1 : 2;
+            $credit = round(($months / 12) * $experienceLevel, 2);
+            $experienceRows[$year] = ['length' => $months, 'level' => $experienceLevel, 'credit' => $credit];
+            $experienceScore += $credit;
         }
+        $experienceScore = min(15, round($experienceScore, 2));
 
-        if ($experienceScore > 15) {
-            $experienceScore = 15;
-        }
+        $requirements = collect(['education_met', 'experience_met', 'eligibility_met', 'training_met'])
+            ->mapWithKeys(fn ($field) => [$field => $request->filled($field) ? $request->boolean($field) : null]);
+        $minimumScore = $requirements->filter(fn ($value) => $value === true)->count() * 17.5;
+        $total = $minimumScore + $educationScore + $trainingScore + $experienceScore;
 
-        $minimumRequirements = [
-            'education_met' => $request->filled('education_met') ? $request->boolean('education_met') : null,
-            'experience_met' => $request->filled('experience_met') ? $request->boolean('experience_met') : null,
-            'eligibility_met' => $request->filled('eligibility_met') ? $request->boolean('eligibility_met') : null,
-            'training_met' => $request->filled('training_met') ? $request->boolean('training_met') : null,
-        ];
-        $minimumRequirementScore = collect($minimumRequirements)->every(fn ($value) => $value === true)
-            ? 70
-            : 0;
-
-        $total = $minimumRequirementScore
-            + $educationScore
-            + $trainingScore
-            + $experienceScore;
-
-        $rating->update([
+        $rating->update(array_merge($requirements->all(), [
             'evaluation_date' => $request->evaluation_date,
             'present_position' => $request->present_position,
             'college_department' => $request->college_department,
-            'education_met' => $minimumRequirements['education_met'],
-            'experience_met' => $minimumRequirements['experience_met'],
-            'eligibility_met' => $minimumRequirements['eligibility_met'],
-            'training_met' => $minimumRequirements['training_met'],
-            'minimum_requirement_score' => $minimumRequirementScore,
+            'minimum_requirement_score' => $minimumScore,
             'education_score' => $educationScore,
             'education_ratings' => $educationRatings,
             'training_score' => $trainingScore,
             'training_ratings' => $trainingRatings,
             'experience_score' => $experienceScore,
-            'experience_year_ratings' => $request->experience_years,
+            'experience_year_ratings' => $experienceRows,
             'total_score' => $total,
             'remarks' => $request->remarks,
-        ]);
+            'updated_by' => auth()->guard('web')->id(),
+        ]));
 
         return response()->json([
             'success' => true,
-            'minimum_requirement_score' => number_format($minimumRequirementScore, 2),
+            'minimum_requirement_score' => number_format($minimumScore, 2),
             'education_score' => number_format($educationScore, 2),
             'training_score' => number_format($trainingScore, 2),
             'experience_score' => number_format($experienceScore, 2),
+            'experience_rows' => $experienceRows,
             'total_score' => number_format($total, 2),
         ]);
     }
@@ -494,168 +309,91 @@ class EteEvaluationController extends Controller
     public function applicantEvaluationPdf($id, $applicationId)
     {
         $this->authorizeEteAdmin();
-
         $ete = EteEvaluation::with(['job', 'evaluators.employee'])->findOrFail($id);
         $application = Application::where('jid', $ete->jid)->findOrFail($applicationId);
-        $this->syncApplicationEvaluators($ete, $application);
+        $rating = $this->syncApplicationRating($ete, $application);
 
-        $ratings = EmployeeEvaluate::with('evaluator')
-            ->where('ete_id', $ete->id)
-            ->where('application_id', $application->id)
-            ->orderBy('evaluator_id')
-            ->get()
-            ->map(function ($rating) {
-                $rating->signature_data = null;
-
-                if ($rating->evaluator && $rating->evaluator->esign) {
-                    try {
-                        $decrypted = Crypt::decrypt($rating->evaluator->esign);
-                        $rating->signature_data = 'data:image/png;base64,' . base64_encode($decrypted);
-                    } catch (\Throwable $exception) {
-                        $rating->signature_data = null;
-                    }
+        $reportEvaluators = $ete->evaluators->map(function ($panel) {
+            $panel->signature_data = null;
+            if ($panel->employee && $panel->employee->esign) {
+                try {
+                    $panel->signature_data = 'data:image/png;base64,' . base64_encode(Crypt::decrypt($panel->employee->esign));
+                } catch (\Throwable $exception) {
+                    $panel->signature_data = null;
                 }
-
-                return $rating;
-            });
+            }
+            return $panel;
+        });
 
         $years = $this->experienceYears($ete->experience_years);
         $fileName = 'ETE-' . ($application->app_number ?: $application->id) . '.pdf';
-
         return \PDF::loadView('ete.applicant-evaluation-pdf', compact(
-            'ete',
-            'application',
-            'ratings',
-            'years'
-        ))->setPaper('letter', 'portrait')->stream($fileName);
+            'ete', 'application', 'rating', 'reportEvaluators', 'years'
+        ))->setPaper('legal', 'portrait')->stream($fileName);
     }
 
     public function selectedApplicantConsolidated($id)
     {
         $this->authorizeEteAdmin();
-
-        $applicationId = request()->integer('application_id');
-
-        $ete = EteEvaluation::with([
-            'activeApplication',
-            'employeeEvaluates.application',
-            'employeeEvaluates.evaluator',
-            'evaluators.employee',
-        ])->findOrFail($id);
-
-        if (!$applicationId) {
-            $applicationId = $ete->active_application_id;
-        }
-
-        if (!$applicationId) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No applicant selected.',
-            ]);
-        }
-
-        $ratings = $ete->employeeEvaluates
-            ->where('application_id', $applicationId);
-
-        $app = $ratings->first()->application ?? null;
-
-        if (!$app) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Applicant not found.',
-            ]);
+        $ete = EteEvaluation::with('evaluators.employee')->findOrFail($id);
+        $rating = $ete->applicantRatings()->with('application')
+            ->where('application_id', request()->integer('application_id'))->first();
+        if (!$rating || !$rating->application) {
+            return response()->json(['success' => false, 'message' => 'Applicant not found.']);
         }
 
         return response()->json([
             'success' => true,
-            'application_id' => $app->id,
-            'active_application_id' => $ete->active_application_id,
-            'is_active' => (int) $ete->active_application_id === (int) $app->id,
-            'app_number' => $app->app_number,
-            'name' => $this->applicantName($app),
-            'education_avg' => number_format($ratings->avg('education_score'), 2),
-            'training_avg' => number_format($ratings->avg('training_score'), 2),
-            'experience_avg' => number_format($ratings->avg('experience_score'), 2),
-            'total_avg' => number_format($ratings->avg('total_score'), 2),
-            'evaluator_count' => $ete->evaluators->count(),
-            'completed_count' => $ratings->filter(fn ($rating) => $this->ratingCompleted($rating))->count(),
-            'evaluators' => $ratings->values()->map(function ($rating) use ($id) {
-                return [
-                    'id' => $rating->evaluator_id,
-                    'name' => trim(($rating->evaluator->lname ?? '') . ', ' . ($rating->evaluator->fname ?? '')),
-                    'education_score' => number_format((float) $rating->education_score, 2),
-                    'training_score' => number_format((float) $rating->training_score, 2),
-                    'experience_score' => number_format((float) $rating->experience_score, 2),
-                    'total_score' => number_format((float) $rating->total_score, 2),
-                    'completed' => $this->ratingCompleted($rating),
-                    'url' => route('eteEvaluatorRate', [$id, $rating->evaluator_id]),
-                ];
-            }),
+            'application_id' => $rating->application_id,
+            'app_number' => $rating->application->app_number,
+            'name' => $this->applicantName($rating->application),
+            'education_score' => number_format($rating->education_score, 2),
+            'training_score' => number_format($rating->training_score, 2),
+            'experience_score' => number_format($rating->experience_score, 2),
+            'total_score' => number_format($rating->total_score, 2),
+            'completed' => $this->ratingCompleted($rating),
+            'report_page_count' => $ete->evaluators->count(),
         ]);
     }
 
     public function consolidatedScreen($id)
     {
         $this->authorizeEteAdmin();
-
-        $eteForSync = EteEvaluation::with(['job', 'evaluators'])->findOrFail($id);
-        $this->syncReviewingApplicants($eteForSync);
-
-        $ete = EteEvaluation::with([
-            'job',
-            'employeeEvaluates.application',
-        ])->findOrFail($id);
-
+        $ete = EteEvaluation::with('job')->findOrFail($id);
+        $this->syncReviewingApplicants($ete);
         return view('ete.consolidated-screen', compact('ete'));
     }
 
     public function consolidatedData($id)
     {
         $this->authorizeEteAdmin();
-
-        $ete = EteEvaluation::with([
-            'evaluators.employee',
-            'employeeEvaluates.application',
-            'employeeEvaluates.evaluator',
-        ])->findOrFail($id);
-
-        $data = $ete->employeeEvaluates
-            ->groupBy('application_id')
-            ->map(function ($ratings) {
-                $app = $ratings->first()->application;
-
-                if (!$app) {
-                    return null;
-                }
-
-                $totalAvg = $ratings->avg('total_score');
+        $ete = EteEvaluation::with('applicantRatings.application')->findOrFail($id);
+        $data = $ete->applicantRatings->filter(fn ($rating) => $rating->application)
+            ->sortByDesc('total_score')->values()->map(function ($rating, $index) {
+                $requirementsMet = collect([
+                    $rating->education_met,
+                    $rating->experience_met,
+                    $rating->eligibility_met,
+                    $rating->training_met,
+                ])->filter(fn ($value) => $value === true)->count();
 
                 return [
-                    'application_id' => $app->id,
-                    'app_number' => $app->app_number,
-                    'name' => $this->applicantName($app),
-                    'education_avg' => number_format($ratings->avg('education_score'), 2),
-                    'training_avg' => number_format($ratings->avg('training_score'), 2),
-                    'experience_avg' => number_format($ratings->avg('experience_score'), 2),
-                    'total_avg' => number_format($totalAvg, 2),
-                    'total_raw' => $totalAvg,
-                    'completed_count' => $ratings->filter(fn ($rating) => $this->ratingCompleted($rating))->count(),
-                    'evaluator_count' => $ratings->count(),
+                    'application_id' => $rating->application_id,
+                    'app_number' => $rating->application->app_number,
+                    'name' => $this->applicantName($rating->application),
+                    'education_score' => number_format($rating->education_score, 2),
+                    'training_score' => number_format($rating->training_score, 2),
+                    'experience_score' => number_format($rating->experience_score, 2),
+                    'minimum_score' => number_format($rating->minimum_requirement_score, 2),
+                    'requirements_met' => $requirementsMet,
+                    'total_score' => number_format($rating->total_score, 2),
+                    'total_raw' => (float) $rating->total_score,
+                    'completed' => $this->ratingCompleted($rating),
+                    'rank' => $index + 1,
                 ];
-            })
-            ->filter()
-            ->sortByDesc('total_raw')
-            ->values()
-            ->map(function ($item, $index) {
-                $item['rank'] = $index + 1;
-                return $item;
             });
 
-        return response()->json([
-            'success' => true,
-            'active_application_id' => $ete->active_application_id,
-            'evaluator_count' => $ete->evaluators->count(),
-            'data' => $data,
-        ]);
+        return response()->json(['success' => true, 'data' => $data])
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 }

@@ -39,6 +39,22 @@
         min-height: 42px;
     }
 
+    .ete-rating-workspace { display: grid; gap: 18px; grid-template-columns: 300px minmax(0, 1fr); }
+    .ete-candidate-queue { align-self: start; background: #f6f8f7; border: 1px solid #e3e9e5; border-radius: 16px; max-height: calc(100vh - 190px); overflow-y: auto; padding: 10px; position: sticky; top: 12px; }
+    .ete-queue-title { align-items: center; display: flex; justify-content: space-between; padding: 8px 8px 12px; }
+    .ete-candidate-link { align-items: center; background: #fff; border: 1px solid #e2e8e4; border-radius: 13px; color: #26352d; display: flex; gap: 10px; margin-bottom: 8px; padding: 11px; text-decoration: none !important; transition: .15s ease; }
+    .ete-candidate-link:hover { border-color: #91c6a8; color: #176c43; transform: translateY(-1px); }
+    .ete-candidate-link.active { background: #e9f7ef; border-color: #198754; box-shadow: inset 4px 0 0 #198754; }
+    .ete-candidate-number { align-items: center; background: #eef2f0; border-radius: 50%; display: flex; flex: 0 0 34px; font-size: .75rem; font-weight: 800; height: 34px; justify-content: center; }
+    .ete-candidate-meta { min-width: 0; }
+    .ete-candidate-meta strong { display: block; font-size: .86rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ete-candidate-meta small { color: #718078; }
+    .ete-status-dot { border-radius: 50%; flex: 0 0 9px; height: 9px; margin-left: auto; width: 9px; }
+    .ete-status-dot.done { background: #21a366; box-shadow: 0 0 0 4px #dff4e8; }
+    .ete-status-dot.pending { background: #aeb8b2; }
+    .ete-form-panel > .card { border: 1px solid #e3e9e5; box-shadow: none; }
+    .ete-candidate-nav { align-items: center; border-top: 1px solid #e7ece9; display: flex; justify-content: space-between; margin-top: 18px; padding-top: 16px; }
+
     @media (max-width: 767.98px) {
         .ete-rate-shell {
             padding-left: 8px;
@@ -48,6 +64,10 @@
             align-items: flex-start;
             flex-direction: column;
         }
+        .ete-rating-workspace { grid-template-columns: 1fr; }
+        .ete-candidate-queue { display: flex; gap: 8px; max-height: none; overflow-x: auto; position: static; }
+        .ete-queue-title { flex: 0 0 auto; }
+        .ete-candidate-link { flex: 0 0 230px; margin-bottom: 0; }
         .ete-active-banner .badge {
             float: none !important;
             margin-top: 10px;
@@ -102,28 +122,39 @@
         <div class="ete-rate-header">
             <h3 class="card-title">
                 <i class="fas fa-star"></i>
-                Evaluator Rating - {{ $ete->job->title ?? '' }}
+                Admin ETE Rating - {{ $ete->job->title ?? '' }}
+                @if($ete->job && $ete->job->plantilla_item_no)
+                    <small class="d-block text-muted">{{ $ete->job->plantilla_item_no }}</small>
+                @endif
+                <small class="d-block text-muted mt-1"><i class="fas fa-building mr-1"></i>{{ $ete->office->office_name ?? 'Department/Office not set' }}</small>
             </h3>
 
-            <span class="badge badge-success p-2">
-                {{ $evaluator->lname ?? '' }},
-                {{ $evaluator->fname ?? '' }}
-            </span>
+            <a href="{{ route('eteEvaluationShow', $ete->id) }}" class="btn btn-light border"><i class="fas fa-arrow-left"></i> Back</a>
         </div>
 
         <div class="card-body">
+            <div class="ete-rating-workspace">
+                <aside class="ete-candidate-queue">
+                    <div class="ete-queue-title">
+                        <strong>Candidate Queue</strong>
+                        <span class="badge badge-light border">{{ $candidateRatings->count() }}</span>
+                    </div>
+                    @foreach($candidateRatings as $candidateRating)
+                        @php $candidate = $candidateRating->application; @endphp
+                        <a class="ete-candidate-link {{ (int) $selectedRating->application_id === (int) $candidateRating->application_id ? 'active' : '' }}"
+                           href="{{ route('eteAdminRating', ['id' => $ete->id, 'application_id' => $candidateRating->application_id]) }}">
+                            <span class="ete-candidate-number">{{ $loop->iteration }}</span>
+                            <span class="ete-candidate-meta">
+                                <strong>{{ trim(($candidate->first_name ?? '').' '.($candidate->middle_name ?? '').' '.($candidate->last_name ?? '')) }}</strong>
+                                <small>{{ $candidate->app_number ?? '' }} - {{ number_format($candidateRating->total_score, 2) }} pts</small>
+                            </span>
+                            <span class="ete-status-dot {{ $candidateRating->is_completed ? 'done' : 'pending' }}" title="{{ $candidateRating->is_completed ? 'Rated' : 'Pending' }}"></span>
+                        </a>
+                    @endforeach
+                </aside>
 
-            <div id="active-banner" class="ete-active-banner d-none">
-                <small class="text-muted">Currently cast applicant</small>
-                <strong id="active-applicant-name"></strong>
-                <span id="active-applicant-number" class="badge badge-light border"></span>
-                <span class="badge badge-success float-right"><i class="fas fa-bolt"></i> Live autosave</span>
-            </div>
-
-            <div id="waiting-box" class="alert alert-info">
-                <i class="fas fa-info-circle"></i>
-                Waiting for HR to cast an applicant...
-            </div>
+                <main class="ete-form-panel">
+                    <div class="alert alert-info"><i class="fas fa-user-shield"></i> Rate the selected candidate, save, then move to the next candidate. Evaluators are used only on generated report pages.</div>
 
             @foreach($ratings as $rating)
                 @php
@@ -138,14 +169,14 @@
                     }
                 @endphp
 
-                <div class="rating-panel d-none"
+                <div class="rating-panel mb-4"
                      id="rating-panel-{{ $app->id }}">
 
                     <div class="card">
 
                         <div class="card-header bg-success text-white">
                             <strong>
-                                Applicant:
+                                Candidate:
                                 {{ $app->first_name }}
                                 {{ $app->middle_name }}
                                 {{ $app->last_name }}
@@ -154,48 +185,42 @@
                             <small>{{ $app->app_number }}</small>
                         </div>
 
+                        <div class="card-body py-2">
+                            <div class="row mb-3">
+                                <div class="col-sm-6">
+                                    <label class="mb-0">Present Position</label>
+                                    <input type="text"
+                                           name="present_position"
+                                           form="rating-form-{{ $rating->id }}"
+                                           class="form-control"
+                                           value="{{ $rating->present_position ?: $app->position }}"
+                                           placeholder="Enter present position"
+                                           maxlength="255">
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <label class="mb-0">College/Campus/Division/Department</label>
+                                    <div class="form-control-plaintext">{{ $rating->college_department ?: 'N/A' }}</div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="card-body">
 
-                            <form class="rating-form" data-id="{{ $rating->id }}">
+                            <form id="rating-form-{{ $rating->id }}" class="rating-form" data-id="{{ $rating->id }}">
                                 @csrf
 
                                 <input type="hidden" name="evaluate_id" value="{{ $rating->id }}">
 
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label>Evaluation Date</label>
-                                            <input type="date"
-                                                   name="evaluation_date"
-                                                   class="form-control"
-                                                   value="{{ optional($rating->evaluation_date ?? $ete->evaluation_date)->format('Y-m-d') }}">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label>Present Position</label>
-                                            <input type="text"
-                                                   name="present_position"
-                                                   class="form-control"
-                                                   value="{{ $rating->present_position }}"
-                                                   placeholder="Applicant's present position">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label>College / Campus / Department</label>
-                                            <input type="text"
-                                                   name="college_department"
-                                                   class="form-control"
-                                                   value="{{ $rating->college_department }}"
-                                                   placeholder="Office or department">
-                                        </div>
-                                    </div>
-                                </div>
+                                {{-- Evaluation date follows the ETE schedule. --}}
+                                <input type="hidden"
+                                       name="evaluation_date"
+                                       value="{{ optional($rating->evaluation_date ?? $ete->evaluation_date)->format('Y-m-d') }}">
 
                                 <div class="card border mb-3">
                                     <div class="card-header bg-light">
                                         <strong>Minimum Requirements (70 points)</strong>
+                                        <small class="text-muted d-block">Each requirement marked Met earns 17.5 points.</small>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
@@ -355,11 +380,17 @@
                                 </h6>
 
                                 <div class="table-responsive">
+                                    @php $levelOneYears = array_slice(array_reverse($years), 0, 5); @endphp
+                                    <div class="alert alert-light border py-2 small">
+                                        <strong>Formula:</strong> Credit = (Length of Experience in months / 12) × Level.
+                                        The five oldest years use Level 1; every newer year uses Level 2.
+                                        Experience equals total credit (maximum 15).
+                                    </div>
                                     <table class="table table-bordered table-sm bg-white experience-table">
                                         <thead class="thead-light">
                                             <tr>
                                                 <th style="width: 15%;">Year</th>
-                                                <th style="width: 30%;">Length of Experience</th>
+                                                <th style="width: 30%;">Length (months)</th>
                                                 <th style="width: 25%;">Level of Experience</th>
                                                 <th style="width: 30%;">Credit</th>
                                             </tr>
@@ -373,29 +404,26 @@
                                                     </td>
 
                                                     <td data-label="Length of Experience">
-                                                        <input type="text"
+                                                        <input type="number"
                                                                name="experience_years[{{ $year }}][length]"
-                                                               class="form-control form-control-sm"
+                                                               class="form-control form-control-sm experience-length"
+                                                               min="0" max="12" step="0.01"
                                                                value="{{ $savedExperience[$year]['length'] ?? '' }}"
-                                                               placeholder="Example: /12">
+                                                               placeholder="Months (0-12)">
                                                     </td>
 
                                                     <td data-label="Level of Experience">
                                                         <input type="number"
                                                                name="experience_years[{{ $year }}][level]"
                                                                class="form-control form-control-sm"
-                                                               min="0"
-                                                               step="0.01"
-                                                               value="{{ $savedExperience[$year]['level'] ?? 0 }}">
+                                                               value="{{ in_array($year, $levelOneYears) ? 1 : 2 }}" readonly>
                                                     </td>
 
                                                     <td data-label="Credit">
                                                         <input type="number"
                                                                name="experience_years[{{ $year }}][credit]"
                                                                class="form-control form-control-sm experience-credit"
-                                                               min="0"
-                                                               step="0.01"
-                                                               value="{{ $savedExperience[$year]['credit'] ?? 0 }}">
+                                                               value="{{ $savedExperience[$year]['credit'] ?? 0 }}" readonly>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -442,6 +470,22 @@
                 </div>
             @endforeach
 
+                    <div class="ete-candidate-nav">
+                        @if($previousRating)
+                            <a class="btn btn-light border" href="{{ route('eteAdminRating', ['id' => $ete->id, 'application_id' => $previousRating->application_id]) }}"><i class="fas fa-arrow-left"></i> Previous</a>
+                        @else
+                            <span></span>
+                        @endif
+                        <span class="text-muted small">Candidate {{ $candidateRatings->search(fn ($item) => $item->id === $selectedRating->id) + 1 }} of {{ $candidateRatings->count() }}</span>
+                        @if($nextRating)
+                            <a class="btn btn-success" href="{{ route('eteAdminRating', ['id' => $ete->id, 'application_id' => $nextRating->application_id]) }}">Next Candidate <i class="fas fa-arrow-right"></i></a>
+                        @else
+                            <a class="btn btn-warning" href="{{ route('eteConsolidatedScreen', $ete->id) }}">View Ranking <i class="fas fa-ranking-star"></i></a>
+                        @endif
+                    </div>
+                </main>
+            </div>
+
         </div>
 
     </div>
@@ -452,66 +496,13 @@
 <script>
 $(function () {
 
-    let eteId = "{{ $ete->id }}";
-    let activeApplicant = null;
-
-    function showApplicant(applicantId) {
-        if (!applicantId) {
-            activeApplicant = null;
-            $('#waiting-box').removeClass('d-none');
-            $('.rating-panel').addClass('d-none');
-            $('#active-banner').addClass('d-none');
-            return;
-        }
-
-        if (activeApplicant == applicantId) {
-            return;
-        }
-
-        activeApplicant = applicantId;
-
-        $('#waiting-box').addClass('d-none');
-        $('.rating-panel').addClass('d-none');
-
-        let panel = $('#rating-panel-' + applicantId);
-
-        if (panel.length) {
-            panel.removeClass('d-none');
-            computeFormTotal(panel.find('.rating-form'));
-            $('#active-applicant-name').text(panel.find('.card-header strong').text().replace('Applicant:', '').trim());
-            $('#active-applicant-number').text(panel.find('.card-header small').text().trim());
-            $('#active-banner').removeClass('d-none');
-        } else {
-            window.location.reload();
-        }
-    }
-
-    function checkActiveApplicant() {
-        $.ajax({
-            url: "{{ route('eteActiveApplicant', $ete->id) }}",
-            type: "GET",
-            success: function (response) {
-                showApplicant(response.active_application_id);
-            }
-        });
-    }
-
     function computeFormTotal(form) {
-        let minimum = 70;
-        let allMinimumSelected = true;
-        let allMinimumMet = true;
+        let minimum = 0;
 
         $.each(['education_met', 'experience_met', 'eligibility_met', 'training_met'], function (_, field) {
             let selected = form.find('input[name="' + field + '"]:checked');
-            if (!selected.length) {
-                allMinimumSelected = false;
-                allMinimumMet = false;
-            } else if (selected.val() !== '1') {
-                allMinimumMet = false;
-            }
+            if (selected.length && selected.val() === '1') minimum += 17.5;
         });
-
-        if (!allMinimumSelected || !allMinimumMet) minimum = 0;
 
         let education = 0;
         form.find('.education-credit-item:checked').each(function () {
@@ -527,11 +518,20 @@ $(function () {
         training = Math.min(5, training);
 
         let experience = 0;
-
-        form.find('.experience-credit').each(function () {
-            experience += parseFloat($(this).val()) || 0;
+        const experienceRows = form.find('.experience-length');
+        experienceRows.each(function (index) {
+            const input = $(this);
+            const rawMonths = parseFloat(input.val()) || 0;
+            const months = Math.min(12, Math.max(0, rawMonths));
+            if (input.val() !== '' && rawMonths !== months) input.val(months);
+            const row = $(this).closest('tr');
+            const experienceLevel = parseFloat(row.find('input[name$="[level]"]').val()) || 1;
+            const credit = (months / 12) * experienceLevel;
+            row.find('.experience-credit').val(credit.toFixed(2));
+            experience += credit;
         });
 
+        // Total experience score must not exceed 15
         if (experience > 15) {
             experience = 15;
         }
@@ -573,7 +573,12 @@ $(function () {
                 form.find('input[name="training_score"]').val(response.training_score);
                 form.find('.experience-score').val(response.experience_score);
                 form.find('.total-score').val(response.total_score);
-                setStatus(form, 'fa-check-circle', 'Saved live', 'text-success');
+                $.each(response.experience_rows || {}, function (year, row) {
+                    const lengthInput = form.find('[name="experience_years[' + year + '][length]"]');
+                    lengthInput.closest('tr').find('input[name$="[level]"]').val(row.level);
+                    lengthInput.closest('tr').find('.experience-credit').val(Number(row.credit).toFixed(2));
+                });
+                setStatus(form, 'fa-check-circle', 'Saved', 'text-success');
             },
             error: function () {
                 setStatus(form, 'fa-exclamation-circle', 'Unable to save', 'text-danger');
@@ -597,10 +602,10 @@ $(function () {
 
         form.data('autosaveTimer', setTimeout(function () {
             saveForm(form, true);
-        }, 800));
+        }, 250));
     }
 
-    $(document).on('input change', '.education-credit-item, .training-credit-item, .training-hours, .experience-credit, .rating-form input[type="radio"]', function () {
+    $(document).on('input change', '.education-credit-item, .training-credit-item, .training-hours, .experience-length, .rating-form input[type="radio"]', function () {
         let form = $(this).closest('form');
         computeFormTotal(form);
         scheduleAutosave(form);
@@ -608,6 +613,11 @@ $(function () {
 
     $(document).on('change input', '.rating-form input[type="text"], .rating-form input[type="date"], .rating-form textarea, .rating-form input[name$="[level]"]', function () {
         scheduleAutosave($(this).closest('form'));
+    });
+
+    $(document).on('change input', 'input[name="present_position"]', function () {
+        const form = $('#' + $(this).attr('form'));
+        scheduleAutosave(form);
     });
 
     $(document).on('submit', '.rating-form', function (e) {
@@ -618,8 +628,7 @@ $(function () {
         saveForm(form, false);
     });
 
-    setInterval(checkActiveApplicant, 1500);
-    checkActiveApplicant();
+    $('.rating-form').each(function () { computeFormTotal($(this)); });
 
 });
 </script>

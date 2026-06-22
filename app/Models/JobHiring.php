@@ -24,4 +24,5 @@ class JobHiring extends Model
         'expiration_at',
         'status',
     ];
+
 }

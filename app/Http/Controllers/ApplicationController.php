@@ -219,9 +219,13 @@ class ApplicationController extends Controller
             ->where('applications.id', $request->id)
             ->firstOrFail();
 
+        $isNewControlNumber = empty($app->ctrl_no);
+
         // Update application
         $app->ctrl_no = $request->ctrl_no;
-        $app->status = 1; // "Reviewing"
+        if ($isNewControlNumber) {
+            $app->status = 1; // "Reviewing"
+        }
         $app->save();
 
         // ===============================
@@ -231,7 +235,7 @@ class ApplicationController extends Controller
         $lastName  = ucwords(strtolower($app->last_name ?? ''));
         $email     = $app->email ?? null;
 
-        if ($email) {
+        if ($isNewControlNumber && $email) {
             // Determine salutation
             $salute = 'Dear';
             if (!empty($app->sex)) {
@@ -277,7 +281,11 @@ class ApplicationController extends Controller
             });
         }
 
-        return redirect()->back()->with('success', 'Control number set successfully! Email notification sent to applicant.');
+        $message = $isNewControlNumber
+            ? 'Control number set successfully! Email notification sent to applicant.'
+            : 'Control number updated successfully.';
+
+        return redirect()->back()->with('success', $message);
     }
 
     public function updateStatus(Request $request)

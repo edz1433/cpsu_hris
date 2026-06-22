@@ -8,6 +8,7 @@ class EteEvaluation extends Model
 {
     protected $fillable = [
         'jid',
+        'off_id',
         'experience_years',
         'evaluation_date',
         'active_application_id',
@@ -20,6 +21,11 @@ class EteEvaluation extends Model
     public function job()
     {
         return $this->belongsTo(JobHiring::class, 'jid');
+    }
+
+    public function office()
+    {
+        return $this->belongsTo(Office::class, 'off_id');
     }
 
     public function activeApplication()
@@ -35,5 +41,10 @@ class EteEvaluation extends Model
     public function employeeEvaluates()
     {
         return $this->hasMany(EmployeeEvaluate::class, 'ete_id');
+    }
+
+    public function applicantRatings()
+    {
+        return $this->hasMany(EteApplicantRating::class, 'ete_id');
     }
 }

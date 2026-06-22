@@ -117,11 +117,12 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Position</th>
+                                    <th>Department/Office</th>
                                     <th>Evaluation Date</th>
                                     <th>Experience Years</th>
                                     <th>Total Applicants</th>
-                                    <th>Total Evaluators</th>
-                                    <th>Panel Evaluators</th>
+                                    <th>Report Pages</th>
+                                    <th>Report Evaluators</th>
                                     <th>Date Created</th>
                                     <th class="text-center">Action</th>
                                 </tr>
@@ -132,7 +133,16 @@
                                     <tr>
                                         <td data-label="No.">{{ $loop->iteration }}</td>
 
-                                        <td data-label="Position"><strong>{{ $ete->job->title ?? 'N/A' }}</strong></td>
+                                        <td data-label="Position">
+                                            <strong class="d-block">{{ $ete->job->title ?? 'N/A' }}</strong>
+                                            @if($ete->job && $ete->job->plantilla_item_no)
+                                                <small class="text-muted">{{ $ete->job->plantilla_item_no }}</small>
+                                            @endif
+                                        </td>
+
+                                        <td data-label="Department/Office">
+                                            <span class="badge badge-light border">{{ $ete->office->office_name ?? 'N/A' }}</span>
+                                        </td>
 
                                         <td data-label="Evaluation Date">
                                             {{ $ete->evaluation_date
@@ -147,7 +157,7 @@
                                         </td>
 
                                         <td data-label="Applicants" class="text-center">
-                                            {{ $ete->employeeEvaluates->groupBy('application_id')->count() }}
+                                            {{ $ete->applicantRatings->count() }}
                                         </td>
 
                                         <td data-label="Evaluators" class="text-center">
@@ -184,6 +194,18 @@
                                                title="Consolidated Screen">
                                                 <i class="fas fa-tv"></i>
                                             </a>
+
+                                            <form action="{{ route('eteEvaluationDelete', $ete->id) }}"
+                                                  method="POST"
+                                                  class="d-inline-block ete-delete-form"
+                                                  data-ete-title="{{ $ete->job->title ?? 'ETE Evaluation' }}">
+                                                @csrf
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-danger"
+                                                        title="Delete ETE Evaluation">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -221,14 +243,28 @@
                 <div class="modal-body" style="background-color: #e9ecef;">
 
                     <div class="row">
-                        <div class="col-md-8">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label>Position</label>
                                 <select name="jid" class="form-control select2" required>
                                     <option value="">Select Position</option>
                                     @foreach($jobs as $job)
                                         <option value="{{ $job->id }}">
-                                            {{ $job->title }}
+                                            {{ $job->title }}{{ $job->plantilla_item_no ? ' - '.$job->plantilla_item_no : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Department/Office</label>
+                                <select name="off_id" class="form-control select2" required>
+                                    <option value="">Select Department/Office</option>
+                                    @foreach($offices as $office)
+                                        <option value="{{ $office->id }}" {{ (string) old('off_id') === (string) $office->id ? 'selected' : '' }}>
+                                            {{ $office->office_name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -256,14 +292,14 @@
                                required>
 
                         <small class="text-muted">
-                            Use range format like <strong>2021-2025</strong>. These years will appear in the evaluator rating form.
+                            Use range format like <strong>2021-2025</strong>. These years will appear in the admin rating form.
                         </small>
                     </div>
 
                     <hr>
 
                     <div class="form-group">
-                        <label>Panel Evaluators</label>
+                        <label>Report Evaluators</label>
 
                         <select name="evaluators[]" class="form-control select2" multiple required>
                             @foreach($employees as $employee)
@@ -276,7 +312,7 @@
                         </select>
 
                         <small class="text-muted">
-                            Select one or more evaluators. These are employees who will evaluate applicants.
+                            Evaluators do not enter scores. Their names and signatures determine how many pages are generated in the official report.
                         </small>
                     </div>
 
@@ -305,6 +341,8 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(function () {
     $('#add-ete-evaluation').on('shown.bs.modal', function () {
@@ -312,6 +350,28 @@ $(function () {
             dropdownParent: $('#add-ete-evaluation'),
             width: '100%',
             placeholder: 'Search...'
+        });
+    });
+
+    // SweetAlert delete confirmation for ETE evaluations
+    $(document).on('submit', '.ete-delete-form', function (e) {
+        e.preventDefault();
+        const form = this;
+        const title = $(form).data('ete-title') || 'ETE Evaluation';
+
+        Swal.fire({
+            title: 'Delete ETE evaluation?',
+            html: `Delete "<strong>${title}</strong>" and all connected evaluator data? This action cannot be undone.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
         });
     });
 });
