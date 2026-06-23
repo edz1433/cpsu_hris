@@ -71,16 +71,16 @@
     $educationItems = [
         'additional_four_year_course' => ['Additional 4-year course completed', 2, 'a.', 111],
         'masteral_1_18' => ['1 - 18 masteral units', 1, 'b.', 130],
-        'masteral_19_30' => ['19 - 30 masteral units', 2, 'c.', 43],
-        'masters_degree' => ["Master's degree completed", 4, 'd.', 40],
-        'doctoral_1_18' => ['1 - 18 doctoral units', 5, 'e.', 44],
-        'doctoral_19_36' => ['19 - 36 doctoral units', 6, 'f.', 42],
-        'doctoral_degree' => ['Doctoral degree completed', 10, 'g.', 38],
+        'masteral_19_30' => ['19 - 30 masteral units', 2, 'c.', 128],
+        'masters_degree' => ["Master's degree completed", 4, 'd.', 122],
+        'doctoral_1_18' => ['1 - 18 doctoral units', 5, 'e.', 131],
+        'doctoral_19_36' => ['19 - 36 doctoral units', 6, 'f.', 130],
+        'doctoral_degree' => ['Doctoral degree completed', 10, 'g.', 122],
     ];
     $trainingItems = [
-        ['a.', 'Relevant study or scholarship grant', 3, 38],
-        ['b.', 'Any comparable leadership seminar', 2, 38],
-        ['c.', 'For every 50 hours consisting of 1 or more relevant in-service training', 1, 8],
+        ['a.', 'Relevant study or scholarship grant', 3, 111],
+        ['b.', 'Any comparable leadership seminar', 2, 111],
+        ['c.', 'For every 50 hours consisting of 1 or more relevant in-service training', 1, 67],
     ];
     $applicantName = trim($application->first_name.' '.$application->middle_name.' '.$application->last_name);
     $sealData = 'data:image/jpeg;base64,'.base64_encode(file_get_contents(public_path('template/img/ete-cpsu-seal.jpeg')));
@@ -89,7 +89,7 @@
         return '<span style="display:inline-block;white-space:nowrap;margin-left:5px;">'
             .'<input type="checkbox" '.($checked ? 'checked' : '').' style="display:none; margin-left: -50px !important;">'
             .'<span style="display:inline-block;width:10px;height:10px;line-height:9px;border:1px solid #111;text-align:center;font-size:8px;font-weight:bold;vertical-align:middle;margin-right:4px;">'
-            .($checked ? 'X' : '&nbsp;').'</span></span>';
+            .($checked ? '&#10003;' : '&nbsp;').'</span></span>';
     };
 @endphp
 
