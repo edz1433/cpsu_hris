@@ -125,6 +125,13 @@
         <strong>Position:</strong> {{ $selectedPosition ? $selectedPosition->title : 'All Positions' }}
         &nbsp;&nbsp;
         <strong>Status:</strong> {{ $selectedStatus }}
+        @if(!empty($selectedDateFrom) || !empty($selectedDateTo))
+            &nbsp;&nbsp;
+            <strong>Applied Date:</strong>
+            {{ !empty($selectedDateFrom) ? \Carbon\Carbon::parse($selectedDateFrom)->format('M d, Y') : 'Start' }}
+            -
+            {{ !empty($selectedDateTo) ? \Carbon\Carbon::parse($selectedDateTo)->format('M d, Y') : 'End' }}
+        @endif
     </div>
 
     <table>

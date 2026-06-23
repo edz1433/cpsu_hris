@@ -2,40 +2,43 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>ETE Evaluation - {{ $application->app_number }}</title>
+    <title>ETE EVALUATION - {{ $application->app_number }}</title>
     <style>
         @page { margin: 28px 54px 28px; size: legal portrait; }
         * { box-sizing: border-box; }
-        body { color:#111; font-family:Arial, DejaVu Sans, sans-serif; font-size:9px; line-height:1.12; margin:0; }
+        body { color:#111; font-weight: 450; font-family:Arial, DejaVu Sans, sans-serif; font-size:12px; line-height:1.12; margin:0; }
         .page { min-height:944px; page-break-after:always; position:relative; }
         .page:last-child { page-break-after:auto; }
-        .header-table { border-collapse:collapse; margin:0 auto 8px; width:68%; }
+        .header-table { border-collapse:collapse; margin:0 auto 8px; width:78%; }
         .header-table td { border:0; padding:0; vertical-align:middle; }
         .seal { height:52px; width:52px; }
-        .bagong { height:52px; width:52px; }
-        .agency { font-size:10px; line-height:1.05; padding-left:8px !important; }
+        .bagong { height:70px !important; width:70px !important; }
+        .agency { font-size:10px; line-height:1.05; text-align:center; white-space:nowrap; }
         .agency strong { font-size:11px; }
+        .agency-inner { display:inline-block; white-space:nowrap; }
+        .agency-logos { display:inline-block; font-size:0; vertical-align:middle; white-space:nowrap; }
+        .agency-logos img { margin-right:3px; vertical-align:middle; }
+        .agency-text { display:inline-block; margin-left:6px; text-align:left; vertical-align:middle; white-space:nowrap; }
         .form-title { font-size:11px; font-weight:bold; margin:10px 0 0; text-align:center; }
         .subtitle { font-size:10px; margin:1px 0 17px; text-align:center; }
         .line-table { border-collapse:collapse; width:100%; }
         .line-table td { border:0; font-size:9px; padding:1px 0; vertical-align:bottom; }
         .fill-line { border-bottom:1px solid #111 !important; padding:0 4px 1px !important; }
-        .double-rule { border-top:3px double #111; margin:7px 0 18px; }
+        .double-rule { border-top:3px double #111; margin:12px 0 18px; }
         .section-title { font-size:9px; margin:0 0 1px; }
         .section-note { font-size:8px; margin-bottom:10px; }
         .requirements { border-collapse:collapse; margin:0 auto 11px; width:90%; }
         .requirements td { border:0; font-size:9px; padding:2px 3px; vertical-align:middle; }
         .requirement-name { font-weight:bold; width:19%; }
-        .check { border:1px solid #111; display:inline-block; height:10px; line-height:9px; margin:0 2px 0 5px; text-align:center; vertical-align:middle; width:10px; }
         .credits-title { font-size:9px; margin:0 0 8px; }
         .numbered-section { margin:0 0 8px 18px; }
         .numbered-heading { font-size:9px; margin-bottom:3px; }
         .credit-list { border-collapse:collapse; margin-left:31px; width:70%; }
         .credit-list td { border:0; font-size:8.5px; padding:1px 2px; }
         .credit-list .letter { width:18px; }
-        .credit-list .dots { border-bottom:1px dotted #555; width:auto; }
+        .credit-list .leader { white-space:nowrap; width:auto; }
+        .credit-list .leader-dots { color:#555; letter-spacing:.6px; }
         .credit-list .credit { font-weight:normal; text-align:right; width:28px; }
-        .credit-list .awarded { font-weight:bold; text-align:right; width:30px; }
         .experience-title { font-size:9px; margin:4px 0 2px 18px; }
         .experience-table { border-collapse:collapse; table-layout:fixed; width:100%; }
         .experience-table th, .experience-table td { border:1px solid #555; font-size:{{ count($years) > 18 ? '6.5px' : '7.5px' }}; line-height:1; padding:{{ count($years) > 18 ? '1px' : '2px' }} 3px; text-align:center; }
@@ -66,17 +69,28 @@
 <body>
 @php
     $educationItems = [
-        'additional_four_year_course' => ['Additional 4-year course completed', 2, 'a.'],
-        'masteral_1_18' => ['1 - 18 masteral units', 1, 'b.'],
-        'masteral_19_30' => ['19 - 30 masteral units', 2, 'c.'],
-        'masters_degree' => ["Master's degree completed", 4, 'd.'],
-        'doctoral_1_18' => ['1 - 18 doctoral units', 5, 'e.'],
-        'doctoral_19_36' => ['19 - 36 doctoral units', 6, 'f.'],
-        'doctoral_degree' => ['Doctoral degree completed', 10, 'g.'],
+        'additional_four_year_course' => ['Additional 4-year course completed', 2, 'a.', 111],
+        'masteral_1_18' => ['1 - 18 masteral units', 1, 'b.', 130],
+        'masteral_19_30' => ['19 - 30 masteral units', 2, 'c.', 43],
+        'masters_degree' => ["Master's degree completed", 4, 'd.', 40],
+        'doctoral_1_18' => ['1 - 18 doctoral units', 5, 'e.', 44],
+        'doctoral_19_36' => ['19 - 36 doctoral units', 6, 'f.', 42],
+        'doctoral_degree' => ['Doctoral degree completed', 10, 'g.', 38],
+    ];
+    $trainingItems = [
+        ['a.', 'Relevant study or scholarship grant', 3, 38],
+        ['b.', 'Any comparable leadership seminar', 2, 38],
+        ['c.', 'For every 50 hours consisting of 1 or more relevant in-service training', 1, 8],
     ];
     $applicantName = trim($application->first_name.' '.$application->middle_name.' '.$application->last_name);
     $sealData = 'data:image/jpeg;base64,'.base64_encode(file_get_contents(public_path('template/img/ete-cpsu-seal.jpeg')));
-    $bagongData = 'data:image/png;base64,'.base64_encode(file_get_contents(public_path('template/img/ete-bagong-pilipinas.png')));
+    $bagongData = 'data:image/png;base64,'.base64_encode(file_get_contents(public_path('template/img/bagong-pilipinas.png')));
+    $pdfCheckbox = function ($checked) {
+        return '<span style="display:inline-block;white-space:nowrap;margin-left:5px;">'
+            .'<input type="checkbox" '.($checked ? 'checked' : '').' style="display:none; margin-left: -50px !important;">'
+            .'<span style="display:inline-block;width:10px;height:10px;line-height:9px;border:1px solid #111;text-align:center;font-size:8px;font-weight:bold;vertical-align:middle;margin-right:4px;">'
+            .($checked ? 'X' : '&nbsp;').'</span></span>';
+    };
 @endphp
 
 @foreach($reportEvaluators as $reportEvaluator)
@@ -94,12 +108,11 @@
     <div class="page">
         <table class="header-table">
             <tr>
-                <td width="58"><img class="seal" src="{{ $sealData }}"></td>
-                <td width="58"><img class="bagong" src="{{ $bagongData }}"></td>
                 <td class="agency">
-                    Republic of the Philippines<br>
-                    <strong>CENTRAL PHILIPPINES STATE UNIVERSITY</strong><br>
-                    Kabankalan City, Negros Occidental 6111
+                    <div class="agency-inner">
+                        <span class="agency-logos"><img class="seal" src="{{ $sealData }}"><img class="bagong" src="{{ $bagongData }}" width="70" height="70" style="width:60px !important;height:60px !important;"></span>
+                        <span class="agency-text">Republic of the Philippines<br><strong>CENTRAL PHILIPPINES STATE UNIVERSITY</strong><br>Kabankalan City, Negros Occidental 6111</span>
+                    </div>
                 </td>
             </tr>
         </table>
@@ -109,15 +122,43 @@
 
         <table class="line-table">
             <tr>
-                <td width="8%">Name:</td><td width="61%" class="fill-line">{{ $applicantName }}</td>
-                <td width="8%" style="padding-left:10px;">Date:</td><td width="23%" class="fill-line">{{ optional($rating->evaluation_date ?? $ete->evaluation_date)->format('m/d/Y') }}</td>
+                <td width="60%">
+                    Name:
+                    <span style="display:inline-block; width:90%; border-bottom:1px solid #000; vertical-align:bottom; line-height:12px; padding-bottom:0;">
+                        {{ $applicantName }}
+                    </span>
+                </td>
+                <td width="35%">
+                    Date:
+                    <span style="display:inline-block; width:89.4%; border-bottom:1px solid #000; vertical-align:bottom; line-height:12px; padding-bottom:0;">
+                        {{ optional($rating->evaluation_date ?? $ete->evaluation_date)->format('m/d/Y') }}
+                    </span>
+                </td>
             </tr>
             <tr>
-                <td colspan="2" width="69%">Considered for the Position of <span style="border-bottom:1px solid #111; display:inline-block; min-width:58%; padding-left:4px;">{{ $ete->job->title ?? $application->position }}</span></td>
-                <td colspan="2" class="fill-line">{{ $ete->job->plantilla_item_no ?? '' }}</td>
+                <td width="100%" colspan="2">
+                    Considered for the Position of:
+                    <span style="display:inline-block; width:80.3%; border-bottom:1px solid #000; vertical-align:bottom; line-height:12px; padding-bottom:0;">
+                        {{ $ete->job->title ?? $application->position }}
+                    </span>
+                </td>
             </tr>
-            <tr><td colspan="1">Present Position:</td><td colspan="3" class="fill-line">{{ $rating->present_position ?: 'N/A' }}</td></tr>
-            <tr><td colspan="1">College/Campus/Division/Department:</td><td colspan="3" class="fill-line">{{ $rating->college_department ?: 'N/A' }}</td></tr>
+            <tr>
+                <td width="100%" colspan="2">
+                    Present Position:
+                    <span style="display:inline-block; width:88.9%; border-bottom:1px solid #000; vertical-align:bottom; line-height:12px; padding-bottom:0;">
+                        {{ $rating->present_position ?: 'N/A' }}
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td width="100%" colspan="2">
+                    College/Campus/Division/Department:
+                    <span style="display:inline-block; width:75.2%; border-bottom:1px solid #000; vertical-align:bottom; line-height:12px; padding-bottom:0;">
+                        {{ $rating->college_department ?: 'N/A' }}
+                    </span>
+                </td>
+            </tr>
         </table>
         <div class="double-rule"></div>
 
@@ -125,16 +166,16 @@
         <div class="section-note">(Refer to attached Q.S. for the position)</div>
         <table class="requirements">
             <tr>
-                <td width="4%">1.</td><td class="requirement-name">EDUCATION:</td>
-                <td width="27%"><span class="check">{{ $rating->education_met === true ? 'X' : '' }}</span>Met <span class="check">{{ $rating->education_met === false ? 'X' : '' }}</span>Not met</td>
-                <td width="4%">3.</td><td class="requirement-name">ELIGIBILITY:</td>
-                <td width="27%"><span class="check">{{ $rating->eligibility_met === true ? 'X' : '' }}</span>Met <span class="check">{{ $rating->eligibility_met === false ? 'X' : '' }}</span>Not met</td>
+                <td width="4%">1.</td>
+                <td width="46%"><span style="width:80px; display:inline-block;">EDUCATION:</span>{!! $pdfCheckbox($rating->education_met === true) !!}Met &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {!! $pdfCheckbox($rating->education_met === false) !!} Not met</td>
+                <td width="4%">3.</td>
+                <td width="46%"><span style="width:80px; display:inline-block;">ELIGIBILITY:</span>{!! $pdfCheckbox($rating->eligibility_met === true) !!}Met &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {!! $pdfCheckbox($rating->eligibility_met === false) !!} Not met</td>
             </tr>
             <tr>
-                <td>2.</td><td class="requirement-name">EXPERIENCE:</td>
-                <td><span class="check">{{ $rating->experience_met === true ? 'X' : '' }}</span>Met <span class="check">{{ $rating->experience_met === false ? 'X' : '' }}</span>Not met</td>
-                <td>4.</td><td class="requirement-name">TRAINING:</td>
-                <td><span class="check">{{ $rating->training_met === true ? 'X' : '' }}</span>Met <span class="check">{{ $rating->training_met === false ? 'X' : '' }}</span>Not met</td>
+                <td>2.</td>
+                <td><span style="width:80px; display:inline-block;">EXPERIENCE:</span>{!! $pdfCheckbox($rating->experience_met === true) !!}Met &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {!! $pdfCheckbox($rating->experience_met === false) !!} Not met</td>
+                <td>4.</td>
+                <td><span style="width:80px; display:inline-block;">TRAINING:</span>{!! $pdfCheckbox($rating->training_met === true) !!}Met &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {!! $pdfCheckbox($rating->training_met === false) !!} Not met</td>
             </tr>
         </table>
 
@@ -142,8 +183,8 @@
         <div class="numbered-section">
             <div class="numbered-heading">1.&nbsp;&nbsp;&nbsp; Education (total not to exceed 10)</div>
             <table class="credit-list">
-                @foreach($educationItems as $key => [$label, $credit, $letter])
-                    <tr><td class="letter">{{ $letter }}</td><td>{{ $label }}</td><td class="dots"></td><td class="credit">{{ $credit }}</td><td class="awarded">{{ !empty($educationRatings[$key]) ? '✓' : '' }}</td></tr>
+                @foreach($educationItems as $key => [$label, $credit, $letter, $dotCount])
+                    <tr><td class="letter">{{ $letter }}</td><td class="leader">{{ $label }} <span class="leader-dots">{{ str_repeat('.', $dotCount) }}</span></td><td class="credit">{{ $credit }}</td></tr>
                 @endforeach
             </table>
         </div>
@@ -151,9 +192,9 @@
         <div class="numbered-section">
             <div class="numbered-heading">2.&nbsp;&nbsp;&nbsp; Training (total not to exceed 5)</div>
             <table class="credit-list">
-                <tr><td class="letter">a.</td><td>Relevant study or scholarship grant</td><td class="dots"></td><td class="credit">3</td><td class="awarded">{{ !empty($trainingRatings['scholarship_grant']) ? '✓' : '' }}</td></tr>
-                <tr><td class="letter">b.</td><td>Any comparable leadership seminar</td><td class="dots"></td><td class="credit">2</td><td class="awarded">{{ !empty($trainingRatings['leadership_seminar']) ? '✓' : '' }}</td></tr>
-                <tr><td class="letter">c.</td><td>For every 50 hours consisting of 1 or more relevant in-service training</td><td class="dots"></td><td class="credit">1</td><td class="awarded">{{ floor(($trainingRatings['relevant_hours'] ?? 0) / 50) }}</td></tr>
+                @foreach($trainingItems as [$letter, $label, $credit, $dotCount])
+                    <tr><td class="letter">{{ $letter }}</td><td class="leader">{{ $label }} <span class="leader-dots">{{ str_repeat('.', $dotCount) }}</span></td><td class="credit">{{ $credit }}</td></tr>
+                @endforeach
             </table>
         </div>
 

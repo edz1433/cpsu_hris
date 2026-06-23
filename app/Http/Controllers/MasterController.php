@@ -467,10 +467,36 @@ class MasterController extends Controller
         return $pdf->stream(); // stream to iframe
     } 
 
-    public function appList(){
+    public function appList(Request $request){
         $guard = $this->getGuard();
-        $applications = Application::join('job_hirings', 'applications.jid', '=', 'job_hirings.id')
-            ->select('applications.*', 'job_hirings.title as position')
+        $request->validate([
+            'position_id' => 'nullable|integer|exists:job_hirings,id',
+            'status' => 'nullable|integer|in:0,1,2,3,4,5,6,7',
+            'date_from' => 'nullable|date',
+            'date_to' => 'nullable|date',
+        ]);
+
+        $query = Application::join('job_hirings', 'applications.jid', '=', 'job_hirings.id')
+            ->select('applications.*', 'job_hirings.title as position');
+
+        if ($request->filled('position_id')) {
+            $query->where('applications.jid', $request->position_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('applications.status', $request->status);
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('applications.created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('applications.created_at', '<=', $request->date_to);
+        }
+
+        $applications = $query
+            ->orderByDesc('applications.created_at')
             ->get();
         $jobs = JobHiring::orderBy('title')->get();
 
@@ -493,6 +519,8 @@ class MasterController extends Controller
         $request->validate([
             'position_id' => 'nullable|integer|exists:job_hirings,id',
             'status' => 'nullable|integer|in:0,1,2,3,4,5,6,7',
+            'date_from' => 'nullable|date',
+            'date_to' => 'nullable|date',
         ]);
 
         $query = Application::join('job_hirings', 'applications.jid', '=', 'job_hirings.id')
@@ -513,6 +541,14 @@ class MasterController extends Controller
             $query->where('applications.status', $request->status);
         }
 
+        if ($request->filled('date_from')) {
+            $query->whereDate('applications.created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('applications.created_at', '<=', $request->date_to);
+        }
+
         $applications = $query
             ->orderBy('job_hirings.title')
             ->orderBy('applications.last_name')
@@ -526,12 +562,16 @@ class MasterController extends Controller
         $selectedStatus = $request->filled('status')
             ? ($statusLabels[(int) $request->status] ?? 'Unknown')
             : 'All Statuses';
+        $selectedDateFrom = $request->date_from;
+        $selectedDateTo = $request->date_to;
 
         $customPaper = [0, 0, 1296, 612];
         $pdf = \PDF::loadView('career.application-report', compact(
             'applications',
             'selectedPosition',
-            'selectedStatus'
+            'selectedStatus',
+            'selectedDateFrom',
+            'selectedDateTo'
         ))->setPaper($customPaper);
 
         return $pdf->stream('application-report.pdf');

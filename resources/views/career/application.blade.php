@@ -14,6 +14,21 @@
         7 => 'Hired',
     ];
 @endphp
+<style>
+    .application-filter .select2-container--default .select2-selection--single {
+        height: calc(1.8125rem + 2px);
+        padding: 0.15rem 0.25rem;
+        border: 1px solid #ced4da;
+    }
+
+    .application-filter .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 1.5rem;
+    }
+
+    .application-filter .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: calc(1.8125rem + 2px);
+    }
+</style>
 
 <div class="container-fluid">
     <div class="row">
@@ -25,33 +40,58 @@
                     </h3>
                 </div>
                 <div class="card-body">
-                    <form method="GET" action="{{ route('applicationReport') }}" target="_blank">
+                    <form method="GET" action="{{ route('appList') }}" class="application-filter border rounded bg-light p-3 mb-3">
                         <div class="row align-items-end">
-                            <div class="col-md-5">
+                            <div class="col-md-3">
                                 <div class="form-group mb-md-0">
-                                    <label for="position_id">Position</label>
-                                    <select name="position_id" id="position_id" class="form-control form-control-sm">
+                                    <label for="filter_position_id">Position</label>
+                                    <select name="position_id" id="filter_position_id" class="form-control form-control-sm select2">
                                         <option value="">All Positions</option>
                                         @foreach($jobs as $job)
-                                            <option value="{{ $job->id }}">{{ $job->title }}</option>
+                                            <option value="{{ $job->id }}" {{ (string) request('position_id') === (string) $job->id ? 'selected' : '' }}>
+                                                {{ $job->title }}{{ !empty($job->plantilla_item_no) ? ' - Plantilla No. '.$job->plantilla_item_no : '' }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="form-group mb-md-0">
-                                    <label for="status">Status</label>
-                                    <select name="status" id="status" class="form-control form-control-sm">
+                                    <label for="filter_status">Status</label>
+                                    <select name="status" id="filter_status" class="form-control form-control-sm">
                                         <option value="">All Statuses</option>
                                         @foreach($status_labels as $value => $label)
-                                            <option value="{{ $value }}">{{ $label }}</option>
+                                            <option value="{{ $value }}" {{ (string) request('status') === (string) $value ? 'selected' : '' }}>{{ $label }}</option>
                                         @endforeach
                                     </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-md-0">
+                                    <label for="filter_date_from">Applied From</label>
+                                    <input type="date" name="date_from" id="filter_date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group mb-md-0">
+                                    <label for="filter_date_to">Applied To</label>
+                                    <input type="date" name="date_to" id="filter_date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
                                 </div>
                             </div>
                             <div class="col-md-1">
-                                <button type="submit" class="btn btn-danger btn-sm btn-block">
-                                    <i class="fas fa-file-pdf"></i> Generate
+                                <label class="d-none d-md-block">&nbsp;</label>
+                                <button type="submit" class="btn btn-info btn-sm btn-block" title="Apply Filter">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </div>
+                            <div class="col-md-1">
+                                <label class="d-none d-md-block">&nbsp;</label>
+                                <button type="submit"
+                                        class="btn btn-danger btn-sm btn-block"
+                                        formaction="{{ route('applicationReport') }}"
+                                        formtarget="_blank"
+                                        title="Generate Report">
+                                    <i class="fas fa-file-pdf"></i>
                                 </button>
                             </div>
                         </div>
@@ -76,7 +116,9 @@
                                                     <select name="jid" class="form-control select2" required>
                                                         <option value="">Select Position</option>
                                                         @foreach($jobs as $job)
-                                                            <option value="{{ $job->id }}">{{ $job->title }}</option>
+                                                            <option value="{{ $job->id }}">
+                                                                {{ $job->title }}{{ !empty($job->plantilla_item_no) ? ' - Plantilla No. '.$job->plantilla_item_no : '' }}
+                                                            </option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -619,6 +661,10 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 <script>
 $(function () {
+    $('#filter_position_id').select2({
+        width: '100%',
+        placeholder: 'All Positions'
+    });
 
     $('#add-applicant').on('shown.bs.modal', function () {
         $('.select2').select2({
