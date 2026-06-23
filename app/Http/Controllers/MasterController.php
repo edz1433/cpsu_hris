@@ -477,7 +477,7 @@ class MasterController extends Controller
         ]);
 
         $query = Application::join('job_hirings', 'applications.jid', '=', 'job_hirings.id')
-            ->select('applications.*', 'job_hirings.title as position');
+            ->select('applications.*', 'job_hirings.title as position', 'job_hirings.plantilla_item_no');
 
         if ($request->filled('position_id')) {
             $query->where('applications.jid', $request->position_id);

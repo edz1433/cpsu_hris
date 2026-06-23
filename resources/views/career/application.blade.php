@@ -322,7 +322,13 @@
                                         <span>{{ $app->ctrl_no }}</span>
                                     </td>
                                     <td class="align-middle">{{ $app->first_name }} {{ $app->middle_name }} {{ $app->last_name }}</td>
-                                    <td class="align-middle">{{ $app->position }}</td>
+                                    <td class="align-middle">
+                                        {{ $app->position }}
+                                        @if(!empty($app->plantilla_item_no))
+                                            <br>
+                                            <small class="text-muted">Plantilla No. {{ $app->plantilla_item_no }}</small>
+                                        @endif
+                                    </td>
                                     <td class="align-middle">{{ ucfirst($app->sex) }}</td>
                                     <td class="align-middle">{{ $app->mobile }}</td>
                                     <td class="align-middle">{{ $app->email }}</td>
