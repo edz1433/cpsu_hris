@@ -17,12 +17,19 @@
 <style>
     .application-filter .select2-container--default .select2-selection--single {
         height: calc(1.8125rem + 2px);
-        padding: 0.15rem 0.25rem;
         border: 1px solid #ced4da;
     }
 
     .application-filter .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 1.5rem;
+        color: #495057;
+        font-size: .875rem;
+        font-weight: 400;
+        line-height: calc(1.8125rem + 2px);
+        padding-left: .5rem;
+        padding-right: 1.75rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .application-filter .select2-container--default .select2-selection--single .select2-selection__arrow {
