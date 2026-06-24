@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ApplicationController;
 use App\Http\Controllers\Api\ClinicController;
 use App\Http\Controllers\Api\CoasController;
 use App\Http\Controllers\Api\GadController;
+use App\Http\Controllers\Api\CptController;
 
 
 Route::post('/dtrs', [DtrController::class, 'syncDtr'])->name('api.syncDtr');
@@ -23,6 +24,8 @@ Route::post('/application/store', [ApplicationController::class, 'applicationSto
 Route::get('/application/check/{jid}/{email}', [ApplicationController::class, 'applicationCheck'])->name('application.check');
 Route::get('/application/status/{appnumber}', [ApplicationController::class, 'applicationStatus'])->name('application.status');
 Route::get('/gad-gender-count', [GadController::class, 'genderCount'])->name('gender-count');
+
+Route::get('/cpt/sync', [CptController::class, 'sync']);
 
 // DTR
 Route::prefix('app-dtr')->group(function () {

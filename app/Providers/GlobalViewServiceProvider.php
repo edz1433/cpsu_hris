@@ -6,6 +6,8 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Models\SpmsPersonnel;
 use App\Models\Office;
+use App\Models\InterviewEvaluation;
+use App\Models\Employee;
 
 class GlobalViewServiceProvider extends ServiceProvider
 {
@@ -25,6 +27,42 @@ class GlobalViewServiceProvider extends ServiceProvider
                 $officeHeads = Office::whereRaw('LOWER(office_name) NOT LIKE ?', ['%college%'])
                     ->pluck('office_head_id')
                     ->toArray();
+                $activeInterviewRatings = collect();
+                $panelEmployeeId = null;
+
+                if ($guard === 'employee') {
+                    $panelEmployeeId = (int) $userid;
+                } elseif ($guard === 'web') {
+                    if (!empty($user->emp_ID)) {
+                        $panelEmployeeId = Employee::where('emp_ID', $user->emp_ID)->value('id');
+                    }
+
+                    if (!$panelEmployeeId && !empty($user->username)) {
+                        $panelEmployeeId = Employee::where('username', $user->username)
+                            ->orWhere('org_email', $user->username)
+                            ->value('id');
+                    }
+
+                    if (!$panelEmployeeId && !empty($user->fname) && !empty($user->lname)) {
+                        $panelEmployeeId = Employee::whereRaw('LOWER(fname) = ?', [strtolower($user->fname)])
+                            ->whereRaw('LOWER(lname) = ?', [strtolower($user->lname)])
+                            ->value('id');
+                    }
+                }
+
+                $panelEmployeeId = $panelEmployeeId ? (int) $panelEmployeeId : null;
+
+                if ($panelEmployeeId) {
+                    $activeInterviewRatings = InterviewEvaluation::with(['job', 'activeApplication'])
+                        ->whereNotNull('active_application_id')
+                        ->whereHas('panels', fn ($query) => $query->where('emp_id', $panelEmployeeId))
+                        ->whereHas('applicants', function ($query) {
+                            $query->where('is_cast', true)
+                                ->whereColumn('interview_applicants.application_id', 'interview_evaluations.active_application_id');
+                        })
+                        ->latest()
+                        ->get();
+                }
 
                 // Determine route logic
                 $driveRoute = ($role == 'Administrator' || $role == 'HR Administrator')
@@ -43,6 +81,9 @@ class GlobalViewServiceProvider extends ServiceProvider
                     'driveRoute' => $driveRoute,
                     'pmtsmember' => $pmtsmember,
                     'officeHeads' => $officeHeads,
+                    'activeInterviewRatings' => $activeInterviewRatings,
+                    'activeInterviewRatingCount' => $activeInterviewRatings->count(),
+                    'panelEmployeeId' => $panelEmployeeId,
                 ]);
             }
         });

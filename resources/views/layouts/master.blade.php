@@ -89,6 +89,18 @@
                 @else
                     @include('layouts.notif-employee')
                 @endif
+
+                @if(!empty($guard))
+                    <li class="nav-item" id="interviewRatingNavItem" style="{{ ($activeInterviewRatingCount ?? 0) > 0 ? '' : 'display:none;' }}">
+                        <a class="nav-link text-success1"
+                           href="{{ route('interviewAssignments') }}"
+                           id="interviewRatingNavLink"
+                           title="Interview Ratings">
+                            <i class="fas fa-comments"></i>
+                            <span class="badge badge-danger navbar-badge" id="interviewRatingBadge">{{ $activeInterviewRatingCount ?? 0 }}</span>
+                        </a>
+                    </li>
+                @endif
                 
                 <!-- User Dropdown -->
                 <li class="nav-item dropdown">
@@ -294,6 +306,41 @@
 @endif
 @if(request()->is('pds/signature/*') || request()->is('pds/signature'))
     @include('script.signatureScript')
+@endif
+@if(!empty($guard))
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    function refreshInterviewRatingNav() {
+        fetch("{{ route('interviewAssignmentsStatus') }}", {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            cache: 'no-store'
+        })
+            .then(response => response.json())
+            .then(function (data) {
+                const count = parseInt(data.count || 0, 10);
+                const item = document.getElementById('interviewRatingNavItem');
+                const badge = document.getElementById('interviewRatingBadge');
+                const link = document.getElementById('interviewRatingNavLink');
+
+                if (!item || !badge || !link) {
+                    return;
+                }
+
+                badge.textContent = count;
+                link.setAttribute('href', "{{ route('interviewAssignments') }}");
+                if (count > 0) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            })
+            .catch(function () {});
+    }
+
+    refreshInterviewRatingNav();
+    setInterval(refreshInterviewRatingNav, 3000);
+});
+</script>
 @endif
 </body>
 </html>

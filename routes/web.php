@@ -40,9 +40,11 @@ use App\Http\Controllers\SpmsPersonnelController;
 use App\Http\Controllers\SpmsMfoPercentageController;
 use App\Http\Controllers\PerformanceController;
 use App\Http\Controllers\EvidenceController;
+use App\Http\Controllers\DeansController;
 use App\Http\Controllers\JobHiringController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\EteEvaluationController;
+use App\Http\Controllers\InterviewEvaluationController;
 
 Route::get('/', function () {
     if (Auth::guard('web')->check()) {
@@ -231,6 +233,23 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/ete-evaluations/rating/update-ajax',[EteEvaluationController::class, 'eteRatingUpdateAjax'])->name('eteRatingUpdateAjax');
         Route::get('/ete-evaluations/{id}/consolidated',[EteEvaluationController::class, 'consolidatedScreen'])->name('eteConsolidatedScreen');
         Route::get('/ete-evaluations/{id}/consolidated-data',[EteEvaluationController::class, 'consolidatedData'])->name('eteConsolidatedData');
+    });
+
+    Route::prefix('interview')->group(function () {
+        Route::get('/my-assignments', [InterviewEvaluationController::class, 'assignments'])->name('interviewAssignments');
+        Route::get('/my-assignments/status', [InterviewEvaluationController::class, 'assignmentStatus'])->name('interviewAssignmentsStatus');
+        Route::get('/evaluations/{id}/rate/{applicationId}/status', [InterviewEvaluationController::class, 'ratingStatus'])->name('interviewRatingStatus');
+        Route::get('/evaluations', [InterviewEvaluationController::class, 'index'])->name('interviewEvaluationList');
+        Route::post('/evaluations/store', [InterviewEvaluationController::class, 'store'])->name('interviewEvaluationStore');
+        Route::get('/evaluations/{id}/consolidated', [InterviewEvaluationController::class, 'consolidatedScreen'])->name('interviewConsolidatedScreen');
+        Route::get('/evaluations/{id}/consolidated-data', [InterviewEvaluationController::class, 'consolidatedData'])->name('interviewConsolidatedData');
+        Route::get('/evaluations/{id}/summary-rating', [InterviewEvaluationController::class, 'summaryRatingPdf'])->name('interviewSummaryRatingPdf');
+        Route::get('/evaluations/{id}', [InterviewEvaluationController::class, 'show'])->name('interviewEvaluationShow');
+        Route::post('/evaluations/{id}/candidate/{applicationId}/cast', [InterviewEvaluationController::class, 'cast'])->name('interviewCandidateCast');
+        Route::post('/evaluations/{id}/candidate/{applicationId}/uncast', [InterviewEvaluationController::class, 'uncast'])->name('interviewCandidateUncast');
+        Route::get('/evaluations/{id}/rate/{applicationId?}', [InterviewEvaluationController::class, 'rate'])->name('interviewRatingForm');
+        Route::post('/evaluations/{id}/rate/{applicationId}', [InterviewEvaluationController::class, 'saveRating'])->name('interviewRatingSave');
+        Route::post('/evaluations/{id}/delete', [InterviewEvaluationController::class, 'destroy'])->name('interviewEvaluationDelete');
     });
 
     // Employee

@@ -188,12 +188,14 @@
                                                 <i class="fas fa-eye"></i>
                                             </a>
 
-                                            <a href="{{ route('eteConsolidatedScreen', $ete->id) }}"
-                                               target="_blank"
-                                               class="btn btn-sm btn-warning"
-                                               title="Consolidated Screen">
-                                                <i class="fas fa-tv"></i>
-                                            </a>
+                                            @if(auth()->guard('web')->check() && in_array(auth()->guard('web')->user()->role, ['Administrator', 'HR Administrator'], true))
+                                                <a href="{{ route('eteConsolidatedScreen', $ete->id) }}"
+                                                   target="_blank"
+                                                   class="btn btn-sm btn-warning"
+                                                   title="Consolidated Screen">
+                                                    <i class="fas fa-tv"></i>
+                                                </a>
+                                            @endif
 
                                             <form action="{{ route('eteEvaluationDelete', $ete->id) }}"
                                                   method="POST"

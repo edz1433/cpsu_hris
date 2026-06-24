@@ -59,7 +59,9 @@
             <div>
                 <a href="{{ route('eteEvaluationList') }}" class="btn btn-light border"><i class="fas fa-arrow-left"></i> Back</a>
                 <a href="{{ route('eteAdminRating', $ete->id) }}" class="btn btn-success"><i class="fas fa-list-check"></i> Rating Queue</a>
-                <a href="{{ route('eteConsolidatedScreen', $ete->id) }}" target="_blank" class="btn btn-warning"><i class="fas fa-ranking-star"></i> Ranking</a>
+                @if(auth()->guard('web')->check() && in_array(auth()->guard('web')->user()->role, ['Administrator', 'HR Administrator'], true))
+                    <a href="{{ route('eteConsolidatedScreen', $ete->id) }}" target="_blank" class="btn btn-warning"><i class="fas fa-ranking-star"></i> Ranking</a>
+                @endif
             </div>
         </div>
         <div class="border-top p-3">
@@ -115,6 +117,17 @@
                                class="btn btn-outline-danger" title="Generate Official ETE PDF" aria-label="Generate Official ETE PDF for {{ $fullName }}">
                                 <i class="fas fa-file-pdf"></i>
                             </a>
+                            <button type="button"
+                                    class="btn btn-outline-primary ete-schedule-btn"
+                                    data-app-id="{{ $applicant->id }}"
+                                    data-app-name="{{ $fullName }}"
+                                    data-app-number="{{ $applicant->app_number }}"
+                                    data-toggle="modal"
+                                    data-target="#eteScheduleModal"
+                                    title="Set Interview Schedule"
+                                    aria-label="Set Interview Schedule for {{ $fullName }}">
+                                <i class="fas fa-calendar-check"></i>
+                            </button>
                         </div>
                     </article>
                 @empty
@@ -124,4 +137,64 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="eteScheduleModal" tabindex="-1" role="dialog" aria-labelledby="eteScheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow rounded">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title font-weight-bold" id="eteScheduleModalLabel">
+                    <i class="fas fa-calendar-check mr-2"></i> Set Interview Schedule
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <form method="POST" action="{{ route('updateStatus') }}">
+                @csrf
+                <input type="hidden" name="id" id="eteScheduleAppId">
+                <input type="hidden" name="status" value="2">
+
+                <div class="modal-body">
+                    <div class="alert alert-light border mb-3">
+                        <strong id="eteScheduleApplicantName">Applicant</strong>
+                        <div class="text-muted small" id="eteScheduleApplicantNumber"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ete_interview_datetime">Interview Schedule <span class="text-danger">*</span></label>
+                        <input type="datetime-local" id="ete_interview_datetime" name="interview_datetime" class="form-control" required>
+                        <small class="form-text text-muted">This will mark the applicant as Qualified / Ready for Interview and send the interview email.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ete_venue">Venue <span class="text-danger">*</span></label>
+                        <textarea id="ete_venue" name="venue" class="form-control" rows="2" required>Conference Room, Admin Building/Bidding Room/Accreditation/ Mini Hotel</textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Confirm & Send Email
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.ete-schedule-btn').forEach(function (button) {
+        button.addEventListener('click', function () {
+            document.getElementById('eteScheduleAppId').value = this.dataset.appId || '';
+            document.getElementById('eteScheduleApplicantName').textContent = this.dataset.appName || 'Applicant';
+            document.getElementById('eteScheduleApplicantNumber').textContent = this.dataset.appNumber || '';
+        });
+    });
+});
+</script>
 @endsection

@@ -479,8 +479,10 @@
                         <span class="text-muted small">Candidate {{ $candidateRatings->search(fn ($item) => $item->id === $selectedRating->id) + 1 }} of {{ $candidateRatings->count() }}</span>
                         @if($nextRating)
                             <a class="btn btn-success" href="{{ route('eteAdminRating', ['id' => $ete->id, 'application_id' => $nextRating->application_id]) }}">Next Candidate <i class="fas fa-arrow-right"></i></a>
-                        @else
+                        @elseif(auth()->guard('web')->check() && in_array(auth()->guard('web')->user()->role, ['Administrator', 'HR Administrator'], true))
                             <a class="btn btn-warning" href="{{ route('eteConsolidatedScreen', $ete->id) }}">View Ranking <i class="fas fa-ranking-star"></i></a>
+                        @else
+                            <span></span>
                         @endif
                     </div>
                 </main>

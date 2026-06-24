@@ -82,8 +82,8 @@
         </li>
 
         @if($guard == "web")
-        <li class="nav-item has-treeview {{ request()->is('career*') || request()->is('applications*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link text-success1 {{ request()->is('career*') || request()->is('applications*') ? 'active' : '' }}">
+        <li class="nav-item has-treeview {{ request()->is('career*') || request()->is('applications*') || request()->is('ete*') || request()->is('interview*') ? 'menu-open' : '' }}">
+            <a href="#" class="nav-link text-success1 {{ request()->is('career*') || request()->is('applications*') || request()->is('ete*') || request()->is('interview*') ? 'active' : '' }}">
                 <i class="pt-1 nav-icon fas fa-briefcase"></i>
                 <p>
                     Careers
@@ -107,6 +107,12 @@
                     <a href="{{ route('eteEvaluationList') }}" class="nav-link text-success1">
                         <i class="far fa-circle nav-icon"></i>
                         <p>ETE Evaluation</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('interviewEvaluationList') }}" class="nav-link text-success1">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Interview Assessment</p>
                     </a>
                 </li>
             </ul>

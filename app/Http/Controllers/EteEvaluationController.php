@@ -21,6 +21,15 @@ class EteEvaluationController extends Controller
         abort_unless(auth()->guard('web')->check(), 403, 'Only HR administrators can manage ETE evaluations.');
     }
 
+    private function authorizeRankingAdmin()
+    {
+        $user = auth()->guard('web')->user();
+        if (!$user || !in_array($user->role, ['Administrator', 'HR Administrator'], true)) {
+            redirect()->route('dashboard')->with('error1', 'Only administrators can view rankings.')->send();
+            exit;
+        }
+    }
+
     private function experienceYears($value)
     {
         if (empty($value)) {
@@ -166,7 +175,11 @@ class EteEvaluationController extends Controller
         $ete = EteEvaluation::with(['job', 'office', 'evaluators.employee'])->findOrFail($id);
         $this->syncReviewingApplicants($ete);
         $ete->load('applicantRatings.application');
-        $applicants = $ete->applicantRatings->pluck('application')->filter();
+        $rankedRatings = $ete->applicantRatings
+            ->filter(fn ($rating) => $rating->application)
+            ->sortByDesc('total_score')
+            ->values();
+        $applicants = $rankedRatings->pluck('application')->filter();
         $ratingsByApplication = $ete->applicantRatings->keyBy('application_id');
 
         return view('ete.show', compact('ete', 'applicants', 'ratingsByApplication'));
@@ -358,7 +371,7 @@ class EteEvaluationController extends Controller
 
     public function consolidatedScreen($id)
     {
-        $this->authorizeEteAdmin();
+        $this->authorizeRankingAdmin();
         $ete = EteEvaluation::with('job')->findOrFail($id);
         $this->syncReviewingApplicants($ete);
         return view('ete.consolidated-screen', compact('ete'));
@@ -366,7 +379,7 @@ class EteEvaluationController extends Controller
 
     public function consolidatedData($id)
     {
-        $this->authorizeEteAdmin();
+        $this->authorizeRankingAdmin();
         $ete = EteEvaluation::with('applicantRatings.application')->findOrFail($id);
         $data = $ete->applicantRatings->filter(fn ($rating) => $rating->application)
             ->sortByDesc('total_score')->values()->map(function ($rating, $index) {
