@@ -85,7 +85,13 @@
             </div>
 
             <div class="candidate-list">
-                @forelse($applicants as $applicant)
+                @php
+                    $orderedApplicants = $applicants->sortBy(function ($applicant) {
+                        return strtolower(trim(($applicant->last_name ?? '').' '.($applicant->first_name ?? '').' '.($applicant->middle_name ?? '')));
+                    })->values();
+                @endphp
+
+                @forelse($orderedApplicants as $applicant)
                     @php
                         $rating = $ratingsByApplication->get($applicant->id);
                         $isRated = $rating && (

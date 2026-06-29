@@ -196,11 +196,19 @@ class EteEvaluationController extends Controller
         $ete = EteEvaluation::with(['job', 'office', 'evaluators.employee'])->findOrFail($id);
         $this->syncReviewingApplicants($ete);
         $ete->load('applicantRatings.application');
-        $rankedRatings = $ete->applicantRatings
+        $alphabeticalRatings = $ete->applicantRatings
             ->filter(fn ($rating) => $rating->application)
-            ->sortByDesc('total_score')
+            ->sortBy(function ($rating) {
+                $application = $rating->application;
+
+                return strtolower(trim(
+                    ($application->last_name ?? '').' '.
+                    ($application->first_name ?? '').' '.
+                    ($application->middle_name ?? '')
+                ));
+            })
             ->values();
-        $applicants = $rankedRatings->pluck('application')->filter();
+        $applicants = $alphabeticalRatings->pluck('application')->filter();
         $ratingsByApplication = $ete->applicantRatings->keyBy('application_id');
 
         return view('ete.show', compact('ete', 'applicants', 'ratingsByApplication'));
