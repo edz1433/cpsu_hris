@@ -93,7 +93,10 @@
                             $rating->eligibility_met !== null || $rating->training_met !== null ||
                             (float) $rating->total_score > 0 || !empty($rating->remarks)
                         );
-                        $fullName = trim($applicant->first_name.' '.$applicant->middle_name.' '.$applicant->last_name);
+                        $middleInitial = trim((string) $applicant->middle_name) !== ''
+                            ? strtoupper(substr(trim($applicant->middle_name), 0, 1)).'.'
+                            : '';
+                        $fullName = trim(($applicant->last_name ?? '').', '.($applicant->first_name ?? '').' '.$middleInitial);
                     @endphp
                     <article class="candidate-row">
                         <div class="candidate-main">

@@ -69,7 +69,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($eligibleApplicants as $applicant)
+                        @php
+                            $orderedEligibleApplicants = $eligibleApplicants->sortBy(function ($applicant) {
+                                return strtolower(trim(($applicant->last_name ?? '').' '.($applicant->first_name ?? '').' '.($applicant->middle_name ?? '')));
+                            })->values();
+                        @endphp
+
+                        @forelse($orderedEligibleApplicants as $applicant)
                             @php
                                 $row = $interview->applicants->firstWhere('application_id', $applicant->id);
                                 $isCast = $row && $row->is_cast;
