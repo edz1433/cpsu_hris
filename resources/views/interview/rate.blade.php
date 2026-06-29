@@ -9,19 +9,47 @@
     .score-choice { 
         align-items:center; 
         display:inline-flex; 
-        gap:2px; 
-        margin:0 2px 2px 0; 
+        justify-content:center;
+        margin:0; 
+        position:relative;
     }
     .score-choice input { 
-        margin:0; 
-        width:16px; 
-        height:16px; 
+        opacity:0;
+        position:absolute;
+        inset:0;
         cursor:pointer; 
+        z-index:2;
     }
     .score-choice span { 
-        font-size:.7rem; 
-        min-width:16px; 
+        align-items:center;
+        background:#fff;
+        border:1px solid #cfd8e3;
+        border-radius:50%;
+        color:#334155;
+        display:inline-flex;
+        font-size:.72rem; 
+        font-weight:800;
+        height:28px;
+        justify-content:center;
+        line-height:1;
+        min-width:28px; 
         text-align:center; 
+        transition:.15s ease;
+        width:28px;
+    }
+    .score-choice:hover span {
+        border-color:#7bbf99;
+        color:#166534;
+        transform:translateY(-1px);
+    }
+    .score-choice input:focus + span {
+        box-shadow:0 0 0 3px rgba(25,135,84,.18);
+    }
+    .score-choice input:checked + span {
+        background:#198754;
+        border-color:#198754;
+        box-shadow:0 6px 14px rgba(25,135,84,.25);
+        color:#fff;
     }
     .trait-prompt { 
         color:#536171; 
@@ -63,9 +91,9 @@
     }
     .level-card .score-options { 
         display:flex; 
-        flex-wrap:wrap; 
+        flex-wrap:wrap;
         justify-content:center; 
-        gap:1px;
+        gap:5px;
     }
     .interview-instructions { 
         background:#f8fafc; 
@@ -99,6 +127,45 @@
     .autosave-status.saving { color:#b7791f; }
     .autosave-status.saved { color:#166534; }
     .autosave-status.error { color:#b91c1c; }
+    .position-switcher {
+        display:flex;
+        flex-wrap:wrap;
+        gap:8px;
+        margin-top:12px;
+    }
+    .position-switcher .position-link {
+        background:#fff;
+        border:1px solid #d9e1ea;
+        border-radius:8px;
+        color:#1f2937;
+        min-width:210px;
+        padding:8px 10px;
+        text-align:left;
+        text-decoration:none;
+    }
+    .position-switcher .position-link:hover {
+        border-color:#7bbf99;
+        color:#166534;
+    }
+    .position-switcher .position-link.active {
+        background:#e8f6ee;
+        border-color:#198754;
+        box-shadow:inset 4px 0 0 #198754;
+    }
+    .position-switcher strong,
+    .position-switcher small {
+        display:block;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+    }
+    .copy-rating-control {
+        margin-bottom:10px;
+    }
+    .copy-rating-control select {
+        border-radius:8px;
+        min-height:38px;
+    }
     
     /* Compact trait row */
     .trait-row td:first-child { 
@@ -132,15 +199,13 @@
             min-height:20px;
         }
         .score-choice { 
-            margin:0 1px 1px 0; 
-        }
-        .score-choice input { 
-            width:14px; 
-            height:14px; 
+            margin:0; 
         }
         .score-choice span { 
-            font-size:.6rem; 
-            min-width:14px; 
+            font-size:.62rem; 
+            height:24px;
+            min-width:24px;
+            width:24px;
         }
         .trait-row td:first-child { 
             width:35%; 
@@ -171,6 +236,9 @@
         .total-box small { 
             font-size:.65rem; 
         }
+        .position-switcher .position-link {
+            min-width:100%;
+        }
     }
     
     @media(max-width:400px) {
@@ -186,6 +254,8 @@
 @php
     $interviewScores = $rating->interview_scores ?? [];
     $potentialScores = $rating->potential_scores ?? [];
+    $relatedPositions = $relatedPositions ?? collect();
+    $copyableRatings = $copyableRatings ?? collect();
 @endphp
 
 <div class="container-fluid rating-page">
@@ -204,8 +274,58 @@
                         <div class="text-muted small">{{ $interview->job->plantilla_item_no }}</div>
                     @endif
                     {{-- <div class="text-muted small">{{ $interview->eteEvaluation->office->office_name ?? '' }}</div> --}}
+
+                    @if($relatedPositions->count() > 1)
+                        <div class="position-switcher">
+                            @foreach($relatedPositions as $positionItem)
+                                @php
+                                    $positionInterview = $positionItem['interview'];
+                                    $positionApplication = $positionItem['application'];
+                                    $positionRating = $positionItem['rating'];
+                                    $isCurrentPosition = (int) $positionInterview->id === (int) $interview->id
+                                        && (int) $positionApplication->id === (int) $application->id;
+                                    $positionUrl = route('interviewRatingForm', [$positionInterview->id, $positionApplication->id]);
+                                    if (auth()->guard('web')->check()) {
+                                        $positionUrl .= '?panel_id='.$panelEmployee->id;
+                                    }
+                                @endphp
+                                <a href="{{ $positionUrl }}" class="position-link {{ $isCurrentPosition ? 'active' : '' }}">
+                                    <strong>{{ $positionInterview->job->title ?? $positionApplication->position ?? 'Position' }}</strong>
+                                    <small class="text-muted">
+                                        {{ $positionInterview->job->plantilla_item_no ?? 'No plantilla number' }}
+                                        @if($positionRating && $positionRating->submitted_at)
+                                            - Rated
+                                        @elseif($positionRating && ((float) $positionRating->total_score > 0 || !empty($positionRating->interview_scores) || !empty($positionRating->potential_scores) || !empty($positionRating->remarks)))
+                                            - Draft
+                                        @endif
+                                    </small>
+                                </a>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
                 <div class="col-md-4 text-md-right mt-3 mt-md-0">
+                    @if($copyableRatings->isNotEmpty())
+                        <div class="copy-rating-control">
+                            <select id="copyInterviewRatingSelect" class="form-control form-control-sm">
+                                <option value="">Copy rating from other position</option>
+                                @foreach($copyableRatings as $copyableRating)
+                                    @php
+                                        $copyInterview = $copyableRating->interview;
+                                        $copyApplication = $copyableRating->application;
+                                        $copyJob = optional($copyInterview)->job;
+                                        $copyLabel = $copyJob->title ?? $copyApplication->position ?? 'Position';
+                                        $copyPlantilla = $copyJob && $copyJob->plantilla_item_no ? ' - '.$copyJob->plantilla_item_no : '';
+                                    @endphp
+                                    <option value="{{ $copyableRating->id }}"
+                                            data-position="{{ $copyLabel }}{{ $copyPlantilla }}"
+                                            data-score="{{ number_format($copyableRating->total_score, 2) }}">
+                                        {{ $copyLabel }}{{ $copyPlantilla }} ({{ number_format($copyableRating->total_score, 2) }} pts)
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
                     <div class="text-muted small">Rated by</div>
                     <strong>{{ trim($panelEmployee->fname.' '.$panelEmployee->mname.' '.$panelEmployee->lname) }}</strong>
                     <div>
@@ -328,6 +448,45 @@
         </div>
     </form>
 </div>
+
+@if($copyableRatings->isNotEmpty())
+<div class="modal fade" id="copyInterviewRatingModal" tabindex="-1" role="dialog" aria-labelledby="copyInterviewRatingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <form method="POST" action="{{ route('interviewRatingCopy', [$interview->id, $application->id]) }}" class="modal-content">
+            @csrf
+            <input type="hidden" name="panel_employee_id" value="{{ $panelEmployee->id }}">
+            <input type="hidden" name="source_rating_id" id="copyInterviewSourceRatingId">
+
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="copyInterviewRatingModalLabel">
+                    <i class="fas fa-copy"></i> Copy Interview Rating Here?
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="alert alert-light border mb-3">
+                    <strong id="copyInterviewPositionText">Previous position</strong>
+                    <div class="text-muted small">Saved total score: <span id="copyInterviewScoreText">0.00</span> pts</div>
+                </div>
+                <p class="mb-0">
+                    This will copy this panel member's saved interview and potential assessment scores into the current position. Current saved scores for this position will be overwritten.
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light border" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check"></i> Yes, Copy Rating
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+@endif
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('interviewRatingForm');
@@ -477,6 +636,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
     checkCurrentCast();
     setInterval(checkCurrentCast, 3000);
+
+    const copySelect = document.getElementById('copyInterviewRatingSelect');
+    if (copySelect) {
+        copySelect.addEventListener('change', function () {
+            const selected = copySelect.options[copySelect.selectedIndex];
+
+            if (!selected || !selected.value) {
+                return;
+            }
+
+            document.getElementById('copyInterviewSourceRatingId').value = selected.value;
+            document.getElementById('copyInterviewPositionText').textContent = selected.dataset.position || 'Previous position';
+            document.getElementById('copyInterviewScoreText').textContent = selected.dataset.score || '0.00';
+
+            if (window.jQuery) {
+                window.jQuery('#copyInterviewRatingModal').modal('show');
+            }
+        });
+
+        if (window.jQuery) {
+            window.jQuery('#copyInterviewRatingModal').on('hidden.bs.modal', function () {
+                copySelect.value = '';
+            });
+        }
+    }
 });
 </script>
 @endsection

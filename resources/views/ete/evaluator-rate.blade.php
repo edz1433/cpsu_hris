@@ -21,6 +21,20 @@
         padding: 18px 20px;
     }
 
+    .ete-rate-actions {
+        align-items: center;
+        display: inline-flex;
+        flex-wrap: nowrap;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .ete-copy-select {
+        flex: 0 0 auto;
+        min-width: 280px;
+        width: auto;
+    }
+
     .ete-active-banner {
         background: #f8fafc;
         border: 1px solid #dfe4ea;
@@ -63,6 +77,15 @@
         .ete-rate-header {
             align-items: flex-start;
             flex-direction: column;
+        }
+        .ete-rate-actions,
+        .ete-copy-select,
+        .ete-rate-actions .btn {
+            width: 100%;
+        }
+        .ete-rate-actions {
+            display: flex;
+            flex-wrap: wrap;
         }
         .ete-rating-workspace { grid-template-columns: 1fr; }
         .ete-candidate-queue { display: flex; gap: 8px; max-height: none; overflow-x: auto; position: static; }
@@ -129,7 +152,28 @@
                 <small class="d-block text-muted mt-1"><i class="fas fa-building mr-1"></i>{{ $ete->office->office_name ?? 'Department/Office not set' }}</small>
             </h3>
 
-            <a href="{{ route('eteEvaluationShow', $ete->id) }}" class="btn btn-light border"><i class="fas fa-arrow-left"></i> Back</a>
+            <div class="ete-rate-actions">
+                @if($copyableRatings->isNotEmpty())
+                    <select id="ete-copy-rating-select" class="form-control form-control-sm ete-copy-select">
+                        <option value="">Copy rating from previous position</option>
+                        @foreach($copyableRatings as $copyableRating)
+                            @php
+                                $copyJob = optional($copyableRating->eteEvaluation)->job;
+                                $positionLabel = $copyJob->title ?? optional($copyableRating->application)->position ?? 'Position';
+                                $plantillaLabel = $copyJob && $copyJob->plantilla_item_no ? ' - '.$copyJob->plantilla_item_no : '';
+                                $copyLabel = $positionLabel.$plantillaLabel;
+                            @endphp
+                            <option value="{{ $copyableRating->id }}"
+                                    data-position="{{ $copyLabel }}"
+                                    data-score="{{ number_format($copyableRating->total_score, 2) }}">
+                                {{ $copyLabel }} ({{ number_format($copyableRating->total_score, 2) }} pts)
+                            </option>
+                        @endforeach
+                    </select>
+                @endif
+
+                <a href="{{ route('eteEvaluationShow', $ete->id) }}" class="btn btn-light border"><i class="fas fa-arrow-left"></i> Back</a>
+            </div>
         </div>
 
         <div class="card-body">
@@ -494,6 +538,44 @@
 
 </div>
 
+@if($copyableRatings->isNotEmpty())
+<div class="modal fade" id="eteCopyRatingModal" tabindex="-1" role="dialog" aria-labelledby="eteCopyRatingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <form method="POST" action="{{ route('eteCopyPreviousRating', $ete->id) }}" class="modal-content">
+            @csrf
+            <input type="hidden" name="target_rating_id" value="{{ $selectedRating->id }}">
+            <input type="hidden" name="source_rating_id" id="eteCopySourceRatingId">
+
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="eteCopyRatingModalLabel">
+                    <i class="fas fa-copy"></i> Copy Rating Here?
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="alert alert-light border mb-3">
+                    <strong id="eteCopyPositionText">Previous position</strong>
+                    <div class="text-muted small">Saved total score: <span id="eteCopyScoreText">0.00</span> pts</div>
+                </div>
+                <p class="mb-0">
+                    This will copy the selected previous ETE rating into the current applicant form and overwrite the current saved scores.
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light border" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check"></i> Yes, Copy Rating
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+@endif
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(function () {
@@ -631,6 +713,24 @@ $(function () {
     });
 
     $('.rating-form').each(function () { computeFormTotal($(this)); });
+
+    $('#ete-copy-rating-select').on('change', function () {
+        const selected = $(this).find('option:selected');
+        const sourceRatingId = selected.val();
+
+        if (!sourceRatingId) {
+            return;
+        }
+
+        $('#eteCopySourceRatingId').val(sourceRatingId);
+        $('#eteCopyPositionText').text(selected.data('position') || 'Previous position');
+        $('#eteCopyScoreText').text(selected.data('score') || '0.00');
+        $('#eteCopyRatingModal').modal('show');
+    });
+
+    $('#eteCopyRatingModal').on('hidden.bs.modal', function () {
+        $('#ete-copy-rating-select').val('');
+    });
 
 });
 </script>

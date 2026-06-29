@@ -50,8 +50,8 @@
         <div class="card-body">
             <div class="d-flex align-items-center justify-content-between mb-3">
                 <div>
-                    <h5 class="font-weight-bold mb-0">Qualified / Ready for Interview Applicants</h5>
-                    <small class="text-muted">Casting one candidate makes that candidate visible to all interview panel members.</small>
+                    <h5 class="font-weight-bold mb-0">Candidates</h5>
+                    <small class="text-muted">Scores and report actions are available directly in each row.</small>
                 </div>
                 <span class="badge badge-light border p-2">{{ $eligibleApplicants->count() }} applicants</span>
             </div>
@@ -77,10 +77,14 @@
                                 $submitted = $ratings->whereNotNull('submitted_at')->count();
                                 $panelCount = max(1, $interview->panels->count());
                                 $percent = min(100, round(($submitted / $panelCount) * 100));
+                                $middleInitial = trim((string) $applicant->middle_name) !== ''
+                                    ? strtoupper(substr(trim($applicant->middle_name), 0, 1)).'.'
+                                    : '';
+                                $displayName = trim(($applicant->last_name ?? '').', '.($applicant->first_name ?? '').' '.$middleInitial);
                             @endphp
                             <tr>
                                 <td>
-                                    <strong>{{ trim($applicant->first_name.' '.$applicant->middle_name.' '.$applicant->last_name) }}</strong>
+                                    <strong>{{ $displayName }}</strong>
                                     <small class="d-block text-muted">{{ $applicant->app_number }}</small>
                                 </td>
                                 <td>

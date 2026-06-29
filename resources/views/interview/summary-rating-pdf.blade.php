@@ -16,7 +16,7 @@
         body {
             color: #111;
             font-family: Arial, DejaVu Sans, sans-serif;
-            font-size: 11px;
+            font-size: 12px;
             margin: 0;
         }
 
@@ -30,7 +30,7 @@
             border-collapse: collapse;
             margin: 0 auto 8px;
             table-layout: auto;
-            width: 78%;
+            width: 94%;
         }
 
         .header-table td {
@@ -95,19 +95,20 @@
 
         .meta {
             margin: 0 auto 14px;
-            width: 94%;
-            margin-left: -3px;
+            width: 100%;
+            margin-left: 0;
         }
 
         .meta-row {
             line-height: 1.5;
             margin-bottom: 2px;
+            white-space: nowrap;
         }
 
         .label {
             display: inline-block;
             font-weight: bold;
-            width: 120px;
+            width: 155px;
         }
 
         table {
@@ -130,7 +131,7 @@
         }
 
         .name-col { width: 33%; }
-        .score-col { width: 12%; }
+        .score-col { width: 15%; }
         .final-col { width: 13%; }
         .rank-col { width: 7%; }
         .remarks-col { width: 11%; }
@@ -256,8 +257,8 @@
             <strong>{{ strtoupper($interview->job->title ?? 'N/A') }}</strong>
         </div>
         <div class="meta-row">
-            <span class="label">Salary:</span>
-            {{ $interview->job && $interview->job->salary ? number_format((float) $interview->job->salary, 2) : 'N/A' }}
+            <span class="label">Salary Grade:</span>
+            {{ $interview->job && $interview->job->salary_grade ? $interview->job->salary_grade : '' }}
         </div>
         <div class="meta-row">
             <span class="label">Office Assignment:</span>
@@ -289,7 +290,7 @@
         <tbody>
             @forelse($rows as $row)
                 <tr>
-                    <td class="name">{{ $row['name'] }}</td>
+                    <td class="name">{{ strtoupper($row['name']) }}</td>
                     <td class="center">{{ $row['qualification_score'] }}</td>
                     <td class="center">{{ $row['weighted_potential_score'] }}</td>
                     <td class="center">{{ $row['weighted_interview_score'] }}</td>
@@ -310,8 +311,8 @@
         <div class="prepared-by">Prepared by: <strong>SECRETARIAT</strong></div>
 
         <div>
-            <div class="sign-name">WENDI AHMOR O. ELENTORIO</div>
-            <div class="sign-role">Administrative Officer II (HRMO I) /<br>HRMPSB Secretariat</div>
+            <div class="sign-name" style="margin-left: 34% !important;">WENDI AHMOR O. ELENTORIO</div>
+            <div class="sign-role" style="margin-left: 34% !important;">Administrative Officer II (HRMO I) /<br>HRMPSB Secretariat</div>
         </div>
 
         <div class="board-title">Human Resource Merit, Promotion and Selection Board (HRMPSB)</div>

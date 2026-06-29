@@ -208,6 +208,10 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/applications/report', [MasterController::class, 'applicationReport'])->name('applicationReport');
         Route::post('/applications/create', [ApplicationController::class, 'appCreate'])->name('appCreate');
         Route::post('/application/setCtrlNo', [ApplicationController::class, 'setCtrlNo'])->name('setCtrlNo');
+        Route::get('/application/update-status', function () {
+            return redirect()->route('viewAllApplication')
+                ->with('error', 'Please update applicant status using the action buttons.');
+        });
         Route::post('/application/update-status', [ApplicationController::class, 'updateStatus'])->name('updateStatus');
 
         //Jobs
@@ -231,6 +235,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/ete-evaluations/{id}/applicant/{applicationId}/pdf',[EteEvaluationController::class, 'applicantEvaluationPdf'])->name('eteApplicantEvaluationPdf');
         Route::get('/ete-evaluations/{id}/rate',[EteEvaluationController::class, 'adminRating'])->name('eteAdminRating');
         Route::post('/ete-evaluations/rating/update-ajax',[EteEvaluationController::class, 'eteRatingUpdateAjax'])->name('eteRatingUpdateAjax');
+        Route::post('/ete-evaluations/{id}/rating/copy',[EteEvaluationController::class, 'copyPreviousRating'])->name('eteCopyPreviousRating');
         Route::get('/ete-evaluations/{id}/consolidated',[EteEvaluationController::class, 'consolidatedScreen'])->name('eteConsolidatedScreen');
         Route::get('/ete-evaluations/{id}/consolidated-data',[EteEvaluationController::class, 'consolidatedData'])->name('eteConsolidatedData');
     });
@@ -249,6 +254,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/evaluations/{id}/candidate/{applicationId}/uncast', [InterviewEvaluationController::class, 'uncast'])->name('interviewCandidateUncast');
         Route::get('/evaluations/{id}/rate/{applicationId?}', [InterviewEvaluationController::class, 'rate'])->name('interviewRatingForm');
         Route::post('/evaluations/{id}/rate/{applicationId}', [InterviewEvaluationController::class, 'saveRating'])->name('interviewRatingSave');
+        Route::post('/evaluations/{id}/rate/{applicationId}/copy', [InterviewEvaluationController::class, 'copyPreviousRating'])->name('interviewRatingCopy');
         Route::post('/evaluations/{id}/delete', [InterviewEvaluationController::class, 'destroy'])->name('interviewEvaluationDelete');
     });
 

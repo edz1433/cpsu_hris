@@ -117,6 +117,27 @@ class EteEvaluationController extends Controller
         );
     }
 
+    private function previousApplicantRatings(EteApplicantRating $currentRating)
+    {
+        $currentRating->loadMissing('application');
+        $email = strtolower(trim((string) optional($currentRating->application)->email));
+
+        if ($email === '') {
+            return collect();
+        }
+
+        return EteApplicantRating::with(['application', 'eteEvaluation.job'])
+            ->where('id', '!=', $currentRating->id)
+            ->where('jid', '!=', $currentRating->jid)
+            ->whereHas('application', function ($query) use ($email) {
+                $query->whereRaw('LOWER(email) = ?', [$email]);
+            })
+            ->latest('updated_at')
+            ->get()
+            ->filter(fn ($rating) => $this->ratingCompleted($rating))
+            ->values();
+    }
+
     public function eteEvaluationList()
     {
         $this->authorizeEteAdmin();
@@ -207,9 +228,10 @@ class EteEvaluationController extends Controller
             $candidateRating->is_completed = $this->ratingCompleted($candidateRating);
         });
         $years = $this->experienceYears($ete->experience_years);
+        $copyableRatings = $this->previousApplicantRatings($selectedRating);
 
         return view('ete.evaluator-rate', compact(
-            'ete', 'ratings', 'candidateRatings', 'selectedRating', 'previousRating', 'nextRating', 'years'
+            'ete', 'ratings', 'candidateRatings', 'selectedRating', 'previousRating', 'nextRating', 'years', 'copyableRatings'
         ));
     }
 
@@ -317,6 +339,49 @@ class EteEvaluationController extends Controller
             'experience_rows' => $experienceRows,
             'total_score' => number_format($total, 2),
         ]);
+    }
+
+    public function copyPreviousRating(Request $request, $id)
+    {
+        $this->authorizeEteAdmin();
+        $request->validate([
+            'target_rating_id' => 'required|exists:ete_applicant_ratings,id',
+            'source_rating_id' => 'required|exists:ete_applicant_ratings,id',
+        ]);
+
+        $ete = EteEvaluation::findOrFail($id);
+        $targetRating = EteApplicantRating::with('application')
+            ->where('ete_id', $ete->id)
+            ->findOrFail($request->target_rating_id);
+        $sourceRating = EteApplicantRating::with('application')->findOrFail($request->source_rating_id);
+
+        $targetEmail = strtolower(trim((string) optional($targetRating->application)->email));
+        $sourceEmail = strtolower(trim((string) optional($sourceRating->application)->email));
+
+        abort_if($targetEmail === '' || $targetEmail !== $sourceEmail, 422, 'Selected previous rating does not belong to the same applicant email.');
+        abort_if((int) $targetRating->jid === (int) $sourceRating->jid, 422, 'Please select a rating from another position.');
+        abort_if(!$this->ratingCompleted($sourceRating), 422, 'Selected previous rating has no saved score to copy.');
+
+        $targetRating->update([
+            'education_met' => $sourceRating->education_met,
+            'experience_met' => $sourceRating->experience_met,
+            'eligibility_met' => $sourceRating->eligibility_met,
+            'training_met' => $sourceRating->training_met,
+            'minimum_requirement_score' => $sourceRating->minimum_requirement_score,
+            'education_score' => $sourceRating->education_score,
+            'education_ratings' => $sourceRating->education_ratings,
+            'training_score' => $sourceRating->training_score,
+            'training_ratings' => $sourceRating->training_ratings,
+            'experience_score' => $sourceRating->experience_score,
+            'experience_year_ratings' => $sourceRating->experience_year_ratings,
+            'total_score' => $sourceRating->total_score,
+            'remarks' => $sourceRating->remarks,
+            'updated_by' => auth()->guard('web')->id(),
+        ]);
+
+        return redirect()
+            ->route('eteAdminRating', ['id' => $ete->id, 'application_id' => $targetRating->application_id])
+            ->with('success', 'Previous ETE rating copied to this applicant.');
     }
 
     public function applicantEvaluationPdf($id, $applicationId)

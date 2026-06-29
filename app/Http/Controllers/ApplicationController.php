@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class ApplicationController extends Controller
@@ -273,16 +274,24 @@ class ApplicationController extends Controller
                 </div>
             </div>';
 
-            Mail::send([], [], function ($m) use ($email, $subject, $body) {
-                $m->to($email)
-                ->from('cpsu_cpsu_career@cpsu.edu.ph', config('mail.from.name'))
-                ->subject($subject)
-                ->html($body);
-            });
+            try {
+                Mail::send([], [], function ($m) use ($email, $subject, $body) {
+                    $m->to($email)
+                    ->from('cpsu_cpsu_career@cpsu.edu.ph', config('mail.from.name'))
+                    ->subject($subject)
+                    ->html($body);
+                });
+            } catch (\Throwable $exception) {
+                Log::warning('Applicant control number email failed to send.', [
+                    'application_id' => $app->id,
+                    'email' => $email,
+                    'error' => $exception->getMessage(),
+                ]);
+            }
         }
 
         $message = $isNewControlNumber
-            ? 'Control number set successfully! Email notification sent to applicant.'
+            ? 'Control number set successfully.'
             : 'Control number updated successfully.';
 
         return redirect()->back()->with('success', $message);
@@ -498,17 +507,34 @@ class ApplicationController extends Controller
         // ------------------------------
         // 📧 Send Email Notification
         // ------------------------------
-        Mail::send([], [], function ($m) use ($email, $subject, $body) {
-            $m->to($email)
-                ->from('cpsu_career@cpsu.edu.ph', 'CPSU Career Portal')
-                ->subject($subject)
-                ->html($body);
-        });
+        $emailSent = true;
+
+        try {
+            Mail::send([], [], function ($m) use ($email, $subject, $body) {
+                $m->to($email)
+                    ->from('cpsu_career@cpsu.edu.ph', 'CPSU Career Portal')
+                    ->subject($subject)
+                    ->html($body);
+            });
+        } catch (\Throwable $exception) {
+            $emailSent = false;
+
+            Log::warning('Applicant status email failed to send.', [
+                'application_id' => $app->id,
+                'email' => $email,
+                'status' => $app->status,
+                'error' => $exception->getMessage(),
+            ]);
+        }
 
         // ------------------------------
         // 🔁 Redirect with Confirmation
         // ------------------------------
-        return back()->with('success', "Applicant status successfully updated. An email notification has been sent to {$email}.");
+        $message = $emailSent
+            ? "Applicant status successfully updated. An email notification has been sent to {$email}."
+            : "Applicant status successfully updated. Email notification was not sent because the mail server is unavailable.";
+
+        return back()->with('success', $message);
     }
 
     public function viewAllApplication(){
