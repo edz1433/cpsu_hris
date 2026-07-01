@@ -318,26 +318,19 @@
         <div class="board-title">Human Resource Merit, Promotion and Selection Board (HRMPSB)</div>
 
         <table class="member-table">
-            <tr>
-                <td>
-                    <div class="sign-name">ACE APLAON</div>
-                    <div class="sign-role">Supervising Administrative Officer /<br>HRMPSB Member</div>
-                </td>
-                <td>
-                    <div class="sign-name">NELLY N. CABUAL</div>
-                    <div class="sign-role">Non-Teaching President /<br>HRMPSB Member</div>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <div class="sign-name">ELFRED M. SUMONGSONG, CPA</div>
-                    <div class="sign-role">Supervising Administrative Officer/<br>HRMPSB Member</div>
-                </td>
-                <td>
-                    <div class="sign-name">ARVIS AMES SUYO</div>
-                    <div class="sign-role">Non-Teaching President /<br>HRMPSB Member</div>
-                </td>
-            </tr>
+            @foreach($panelists->chunk(3) as $chunk)
+                <tr>
+                    @foreach($chunk as $panelist)
+                        <td>
+                            <div class="sign-name">{{ strtoupper($panelist['name']) }}</div>
+                            <div class="sign-role">{{ $panelist['position'] }}<br>HRMPSB Member</div>
+                        </td>
+                    @endforeach
+                    @for($i = $chunk->count(); $i < 3; $i++)
+                        <td></td>
+                    @endfor
+                </tr>
+            @endforeach
         </table>
 
         <div class="chair-block">

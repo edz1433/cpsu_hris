@@ -540,10 +540,11 @@ class InterviewEvaluationController extends Controller
                         || !empty($rating->remarks);
                 });
                 $startedCount = $startedRatings->count();
-                $submittedCount = $ratings->filter(fn ($rating) => $this->ratingComplete($rating))->count();
-                $interviewTotal = $startedCount ? (float) $startedRatings->avg('interview_total') : 0;
-                $potentialTotal = $startedCount ? (float) $startedRatings->avg('potential_total') : 0;
-                $totalScore = $startedCount ? (float) $startedRatings->avg('total_score') : 0;
+                $submittedRatings = $ratings->filter(fn ($rating) => $this->ratingComplete($rating));
+                $submittedCount = $submittedRatings->count();
+                $interviewTotal = $submittedCount ? (float) $submittedRatings->avg('interview_total') : 0;
+                $potentialTotal = $submittedCount ? (float) $submittedRatings->avg('potential_total') : 0;
+                $totalScore = $submittedCount ? (float) $submittedRatings->avg('total_score') : 0;
                 $eteTotal = (float) optional($eteRatings->get($row->application_id))->total_score;
                 $qualificationScore = $eteTotal * 0.5;
                 $interviewScore = $this->weightedScore($interviewTotal, $this->maxInterviewScore(), 25);
@@ -1194,7 +1195,7 @@ class InterviewEvaluationController extends Controller
         $interview = InterviewEvaluation::with([
             'job',
             'eteEvaluation.office',
-            'panels',
+            'panels.employee',
             'applicants.application',
             'ratings.application',
         ])->findOrFail($id);
@@ -1202,10 +1203,19 @@ class InterviewEvaluationController extends Controller
         $interview->load(['applicants.application', 'ratings.application']);
 
         $rows = $this->rankingRows($interview)->take(5)->values();
+        $panelists = $interview->panels
+            ->filter(fn ($panel) => $panel->employee)
+            ->map(function ($panel) {
+                return [
+                    'name' => trim(preg_replace('/\s+/', ' ', $panel->employee->fname . ' ' . $panel->employee->mname . ' ' . $panel->employee->lname)),
+                    'position' => $panel->employee->position,
+                ];
+            })
+            ->values();
         $fileName = 'summary-rating-applicants-' . $interview->id . '.pdf';
         $longBondPaper = [0, 0, 612, 936];
 
-        return \PDF::loadView('interview.summary-rating-pdf', compact('interview', 'rows'))
+        return \PDF::loadView('interview.summary-rating-pdf', compact('interview', 'rows', 'panelists'))
             ->setPaper($longBondPaper, 'portrait')
             ->stream($fileName);
     }

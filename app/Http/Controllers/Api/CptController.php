@@ -96,5 +96,3 @@ class CptController
         return in_array($column, $columns, true) ? $column : DB::raw('NULL as '.$column);
     }
 }
-
-
