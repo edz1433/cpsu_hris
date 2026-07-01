@@ -502,6 +502,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let autosaveTimer = null;
     let autosaveRunning = false;
     let autosaveQueued = false;
+    let castCheckRunning = false;
 
     function setSaveStatus(text, state) {
         if (!status) return;
@@ -613,6 +614,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function checkCurrentCast() {
+        if (castCheckRunning) {
+            return;
+        }
+
+        castCheckRunning = true;
         fetch("{{ route('interviewRatingStatus', [$interview->id, $application->id]) }}?panel_id=" + encodeURIComponent(panelEmployeeId), {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
             cache: 'no-store'
@@ -631,11 +637,21 @@ document.addEventListener('DOMContentLoaded', function () {
                     window.location.replace(nextUrl);
                 }
             })
-            .catch(() => {});
+            .catch(() => {})
+            .finally(() => {
+                castCheckRunning = false;
+            });
     }
 
     checkCurrentCast();
-    setInterval(checkCurrentCast, 3000);
+    window.addEventListener('focus', checkCurrentCast);
+    window.addEventListener('pageshow', checkCurrentCast);
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) {
+            checkCurrentCast();
+        }
+    });
+    setInterval(checkCurrentCast, 1500);
 
     const copySelect = document.getElementById('copyInterviewRatingSelect');
     if (copySelect) {

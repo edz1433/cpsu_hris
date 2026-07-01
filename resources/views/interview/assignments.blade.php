@@ -9,11 +9,11 @@
 </style>
 
 @php
-    $activeAssignmentKey = $ratings->first()
-        ? $ratings->first()->interview_id . ':' . $ratings->first()->application_id
-        : '';
+    $assignmentKey = $assignmentKey ?? $ratings
+        ->map(fn ($rating) => $rating->interview_id . ':' . $rating->application_id . ':' . optional($rating->interview->updated_at)->timestamp)
+        ->implode('|');
 @endphp
-<div class="container-fluid assignment-page" data-current-count="{{ $ratings->count() }}" data-active-key="{{ $activeAssignmentKey }}">
+<div class="container-fluid assignment-page" data-current-count="{{ $ratings->count() }}" data-assignment-key="{{ $assignmentKey }}">
     <div class="card">
         <div class="card-body">
             <h4 class="font-weight-bold mb-1"><i class="fas fa-comments mr-1"></i> My Interview Ratings</h4>
@@ -55,9 +55,15 @@
 document.addEventListener('DOMContentLoaded', function () {
     const page = document.querySelector('.assignment-page');
     const initialCount = parseInt(page.dataset.currentCount || '0', 10);
-    const initialActiveKey = page.dataset.activeKey || '';
+    const initialAssignmentKey = page.dataset.assignmentKey || '';
+    let checkRunning = false;
 
     function refreshWhenChanged() {
+        if (checkRunning) {
+            return;
+        }
+
+        checkRunning = true;
         fetch("{{ route('interviewAssignmentsStatus') }}", {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
             cache: 'no-store'
@@ -65,17 +71,27 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 const count = parseInt(data.count || 0, 10);
-                const activeKey = data.active_key || '';
+                const assignmentKey = data.assignment_key || '';
 
-                if (count !== initialCount || activeKey !== initialActiveKey) {
+                if (count !== initialCount || assignmentKey !== initialAssignmentKey) {
                     window.location.reload();
                 }
             })
-            .catch(() => {});
+            .catch(() => {})
+            .finally(() => {
+                checkRunning = false;
+            });
     }
 
     refreshWhenChanged();
-    setInterval(refreshWhenChanged, 3000);
+    window.addEventListener('focus', refreshWhenChanged);
+    window.addEventListener('pageshow', refreshWhenChanged);
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) {
+            refreshWhenChanged();
+        }
+    });
+    setInterval(refreshWhenChanged, 1500);
 });
 </script>
 @endsection

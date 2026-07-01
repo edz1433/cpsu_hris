@@ -11,6 +11,9 @@
     .progress-mini { background:#edf2f7; border-radius:999px; height:8px; overflow:hidden; }
     .progress-mini span { background:#16a34a; display:block; height:100%; }
     .panel-link { border-radius:999px; margin:2px; }
+    .panel-status { border-radius:999px; display:inline-block; font-size:.65rem; font-weight:800; margin-left:4px; padding:2px 6px; text-transform:uppercase; vertical-align:middle; }
+    .panel-status.done { background:#dcfce7; color:#166534; }
+    .panel-status.pending { background:#fee2e2; color:#991b1b; }
 </style>
 
 <div class="container-fluid interview-manage">
@@ -64,7 +67,7 @@
                             <th>Contact</th>
                             <th class="text-center">Cast Status</th>
                             <th class="text-center">Panel Progress</th>
-                            <th>Panel Rating Links</th>
+                            <th>Interview Panel</th>
                             <th class="text-center">Action</th>
                         </tr>
                     </thead>
@@ -80,7 +83,8 @@
                                 $row = $interview->applicants->firstWhere('application_id', $applicant->id);
                                 $isCast = $row && $row->is_cast;
                                 $ratings = $ratingsByApplication->get($applicant->id, collect());
-                                $submitted = $ratings->whereNotNull('submitted_at')->count();
+                                $completedRatings = $completedRatingsByApplication->get($applicant->id, collect());
+                                $submitted = $completedRatings->count();
                                 $panelCount = max(1, $interview->panels->count());
                                 $percent = min(100, round(($submitted / $panelCount) * 100));
                                 $middleInitial = trim((string) $applicant->middle_name) !== ''
@@ -107,10 +111,17 @@
                                 <td>
                                     @if($isCast)
                                         @foreach($interview->panels as $panel)
+                                            @php
+                                                $panelRating = $ratings->firstWhere('panel_employee_id', $panel->emp_id);
+                                                $panelFinished = $panelRating && $completedRatings->contains('id', $panelRating->id);
+                                            @endphp
                                             <a href="{{ route('interviewRatingForm', ['id' => $interview->id, 'applicationId' => $applicant->id, 'panel_id' => $panel->emp_id]) }}"
-                                               class="btn btn-sm btn-outline-success panel-link"
-                                               title="Open rating form">
-                                                <i class="fas fa-pen"></i> {{ $panel->employee->lname ?? 'Panel' }}
+                                               class="btn btn-sm {{ $panelFinished ? 'btn-outline-success' : 'btn-outline-danger' }} panel-link"
+                                               title="{{ $panelFinished ? 'Rating complete' : 'Not yet finished rating' }}">
+                                                <i class="fas {{ $panelFinished ? 'fa-check-circle' : 'fa-exclamation-circle' }}"></i> {{ $panel->employee->lname ?? 'Panel' }}
+                                                <span class="panel-status {{ $panelFinished ? 'done' : 'pending' }}">
+                                                    {{ $panelFinished ? 'Done' : 'Not finished' }}
+                                                </span>
                                             </a>
                                         @endforeach
                                     @else
