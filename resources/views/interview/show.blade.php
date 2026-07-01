@@ -19,7 +19,7 @@
     .panel-assignment .panel-pill { margin:0; }
     .panel-remove { border-radius:999px; height:28px; line-height:1; padding:0; width:28px; }
     .action-cell { min-width:190px; width:190px; }
-    .action-stack { align-items:center; display:flex; flex-direction:column; gap:6px; }
+    .action-stack { align-items:center; display:flex; flex-direction:row; gap:6px; justify-content:center; }
     .action-stack form { margin:0; }
     .action-stack .btn { min-width:74px; }
     .action-stack .panel-add-btn { min-width:74px; }
@@ -134,11 +134,16 @@
                                                     <i class="fas {{ $panelFinished ? 'fa-check-circle' : 'fa-exclamation-circle' }}"></i> {{ $panelEmployee->lname ?? 'Panel' }}
                                                 </a>
                                                 @if($assignedPanels->count() > 1)
-                                                    <form method="POST" action="{{ route('interviewCandidatePanelRemove', [$interview->id, $applicant->id, $panelEmployee->id]) }}" onsubmit="return confirm('Remove this panel member and delete their rating for this applicant?');">
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-light border text-danger panel-remove"
+                                                            title="Remove panel for this applicant"
+                                                            data-remove-panel-button
+                                                            data-applicant-name="{{ e($displayName) }}"
+                                                            data-panel-name="{{ e(trim(($panelEmployee->lname ?? '').', '.($panelEmployee->fname ?? ''))) }}">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                    <form method="POST" action="{{ route('interviewCandidatePanelRemove', [$interview->id, $applicant->id, $panelEmployee->id]) }}" class="d-none">
                                                         @csrf
-                                                        <button class="btn btn-sm btn-light border text-danger panel-remove" title="Remove panel for this applicant">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
                                                     </form>
                                                 @endif
                                             </div>
@@ -155,11 +160,16 @@
                                                     <i class="fas {{ $panelFinished ? 'fa-check-circle' : 'fa-exclamation-circle' }}"></i> {{ $panelEmployee->lname ?? 'Panel' }}
                                                 </span>
                                                 @if($assignedPanels->count() > 1)
-                                                    <form method="POST" action="{{ route('interviewCandidatePanelRemove', [$interview->id, $applicant->id, $panelEmployee->id]) }}" onsubmit="return confirm('Remove this panel member and delete their rating for this applicant?');">
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-light border text-danger panel-remove"
+                                                            title="Remove panel for this applicant"
+                                                            data-remove-panel-button
+                                                            data-applicant-name="{{ e($displayName) }}"
+                                                            data-panel-name="{{ e(trim(($panelEmployee->lname ?? '').', '.($panelEmployee->fname ?? ''))) }}">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                    <form method="POST" action="{{ route('interviewCandidatePanelRemove', [$interview->id, $applicant->id, $panelEmployee->id]) }}" class="d-none">
                                                         @csrf
-                                                        <button class="btn btn-sm btn-light border text-danger panel-remove" title="Remove panel for this applicant">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
                                                     </form>
                                                 @endif
                                             </div>
@@ -168,6 +178,15 @@
                                 </td>
                                 <td class="text-center action-cell">
                                     <div class="action-stack">
+                                        @if($availablePanelEmployees->isNotEmpty())
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-success panel-add-btn"
+                                                    title="Add panel for this applicant"
+                                                    data-toggle="modal"
+                                                    data-target="#addPanelModal{{ $applicant->id }}">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        @endif
                                         @if($isCast)
                                             <form method="POST" action="{{ route('interviewCandidateUncast', [$interview->id, $applicant->id]) }}">
                                                 @csrf
@@ -178,15 +197,6 @@
                                                 @csrf
                                                 <button class="btn btn-sm btn-success"><i class="fas fa-bullhorn"></i> Cast</button>
                                             </form>
-                                        @endif
-                                        @if($availablePanelEmployees->isNotEmpty())
-                                            <button type="button"
-                                                    class="btn btn-sm btn-outline-success panel-add-btn"
-                                                    title="Add panel for this applicant"
-                                                    data-toggle="modal"
-                                                    data-target="#addPanelModal{{ $applicant->id }}">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
                                         @endif
                                     </div>
                                 </td>
@@ -203,7 +213,8 @@
 
 @foreach($orderedEligibleApplicants as $applicant)
     @php
-        $assignedPanelIds = $panelEmployeesByApplication->get($applicant->id, collect())->pluck('id');
+        $assignedPanelEmployees = $panelEmployeesByApplication->get($applicant->id, collect());
+        $assignedPanelIds = $assignedPanelEmployees->pluck('id');
         $availablePanelEmployees = $employees->whereNotIn('id', $assignedPanelIds);
     @endphp
     @if($availablePanelEmployees->isNotEmpty())
@@ -244,6 +255,7 @@
             </div>
         </div>
     @endif
+
 @endforeach
 
 <script>
@@ -266,6 +278,35 @@
             dropdownParent: $(this),
             width: '100%',
             placeholder: 'Search panel employee'
+        });
+    });
+
+    $(document).on('click', '[data-remove-panel-button]', function () {
+        const button = this;
+        const form = button.nextElementSibling;
+        const applicantName = button.dataset.applicantName || 'this applicant';
+        const panelName = button.dataset.panelName || 'this panel member';
+
+        if (!form) {
+            return;
+        }
+
+        Swal.fire({
+            title: 'Remove interview panel?',
+            html: '<div class="text-left">' +
+                '<p class="mb-2">This will remove <strong>' + panelName + '</strong> from <strong>' + applicantName + '</strong>.</p>' +
+                '<p class="mb-0 text-danger font-weight-bold">Their rating for this applicant only will be deleted.</p>' +
+                '</div>',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, remove panel',
+            cancelButtonText: 'Cancel'
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                form.submit();
+            }
         });
     });
 })();
