@@ -11,9 +11,6 @@
     .progress-mini { background:#edf2f7; border-radius:999px; height:8px; overflow:hidden; }
     .progress-mini span { background:#16a34a; display:block; height:100%; }
     .panel-link { border-radius:999px; margin:2px; }
-    .panel-status { border-radius:999px; display:inline-block; font-size:.65rem; font-weight:800; margin-left:4px; padding:2px 6px; text-transform:uppercase; vertical-align:middle; }
-    .panel-status.done { background:#dcfce7; color:#166534; }
-    .panel-status.pending { background:#fee2e2; color:#991b1b; }
 </style>
 
 <div class="container-fluid interview-manage">
@@ -119,9 +116,6 @@
                                                class="btn btn-sm {{ $panelFinished ? 'btn-outline-success' : 'btn-outline-danger' }} panel-link"
                                                title="{{ $panelFinished ? 'Rating complete' : 'Not yet finished rating' }}">
                                                 <i class="fas {{ $panelFinished ? 'fa-check-circle' : 'fa-exclamation-circle' }}"></i> {{ $panel->employee->lname ?? 'Panel' }}
-                                                <span class="panel-status {{ $panelFinished ? 'done' : 'pending' }}">
-                                                    {{ $panelFinished ? 'Done' : 'Not finished' }}
-                                                </span>
                                             </a>
                                         @endforeach
                                     @else
