@@ -14,6 +14,15 @@
     .panel-pill { border:1px solid; border-radius:999px; display:inline-block; font-size:.78rem; font-weight:700; margin:2px; padding:5px 10px; }
     .panel-pill.done { background:#f0fdf4; border-color:#16a34a; color:#166534; }
     .panel-pill.pending { background:#fef2f2; border-color:#dc2626; color:#991b1b; }
+    .panel-assignment { align-items:center; display:inline-flex; gap:2px; margin:2px; }
+    .panel-assignment .panel-link,
+    .panel-assignment .panel-pill { margin:0; }
+    .panel-remove { border-radius:999px; height:28px; line-height:1; padding:0; width:28px; }
+    .action-cell { min-width:190px; width:190px; }
+    .action-stack { align-items:center; display:flex; flex-direction:column; gap:6px; }
+    .action-stack form { margin:0; }
+    .action-stack .btn { min-width:74px; }
+    .action-stack .panel-add-btn { min-width:74px; }
 </style>
 
 <div class="container-fluid interview-manage">
@@ -68,7 +77,7 @@
                             <th class="text-center">Cast Status</th>
                             <th class="text-center">Panel Progress</th>
                             <th>Interview Panel</th>
-                            <th class="text-center">Action</th>
+                            <th class="text-center action-cell">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -84,8 +93,11 @@
                                 $isCast = $row && $row->is_cast;
                                 $ratings = $ratingsByApplication->get($applicant->id, collect());
                                 $completedRatings = $completedRatingsByApplication->get($applicant->id, collect());
+                                $assignedPanels = $panelEmployeesByApplication->get($applicant->id, collect());
+                                $assignedPanelIds = $assignedPanels->pluck('id');
+                                $availablePanelEmployees = $employees->whereNotIn('id', $assignedPanelIds);
                                 $submitted = $completedRatings->count();
-                                $panelCount = max(1, $interview->panels->count());
+                                $panelCount = max(1, $assignedPanels->count());
                                 $percent = min(100, round(($submitted / $panelCount) * 100));
                                 $middleInitial = trim((string) $applicant->middle_name) !== ''
                                     ? strtoupper(substr(trim($applicant->middle_name), 0, 1)).'.'
@@ -105,47 +117,78 @@
                                     <span class="cast-pill {{ $isCast ? 'on' : 'off' }}">{{ $isCast ? 'Cast' : 'Not cast' }}</span>
                                 </td>
                                 <td class="text-center">
-                                    <strong>{{ $submitted }}/{{ $interview->panels->count() }}</strong>
+                                    <strong>{{ $submitted }}/{{ $panelCount }}</strong>
                                     <div class="progress-mini mt-1"><span style="width: {{ $percent }}%"></span></div>
                                 </td>
                                 <td>
                                     @if($isCast)
-                                        @foreach($interview->panels as $panel)
+                                        @foreach($assignedPanels as $panelEmployee)
                                             @php
-                                                $panelRating = $ratings->firstWhere('panel_employee_id', $panel->emp_id);
+                                                $panelRating = $ratings->firstWhere('panel_employee_id', $panelEmployee->id);
                                                 $panelFinished = $panelRating && $completedRatings->contains('id', $panelRating->id);
                                             @endphp
-                                            <a href="{{ route('interviewRatingForm', ['id' => $interview->id, 'applicationId' => $applicant->id, 'panel_id' => $panel->emp_id]) }}"
-                                               class="btn btn-sm {{ $panelFinished ? 'btn-outline-success' : 'btn-outline-danger' }} panel-link"
-                                               title="{{ $panelFinished ? 'Rating complete' : 'Not yet finished rating' }}">
-                                                <i class="fas {{ $panelFinished ? 'fa-check-circle' : 'fa-exclamation-circle' }}"></i> {{ $panel->employee->lname ?? 'Panel' }}
-                                            </a>
+                                            <div class="panel-assignment">
+                                                <a href="{{ route('interviewRatingForm', ['id' => $interview->id, 'applicationId' => $applicant->id, 'panel_id' => $panelEmployee->id]) }}"
+                                                   class="btn btn-sm {{ $panelFinished ? 'btn-outline-success' : 'btn-outline-danger' }} panel-link"
+                                                   title="{{ $panelFinished ? 'Rating complete' : 'Not yet finished rating' }}">
+                                                    <i class="fas {{ $panelFinished ? 'fa-check-circle' : 'fa-exclamation-circle' }}"></i> {{ $panelEmployee->lname ?? 'Panel' }}
+                                                </a>
+                                                @if($assignedPanels->count() > 1)
+                                                    <form method="POST" action="{{ route('interviewCandidatePanelRemove', [$interview->id, $applicant->id, $panelEmployee->id]) }}" onsubmit="return confirm('Remove this panel member and delete their rating for this applicant?');">
+                                                        @csrf
+                                                        <button class="btn btn-sm btn-light border text-danger panel-remove" title="Remove panel for this applicant">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
                                         @endforeach
                                     @else
-                                        @foreach($interview->panels as $panel)
+                                        @foreach($assignedPanels as $panelEmployee)
                                             @php
-                                                $panelRating = $ratings->firstWhere('panel_employee_id', $panel->emp_id);
+                                                $panelRating = $ratings->firstWhere('panel_employee_id', $panelEmployee->id);
                                                 $panelFinished = $panelRating && $completedRatings->contains('id', $panelRating->id);
                                             @endphp
-                                            <span class="panel-pill {{ $panelFinished ? 'done' : 'pending' }}"
-                                                  title="{{ $panelFinished ? 'Rating complete' : 'Not yet finished rating' }}">
-                                                <i class="fas {{ $panelFinished ? 'fa-check-circle' : 'fa-exclamation-circle' }}"></i> {{ $panel->employee->lname ?? 'Panel' }}
-                                            </span>
+                                            <div class="panel-assignment">
+                                                <span class="panel-pill {{ $panelFinished ? 'done' : 'pending' }}"
+                                                      title="{{ $panelFinished ? 'Rating complete' : 'Not yet finished rating' }}">
+                                                    <i class="fas {{ $panelFinished ? 'fa-check-circle' : 'fa-exclamation-circle' }}"></i> {{ $panelEmployee->lname ?? 'Panel' }}
+                                                </span>
+                                                @if($assignedPanels->count() > 1)
+                                                    <form method="POST" action="{{ route('interviewCandidatePanelRemove', [$interview->id, $applicant->id, $panelEmployee->id]) }}" onsubmit="return confirm('Remove this panel member and delete their rating for this applicant?');">
+                                                        @csrf
+                                                        <button class="btn btn-sm btn-light border text-danger panel-remove" title="Remove panel for this applicant">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
                                         @endforeach
                                     @endif
                                 </td>
-                                <td class="text-center">
-                                    @if($isCast)
-                                        <form method="POST" action="{{ route('interviewCandidateUncast', [$interview->id, $applicant->id]) }}">
-                                            @csrf
-                                            <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-eye-slash"></i> Uncast</button>
-                                        </form>
-                                    @else
-                                        <form method="POST" action="{{ route('interviewCandidateCast', [$interview->id, $applicant->id]) }}">
-                                            @csrf
-                                            <button class="btn btn-sm btn-success"><i class="fas fa-bullhorn"></i> Cast</button>
-                                        </form>
-                                    @endif
+                                <td class="text-center action-cell">
+                                    <div class="action-stack">
+                                        @if($isCast)
+                                            <form method="POST" action="{{ route('interviewCandidateUncast', [$interview->id, $applicant->id]) }}">
+                                                @csrf
+                                                <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-eye-slash"></i> Uncast</button>
+                                            </form>
+                                        @else
+                                            <form method="POST" action="{{ route('interviewCandidateCast', [$interview->id, $applicant->id]) }}">
+                                                @csrf
+                                                <button class="btn btn-sm btn-success"><i class="fas fa-bullhorn"></i> Cast</button>
+                                            </form>
+                                        @endif
+                                        @if($availablePanelEmployees->isNotEmpty())
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-success panel-add-btn"
+                                                    title="Add panel for this applicant"
+                                                    data-toggle="modal"
+                                                    data-target="#addPanelModal{{ $applicant->id }}">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @empty
@@ -157,4 +200,74 @@
         </div>
     </div>
 </div>
+
+@foreach($orderedEligibleApplicants as $applicant)
+    @php
+        $assignedPanelIds = $panelEmployeesByApplication->get($applicant->id, collect())->pluck('id');
+        $availablePanelEmployees = $employees->whereNotIn('id', $assignedPanelIds);
+    @endphp
+    @if($availablePanelEmployees->isNotEmpty())
+        <div class="modal fade" id="addPanelModal{{ $applicant->id }}" tabindex="-1" role="dialog" aria-labelledby="addPanelModalLabel{{ $applicant->id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <form method="POST" action="{{ route('interviewCandidatePanelAdd', [$interview->id, $applicant->id]) }}" class="modal-content">
+                    @csrf
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title" id="addPanelModalLabel{{ $applicant->id }}">
+                            <i class="fas fa-user-plus"></i> Add Interview Panel
+                        </h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-2">
+                            <strong>{{ trim(($applicant->last_name ?? '').', '.($applicant->first_name ?? '')) }}</strong>
+                            <small class="d-block text-muted">{{ $applicant->app_number }}</small>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label>Select Panel</label>
+                            <select name="panel_employee_id" class="form-control panel-select" data-dropdown-parent="#addPanelModal{{ $applicant->id }}" required>
+                                <option value="">Search panel employee</option>
+                                @foreach($availablePanelEmployees as $employee)
+                                    <option value="{{ $employee->id }}">{{ $employee->lname }}, {{ $employee->fname }} {{ $employee->mname }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light border" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Add Panel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+@endforeach
+
+<script>
+(function waitForPanelSelect() {
+    if (!window.jQuery || !window.jQuery.fn || !window.jQuery.fn.select2) {
+        window.setTimeout(waitForPanelSelect, 100);
+        return;
+    }
+
+    const $ = window.jQuery;
+
+    $('.modal').on('shown.bs.modal', function () {
+        const $select = $(this).find('.panel-select');
+
+        if (!$select.length || $select.hasClass('select2-hidden-accessible')) {
+            return;
+        }
+
+        $select.select2({
+            dropdownParent: $(this),
+            width: '100%',
+            placeholder: 'Search panel employee'
+        });
+    });
+})();
+</script>
 @endsection

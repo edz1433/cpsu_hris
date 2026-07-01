@@ -252,6 +252,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/evaluations/{id}', [InterviewEvaluationController::class, 'show'])->name('interviewEvaluationShow');
         Route::post('/evaluations/{id}/candidate/{applicationId}/cast', [InterviewEvaluationController::class, 'cast'])->name('interviewCandidateCast');
         Route::post('/evaluations/{id}/candidate/{applicationId}/uncast', [InterviewEvaluationController::class, 'uncast'])->name('interviewCandidateUncast');
+        Route::post('/evaluations/{id}/candidate/{applicationId}/panel', [InterviewEvaluationController::class, 'addApplicantPanel'])->name('interviewCandidatePanelAdd');
+        Route::post('/evaluations/{id}/candidate/{applicationId}/panel/{employeeId}/remove', [InterviewEvaluationController::class, 'removeApplicantPanel'])->name('interviewCandidatePanelRemove');
         Route::get('/evaluations/{id}/rate/{applicationId?}', [InterviewEvaluationController::class, 'rate'])->name('interviewRatingForm');
         Route::post('/evaluations/{id}/rate/{applicationId}', [InterviewEvaluationController::class, 'saveRating'])->name('interviewRatingSave');
         Route::post('/evaluations/{id}/rate/{applicationId}/copy', [InterviewEvaluationController::class, 'copyPreviousRating'])->name('interviewRatingCopy');

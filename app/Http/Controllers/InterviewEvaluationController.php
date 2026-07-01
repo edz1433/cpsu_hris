@@ -238,10 +238,57 @@ class InterviewEvaluationController extends Controller
         });
     }
 
+    private function ensureDefaultApplicantPanels(InterviewEvaluation $interview, int $applicationId): void
+    {
+        if (InterviewRating::where('interview_id', $interview->id)
+            ->where('application_id', $applicationId)
+            ->exists()) {
+            return;
+        }
+
+        $this->createRatingRows($interview, $applicationId);
+    }
+
+    private function assignedPanelIdsForApplication(InterviewEvaluation $interview, int $applicationId)
+    {
+        $assignedPanelIds = InterviewRating::where('interview_id', $interview->id)
+            ->where('application_id', $applicationId)
+            ->pluck('panel_employee_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($assignedPanelIds->isNotEmpty()) {
+            return $assignedPanelIds;
+        }
+
+        return $interview->panels()
+            ->pluck('emp_id')
+            ->filter()
+            ->unique()
+            ->values();
+    }
+
+    private function assignedPanelEmployeesForApplication(InterviewEvaluation $interview, int $applicationId)
+    {
+        $panelIds = $this->assignedPanelIdsForApplication($interview, $applicationId);
+
+        if ($panelIds->isEmpty()) {
+            return collect();
+        }
+
+        return Employee::whereIn('id', $panelIds)
+            ->orderBy('lname')
+            ->orderBy('fname')
+            ->get()
+            ->sortBy(fn ($employee) => $panelIds->search($employee->id))
+            ->values();
+    }
+
     private function isCurrentCastForPanel(InterviewEvaluation $interview, int $applicationId, int $employeeId): bool
     {
         return (int) $interview->active_application_id === (int) $applicationId
-            && $interview->panels()->where('emp_id', $employeeId)->exists()
+            && $this->assignedPanelIdsForApplication($interview, $applicationId)->contains((int) $employeeId)
             && $interview->applicants()
                 ->where('application_id', $applicationId)
                 ->where('is_cast', true)
@@ -252,10 +299,13 @@ class InterviewEvaluationController extends Controller
     {
         return InterviewEvaluation::with(['job', 'eteEvaluation.office', 'activeApplication'])
             ->whereNotNull('active_application_id')
-            ->whereHas('panels', fn ($query) => $query->where('emp_id', $employeeId))
             ->whereHas('applicants', function ($query) {
                 $query->where('is_cast', true)
                     ->whereColumn('interview_applicants.application_id', 'interview_evaluations.active_application_id');
+            })
+            ->whereHas('ratings', function ($query) use ($employeeId) {
+                $query->where('panel_employee_id', $employeeId)
+                    ->whereColumn('interview_ratings.application_id', 'interview_evaluations.active_application_id');
             })
             ->orderByDesc('updated_at')
             ->orderByDesc('id')
@@ -415,7 +465,6 @@ class InterviewEvaluationController extends Controller
 
     private function rankingRows(InterviewEvaluation $interview)
     {
-        $panelCount = max(1, $interview->panels->count());
         $ratingsByApplication = $interview->ratings->groupBy('application_id');
         $eteRatings = EteApplicantRating::where('ete_id', $interview->ete_id)
             ->whereIn('application_id', $interview->applicants->pluck('application_id'))
@@ -424,8 +473,9 @@ class InterviewEvaluationController extends Controller
 
         return $interview->applicants
             ->filter(fn ($row) => $row->application)
-            ->map(function ($row) use ($interview, $ratingsByApplication, $panelCount, $eteRatings) {
+            ->map(function ($row) use ($interview, $ratingsByApplication, $eteRatings) {
                 $ratings = $ratingsByApplication->get($row->application_id, collect());
+                $panelCount = max(1, $this->assignedPanelIdsForApplication($interview, (int) $row->application_id)->count());
                 $startedRatings = $ratings->filter(function ($rating) {
                     return (float) $rating->total_score > 0
                         || !empty($rating->interview_scores)
@@ -652,14 +702,21 @@ class InterviewEvaluationController extends Controller
 
         $interview = InterviewEvaluation::with(['eteEvaluation.office', 'job', 'panels.employee', 'activeApplication'])->findOrFail($id);
         $this->syncApplicantRows($interview);
-        $interview->load(['applicants.application', 'ratings.panelEmployee']);
         $eligibleApplicants = $this->eligibleApplicants($interview);
+        $eligibleApplicants->each(fn ($applicant) => $this->ensureDefaultApplicantPanels($interview, (int) $applicant->id));
+        $interview->load(['applicants.application', 'ratings.panelEmployee']);
         $ratingsByApplication = $interview->ratings->groupBy('application_id');
         $completedRatingsByApplication = $ratingsByApplication->map(function ($ratings) {
             return $ratings->filter(fn ($rating) => $this->ratingComplete($rating));
         });
+        $panelEmployeesByApplication = $eligibleApplicants->mapWithKeys(function ($applicant) use ($interview) {
+            return [$applicant->id => $this->assignedPanelEmployeesForApplication($interview, (int) $applicant->id)];
+        });
+        $employees = Employee::orderBy('lname')
+            ->orderBy('fname')
+            ->get();
 
-        return view('interview.show', compact('interview', 'eligibleApplicants', 'ratingsByApplication', 'completedRatingsByApplication'));
+        return view('interview.show', compact('interview', 'eligibleApplicants', 'ratingsByApplication', 'completedRatingsByApplication', 'panelEmployeesByApplication', 'employees'));
     }
 
     public function cast($id, $applicationId)
@@ -674,18 +731,13 @@ class InterviewEvaluationController extends Controller
                 ->where('is_cast', true)
                 ->update(['is_cast' => false, 'uncasted_at' => now()]);
 
-            InterviewRating::where('interview_id', $interview->id)
-                ->where('application_id', '!=', $application->id)
-                ->whereNull('submitted_at')
-                ->delete();
-
             InterviewApplicant::updateOrCreate(
                 ['interview_id' => $interview->id, 'application_id' => $application->id],
                 ['is_cast' => true, 'casted_at' => now(), 'uncasted_at' => null]
             );
 
             $interview->update(['active_application_id' => $application->id]);
-            $this->createRatingRows($interview, $application->id);
+            $this->ensureDefaultApplicantPanels($interview, $application->id);
         });
 
         return back()->with('success', 'Candidate cast to interview panel.');
@@ -705,13 +757,73 @@ class InterviewEvaluationController extends Controller
                 $interview->update(['active_application_id' => null]);
             }
 
-            InterviewRating::where('interview_id', $interview->id)
-                ->where('application_id', $applicationId)
-                ->whereNull('submitted_at')
-                ->delete();
         });
 
         return back()->with('success', 'Candidate uncast successfully.');
+    }
+
+    public function addApplicantPanel(Request $request, $id, $applicationId)
+    {
+        $this->authorizeAdmin();
+
+        $request->validate([
+            'panel_employee_id' => 'required|exists:employees,id',
+        ]);
+
+        DB::transaction(function () use ($request, $id, $applicationId) {
+            $interview = InterviewEvaluation::with('panels')->findOrFail($id);
+            $application = Application::where('jid', $interview->jid)
+                ->where('status', 2)
+                ->findOrFail($applicationId);
+            $employeeId = (int) $request->panel_employee_id;
+
+            InterviewApplicant::firstOrCreate([
+                'interview_id' => $interview->id,
+                'application_id' => $application->id,
+            ]);
+
+            $this->ensureDefaultApplicantPanels($interview, (int) $application->id);
+
+            InterviewRating::firstOrCreate([
+                'interview_id' => $interview->id,
+                'application_id' => $application->id,
+                'panel_employee_id' => $employeeId,
+            ]);
+        });
+
+        return back()->with('success', 'Interview panel added for this applicant.');
+    }
+
+    public function removeApplicantPanel($id, $applicationId, $employeeId)
+    {
+        $this->authorizeAdmin();
+
+        DB::transaction(function () use ($id, $applicationId, $employeeId) {
+            $interview = InterviewEvaluation::with('panels')->findOrFail($id);
+            $application = Application::where('jid', $interview->jid)
+                ->where('status', 2)
+                ->findOrFail($applicationId);
+
+            $this->ensureDefaultApplicantPanels($interview, (int) $application->id);
+            $assignedPanelIds = $this->assignedPanelIdsForApplication($interview, (int) $application->id);
+
+            if (!$assignedPanelIds->contains((int) $employeeId)) {
+                return;
+            }
+
+            if ($assignedPanelIds->count() <= 1) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'panel_employee_id' => 'At least one panel member is required for an applicant.',
+                ]);
+            }
+
+            InterviewRating::where('interview_id', $interview->id)
+                ->where('application_id', $application->id)
+                ->where('panel_employee_id', (int) $employeeId)
+                ->delete();
+        });
+
+        return back()->with('success', 'Interview panel removed for this applicant. Its rating for this applicant was also removed.');
     }
 
     public function rate($id, $applicationId = null)
@@ -730,7 +842,11 @@ class InterviewEvaluationController extends Controller
             $employeeId = request()->integer('panel_id') ?: $employeeId ?: optional($interview->panels->first())->emp_id;
         }
 
-        abort_unless($employeeId && $interview->panels->contains('emp_id', $employeeId), 403, 'You are not part of this interview panel.');
+        abort_unless(
+            $employeeId && $this->assignedPanelIdsForApplication($interview, (int) $application->id)->contains((int) $employeeId),
+            403,
+            'You are not part of this interview panel.'
+        );
 
         if (!$this->isCurrentCastForPanel($interview, (int) $application->id, (int) $employeeId)) {
             $redirectRoute = $guard === 'web' ? 'interviewEvaluationShow' : 'interviewAssignments';
@@ -777,7 +893,10 @@ class InterviewEvaluationController extends Controller
         if ($guard === 'web') {
             $employeeId = $request->integer('panel_employee_id') ?: $employeeId;
         }
-        abort_unless($employeeId && $interview->panels->contains('emp_id', $employeeId), 403);
+        abort_unless(
+            $employeeId && $this->assignedPanelIdsForApplication($interview, (int) $application->id)->contains((int) $employeeId),
+            403
+        );
 
         if (!$this->isCurrentCastForPanel($interview, (int) $application->id, (int) $employeeId)) {
             $redirectUrl = $guard === 'web'
@@ -908,7 +1027,10 @@ class InterviewEvaluationController extends Controller
             $employeeId = $request->integer('panel_employee_id') ?: $employeeId;
         }
 
-        abort_unless($employeeId && $interview->panels->contains('emp_id', $employeeId), 403);
+        abort_unless(
+            $employeeId && $this->assignedPanelIdsForApplication($interview, (int) $application->id)->contains((int) $employeeId),
+            403
+        );
         abort_unless($this->isCurrentCastForPanel($interview, (int) $application->id, (int) $employeeId), 403);
 
         $sourceRating = InterviewRating::with('application')->findOrFail($request->source_rating_id);
