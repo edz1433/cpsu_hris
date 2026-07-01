@@ -310,7 +310,14 @@
 @if(!empty($guard))
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    let interviewRatingNavRunning = false;
+
     function refreshInterviewRatingNav() {
+        if (interviewRatingNavRunning) {
+            return;
+        }
+
+        interviewRatingNavRunning = true;
         fetch("{{ route('interviewAssignmentsStatus') }}", {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
             cache: 'no-store'
@@ -334,11 +341,21 @@ document.addEventListener('DOMContentLoaded', function () {
                     item.style.display = 'none';
                 }
             })
-            .catch(function () {});
+            .catch(function () {})
+            .finally(function () {
+                interviewRatingNavRunning = false;
+            });
     }
 
     refreshInterviewRatingNav();
-    setInterval(refreshInterviewRatingNav, 3000);
+    window.addEventListener('focus', refreshInterviewRatingNav);
+    window.addEventListener('pageshow', refreshInterviewRatingNav);
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) {
+            refreshInterviewRatingNav();
+        }
+    });
+    setInterval(refreshInterviewRatingNav, 1000);
 });
 </script>
 @endif

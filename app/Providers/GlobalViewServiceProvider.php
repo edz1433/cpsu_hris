@@ -55,10 +55,13 @@ class GlobalViewServiceProvider extends ServiceProvider
                 if ($panelEmployeeId) {
                     $activeInterviewRatings = InterviewEvaluation::with(['job', 'activeApplication'])
                         ->whereNotNull('active_application_id')
-                        ->whereHas('panels', fn ($query) => $query->where('emp_id', $panelEmployeeId))
                         ->whereHas('applicants', function ($query) {
                             $query->where('is_cast', true)
                                 ->whereColumn('interview_applicants.application_id', 'interview_evaluations.active_application_id');
+                        })
+                        ->whereHas('ratings', function ($query) use ($panelEmployeeId) {
+                            $query->where('panel_employee_id', $panelEmployeeId)
+                                ->whereColumn('interview_ratings.application_id', 'interview_evaluations.active_application_id');
                         })
                         ->latest()
                         ->get();

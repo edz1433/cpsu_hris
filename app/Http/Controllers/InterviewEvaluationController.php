@@ -295,6 +295,34 @@ class InterviewEvaluationController extends Controller
                 ->exists();
     }
 
+    private function hasCurrentCastWithSameEmail(Application $application, int $employeeId): bool
+    {
+        $email = strtolower(trim((string) $application->email));
+
+        if ($email === '') {
+            return false;
+        }
+
+        return $this->activeInterviewsForPanel($employeeId)
+            ->contains(function ($interview) use ($email) {
+                return strtolower(trim((string) optional($interview->activeApplication)->email)) === $email;
+            });
+    }
+
+    private function canRateApplicationForPanel(InterviewEvaluation $interview, Application $application, int $employeeId): bool
+    {
+        if ((int) $application->jid !== (int) $interview->jid || (int) $application->status !== 2) {
+            return false;
+        }
+
+        if (!$this->assignedPanelIdsForApplication($interview, (int) $application->id)->contains((int) $employeeId)) {
+            return false;
+        }
+
+        return $this->isCurrentCastForPanel($interview, (int) $application->id, $employeeId)
+            || $this->hasCurrentCastWithSameEmail($application, $employeeId);
+    }
+
     private function activeInterviewsForPanel(int $employeeId)
     {
         return InterviewEvaluation::with(['job', 'eteEvaluation.office', 'activeApplication'])
@@ -330,7 +358,9 @@ class InterviewEvaluationController extends Controller
         $applications = Application::whereRaw('LOWER(email) = ?', [$email])
             ->where('status', 2)
             ->orderBy('jid')
-            ->get();
+            ->get()
+            ->sortByDesc(fn ($relatedApplication) => (int) $relatedApplication->id === (int) $application->id)
+            ->values();
 
         if ($applications->isEmpty()) {
             return collect();
@@ -340,16 +370,19 @@ class InterviewEvaluationController extends Controller
                 $query->where('panel_employee_id', $employeeId);
             }])
             ->whereIn('jid', $applications->pluck('jid')->unique())
-            ->whereHas('panels', fn ($query) => $query->where('emp_id', $employeeId))
             ->latest()
             ->get()
             ->unique('jid')
             ->keyBy('jid');
 
-        return $applications->map(function ($relatedApplication) use ($interviews) {
+        return $applications->map(function ($relatedApplication) use ($interviews, $employeeId) {
             $relatedInterview = $interviews->get($relatedApplication->jid);
 
             if (!$relatedInterview) {
+                return null;
+            }
+
+            if (!$this->assignedPanelIdsForApplication($relatedInterview, (int) $relatedApplication->id)->contains((int) $employeeId)) {
                 return null;
             }
 
@@ -361,7 +394,16 @@ class InterviewEvaluationController extends Controller
                 'application' => $relatedApplication,
                 'rating' => $rating,
             ];
-        })->filter()->values();
+        })->filter()
+            ->unique(function ($item) {
+                $job = $item['interview']->job;
+
+                return strtolower(trim(collect([
+                    $job->plantilla_item_no ?? null,
+                    $job->title ?? $item['application']->position ?? null,
+                ])->filter()->implode('|')));
+            })
+            ->values();
     }
 
     private function ratingStarted(?InterviewRating $rating): bool
@@ -643,7 +685,7 @@ class InterviewEvaluationController extends Controller
             ? Application::where('jid', $interview->jid)->where('status', 2)->find($applicationId)
             : null;
         $active = $interview && $application
-            ? $this->isCurrentCastForPanel($interview, (int) $application->id, (int) $employeeId)
+            ? $this->canRateApplicationForPanel($interview, $application, (int) $employeeId)
             : false;
         $activeInterview = $this->activeInterviewsForPanel((int) $employeeId)->first();
 
@@ -848,7 +890,7 @@ class InterviewEvaluationController extends Controller
             'You are not part of this interview panel.'
         );
 
-        if (!$this->isCurrentCastForPanel($interview, (int) $application->id, (int) $employeeId)) {
+        if (!$this->canRateApplicationForPanel($interview, $application, (int) $employeeId)) {
             $redirectRoute = $guard === 'web' ? 'interviewEvaluationShow' : 'interviewAssignments';
 
             return redirect()->route($redirectRoute, $guard === 'web' ? [$interview->id] : [])
@@ -898,7 +940,7 @@ class InterviewEvaluationController extends Controller
             403
         );
 
-        if (!$this->isCurrentCastForPanel($interview, (int) $application->id, (int) $employeeId)) {
+        if (!$this->canRateApplicationForPanel($interview, $application, (int) $employeeId)) {
             $redirectUrl = $guard === 'web'
                 ? route('interviewEvaluationShow', $interview->id)
                 : route('interviewAssignments');
@@ -1031,7 +1073,7 @@ class InterviewEvaluationController extends Controller
             $employeeId && $this->assignedPanelIdsForApplication($interview, (int) $application->id)->contains((int) $employeeId),
             403
         );
-        abort_unless($this->isCurrentCastForPanel($interview, (int) $application->id, (int) $employeeId), 403);
+        abort_unless($this->canRateApplicationForPanel($interview, $application, (int) $employeeId), 403);
 
         $sourceRating = InterviewRating::with('application')->findOrFail($request->source_rating_id);
         abort_if((int) $sourceRating->panel_employee_id !== (int) $employeeId, 422, 'Selected rating belongs to another panel member.');
