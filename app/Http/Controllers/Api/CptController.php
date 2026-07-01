@@ -9,7 +9,7 @@ class CptController
 {
     public function sync(Request $request)
     {
-        if ($request->bearerToken() !== env('CPT_SYNC_TOKEN')) {
+        if ($request->bearerToken() !== config('services.cpt_sync.token')) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
