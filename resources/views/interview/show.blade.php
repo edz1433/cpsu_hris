@@ -11,6 +11,9 @@
     .progress-mini { background:#edf2f7; border-radius:999px; height:8px; overflow:hidden; }
     .progress-mini span { background:#16a34a; display:block; height:100%; }
     .panel-link { border-radius:999px; margin:2px; }
+    .panel-pill { border:1px solid; border-radius:999px; display:inline-block; font-size:.78rem; font-weight:700; margin:2px; padding:5px 10px; }
+    .panel-pill.done { background:#f0fdf4; border-color:#16a34a; color:#166534; }
+    .panel-pill.pending { background:#fef2f2; border-color:#dc2626; color:#991b1b; }
 </style>
 
 <div class="container-fluid interview-manage">
@@ -119,7 +122,16 @@
                                             </a>
                                         @endforeach
                                     @else
-                                        <span class="text-muted small">Cast applicant first to open panel forms.</span>
+                                        @foreach($interview->panels as $panel)
+                                            @php
+                                                $panelRating = $ratings->firstWhere('panel_employee_id', $panel->emp_id);
+                                                $panelFinished = $panelRating && $completedRatings->contains('id', $panelRating->id);
+                                            @endphp
+                                            <span class="panel-pill {{ $panelFinished ? 'done' : 'pending' }}"
+                                                  title="{{ $panelFinished ? 'Rating complete' : 'Not yet finished rating' }}">
+                                                <i class="fas {{ $panelFinished ? 'fa-check-circle' : 'fa-exclamation-circle' }}"></i> {{ $panel->employee->lname ?? 'Panel' }}
+                                            </span>
+                                        @endforeach
                                     @endif
                                 </td>
                                 <td class="text-center">
