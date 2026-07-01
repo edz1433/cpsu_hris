@@ -256,12 +256,16 @@
     $potentialScores = $rating->potential_scores ?? [];
     $relatedPositions = $relatedPositions ?? collect();
     $copyableRatings = $copyableRatings ?? collect();
+    $sourceInterviewId = $sourceInterviewId ?? $interview->id;
+    $sourceApplicationId = $sourceApplicationId ?? $application->id;
 @endphp
 
 <div class="container-fluid rating-page">
     <form method="POST" action="{{ route('interviewRatingSave', [$interview->id, $application->id]) }}" id="interviewRatingForm">
         @csrf
         <input type="hidden" name="panel_employee_id" value="{{ $panelEmployee->id }}">
+        <input type="hidden" name="source_interview_id" value="{{ $sourceInterviewId }}">
+        <input type="hidden" name="source_application_id" value="{{ $sourceApplicationId }}">
 
         <div class="rating-hero mb-3">
             <div class="row align-items-center">
@@ -285,9 +289,14 @@
                                     $isCurrentPosition = (int) $positionInterview->id === (int) $interview->id
                                         && (int) $positionApplication->id === (int) $application->id;
                                     $positionUrl = route('interviewRatingForm', [$positionInterview->id, $positionApplication->id]);
+                                    $positionQuery = [
+                                        'source_interview_id' => $sourceInterviewId,
+                                        'source_application_id' => $sourceApplicationId,
+                                    ];
                                     if (auth()->guard('web')->check()) {
-                                        $positionUrl .= '?panel_id='.$panelEmployee->id;
+                                        $positionQuery['panel_id'] = $panelEmployee->id;
                                     }
+                                    $positionUrl .= '?'.http_build_query($positionQuery);
                                 @endphp
                                 <a href="{{ $positionUrl }}" class="position-link {{ $isCurrentPosition ? 'active' : '' }}">
                                     <strong>{{ $positionInterview->job->title ?? $positionApplication->position ?? 'Position' }}</strong>
@@ -455,6 +464,8 @@
         <form method="POST" action="{{ route('interviewRatingCopy', [$interview->id, $application->id]) }}" class="modal-content">
             @csrf
             <input type="hidden" name="panel_employee_id" value="{{ $panelEmployee->id }}">
+            <input type="hidden" name="source_interview_id" value="{{ $sourceInterviewId }}">
+            <input type="hidden" name="source_application_id" value="{{ $sourceApplicationId }}">
             <input type="hidden" name="source_rating_id" id="copyInterviewSourceRatingId">
 
             <div class="modal-header bg-success text-white">
@@ -497,6 +508,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const fallbackUrl = "{{ auth()->guard('web')->check() ? route('interviewEvaluationShow', $interview->id) : route('interviewAssignments') }}";
     const currentActiveKey = "{{ $interview->id }}:{{ $application->id }}";
     const panelEmployeeId = "{{ $panelEmployee->id }}";
+    const sourceInterviewId = "{{ $sourceInterviewId }}";
+    const sourceApplicationId = "{{ $sourceApplicationId }}";
     const interviewKeys = @json(array_keys($interviewCriteria));
     const potentialKeys = @json(collect($potentialCriteria)->flatMap(fn ($items) => array_keys($items))->values());
     let autosaveTimer = null;
@@ -619,7 +632,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         castCheckRunning = true;
-        fetch("{{ route('interviewRatingStatus', [$interview->id, $application->id]) }}?panel_id=" + encodeURIComponent(panelEmployeeId), {
+        fetch("{{ route('interviewRatingStatus', [$interview->id, $application->id]) }}?panel_id=" + encodeURIComponent(panelEmployeeId)
+            + "&source_interview_id=" + encodeURIComponent(sourceInterviewId)
+            + "&source_application_id=" + encodeURIComponent(sourceApplicationId), {
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
             cache: 'no-store'
         })
@@ -628,7 +643,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const nextUrl = data.url || fallbackUrl;
                 const activeKey = data.active_key || '';
 
-                if (!data.active || activeKey !== currentActiveKey) {
+                if (!data.source_active || !data.active || activeKey !== currentActiveKey) {
                     if (nextUrl.split('#')[0] === currentUrl) {
                         window.location.reload();
                         return;
@@ -651,7 +666,7 @@ document.addEventListener('DOMContentLoaded', function () {
             checkCurrentCast();
         }
     });
-    setInterval(checkCurrentCast, 1500);
+    setInterval(checkCurrentCast, 1000);
 
     const copySelect = document.getElementById('copyInterviewRatingSelect');
     if (copySelect) {

@@ -295,21 +295,36 @@ class InterviewEvaluationController extends Controller
                 ->exists();
     }
 
-    private function hasCurrentCastWithSameEmail(Application $application, int $employeeId): bool
+    private function sourceCastMatchesApplication(Application $application, int $employeeId, ?int $sourceInterviewId, ?int $sourceApplicationId): bool
     {
-        $email = strtolower(trim((string) $application->email));
-
-        if ($email === '') {
+        if (!$sourceInterviewId || !$sourceApplicationId) {
             return false;
         }
 
-        return $this->activeInterviewsForPanel($employeeId)
-            ->contains(function ($interview) use ($email) {
-                return strtolower(trim((string) optional($interview->activeApplication)->email)) === $email;
-            });
+        $sourceInterview = InterviewEvaluation::find($sourceInterviewId);
+        $sourceApplication = $sourceInterview
+            ? Application::where('jid', $sourceInterview->jid)->where('status', 2)->find($sourceApplicationId)
+            : null;
+
+        if (!$sourceInterview || !$sourceApplication) {
+            return false;
+        }
+
+        $sourceEmail = strtolower(trim((string) $sourceApplication->email));
+        $targetEmail = strtolower(trim((string) $application->email));
+
+        return $sourceEmail !== ''
+            && $sourceEmail === $targetEmail
+            && $this->isCurrentCastForPanel($sourceInterview, (int) $sourceApplication->id, $employeeId);
     }
 
-    private function canRateApplicationForPanel(InterviewEvaluation $interview, Application $application, int $employeeId): bool
+    private function canRateApplicationForPanel(
+        InterviewEvaluation $interview,
+        Application $application,
+        int $employeeId,
+        ?int $sourceInterviewId = null,
+        ?int $sourceApplicationId = null
+    ): bool
     {
         if ((int) $application->jid !== (int) $interview->jid || (int) $application->status !== 2) {
             return false;
@@ -320,7 +335,7 @@ class InterviewEvaluationController extends Controller
         }
 
         return $this->isCurrentCastForPanel($interview, (int) $application->id, $employeeId)
-            || $this->hasCurrentCastWithSameEmail($application, $employeeId);
+            || $this->sourceCastMatchesApplication($application, $employeeId, $sourceInterviewId, $sourceApplicationId);
     }
 
     private function activeInterviewsForPanel(int $employeeId)
@@ -615,6 +630,8 @@ class InterviewEvaluationController extends Controller
             $panelEmployee = Employee::findOrFail($employeeId);
             $relatedPositions = $this->relatedQualifiedPositions($application, (int) $employeeId);
             $copyableRatings = $this->copyablePanelRatings($application, $rating, (int) $employeeId);
+            $sourceInterviewId = (int) $interview->id;
+            $sourceApplicationId = (int) $application->id;
 
             return view('interview.rate', [
                 'interview' => $interview,
@@ -625,6 +642,8 @@ class InterviewEvaluationController extends Controller
                 'potentialCriteria' => $this->potentialCriteria,
                 'relatedPositions' => $relatedPositions,
                 'copyableRatings' => $copyableRatings,
+                'sourceInterviewId' => $sourceInterviewId,
+                'sourceApplicationId' => $sourceApplicationId,
             ]);
         }
 
@@ -684,13 +703,27 @@ class InterviewEvaluationController extends Controller
         $application = $interview
             ? Application::where('jid', $interview->jid)->where('status', 2)->find($applicationId)
             : null;
+        $sourceInterviewId = request()->integer('source_interview_id') ?: null;
+        $sourceApplicationId = request()->integer('source_application_id') ?: null;
+        $sourceInterview = $sourceInterviewId ? InterviewEvaluation::find($sourceInterviewId) : null;
+        $sourceActive = false;
+
+        if ($sourceInterview && $sourceApplicationId) {
+            $sourceActive = $this->isCurrentCastForPanel($sourceInterview, (int) $sourceApplicationId, (int) $employeeId);
+        }
+
+        $currentCastActive = $interview && $application
+            ? $this->isCurrentCastForPanel($interview, (int) $application->id, (int) $employeeId)
+            : false;
         $active = $interview && $application
-            ? $this->canRateApplicationForPanel($interview, $application, (int) $employeeId)
+            ? $this->canRateApplicationForPanel($interview, $application, (int) $employeeId, $sourceInterviewId, $sourceApplicationId)
             : false;
         $activeInterview = $this->activeInterviewsForPanel((int) $employeeId)->first();
 
         return response()->json([
             'active' => $active,
+            'current_cast_active' => $currentCastActive,
+            'source_active' => $sourceInterviewId && $sourceApplicationId ? $sourceActive : $currentCastActive,
             'url' => $statusUrl,
             'active_key' => $active
                 ? $id . ':' . $applicationId
@@ -883,6 +916,8 @@ class InterviewEvaluationController extends Controller
         if ($guard === 'web') {
             $employeeId = request()->integer('panel_id') ?: $employeeId ?: optional($interview->panels->first())->emp_id;
         }
+        $sourceInterviewId = request()->integer('source_interview_id') ?: null;
+        $sourceApplicationId = request()->integer('source_application_id') ?: null;
 
         abort_unless(
             $employeeId && $this->assignedPanelIdsForApplication($interview, (int) $application->id)->contains((int) $employeeId),
@@ -890,7 +925,12 @@ class InterviewEvaluationController extends Controller
             'You are not part of this interview panel.'
         );
 
-        if (!$this->canRateApplicationForPanel($interview, $application, (int) $employeeId)) {
+        if (!$sourceInterviewId && !$sourceApplicationId && $this->isCurrentCastForPanel($interview, (int) $application->id, (int) $employeeId)) {
+            $sourceInterviewId = (int) $interview->id;
+            $sourceApplicationId = (int) $application->id;
+        }
+
+        if (!$this->canRateApplicationForPanel($interview, $application, (int) $employeeId, $sourceInterviewId, $sourceApplicationId)) {
             $redirectRoute = $guard === 'web' ? 'interviewEvaluationShow' : 'interviewAssignments';
 
             return redirect()->route($redirectRoute, $guard === 'web' ? [$interview->id] : [])
@@ -921,6 +961,8 @@ class InterviewEvaluationController extends Controller
             'potentialCriteria' => $this->potentialCriteria,
             'relatedPositions' => $relatedPositions,
             'copyableRatings' => $copyableRatings,
+            'sourceInterviewId' => $sourceInterviewId,
+            'sourceApplicationId' => $sourceApplicationId,
         ]);
     }
 
@@ -935,12 +977,14 @@ class InterviewEvaluationController extends Controller
         if ($guard === 'web') {
             $employeeId = $request->integer('panel_employee_id') ?: $employeeId;
         }
+        $sourceInterviewId = $request->integer('source_interview_id') ?: null;
+        $sourceApplicationId = $request->integer('source_application_id') ?: null;
         abort_unless(
             $employeeId && $this->assignedPanelIdsForApplication($interview, (int) $application->id)->contains((int) $employeeId),
             403
         );
 
-        if (!$this->canRateApplicationForPanel($interview, $application, (int) $employeeId)) {
+        if (!$this->canRateApplicationForPanel($interview, $application, (int) $employeeId, $sourceInterviewId, $sourceApplicationId)) {
             $redirectUrl = $guard === 'web'
                 ? route('interviewEvaluationShow', $interview->id)
                 : route('interviewAssignments');
@@ -1068,12 +1112,14 @@ class InterviewEvaluationController extends Controller
         if ($guard === 'web') {
             $employeeId = $request->integer('panel_employee_id') ?: $employeeId;
         }
+        $sourceInterviewId = $request->integer('source_interview_id') ?: null;
+        $sourceApplicationId = $request->integer('source_application_id') ?: null;
 
         abort_unless(
             $employeeId && $this->assignedPanelIdsForApplication($interview, (int) $application->id)->contains((int) $employeeId),
             403
         );
-        abort_unless($this->canRateApplicationForPanel($interview, $application, (int) $employeeId), 403);
+        abort_unless($this->canRateApplicationForPanel($interview, $application, (int) $employeeId, $sourceInterviewId, $sourceApplicationId), 403);
 
         $sourceRating = InterviewRating::with('application')->findOrFail($request->source_rating_id);
         abort_if((int) $sourceRating->panel_employee_id !== (int) $employeeId, 422, 'Selected rating belongs to another panel member.');
