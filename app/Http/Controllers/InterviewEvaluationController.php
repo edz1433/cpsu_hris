@@ -1264,9 +1264,9 @@ class InterviewEvaluationController extends Controller
     /**
      * Realtime scoring overview for the panel-progress modal.
      *
-     * For every candidate in this interview it cross-references, by email, every
-     * qualified position that applicant applied to, and reports which panel members
-     * have finished scoring each position and which are still pending.
+     * Scoped to the applicant currently cast on this interview: cross-references,
+     * by email, every qualified position that cast applicant applied to, and reports
+     * which panel members have finished scoring each position and which are pending.
      */
     public function panelProgress($id)
     {
@@ -1275,7 +1275,15 @@ class InterviewEvaluationController extends Controller
         $interview = InterviewEvaluation::findOrFail($id);
         $this->syncApplicantRows($interview);
 
-        $baseApplicants = $this->eligibleApplicants($interview);
+        // Only the applicant currently cast on this interview is shown.
+        $activeId = $interview->active_application_id;
+        $baseApplicants = $activeId
+            ? Application::where('jid', $interview->jid)
+                ->where('status', 2)
+                ->where('id', $activeId)
+                ->get()
+            : collect();
+
         $emails = $baseApplicants
             ->map(fn ($applicant) => strtolower(trim((string) $applicant->email)))
             ->filter()

@@ -257,7 +257,7 @@
             <div class="modal-header bg-info text-white">
                 <h5 class="modal-title" id="panelProgressModalLabel">
                     <i class="fas fa-chart-line"></i> Scoring Progress
-                    <span class="text-white-50" style="font-size:.8rem;">(all positions each applicant applied to)</span>
+                    <span class="text-white-50" style="font-size:.8rem;">(all positions the cast applicant applied to)</span>
                 </h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -455,7 +455,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (!applicants.length) {
-            body.innerHTML = '<div class="progress-empty text-center text-muted py-4">No qualified applicants to show.</div>';
+            body.innerHTML = '<div class="progress-empty text-center text-muted py-4">No applicant is currently cast for this interview.</div>';
             return;
         }
 
