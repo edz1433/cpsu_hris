@@ -381,7 +381,6 @@ class InterviewEvaluationController extends Controller
             ->where('status', 2)
             ->orderBy('jid')
             ->get()
-            ->sortByDesc(fn ($relatedApplication) => (int) $relatedApplication->id === (int) $application->id)
             ->values();
 
         if ($applications->isEmpty()) {
@@ -1012,23 +1011,12 @@ class InterviewEvaluationController extends Controller
             403
         );
 
-        if (!$this->canRateApplicationForPanel($interview, $application, (int) $employeeId, $sourceInterviewId, $sourceApplicationId)) {
-            $redirectUrl = $guard === 'web'
-                ? route('interviewEvaluationShow', $interview->id)
-                : route('interviewAssignments');
-
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'active' => false,
-                    'redirect' => $redirectUrl,
-                    'message' => 'This applicant is no longer cast for your interview panel.',
-                ], 409);
-            }
-
-            return redirect()->to($redirectUrl)
-                ->with('error', 'This applicant is no longer cast for your interview panel.');
-        }
+        // A panelist's scores live in their own isolated rating row, keyed by
+        // (interview_id, application_id, panel_employee_id). We must NEVER discard an
+        // in-progress score just because the live "cast" moved to another applicant
+        // mid-scoring — that race was silently deleting panel scores when an applicant
+        // was being rated across several positions. Persist first, redirect after.
+        $stillRateable = $this->canRateApplicationForPanel($interview, $application, (int) $employeeId, $sourceInterviewId, $sourceApplicationId);
 
         InterviewApplicant::firstOrCreate([
             'interview_id' => $interview->id,
@@ -1101,10 +1089,21 @@ class InterviewEvaluationController extends Controller
                 'potential_total' => $potentialTotal,
                 'total_score' => $interviewTotal + $potentialTotal,
                 'remarks' => $request->remarks,
-                'submitted_at' => $isComplete ? now() : null,
+                // Preserve the original submission time instead of churning it on
+                // every autosave; only stamp a fresh time the first time it completes.
+                'submitted_at' => $isComplete ? (optional($existingRating)->submitted_at ?? now()) : null,
             ]);
             $rating->save();
         }, 3);
+
+        // The scores are now safely persisted. If the live cast has since moved on to
+        // another applicant, hand the panelist a redirect so the UI follows the active
+        // assignment — but only after their work has been saved.
+        $redirectUrl = $stillRateable
+            ? null
+            : ($guard === 'web'
+                ? route('interviewEvaluationShow', $interview->id)
+                : route('interviewAssignments'));
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
@@ -1115,7 +1114,13 @@ class InterviewEvaluationController extends Controller
                 'total_score' => number_format($rating->total_score, 2),
                 'saved_at' => now()->format('M d, Y h:i A'),
                 'message' => $isComplete ? 'Saved' : 'Draft saved',
+                'redirect' => $redirectUrl,
             ]);
+        }
+
+        if ($redirectUrl) {
+            return redirect()->to($redirectUrl)
+                ->with('success', 'Interview assessment saved.');
         }
 
         return back()->with('success', 'Interview assessment saved.');
@@ -1254,6 +1259,137 @@ class InterviewEvaluationController extends Controller
         return \PDF::loadView('interview.summary-rating-pdf', compact('interview', 'rows', 'panelists', 'chairman'))
             ->setPaper($longBondPaper, 'portrait')
             ->stream($fileName);
+    }
+
+    /**
+     * Realtime scoring overview for the panel-progress modal.
+     *
+     * For every candidate in this interview it cross-references, by email, every
+     * qualified position that applicant applied to, and reports which panel members
+     * have finished scoring each position and which are still pending.
+     */
+    public function panelProgress($id)
+    {
+        $this->authorizeAdmin();
+
+        $interview = InterviewEvaluation::findOrFail($id);
+        $this->syncApplicantRows($interview);
+
+        $baseApplicants = $this->eligibleApplicants($interview);
+        $emails = $baseApplicants
+            ->map(fn ($applicant) => strtolower(trim((string) $applicant->email)))
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($emails->isEmpty()) {
+            return response()->json([
+                'success' => true,
+                'applicants' => [],
+                'generated_at' => now()->format('h:i:s A'),
+            ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        }
+
+        // Every qualified application belonging to these applicants, across all positions.
+        $applications = Application::where('status', 2)
+            ->whereIn(DB::raw('LOWER(TRIM(email))'), $emails->all())
+            ->get();
+
+        $jids = $applications->pluck('jid')->filter()->unique()->values();
+
+        // Latest interview per position (jid) with its panels and ratings.
+        $interviewsByJid = InterviewEvaluation::with(['job', 'panels.employee', 'ratings'])
+            ->whereIn('jid', $jids)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('jid')
+            ->keyBy('jid');
+
+        // Preload every employee that could appear as a panelist (avoids N+1).
+        $panelEmployeeIds = collect();
+        foreach ($interviewsByJid as $relatedInterview) {
+            $panelEmployeeIds = $panelEmployeeIds
+                ->merge($relatedInterview->panels->pluck('emp_id'))
+                ->merge($relatedInterview->ratings->pluck('panel_employee_id'));
+        }
+        $employees = Employee::whereIn('id', $panelEmployeeIds->filter()->unique()->values()->all())
+            ->get()
+            ->keyBy('id');
+
+        $applicationsByEmail = $applications->groupBy(fn ($application) => strtolower(trim((string) $application->email)));
+
+        $applicantsPayload = $baseApplicants->map(function ($base) use ($applicationsByEmail, $interviewsByJid, $employees) {
+            $email = strtolower(trim((string) $base->email));
+            $apps = $applicationsByEmail->get($email, collect())
+                ->unique('jid')
+                ->sortBy('jid')
+                ->values();
+
+            $positions = $apps->map(function ($app) use ($interviewsByJid, $employees) {
+                $relatedInterview = $interviewsByJid->get($app->jid);
+
+                if (!$relatedInterview) {
+                    return [
+                        'position' => $app->position ?? 'Position',
+                        'plantilla' => null,
+                        'setup' => false,
+                        'completed' => 0,
+                        'total' => 0,
+                        'fully_done' => false,
+                        'panels' => [],
+                    ];
+                }
+
+                $ratingsForApp = $relatedInterview->ratings->where('application_id', $app->id);
+                $assignedIds = $ratingsForApp->pluck('panel_employee_id')->filter()->unique()->values();
+                if ($assignedIds->isEmpty()) {
+                    $assignedIds = $relatedInterview->panels->pluck('emp_id')->filter()->unique()->values();
+                }
+
+                $panels = $assignedIds->map(function ($empId) use ($ratingsForApp, $employees) {
+                    $employee = $employees->get($empId);
+                    $rating = $ratingsForApp->firstWhere('panel_employee_id', $empId);
+
+                    return [
+                        'name' => $employee
+                            ? trim(($employee->lname ?? '') . ', ' . ($employee->fname ?? ''))
+                            : ('Panel #' . $empId),
+                        'finished' => $this->ratingComplete($rating),
+                    ];
+                })->values();
+
+                $completed = $panels->where('finished', true)->count();
+                $total = $panels->count();
+
+                return [
+                    'position' => $relatedInterview->job->title ?? $app->position ?? 'Position',
+                    'plantilla' => $relatedInterview->job->plantilla_item_no ?? null,
+                    'setup' => true,
+                    'completed' => $completed,
+                    'total' => $total,
+                    'fully_done' => $total > 0 && $completed === $total,
+                    'panels' => $panels,
+                ];
+            })->values();
+
+            $totalPositions = $positions->count();
+            $donePositions = $positions->where('fully_done', true)->count();
+
+            return [
+                'name' => $this->applicantName($base),
+                'app_number' => $base->app_number,
+                'total_positions' => $totalPositions,
+                'done_positions' => $donePositions,
+                'all_done' => $totalPositions > 0 && $donePositions === $totalPositions,
+                'positions' => $positions,
+            ];
+        })->values();
+
+        return response()->json([
+            'success' => true,
+            'applicants' => $applicantsPayload,
+            'generated_at' => now()->format('h:i:s A'),
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
     public function destroy($id)

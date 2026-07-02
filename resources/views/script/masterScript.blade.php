@@ -86,16 +86,113 @@
       }
     });
 
+    // Editing (click to edit / drag to reschedule) is only enabled on the manage
+    // page where the edit modal exists; the dashboard calendar stays read-only.
+    var canManage = !!document.getElementById('editEventModal');
+
+    function csrfToken() {
+      var meta = document.querySelector('meta[name="csrf-token"]');
+      return meta ? meta.getAttribute('content') : '';
+    }
+
+    function pad2(n) { return String(n).padStart(2, '0'); }
+
+    function toLocalInput(d) {
+      if (!d) return '';
+      var dt = new Date(d);
+      return dt.getFullYear() + '-' + pad2(dt.getMonth() + 1) + '-' + pad2(dt.getDate()) +
+        'T' + pad2(dt.getHours()) + ':' + pad2(dt.getMinutes());
+    }
+
+    function toServerDateTime(d) {
+      if (!d) return '';
+      var dt = new Date(d);
+      return dt.getFullYear() + '-' + pad2(dt.getMonth() + 1) + '-' + pad2(dt.getDate()) +
+        ' ' + pad2(dt.getHours()) + ':' + pad2(dt.getMinutes()) + ':00';
+    }
+
+    function eventColorHex(cls) {
+      switch (cls) {
+        case 'bg-primary':   return '#007bff';
+        case 'bg-info':      return '#17a2b8';
+        case 'bg-warning':   return '#ffc107';
+        case 'bg-success':   return '#28a745';
+        case 'bg-danger':    return '#dc3545';
+        case 'bg-secondary': return '#6c757d';
+        default:             return '#0073b7';
+      }
+    }
+
+    // Populate and open the edit modal from a clicked calendar event.
+    window.openEditEvent = function (ev) {
+      var modal = document.getElementById('editEventModal');
+      if (!modal || !window.jQuery) return;
+      var p = ev.extendedProps || {};
+      var color = p.bgColor || 'bg-primary';
+
+      $('#edit_event_id').val(p.eventId || ev.id || '');
+      $('#edit_title').val(ev.title || '');
+      $('#edit_venue').val(p.venue || '');
+      $('#edit_org_dept').val(p.orgDept || '');
+      $('#edit_start').val(toLocalInput(ev.start));
+      $('#edit_end').val(ev.end ? toLocalInput(ev.end) : '');
+      $('#edit_bg_color').val(color);
+      $('#editEventColor .color-swatch').removeClass('selected');
+      $('#editEventColor .color-swatch[data-color="' + color + '"]').addClass('selected');
+      $('#deleteEventBtn').attr('data-id', p.eventId || ev.id || '');
+      $(modal).modal('show');
+    };
+
+    // Open the create modal pre-filled with the clicked/dragged date range
+    // (and a title when a preset is dragged onto the calendar).
+    window.openCreateEvent = function (start, end, title) {
+      var modal = document.getElementById('createEventModal');
+      if (!modal || !window.jQuery) return;
+      $('#create_title').val(title || '');
+      $('#create_start').val(toLocalInput(start));
+      $('#create_end').val(end ? toLocalInput(end) : '');
+      $(modal).modal('show');
+    };
+
+    // Persist a drag-to-reschedule / resize without leaving the calendar.
+    function persistEventDates(ev) {
+      var p = ev.extendedProps || {};
+      var fd = new FormData();
+      fd.append('id', p.eventId || ev.id);
+      fd.append('title', ev.title || '');
+      fd.append('venue', p.venue || '');
+      fd.append('org_dept', p.orgDept || '');
+      fd.append('bg_color', p.bgColor || 'bg-primary');
+      fd.append('start', toServerDateTime(ev.start));
+      fd.append('end', ev.end ? toServerDateTime(ev.end) : '');
+
+      fetch("{{ route('eventUpdateSave') }}", {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken() },
+        body: fd
+      })
+        .then(function (r) { return r.json(); })
+        .then(function () { if (window.toastr) toastr.success('Event rescheduled.'); })
+        .catch(function () { if (window.toastr) toastr.error('Failed to reschedule event.'); });
+    }
+
     var calendar = new Calendar(calendarEl, {
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
       },
       themeSystem: 'bootstrap',
+      navLinks: true,
+      nowIndicator: true,
+      dayMaxEvents: true,
+      // Fit the calendar within the viewport so the whole month is visible with
+      // minimal page scrolling; rows compress and overflow scrolls internally.
+      height: Math.max(480, window.innerHeight - 170),
+      expandRows: true,
 
       events: function (fetchInfo, successCallback, failureCallback) {
-        fetch("{{ route('eventShow') }}")
+        fetch("{{ route('eventJson') }}")
           .then(response => response.json())
           .then(data => {
             const events = data.map(event => {
@@ -105,17 +202,27 @@
               const ampm = hours >= 12 ? 'PM' : 'AM';
               const hour12 = hours % 12 || 12;
               const timeFormatted = `${hour12}:${minutes} ${ampm} `;
-              
+
               const isSingle = !event.end;
+              const color = eventColorHex(event.bg_color);
 
               return {
+                id: event.id,
                 title: event.title,
-                timeLabel: isSingle ? timeFormatted : null,
                 start: event.start,
                 end: event.end || null,
                 allDay: false,
-                backgroundColor: '#0073b7',
-                borderColor: '#0073b7',
+                backgroundColor: color,
+                borderColor: color,
+                extendedProps: {
+                  eventId: event.id,
+                  venue: event.venue,
+                  orgDept: event.org_dept,
+                  campusId: event.campus_id,
+                  empStatus: event.emp_status,
+                  bgColor: event.bg_color,
+                  timeLabel: isSingle ? timeFormatted : null,
+                }
               };
             });
             successCallback(events);
@@ -134,7 +241,7 @@
 
         let html = '';
 
-        // Add the blue dot at the start of the title
+        // Add the colored dot at the start of the title
         html += `<span class="fc-event-dot" style="width: 10px; height: 10px; background-color: ${eventColor}; border-radius: 50%; margin-right: 5px;"></span>`;
 
         if (time) {
@@ -145,28 +252,67 @@
         return { html };
       },
 
-      editable: true,
-      droppable: true,
-      drop: function (info) {
-        if (checkbox.checked) {
-          info.draggedEl.parentNode.removeChild(info.draggedEl);
+      eventClick: function (info) {
+        info.jsEvent.preventDefault();
+        if (canManage) {
+          window.openEditEvent(info.event);
+        }
+      },
+
+      // Click a day / slot or drag across a range to create a new event.
+      selectable: canManage,
+      selectMirror: true,
+      select: function (info) {
+        if (!canManage) return;
+        window._pendingDropEvent = null;
+        var start = info.start;
+        var end = info.end;
+
+        // FullCalendar's all-day end is exclusive; make it inclusive for the form.
+        if (info.allDay && end) {
+          end = new Date(end.getTime() - 86400000);
+          if (end <= start) end = null;
         }
 
-        // Handle the drop event
-        const eventObject = $(info.draggedEl).data('eventObject');
-        
-        // Add the dropped event to the calendar
-        calendar.addEvent({
-          title: eventObject.title,
-          start: info.date,
-          backgroundColor: eventObject.backgroundColor,
-          borderColor: eventObject.borderColor,
-          textColor: eventObject.textColor,
-        });
+        window.openCreateEvent(start, end);
+        calendar.unselect();
+      },
+
+      editable: canManage,
+      eventDrop: function (info) { persistEventDates(info.event); },
+      eventResize: function (info) { persistEventDates(info.event); },
+
+      droppable: true,
+      // A dragged-in preset becomes a temporary event and immediately opens the
+      // create modal pre-filled with its title + dropped date. If the user cancels,
+      // the temporary event is removed from the calendar (see hidden.bs.modal below).
+      eventReceive: function (info) {
+        window._pendingDropEvent = info.event;
+        window.openCreateEvent(info.event.start, null, info.event.title);
       }
     });
 
     calendar.render();
+
+    // Keep the calendar fitted to the window as it resizes.
+    window.addEventListener('resize', function () {
+      calendar.setOption('height', Math.max(480, window.innerHeight - 170));
+    });
+
+    // Remove a dragged-in preset from the calendar if its create modal is cancelled;
+    // keep it when the form is actually submitted (the page reloads and refetches).
+    if (window.jQuery) {
+      var $createModal = window.jQuery('#createEventModal');
+      $createModal.on('hidden.bs.modal', function () {
+        if (window._pendingDropEvent) {
+          window._pendingDropEvent.remove();
+          window._pendingDropEvent = null;
+        }
+      });
+      $createModal.find('form').on('submit', function () {
+        window._pendingDropEvent = null;
+      });
+    }
 
     var currColor = '#3c8dbc';
 

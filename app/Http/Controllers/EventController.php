@@ -28,12 +28,11 @@ class EventController extends Controller
         return view("events.event-read", compact('guard', 'campus', 'status'));
     }
 
-    public function eventShow() 
+    public function eventShow()
     {
-        $events = Event::all();
-        $events = Event::select('title', 'start', 'end', 'bg_color')
-        ->where('event_stat', 1) // Optional: only active events
-        ->get();
+        $events = Event::select('id', 'title', 'venue', 'org_dept', 'campus_id', 'emp_status', 'start', 'end', 'bg_color')
+            ->where('event_stat', 1) // Optional: only active events
+            ->get();
 
         return response()->json($events);
     }
@@ -86,6 +85,58 @@ class EventController extends Controller
         \DB::commit();
         
         return redirect()->back()->with('success', 'Event stored successfully!');
+    }
+
+    public function eventUpdate(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:events,id',
+            'title' => 'required',
+            'venue' => 'required',
+            'org_dept' => 'required',
+            'start' => 'required|date',
+            'end' => 'nullable|date',
+            'bg_color' => 'required',
+        ]);
+
+        try {
+            $event = Event::findOrFail($request->input('id'));
+            $event->update([
+                'title' => $request->input('title'),
+                'venue' => $request->input('venue'),
+                'org_dept' => $request->input('org_dept'),
+                'start' => $request->input('start'),
+                'end' => $request->input('end'),
+                'bg_color' => $request->input('bg_color'),
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 200, 'message' => 'Event updated successfully!']);
+            }
+
+            return redirect()->back()->with('success', 'Event updated successfully!');
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 500, 'message' => 'Failed to update event.'], 500);
+            }
+
+            return redirect()->back()->with('error', 'Failed to update event.');
+        }
+    }
+
+    public function eventDestroy($id)
+    {
+        try {
+            $event = Event::findOrFail($id);
+
+            // Remove attendance rows tied to this event before deleting it.
+            EventLog::where('event_id', $event->id)->delete();
+            $event->delete();
+
+            return response()->json(['status' => 200, 'message' => 'Event deleted successfully!']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 500, 'message' => 'Failed to delete event.'], 500);
+        }
     }
 
     public function showReport(){

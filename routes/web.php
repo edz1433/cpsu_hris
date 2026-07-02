@@ -249,6 +249,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/evaluations/{id}/consolidated', [InterviewEvaluationController::class, 'consolidatedScreen'])->name('interviewConsolidatedScreen');
         Route::get('/evaluations/{id}/consolidated-data', [InterviewEvaluationController::class, 'consolidatedData'])->name('interviewConsolidatedData');
         Route::get('/evaluations/{id}/summary-rating', [InterviewEvaluationController::class, 'summaryRatingPdf'])->name('interviewSummaryRatingPdf');
+        Route::get('/evaluations/{id}/panel-progress', [InterviewEvaluationController::class, 'panelProgress'])->name('interviewPanelProgress');
         Route::get('/evaluations/{id}', [InterviewEvaluationController::class, 'show'])->name('interviewEvaluationShow');
         Route::post('/evaluations/{id}/candidate/{applicationId}/cast', [InterviewEvaluationController::class, 'cast'])->name('interviewCandidateCast');
         Route::post('/evaluations/{id}/candidate/{applicationId}/uncast', [InterviewEvaluationController::class, 'uncast'])->name('interviewCandidateUncast');
@@ -451,7 +452,9 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     Route::prefix('event')->group(function() {
         Route::get('/', [EventController::class, 'eventIndex'])->name('eventIndex');
         Route::post('/create', [EventController::class, 'eventCreate'])->name('eventCreate');
-        Route::get('/event-show', [EventController::class, 'eventShows'])->name('eventShows');
+        Route::get('/event-json', [EventController::class, 'eventShow'])->name('eventJson');
+        Route::post('/update', [EventController::class, 'eventUpdate'])->name('eventUpdateSave');
+        Route::post('/delete/{id}', [EventController::class, 'eventDestroy'])->name('eventDestroy');
         Route::get('/reports', [EventController::class, 'showReport'])->name('showReport');
         Route::post('/reports', [EventController::class, 'searchReport'])->name('searchReport');
         Route::get('/reports-generate/{eventid}/{campusid}/{statusid}', [EventController::class, 'reportGenrate'])->name('reportGenrate');

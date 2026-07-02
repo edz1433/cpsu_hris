@@ -134,10 +134,14 @@
         margin-top:12px;
     }
     .position-switcher .position-link {
+        align-items:center;
         background:#fff;
         border:1px solid #d9e1ea;
         border-radius:8px;
         color:#1f2937;
+        display:flex;
+        gap:10px;
+        justify-content:space-between;
         min-width:210px;
         padding:8px 10px;
         text-align:left;
@@ -152,6 +156,9 @@
         border-color:#198754;
         box-shadow:inset 4px 0 0 #198754;
     }
+    .position-switcher .position-link-body {
+        min-width:0;
+    }
     .position-switcher strong,
     .position-switcher small {
         display:block;
@@ -159,6 +166,14 @@
         text-overflow:ellipsis;
         white-space:nowrap;
     }
+    .position-switcher .position-status {
+        flex-shrink:0;
+        font-size:1.25rem;
+        line-height:1;
+    }
+    .position-switcher .position-status.rated { color:#16a34a; }
+    .position-switcher .position-status.draft { color:#d97706; }
+    .position-switcher .position-status.pending { color:#dc2626; }
     .copy-rating-control {
         margin-bottom:10px;
     }
@@ -298,16 +313,22 @@
                                     }
                                     $positionUrl .= '?'.http_build_query($positionQuery);
                                 @endphp
+                                @php
+                                    $positionIsRated = $positionRating && $positionRating->submitted_at;
+                                    $positionIsDraft = !$positionIsRated && $positionRating && ((float) $positionRating->total_score > 0 || !empty($positionRating->interview_scores) || !empty($positionRating->potential_scores) || !empty($positionRating->remarks));
+                                @endphp
                                 <a href="{{ $positionUrl }}" class="position-link {{ $isCurrentPosition ? 'active' : '' }}">
-                                    <strong>{{ $positionInterview->job->title ?? $positionApplication->position ?? 'Position' }}</strong>
-                                    <small class="text-muted">
-                                        {{ $positionInterview->job->plantilla_item_no ?? 'No plantilla number' }}
-                                        @if($positionRating && $positionRating->submitted_at)
-                                            - Rated
-                                        @elseif($positionRating && ((float) $positionRating->total_score > 0 || !empty($positionRating->interview_scores) || !empty($positionRating->potential_scores) || !empty($positionRating->remarks)))
-                                            - Draft
-                                        @endif
-                                    </small>
+                                    <span class="position-link-body">
+                                        <strong>{{ $positionInterview->job->title ?? $positionApplication->position ?? 'Position' }}</strong>
+                                        <small class="text-muted">{{ $positionInterview->job->plantilla_item_no ?? 'No plantilla number' }}</small>
+                                    </span>
+                                    @if($positionIsRated)
+                                        <span class="position-status rated" title="Rated"><i class="fas fa-check-circle"></i></span>
+                                    @elseif($positionIsDraft)
+                                        <span class="position-status draft" title="Draft in progress"><i class="fas fa-pen-nib"></i></span>
+                                    @else
+                                        <span class="position-status pending" title="Not yet rated"><i class="fas fa-times-circle"></i></span>
+                                    @endif
                                 </a>
                             @endforeach
                         </div>
@@ -516,6 +537,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let autosaveRunning = false;
     let autosaveQueued = false;
     let castCheckRunning = false;
+    let pendingDirty = false;
 
     function setSaveStatus(text, state) {
         if (!status) return;
@@ -552,6 +574,9 @@ document.addEventListener('DOMContentLoaded', function () {
         formData.append('autosave', '1');
 
         autosaveRunning = true;
+        // This snapshot is now in flight; treat the form as clean unless a new edit
+        // arrives while the request is running (which re-queues another save).
+        pendingDirty = false;
         setSaveStatus('Saving...', 'saving');
 
         fetch(form.action, {
@@ -590,8 +615,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 setSaveStatus(data.complete ? 'Saved automatically.' : 'Draft saved automatically.', 'saved');
+
+                // Scores are persisted; only now is it safe to follow the active
+                // assignment if the live cast has moved on to another applicant.
+                if (data.redirect) {
+                    window.location.replace(data.redirect);
+                }
             })
             .catch(function (error) {
+                // Save did not land — keep the form marked dirty so the realtime
+                // cast-check won't navigate away and lose the unsaved scores.
+                pendingDirty = true;
                 setSaveStatus(error.message || 'Save failed. Please try again.', 'error');
             })
             .finally(function () {
@@ -604,11 +638,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function scheduleAutosave() {
+        pendingDirty = true;
         updateCurrentTotal();
         window.clearTimeout(autosaveTimer);
         autosaveTimer = window.setTimeout(function () {
             submitRating();
         }, 450);
+    }
+
+    function hasUnsavedWork() {
+        return pendingDirty || autosaveRunning || autosaveQueued;
     }
 
     if (form) {
@@ -628,6 +667,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function checkCurrentCast() {
         if (castCheckRunning) {
+            return;
+        }
+
+        // Never navigate away while the panelist has scores that aren't safely on the
+        // server yet. Flush them first; the save response itself will redirect if the
+        // live cast has genuinely moved on. This prevents realtime cast changes from
+        // wiping in-progress panel scores.
+        if (hasUnsavedWork()) {
+            window.clearTimeout(autosaveTimer);
+            submitRating();
             return;
         }
 
@@ -667,6 +716,25 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
     setInterval(checkCurrentCast, 1000);
+
+    // Last line of defense: if the page is being torn down (position switch, tab
+    // close, browser back) while an edit is still unsaved, flush it with a beacon so
+    // the panelist's scores are never lost. The form carries the CSRF token.
+    function flushOnExit() {
+        if (!form || !hasUnsavedWork() || !navigator.sendBeacon) {
+            return;
+        }
+        const formData = new FormData(form);
+        formData.append('autosave', '1');
+        navigator.sendBeacon(form.action, formData);
+        pendingDirty = false;
+    }
+    window.addEventListener('pagehide', flushOnExit);
+    document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+            flushOnExit();
+        }
+    });
 
     const copySelect = document.getElementById('copyInterviewRatingSelect');
     if (copySelect) {

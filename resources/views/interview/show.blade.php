@@ -44,31 +44,14 @@
                     <a href="{{ route('interviewSummaryRatingPdf', $interview->id) }}" target="_blank" class="btn btn-danger">
                         <i class="fas fa-file-pdf"></i> Summary Rating
                     </a>
+                    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#panelMembersModal">
+                        <i class="fas fa-users"></i> Panel
+                    </button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#panelProgressModal">
+                        <i class="fas fa-chart-line"></i> Scoring Progress
+                    </button>
                 @endif
                 <a href="{{ route('interviewEvaluationList') }}" class="btn btn-light border"><i class="fas fa-arrow-left"></i> Back</a>
-            </div>
-        </div>
-        <div class="border-top p-3">
-            <strong>Interview Panel</strong>
-            <div class="mt-2">
-                @foreach($interview->panels as $panel)
-                    <span class="d-inline-flex align-items-center mb-1 mr-1" style="gap:4px;">
-                        <span class="badge {{ $panel->is_chairman ? 'badge-warning' : 'badge-info' }} p-2">
-                            {{ $panel->employee->lname ?? '' }}, {{ $panel->employee->fname ?? '' }}
-                            @if($panel->is_chairman)
-                                <i class="fas fa-crown ml-1" title="Chairman"></i>
-                            @endif
-                        </span>
-                        @if(auth()->guard('web')->check() && in_array(auth()->guard('web')->user()->role, ['Administrator', 'HR Administrator'], true) && !$panel->is_chairman)
-                            <form method="POST" action="{{ route('interviewPanelSetChairman', [$interview->id, $panel->emp_id]) }}" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-sm btn-outline-warning" title="Set Chairman">
-                                    <i class="fas fa-crown"></i>
-                                </button>
-                            </form>
-                        @endif
-                    </span>
-                @endforeach
             </div>
         </div>
     </div>
@@ -226,6 +209,97 @@
     </div>
 </div>
 
+@if(auth()->guard('web')->check() && in_array(auth()->guard('web')->user()->role, ['Administrator', 'HR Administrator'], true))
+<div class="modal fade" id="panelMembersModal" tabindex="-1" role="dialog" aria-labelledby="panelMembersModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="panelMembersModalLabel">
+                    <i class="fas fa-users"></i> Interview Panel
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small mb-2">Click the crown to set a member as chairman.</p>
+                <div>
+                    @foreach($interview->panels as $panel)
+                        <span class="d-inline-flex align-items-center mb-1 mr-1" style="gap:4px;">
+                            <span class="badge {{ $panel->is_chairman ? 'badge-warning' : 'badge-info' }} p-2">
+                                {{ $panel->employee->lname ?? '' }}, {{ $panel->employee->fname ?? '' }}
+                                @if($panel->is_chairman)
+                                    <i class="fas fa-crown ml-1" title="Chairman"></i>
+                                @endif
+                            </span>
+                            @if(!$panel->is_chairman)
+                                <form method="POST" action="{{ route('interviewPanelSetChairman', [$interview->id, $panel->emp_id]) }}" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Set Chairman">
+                                        <i class="fas fa-crown"></i>
+                                    </button>
+                                </form>
+                            @endif
+                        </span>
+                    @endforeach
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light border" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="panelProgressModal" tabindex="-1" role="dialog" aria-labelledby="panelProgressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable panel-progress-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="panelProgressModalLabel">
+                    <i class="fas fa-chart-line"></i> Scoring Progress
+                    <span class="text-white-50" style="font-size:.8rem;">(all positions each applicant applied to)</span>
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center justify-content-end mb-2">
+                    <small class="text-muted" id="panelProgressUpdated"></small>
+                </div>
+                <div id="panelProgressBody">
+                    <div class="progress-empty text-center text-muted py-4"><i class="fas fa-spinner fa-spin"></i> Loading progress…</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span class="mr-auto small text-muted">
+                    <i class="fas fa-check-circle text-success"></i> Finished
+                    &nbsp;<i class="fas fa-hourglass-half text-danger"></i> Still scoring
+                </span>
+                <button type="button" class="btn btn-light border" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .panel-progress-dialog { max-width:90vw; margin:1.75rem auto; }
+    .panel-progress-dialog .modal-content { height:90vh; }
+    #panelProgressBody { display:grid; gap:12px; grid-template-columns:repeat(4, minmax(0, 1fr)); }
+    #panelProgressBody .progress-empty { grid-column:1 / -1; }
+    #panelProgressBody .progress-applicant { border:1px solid #e5e7eb; border-radius:12px; padding:10px 12px; }
+    #panelProgressBody .progress-applicant.all-done { border-color:#16a34a; background:#f0fdf4; }
+    #panelProgressBody .progress-position { border-top:1px dashed #e5e7eb; padding-top:6px; margin-top:6px; }
+    #panelProgressBody .progress-position:first-of-type { border-top:0; padding-top:0; margin-top:5px; }
+    #panelProgressBody .panel-chip { border-radius:999px; display:inline-block; font-size:.68rem; font-weight:700; margin:2px 2px 0 0; padding:2px 8px; }
+    #panelProgressBody .panel-chip.done { background:#dcfce7; color:#166534; }
+    #panelProgressBody .panel-chip.pending { background:#fef2f2; color:#991b1b; }
+    @media (max-width:1399.98px) { #panelProgressBody { grid-template-columns:repeat(3, minmax(0, 1fr)); } }
+    @media (max-width:991.98px)  { #panelProgressBody { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+    @media (max-width:575.98px)  { #panelProgressBody { grid-template-columns:1fr; } }
+</style>
+@endif
+
 @foreach($orderedEligibleApplicants as $applicant)
     @php
         $assignedPanelEmployees = $panelEmployeesByApplication->get($applicant->id, collect());
@@ -326,4 +400,106 @@
     });
 })();
 </script>
+
+@if(auth()->guard('web')->check() && in_array(auth()->guard('web')->user()->role, ['Administrator', 'HR Administrator'], true))
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('panelProgressModal');
+    const body = document.getElementById('panelProgressBody');
+    const updated = document.getElementById('panelProgressUpdated');
+    if (!modal || !body) return;
+
+    const endpoint = "{{ route('interviewPanelProgress', $interview->id) }}";
+    let pollTimer = null;
+    let fetching = false;
+
+    function esc(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function renderPosition(pos) {
+        const plantilla = pos.plantilla ? '<div class="text-muted small">' + esc(pos.plantilla) + '</div>' : '';
+
+        if (!pos.setup) {
+            return '<div class="progress-position">' +
+                '<div class="d-flex justify-content-between align-items-start">' +
+                    '<div><strong>' + esc(pos.position) + '</strong>' + plantilla + '</div>' +
+                    '<span class="badge badge-secondary">Interview not created yet</span>' +
+                '</div></div>';
+        }
+
+        const chips = (pos.panels || []).map(function (p) {
+            const cls = p.finished ? 'done' : 'pending';
+            const icon = p.finished ? 'fa-check-circle' : 'fa-hourglass-half';
+            return '<span class="panel-chip ' + cls + '"><i class="fas ' + icon + '"></i> ' + esc(p.name) + '</span>';
+        }).join('');
+
+        const complete = pos.total > 0 && pos.completed === pos.total;
+        const countCls = complete ? 'badge-success' : 'badge-danger';
+
+        return '<div class="progress-position">' +
+            '<div class="d-flex justify-content-between align-items-start">' +
+                '<div><strong>' + esc(pos.position) + '</strong>' + plantilla + '</div>' +
+                '<span class="badge ' + countCls + '">' + pos.completed + '/' + pos.total + ' rated</span>' +
+            '</div>' +
+            '<div class="mt-1">' + (chips || '<span class="text-muted small">No panel assigned.</span>') + '</div>' +
+        '</div>';
+    }
+
+    function render(data) {
+        const applicants = data.applicants || [];
+        if (updated) {
+            updated.textContent = data.generated_at ? ('Updated ' + data.generated_at) : '';
+        }
+
+        if (!applicants.length) {
+            body.innerHTML = '<div class="progress-empty text-center text-muted py-4">No qualified applicants to show.</div>';
+            return;
+        }
+
+        body.innerHTML = applicants.map(function (a) {
+            const doneCls = a.all_done ? ' all-done' : '';
+            const summaryCls = a.all_done ? 'badge-success' : 'badge-warning';
+            const positions = (a.positions || []).map(renderPosition).join('');
+
+            return '<div class="progress-applicant' + doneCls + '">' +
+                '<div class="d-flex justify-content-between align-items-start">' +
+                    '<div><strong>' + esc(a.name) + '</strong>' +
+                        (a.app_number ? '<div class="text-muted small">' + esc(a.app_number) + '</div>' : '') +
+                    '</div>' +
+                    '<span class="badge ' + summaryCls + '">' + a.done_positions + '/' + a.total_positions + ' positions done</span>' +
+                '</div>' +
+                positions +
+            '</div>';
+        }).join('');
+    }
+
+    function load() {
+        if (fetching) return;
+        fetching = true;
+        fetch(endpoint, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, cache: 'no-store' })
+            .then(function (r) { return r.json(); })
+            .then(render)
+            .catch(function () {
+                body.innerHTML = '<div class="progress-empty text-center text-danger py-4">Unable to load progress. Retrying…</div>';
+            })
+            .finally(function () { fetching = false; });
+    }
+
+    if (window.jQuery) {
+        window.jQuery(modal)
+            .on('shown.bs.modal', function () {
+                load();
+                window.clearInterval(pollTimer);
+                pollTimer = window.setInterval(load, 1500);
+            })
+            .on('hidden.bs.modal', function () {
+                window.clearInterval(pollTimer);
+            });
+    }
+});
+</script>
+@endif
 @endsection

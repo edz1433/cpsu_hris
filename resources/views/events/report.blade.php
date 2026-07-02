@@ -2,24 +2,12 @@
 
 @section('body')
 <div class="container-fluid">
-  <div class="row">
-    <div class="col-md-3">
-      <div class="sticky-top mb-3">
-        <div class="card">
-          <div class="card-header">
-            <div class="btn-group btn-block">
-                <a href="{{ route('eventIndex') }}" class="btn bg-secondary "><i class="fas fa-calendar"></i> EVENT</a>
-                <a href="{{ route('showReport') }}" class="btn bg-success1 "><i class="fas fa-file-pdf"></i> REPORTS</a>
-            </div>
-          </div>
-          <div class="card-body">
-           
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-9">
-        <div class="card card-primary">
+  <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+    <h4 class="font-weight-bold mb-0"><i class="fas fa-file-pdf mr-1"></i> Event Attendance Reports</h4>
+    <a href="{{ route('eventIndex') }}" class="btn btn-secondary"><i class="fas fa-calendar mr-1"></i> Calendar</a>
+  </div>
+
+  <div class="card card-primary">
             <form class="form-horizontal add-form p-2" action="{{ route('searchReport') }}" method="POST">
                 @csrf
                 <div class="form-group row mtop">
@@ -76,11 +64,8 @@
                 src="{{ isset($eventid, $campusid, $statusid) ? route('reportGenrate', ['eventid' => $eventid, 'campusid' => $campusid, 'statusid' => $statusid]) : '' }}"
                 width="98.5%" height="800px">
             </iframe>
-            
-        </div>
+
     </div>
-  </div>
-  <!-- /.row -->
 </div><!-- /.container-fluid -->
             
 @endsection

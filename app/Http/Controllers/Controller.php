@@ -192,7 +192,17 @@ class Controller extends BaseController
     // }
 
     public function __construct()
-    {   
+    {
+        // The queries below only feed the notification bell and job-application
+        // dropdown that appear on full HTML pages. They are expensive (two large
+        // multi-join queries plus an unbounded applications fetch) and running them
+        // on every request badly slows down high-frequency AJAX/JSON endpoints such
+        // as the interview rating autosave and the 1-second realtime status polls —
+        // which caused saves to hang at "Saving...". Skip them for AJAX/JSON.
+        if (request()->ajax() || request()->wantsJson()) {
+            return;
+        }
+
         $employeeEmpId = Auth::guard('employee')->check()
             ? Auth::guard('employee')->user()->emp_ID
             : null;
