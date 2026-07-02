@@ -144,6 +144,13 @@ class InterviewEvaluationController extends Controller
         return auth()->guard('web')->check() ? 'web' : (auth()->guard('employee')->check() ? 'employee' : null);
     }
 
+    private function employeeHasPhd(Employee $employee): bool
+    {
+        $haystack = strtolower($employee->prefix . ' ' . $employee->title_prefix);
+
+        return str_contains($haystack, 'phd') || str_contains($haystack, 'ph.d');
+    }
+
     private function currentPanelEmployeeId(): ?int
     {
         if (auth()->guard('employee')->check()) {
@@ -1226,8 +1233,14 @@ class InterviewEvaluationController extends Controller
         $panelistData = $interview->panels
             ->filter(fn ($panel) => $panel->employee)
             ->map(function ($panel) {
+                $name = trim(preg_replace('/\s+/', ' ', $panel->employee->fname . ' ' . $panel->employee->mname . ' ' . $panel->employee->lname));
+
+                if ($this->employeeHasPhd($panel->employee)) {
+                    $name .= ', PhD';
+                }
+
                 return [
-                    'name' => trim(preg_replace('/\s+/', ' ', $panel->employee->fname . ' ' . $panel->employee->mname . ' ' . $panel->employee->lname)),
+                    'name' => $name,
                     'position' => $panel->employee->position,
                     'is_chairman' => (bool) $panel->is_chairman,
                 ];
