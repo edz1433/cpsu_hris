@@ -285,12 +285,12 @@
 <style>
     .panel-progress-dialog { max-width:90vw; margin:1.75rem auto; }
     .panel-progress-dialog .modal-content { height:90vh; }
-    #panelProgressBody { display:grid; gap:12px; grid-template-columns:repeat(4, minmax(0, 1fr)); }
-    #panelProgressBody .progress-empty { grid-column:1 / -1; }
-    #panelProgressBody .progress-applicant { border:1px solid #e5e7eb; border-radius:12px; padding:10px 12px; }
-    #panelProgressBody .progress-applicant.all-done { border-color:#16a34a; background:#f0fdf4; }
-    #panelProgressBody .progress-position { border-top:1px dashed #e5e7eb; padding-top:6px; margin-top:6px; }
-    #panelProgressBody .progress-position:first-of-type { border-top:0; padding-top:0; margin-top:5px; }
+    #panelProgressBody { display:grid; gap:12px; grid-template-columns:repeat(4, minmax(0, 1fr)); align-items:start; }
+    #panelProgressBody .progress-empty,
+    #panelProgressBody .progress-applicant-header { grid-column:1 / -1; }
+    #panelProgressBody .progress-applicant-header { border-bottom:2px solid #16a34a; margin-bottom:2px; padding-bottom:6px; }
+    #panelProgressBody .progress-card { border:1px solid #e5e7eb; border-radius:12px; padding:10px 12px; }
+    #panelProgressBody .progress-card.done { border-color:#16a34a; background:#f0fdf4; }
     #panelProgressBody .panel-chip { border-radius:999px; display:inline-block; font-size:.68rem; font-weight:700; margin:2px 2px 0 0; padding:2px 8px; }
     #panelProgressBody .panel-chip.done { background:#dcfce7; color:#166534; }
     #panelProgressBody .panel-chip.pending { background:#fef2f2; color:#991b1b; }
@@ -419,14 +419,15 @@ document.addEventListener('DOMContentLoaded', function () {
             .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
+    // Each position renders as its own card in the grid (4 per row).
     function renderPosition(pos) {
         const plantilla = pos.plantilla ? '<div class="text-muted small">' + esc(pos.plantilla) + '</div>' : '';
 
         if (!pos.setup) {
-            return '<div class="progress-position">' +
+            return '<div class="progress-card">' +
                 '<div class="d-flex justify-content-between align-items-start">' +
                     '<div><strong>' + esc(pos.position) + '</strong>' + plantilla + '</div>' +
-                    '<span class="badge badge-secondary">Interview not created yet</span>' +
+                    '<span class="badge badge-secondary">Not set up</span>' +
                 '</div></div>';
         }
 
@@ -439,7 +440,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const complete = pos.total > 0 && pos.completed === pos.total;
         const countCls = complete ? 'badge-success' : 'badge-danger';
 
-        return '<div class="progress-position">' +
+        return '<div class="progress-card' + (complete ? ' done' : '') + '">' +
             '<div class="d-flex justify-content-between align-items-start">' +
                 '<div><strong>' + esc(pos.position) + '</strong>' + plantilla + '</div>' +
                 '<span class="badge ' + countCls + '">' + pos.completed + '/' + pos.total + ' rated</span>' +
@@ -460,19 +461,21 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         body.innerHTML = applicants.map(function (a) {
-            const doneCls = a.all_done ? ' all-done' : '';
             const summaryCls = a.all_done ? 'badge-success' : 'badge-warning';
-            const positions = (a.positions || []).map(renderPosition).join('');
 
-            return '<div class="progress-applicant' + doneCls + '">' +
-                '<div class="d-flex justify-content-between align-items-start">' +
+            // Full-width header for the cast applicant...
+            const header = '<div class="progress-applicant-header">' +
+                '<div class="d-flex justify-content-between align-items-center">' +
                     '<div><strong>' + esc(a.name) + '</strong>' +
                         (a.app_number ? '<div class="text-muted small">' + esc(a.app_number) + '</div>' : '') +
                     '</div>' +
                     '<span class="badge ' + summaryCls + '">' + a.done_positions + '/' + a.total_positions + ' positions done</span>' +
-                '</div>' +
-                positions +
-            '</div>';
+                '</div></div>';
+
+            // ...followed by one card per position, laid out 4 per row.
+            const positions = (a.positions || []).map(renderPosition).join('');
+
+            return header + positions;
         }).join('');
     }
 
