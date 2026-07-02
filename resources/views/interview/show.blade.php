@@ -52,7 +52,22 @@
             <strong>Interview Panel</strong>
             <div class="mt-2">
                 @foreach($interview->panels as $panel)
-                    <span class="badge badge-info p-2 mb-1">{{ $panel->employee->lname ?? '' }}, {{ $panel->employee->fname ?? '' }}</span>
+                    <span class="d-inline-flex align-items-center mb-1 mr-1" style="gap:4px;">
+                        <span class="badge {{ $panel->is_chairman ? 'badge-warning' : 'badge-info' }} p-2">
+                            {{ $panel->employee->lname ?? '' }}, {{ $panel->employee->fname ?? '' }}
+                            @if($panel->is_chairman)
+                                <i class="fas fa-crown ml-1" title="Chairman"></i>
+                            @endif
+                        </span>
+                        @if(auth()->guard('web')->check() && in_array(auth()->guard('web')->user()->role, ['Administrator', 'HR Administrator'], true) && !$panel->is_chairman)
+                            <form method="POST" action="{{ route('interviewPanelSetChairman', [$interview->id, $panel->emp_id]) }}" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-outline-warning" title="Set Chairman">
+                                    <i class="fas fa-crown"></i>
+                                </button>
+                            </form>
+                        @endif
+                    </span>
                 @endforeach
             </div>
         </div>

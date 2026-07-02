@@ -9,6 +9,11 @@ class InterviewPanel extends Model
     protected $fillable = [
         'interview_id',
         'emp_id',
+        'is_chairman',
+    ];
+
+    protected $casts = [
+        'is_chairman' => 'boolean',
     ];
 
     public function interview()

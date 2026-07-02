@@ -334,8 +334,13 @@
         </table>
 
         <div class="chair-block">
-            <div class="sign-name">ENGR. MARC ALEXEI CAESAR B. BADAJOS, PhD</div>
-            <div class="sign-role">Vice President for Administration and Finance /<br>HRMPSB Chairman</div>
+            @if($chairman)
+                <div class="sign-name">{{ strtoupper($chairman['name']) }}</div>
+                <div class="sign-role">{{ $chairman['position'] }}<br>HRMPSB Chairman</div>
+            @else
+                <div class="sign-name">ENGR. MARC ALEXEI CAESAR B. BADAJOS, PhD</div>
+                <div class="sign-role">Vice President for Administration and Finance /<br>HRMPSB Chairman</div>
+            @endif
         </div>
 
         <div class="approved">APPROVED:</div>

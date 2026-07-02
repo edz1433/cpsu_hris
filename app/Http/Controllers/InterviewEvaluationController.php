@@ -902,6 +902,26 @@ class InterviewEvaluationController extends Controller
         return back()->with('success', 'Interview panel removed for this applicant. Its rating for this applicant was also removed.');
     }
 
+    public function setPanelChairman($id, $employeeId)
+    {
+        $this->authorizeAdmin();
+
+        DB::transaction(function () use ($id, $employeeId) {
+            $interview = InterviewEvaluation::with('panels')->findOrFail($id);
+
+            $panel = $interview->panels->firstWhere('emp_id', (int) $employeeId);
+            abort_if(!$panel, 404, 'Panel member not found for this interview.');
+
+            InterviewPanel::where('interview_id', $interview->id)
+                ->where('is_chairman', true)
+                ->update(['is_chairman' => false]);
+
+            $panel->update(['is_chairman' => true]);
+        });
+
+        return back()->with('success', 'Chairman set for this interview panel.');
+    }
+
     public function rate($id, $applicationId = null)
     {
         $guard = $this->guard();
@@ -1203,19 +1223,22 @@ class InterviewEvaluationController extends Controller
         $interview->load(['applicants.application', 'ratings.application']);
 
         $rows = $this->rankingRows($interview)->take(5)->values();
-        $panelists = $interview->panels
+        $panelistData = $interview->panels
             ->filter(fn ($panel) => $panel->employee)
             ->map(function ($panel) {
                 return [
                     'name' => trim(preg_replace('/\s+/', ' ', $panel->employee->fname . ' ' . $panel->employee->mname . ' ' . $panel->employee->lname)),
                     'position' => $panel->employee->position,
+                    'is_chairman' => (bool) $panel->is_chairman,
                 ];
             })
             ->values();
+        $chairman = $panelistData->firstWhere('is_chairman', true);
+        $panelists = $panelistData->reject(fn ($panelist) => $panelist['is_chairman'])->values();
         $fileName = 'summary-rating-applicants-' . $interview->id . '.pdf';
         $longBondPaper = [0, 0, 612, 936];
 
-        return \PDF::loadView('interview.summary-rating-pdf', compact('interview', 'rows', 'panelists'))
+        return \PDF::loadView('interview.summary-rating-pdf', compact('interview', 'rows', 'panelists', 'chairman'))
             ->setPaper($longBondPaper, 'portrait')
             ->stream($fileName);
     }
