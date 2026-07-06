@@ -29,6 +29,14 @@ class AppServiceProvider extends ServiceProvider
         // request was rewritten into the public/ folder.
         if ($root = config('app.url')) {
             URL::forceRootUrl($root);
+
+            // Also derive the scheme from APP_URL. On the production server the
+            // site is served over HTTPS, so asset()/url() must emit https links
+            // — otherwise browsers block the CSS/JS/images as mixed content and
+            // the page renders completely unstyled. Local dev stays on http.
+            if (str_starts_with($root, 'https://')) {
+                URL::forceScheme('https');
+            }
         }
     }
 }
