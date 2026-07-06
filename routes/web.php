@@ -46,19 +46,10 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\EteEvaluationController;
 use App\Http\Controllers\InterviewEvaluationController;
 
-Route::get('/', function () {
-    if (Auth::guard('web')->check()) {
-        return redirect()->route('dashboard');
-    }elseif(Auth::guard('employee')->check()){
-        return redirect()->route('dashboard');
-    }
-    return view('login');
-});
-
 //login
 Route::get('/hr-admin',[LoginAuthController::class,'getLoginAdmin'])->name('getLoginAdmin');
-Route::get('/login',[LoginAuthController::class,'getLogin'])->name('getLogin')->middleware([NoCacheMiddleware::class]);
-Route::post('/login',[LoginAuthController::class,'postLogin'])->name('postLogin');
+Route::get('/',[LoginAuthController::class,'getLogin'])->name('getLogin')->middleware([NoCacheMiddleware::class]);
+Route::post('/post-login',[LoginAuthController::class,'postLogin'])->name('postLogin');
 // Route::get('/update-pass', [EmployeeController::class, 'updateEmployeePasswords']);
 
 Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('google.login');
