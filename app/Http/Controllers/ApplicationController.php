@@ -537,9 +537,66 @@ class ApplicationController extends Controller
         return back()->with('success', $message);
     }
 
-    public function viewAllApplication(){
-        $jobs = JobHiring::all();
-        return view('career.view-all-application', compact('jobs'));
+    public function viewAllApplication(Request $request)
+    {
+        $request->validate([
+            'position_id' => 'nullable|integer|exists:job_hirings,id',
+            'checked' => 'nullable|in:0,1',
+            'search' => 'nullable|string|max:100',
+            'date_from' => 'nullable|date',
+            'date_to' => 'nullable|date',
+        ]);
+
+        $query = Application::query()
+            ->join('job_hirings', 'applications.jid', '=', 'job_hirings.id')
+            ->select(
+                'applications.id',
+                'applications.first_name',
+                'applications.middle_name',
+                'applications.last_name',
+                'applications.email',
+                'applications.mobile',
+                'applications.checked',
+                'applications.created_at',
+                'job_hirings.title',
+                'job_hirings.type as job_type',
+                'job_hirings.plantilla_item_no'
+            );
+
+        if ($request->filled('position_id')) {
+            $query->where('applications.jid', $request->position_id);
+        }
+
+        if ($request->filled('checked')) {
+            $query->where('applications.checked', (int) $request->checked);
+        }
+
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('applications.last_name', 'like', $search.'%')
+                    ->orWhere('applications.first_name', 'like', $search.'%')
+                    ->orWhere('applications.email', 'like', $search.'%');
+            });
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('applications.created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('applications.created_at', '<=', $request->date_to);
+        }
+
+        $jobapplication = $query
+            ->orderByDesc('applications.created_at')
+            ->paginate(25)
+            ->withQueryString();
+
+        $jobs = JobHiring::orderBy('title')
+            ->get(['id', 'title', 'plantilla_item_no']);
+
+        return view('career.view-all-application', compact('jobapplication', 'jobs'));
     }
 
     public function viewApplication($appid)
