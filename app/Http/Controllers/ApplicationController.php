@@ -604,9 +604,19 @@ class ApplicationController extends Controller
         $guard = $this->getGuard();
         $user = auth()->guard($guard)->user();
 
+        if (!$user) {
+            return redirect()->back();
+        }
+
+        $allowedEmails = [
+            'cbaligyan@cpsu.edu.ph',
+            'janetoledo@cpsu.edu.ph',
+            'wbantigue@cpsu.edu.ph',
+        ];
+
         if (
             $user->username === 'hrisadmin@cpsu.edu.ph' ||
-                in_array($user->org_email, ['cbaligyan@cpsu.edu.ph','janetoledo@cpsu.edu.ph','wbantigue@cpsu.edu.ph'])
+            in_array($user->org_email, $allowedEmails)
         ) {
             $applications = Application::join('job_hirings', 'applications.jid', '=', 'job_hirings.id')
                 ->where('applications.id', $appid)
@@ -625,7 +635,7 @@ class ApplicationController extends Controller
             return view('career.view-application', compact('applications'));
         }
 
-        return redirect()->back();
+        return redirect()->back()->with('error', 'Unauthorized access.');
     }
 
     public function markForwarded($appid)
