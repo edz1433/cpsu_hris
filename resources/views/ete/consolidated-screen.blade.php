@@ -278,6 +278,49 @@
         display: inline-block;
     }
 
+    .ete-dq-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 9px;
+    }
+
+    .ete-dq-btn {
+        align-items: center;
+        background: #fff;
+        border: 1px solid #f0b4b4;
+        border-radius: 8px;
+        color: #c62828;
+        cursor: pointer;
+        display: inline-flex;
+        font-size: .68rem;
+        font-weight: 800;
+        gap: 5px;
+        letter-spacing: .02em;
+        padding: 5px 10px;
+        text-transform: uppercase;
+        transition: background .2s ease, color .2s ease, border-color .2s ease;
+    }
+
+    .ete-dq-btn:hover { background: #c62828; border-color: #c62828; color: #fff; }
+
+    .ete-rank-card.is-disqualified {
+        border-color: #f0b4b4;
+        opacity: .82;
+    }
+
+    .ete-rank-card.is-disqualified .ete-total-score { color: #c62828; }
+
+    .ete-dq-badge {
+        background: #c62828;
+        border-radius: 999px;
+        color: #fff;
+        font-size: .62rem;
+        font-weight: 800;
+        letter-spacing: .04em;
+        padding: 3px 9px;
+        text-transform: uppercase;
+    }
+
     .ete-empty-state {
         background: #fff;
         border: 1px dashed #cfd9d3;
@@ -387,6 +430,48 @@
     </div>
 </div>
 
+{{-- Disqualification Reason Modal (shortcut to the same DQ action as the applicant list) --}}
+<div class="modal fade" id="eteDqModal" tabindex="-1" role="dialog" aria-labelledby="eteDqModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content border-0 shadow rounded">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title font-weight-bold" id="eteDqModalLabel">
+          <i class="fas fa-times-circle mr-2"></i> Disqualify Applicant
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <form method="POST" action="{{ route('updateStatus') }}">
+        @csrf
+        <input type="hidden" name="id" id="eteDqAppId">
+        <input type="hidden" name="status" value="3">
+
+        <div class="modal-body">
+          <p class="mb-2 text-muted small">
+            Disqualifying <strong id="eteDqAppName">this applicant</strong>. An email notification will be sent, and the
+            applicant will be removed from the qualified pool — the same action used in the applicant list.
+          </p>
+          <div class="form-group mb-0">
+            <label for="eteDqReason">Reason for Disqualification <span class="text-danger">*</span></label>
+            <textarea name="reason" id="eteDqReason" class="form-control" rows="3" placeholder="Enter reason..." required></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button type="submit" class="btn btn-danger">
+            <i class="fas fa-check"></i> Confirm Disqualification
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(function () {
@@ -407,6 +492,23 @@ $(function () {
 
     function cardMarkup(item, rank) {
         const progress = item.completed ? 100 : 0;
+        const dqBadge = item.disqualified
+            ? '<span class="ete-dq-badge"><i class="fas fa-ban mr-1"></i>Disqualified</span>'
+            : '';
+        let dqRow = '';
+        if (item.can_dq && !item.disqualified) {
+            dqRow = `
+                <div class="ete-dq-row">
+                    <button type="button"
+                            class="ete-dq-btn"
+                            data-toggle="modal"
+                            data-target="#eteDqModal"
+                            data-application-id="${escapeHtml(item.application_id)}"
+                            data-name="${escapeHtml(item.name)}">
+                        <i class="fas fa-ban"></i> DQ
+                    </button>
+                </div>`;
+        }
 
         return `
             <div class="ete-card-top">
@@ -424,7 +526,7 @@ $(function () {
                     <small class="text-muted d-block">Total rating</small>
                     <strong class="ete-total-score">${escapeHtml(item.total_score)}</strong>
                 </div>
-                <small class="text-muted">Rank ${rank}</small>
+                ${dqBadge || `<small class="text-muted">Rank ${rank}</small>`}
             </div>
             <div class="ete-score-grid">
                 <div class="ete-score-item ${Number(item.requirements_met) === 4 ? 'minimum-passed' : 'minimum-failed'}"><small>Minimum</small><strong>${escapeHtml(item.minimum_score)}</strong></div>
@@ -438,6 +540,7 @@ $(function () {
                 </div>
                 <small class="text-muted">${item.completed ? 'Rated' : 'Not rated'}</small>
             </div>
+            ${dqRow}
         `;
     }
 
@@ -469,6 +572,7 @@ $(function () {
             }
 
             card.className = 'ete-rank-card rank-' + rank;
+            if (item.disqualified) card.classList.add('is-disqualified');
             if (isNewCard) card.classList.add('is-entering');
             const newScore = Number(item.total_raw);
             if (Object.prototype.hasOwnProperty.call(previousScores, id)
@@ -523,6 +627,14 @@ $(function () {
             rankingRequestRunning = false;
         });
     }
+
+    // DQ shortcut: populate the reason modal from the clicked card.
+    // Delegated so it keeps working after the board re-renders every 500ms.
+    $('#rankingBoard').on('click', '.ete-dq-btn', function () {
+        $('#eteDqAppId').val($(this).data('application-id'));
+        $('#eteDqAppName').text($(this).data('name') || 'this applicant');
+        $('#eteDqReason').val('');
+    });
 
     loadConsolidatedRanking();
     window.setInterval(loadConsolidatedRanking, 500);

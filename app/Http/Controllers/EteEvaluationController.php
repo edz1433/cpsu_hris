@@ -16,6 +16,12 @@ use Illuminate\Support\Facades\DB;
 
 class EteEvaluationController extends Controller
 {
+    /**
+     * Minimum total ETE rating (out of 100) a candidate must reach to remain
+     * qualified. Candidates rated below this may be disqualified from the ranking.
+     */
+    private const PASSING_SCORE = 70;
+
     private function authorizeEteAdmin()
     {
         abort_unless(auth()->guard('web')->check(), 403, 'Only HR administrators can manage ETE evaluations.');
@@ -475,6 +481,8 @@ class EteEvaluationController extends Controller
                     'total_score' => number_format($rating->total_score, 2),
                     'total_raw' => (float) $rating->total_score,
                     'completed' => $this->ratingCompleted($rating),
+                    'disqualified' => (int) $rating->application->status === 3,
+                    'can_dq' => (float) $rating->total_score < self::PASSING_SCORE,
                     'rank' => $index + 1,
                 ];
             });
