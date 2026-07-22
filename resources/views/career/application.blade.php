@@ -119,9 +119,8 @@
                                         <div class="row">
                                             <div class="col-md-8">
                                                 <div class="form-group">
-                                                    <label>Position Applied</label>
-                                                    <select name="jid" class="form-control select2" required>
-                                                        <option value="">Select Position</option>
+                                                    <label>Position Applied <small class="text-muted">(select one or more)</small></label>
+                                                    <select name="jid[]" class="form-control select2" multiple required>
                                                         @foreach($jobs as $job)
                                                             <option value="{{ $job->id }}">
                                                                 {{ $job->title }}{{ !empty($job->plantilla_item_no) ? ' - Plantilla No. '.$job->plantilla_item_no : '' }}
@@ -293,6 +292,136 @@
 
                         </div>
                     </div>
+                    <!-- End Add Applicant Modal -->
+
+                    <!-- Edit Applicant Modal (details only) -->
+                    <div class="modal fade" id="edit-applicant" role="dialog" aria-labelledby="editApplicantLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg" role="document">
+
+                            <form action="{{ route('applicationUpdate') }}" method="POST">
+                                @csrf
+
+                                <div class="modal-content">
+
+                                    <div class="modal-body" style="background-color: #e9ecef;">
+
+                                        <input type="hidden" name="id" id="edit_app_id">
+
+                                        <!-- Position -->
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <div class="form-group">
+                                                    <label>Position Applied</label>
+                                                    <select name="jid" id="edit_jid" class="form-control select2-edit" required>
+                                                        <option value="">Select Position</option>
+                                                        @foreach($jobs as $job)
+                                                            <option value="{{ $job->id }}">
+                                                                {{ $job->title }}{{ !empty($job->plantilla_item_no) ? ' - Plantilla No. '.$job->plantilla_item_no : '' }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Date Applied</label>
+                                                    <input type="datetime-local" name="created_at" id="edit_created_at" class="form-control" required>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Name -->
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>First Name</label>
+                                                    <input type="text" name="first_name" id="edit_first_name" class="form-control" autocomplete="off" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Middle Name</label>
+                                                    <input type="text" name="middle_name" id="edit_middle_name" class="form-control" autocomplete="off">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Last Name</label>
+                                                    <input type="text" name="last_name" id="edit_last_name" class="form-control" autocomplete="off" required>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Personal Info -->
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label>Age</label>
+                                                    <input type="number" name="age" id="edit_age" class="form-control" min="18" max="65" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Sex</label>
+                                                    <select name="sex" id="edit_sex" class="form-control" required>
+                                                        <option value="">Select Sex</option>
+                                                        <option value="Male">Male</option>
+                                                        <option value="Female">Female</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Mobile No.</label>
+                                                    <input type="text" name="mobile" id="edit_mobile" class="form-control" autocomplete="off" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Email Address</label>
+                                                    <input type="email" name="email" id="edit_email" class="form-control" autocomplete="off" required>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Address -->
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label>Address</label>
+                                                    <textarea name="address" id="edit_address" class="form-control" rows="2" required></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <hr>
+                                        <div class="form-group">
+                                            <label><strong>Educational Background</strong></label>
+                                            <textarea name="education" id="edit_education" class="form-control" rows="2" placeholder="e.g. BS Computer Science (College, 2020)" required></textarea>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label><strong>Eligibility</strong></label>
+                                            <input type="text" name="eligibility" id="edit_eligibility" class="form-control" placeholder="Civil Service, PRC, etc.">
+                                        </div>
+
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                            <i class="fas fa-times"></i> Close
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Update Applicant
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                    <!-- End Edit Applicant Modal -->
 
                     <div class="table-responsive mt-3">
                         <table id="example1" class="table table-bordered table-hover">
@@ -422,6 +551,31 @@
                                     </td>
                                     {{-- 🔹 Actions --}}
                                     <td class="text-center align-middle">
+                                        @php
+                                            $editPayload = [
+                                                'id'          => $app->id,
+                                                'jid'         => $app->jid,
+                                                'first_name'  => $app->first_name,
+                                                'middle_name' => $app->middle_name,
+                                                'last_name'   => $app->last_name,
+                                                'age'         => $app->age,
+                                                'sex'         => $app->sex,
+                                                'mobile'      => $app->mobile,
+                                                'email'       => $app->email,
+                                                'address'     => $app->address,
+                                                'education'   => $app->education,
+                                                'eligibility' => $app->eligibility,
+                                                'created_at'  => optional($app->created_at)->format('Y-m-d\TH:i'),
+                                            ];
+                                        @endphp
+                                        <button type="button"
+                                                class="btn btn-sm btn-primary edit-applicant"
+                                                data-toggle="modal"
+                                                data-target="#edit-applicant"
+                                                data-application='@json($editPayload)'
+                                                title="Edit Applicant Details">
+                                            <i class="fas fa-user-edit"></i>
+                                        </button>
                                         @if($app->ctrl_no)
                                             <button type="button"
                                                     class="btn btn-sm btn-info set-ctrl"
@@ -625,7 +779,6 @@
     </div>
   </div>
 </div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.edit-applicant').forEach(btn => {
@@ -673,26 +826,37 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 <script>
-$(function () {
+// Uses the page's single jQuery (loaded via masterScript). Wait for DOM + deferred
+// scripts (jQuery, select2, bootstrap) so $ and .select2 are guaranteed available.
+document.addEventListener('DOMContentLoaded', function () {
     $('#filter_position_id').select2({
         width: '100%',
         placeholder: 'All Positions'
     });
 
     $('#add-applicant').on('shown.bs.modal', function () {
-        $('.select2').select2({
+        var $sel = $('#add-applicant .select2');
+        if ($sel.hasClass('select2-hidden-accessible')) {
+            $sel.select2('destroy');
+        }
+        $sel.select2({
             dropdownParent: $('#add-applicant'),
             width: '100%',
-            placeholder: 'Search Position'
+            placeholder: 'Search Position',
+            closeOnSelect: false
         });
     });
 
     $('#edit-applicant').on('shown.bs.modal', function () {
-        $('.select2-edit').select2({
+        var $sel = $('#edit-applicant .select2-edit');
+        if ($sel.hasClass('select2-hidden-accessible')) {
+            $sel.select2('destroy');
+        }
+        $sel.select2({
             dropdownParent: $('#edit-applicant'),
             width: '100%',
             placeholder: 'Search Position'
-        });
+        }).val($('#edit_jid').val()).trigger('change.select2');
     });
 
     $('#addEducation').click(function () {

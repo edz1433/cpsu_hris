@@ -153,10 +153,44 @@
         overflow-wrap: anywhere;
     }
 
-    .ete-applicant-number {
+    .ete-applicant-number,
+    .ete-applicant-email {
+        align-items: center;
         color: var(--board-muted);
+        display: flex;
         font-size: .72rem;
+        gap: 5px;
+        line-height: 1.3;
+        min-width: 0;
     }
+
+    .ete-applicant-email { margin-top: 2px; }
+
+    .ete-contact-text {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .ete-copy-btn {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 5px;
+        color: #9aa7a0;
+        cursor: pointer;
+        display: inline-flex;
+        flex: 0 0 auto;
+        font-size: .7rem;
+        height: 18px;
+        justify-content: center;
+        padding: 0;
+        transition: color .15s ease, background .15s ease;
+        width: 18px;
+    }
+
+    .ete-copy-btn:hover { background: #e8f6ee; color: var(--board-green); }
+    .ete-copy-btn.is-copied { color: var(--board-green); }
 
     .ete-rank-badge {
         align-items: center;
@@ -472,15 +506,26 @@
   </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-$(function () {
+// Uses the page's single jQuery (loaded via masterScript). Waiting for DOMContentLoaded
+// guarantees jQuery, select2 and bootstrap (all deferred) are ready.
+document.addEventListener('DOMContentLoaded', function () {
     const board = document.getElementById('rankingBoard');
     const previousScores = {};
     let rankingRequestRunning = false;
 
     function escapeHtml(value) {
         return $('<div>').text(value == null ? '' : value).html();
+    }
+
+    function copyButton(value, label) {
+        if (value == null || value === '') return '';
+        return `<button type="button" class="ete-copy-btn"
+                    data-copy="${escapeHtml(value)}"
+                    title="Copy ${escapeHtml(label)}"
+                    aria-label="Copy ${escapeHtml(label)}">
+                    <i class="far fa-copy"></i>
+                </button>`;
     }
 
     function rankLabel(rank) {
@@ -517,7 +562,16 @@ $(function () {
                 </div>
                 <div class="ete-applicant-info">
                     <h2>${escapeHtml(item.name)}</h2>
-                    <div class="ete-applicant-number">${escapeHtml(item.app_number)}</div>
+                    <div class="ete-applicant-number">
+                        <span class="ete-contact-text" title="${escapeHtml(item.app_number)}">${escapeHtml(item.app_number)}</span>
+                        ${copyButton(item.app_number, 'application number')}
+                    </div>
+                    ${item.email ? `
+                    <div class="ete-applicant-email">
+                        <i class="far fa-envelope"></i>
+                        <span class="ete-contact-text" title="${escapeHtml(item.email)}">${escapeHtml(item.email)}</span>
+                        ${copyButton(item.email, 'email')}
+                    </div>` : ''}
                 </div>
                 <div class="ete-rank-badge">${rankLabel(rank)}</div>
             </div>
@@ -559,9 +613,20 @@ $(function () {
             oldPositions[card.dataset.applicationId] = card.getBoundingClientRect();
         });
 
+        board.querySelectorAll('.ete-empty-state').forEach(function (empty) {
+            empty.remove();
+        });
+
+        const seen = {};
+
+        // Create / update cards. The card's innerHTML is only rebuilt when its data
+        // actually changes (tracked via a signature). This is what keeps the DQ and
+        // copy buttons clickable — the 0.5s poll no longer destroys them every tick.
         response.data.forEach(function (item, index) {
             const rank = index + 1;
             const id = String(item.application_id);
+            seen[id] = true;
+
             let card = board.querySelector('[data-application-id="' + id + '"]');
             const isNewCard = !card;
 
@@ -569,30 +634,46 @@ $(function () {
                 card = document.createElement('article');
                 card.className = 'ete-rank-card';
                 card.dataset.applicationId = id;
+                board.appendChild(card);
             }
 
+            const signature = [
+                item.name, item.app_number, item.email, item.total_score,
+                item.minimum_score, item.education_score, item.training_score,
+                item.experience_score, item.requirements_met, rank,
+                item.completed ? 1 : 0, item.disqualified ? 1 : 0, item.can_dq ? 1 : 0
+            ].join('|');
+
+            const newScore = Number(item.total_raw);
+            const scoreChanged = Object.prototype.hasOwnProperty.call(previousScores, id)
+                && previousScores[id] !== newScore;
+            previousScores[id] = newScore;
+
+            // Class state is cheap and does not remove child nodes.
             card.className = 'ete-rank-card rank-' + rank;
             if (item.disqualified) card.classList.add('is-disqualified');
             if (isNewCard) card.classList.add('is-entering');
-            const newScore = Number(item.total_raw);
-            if (Object.prototype.hasOwnProperty.call(previousScores, id)
-                && previousScores[id] !== newScore) {
-                card.classList.add('score-updated');
+            if (scoreChanged) card.classList.add('score-updated');
+
+            if (card.dataset.signature !== signature) {
+                card.innerHTML = cardMarkup(item, rank);
+                card.dataset.signature = signature;
             }
-            previousScores[id] = newScore;
-            card.innerHTML = cardMarkup(item, rank);
-            board.appendChild(card);
         });
 
+        // Drop cards whose applicant is no longer in the payload.
         board.querySelectorAll('.ete-rank-card').forEach(function (card) {
-            const stillExists = response.data.some(function (item) {
-                return String(item.application_id) === card.dataset.applicationId;
-            });
-            if (!stillExists) card.remove();
+            if (!seen[card.dataset.applicationId]) card.remove();
         });
 
-        board.querySelectorAll('.ete-empty-state').forEach(function (empty) {
-            empty.remove();
+        // Reorder to match ranking, moving only cards that are out of place so an
+        // untouched card is never detached (which would also interrupt a click).
+        response.data.forEach(function (item, index) {
+            const card = board.querySelector('[data-application-id="' + String(item.application_id) + '"]');
+            if (!card) return;
+            if (board.children[index] !== card) {
+                board.insertBefore(card, board.children[index] || null);
+            }
         });
 
         board.querySelectorAll('.ete-rank-card').forEach(function (card) {
@@ -629,12 +710,55 @@ $(function () {
     }
 
     // DQ shortcut: populate the reason modal from the clicked card.
-    // Delegated so it keeps working after the board re-renders every 500ms.
+    // Delegated so it keeps working after the board re-renders.
     $('#rankingBoard').on('click', '.ete-dq-btn', function () {
         $('#eteDqAppId').val($(this).data('application-id'));
         $('#eteDqAppName').text($(this).data('name') || 'this applicant');
         $('#eteDqReason').val('');
     });
+
+    // Copy application number / email. Delegated so it survives re-renders.
+    $('#rankingBoard').on('click', '.ete-copy-btn', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const btn = this;
+        const text = String($(btn).data('copy') == null ? '' : $(btn).data('copy'));
+        if (!text) return;
+
+        copyText(text).then(function () {
+            const icon = btn.querySelector('i');
+            btn.classList.add('is-copied');
+            if (icon) { icon.classList.remove('fa-copy'); icon.classList.add('fa-check'); }
+            setTimeout(function () {
+                btn.classList.remove('is-copied');
+                if (icon) { icon.classList.remove('fa-check'); icon.classList.add('fa-copy'); }
+            }, 1200);
+        });
+    });
+
+    function copyText(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text).catch(function () {
+                return fallbackCopy(text);
+            });
+        }
+        return fallbackCopy(text);
+    }
+
+    function fallbackCopy(text) {
+        return new Promise(function (resolve) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try { document.execCommand('copy'); } catch (err) {}
+            document.body.removeChild(ta);
+            resolve();
+        });
+    }
 
     loadConsolidatedRanking();
     window.setInterval(loadConsolidatedRanking, 500);

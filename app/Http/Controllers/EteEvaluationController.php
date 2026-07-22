@@ -461,7 +461,18 @@ class EteEvaluationController extends Controller
         $this->authorizeRankingAdmin();
         $ete = EteEvaluation::with('applicantRatings.application')->findOrFail($id);
         $data = $ete->applicantRatings->filter(fn ($rating) => $rating->application)
-            ->sortByDesc('total_score')->values()->map(function ($rating, $index) {
+            // Non-disqualified first (ordered by score), disqualified pushed to the bottom.
+            ->sort(function ($a, $b) {
+                $aDq = (int) $a->application->status === 3 ? 1 : 0;
+                $bDq = (int) $b->application->status === 3 ? 1 : 0;
+
+                if ($aDq !== $bDq) {
+                    return $aDq <=> $bDq;
+                }
+
+                return (float) $b->total_score <=> (float) $a->total_score;
+            })
+            ->values()->map(function ($rating, $index) {
                 $requirementsMet = collect([
                     $rating->education_met,
                     $rating->experience_met,
@@ -472,6 +483,7 @@ class EteEvaluationController extends Controller
                 return [
                     'application_id' => $rating->application_id,
                     'app_number' => $rating->application->app_number,
+                    'email' => $rating->application->email,
                     'name' => $this->applicantName($rating->application),
                     'education_score' => number_format($rating->education_score, 2),
                     'training_score' => number_format($rating->training_score, 2),

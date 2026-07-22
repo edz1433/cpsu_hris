@@ -26,7 +26,8 @@ class ApplicationController extends Controller
     public function applicationStore(Request $request)
     {
         $request->validate([
-            'jid' => 'required|integer',
+            'jid' => 'required|array|min:1',
+            'jid.*' => 'integer|exists:job_hirings,id',
             'first_name' => 'required|string',
             'middle_name' => 'nullable|string',
             'last_name' => 'required|string',
@@ -43,15 +44,6 @@ class ApplicationController extends Controller
             'created_at' => 'required',
         ]);
 
-        // Prevent duplicate application
-        $exists = Application::where('email', $request->email)
-            ->where('jid', $request->jid)
-            ->exists();
-
-        if ($exists) {
-            return redirect()->back()->with('error', 'Applicant have already applied for this position!');
-        }
-
         // Combine education info
         $educationList = [];
 
@@ -65,21 +57,98 @@ class ApplicationController extends Controller
 
         // Combine eligibilities
         $eligibilityString = $request->eligibility
-            ? implode(', ', $request->eligibility)
+            ? implode(', ', array_filter($request->eligibility))
             : null;
 
-        // Generate unique application number
-        do {
-            $year = Carbon::now()->format('Y');
-            $randomDigits = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
-            $randomLetter = strtoupper(Str::random(1));
-            $applicationNumber = "APP-{$year}-{$randomDigits}{$randomLetter}";
-        } while (Application::where('app_number', $applicationNumber)->exists());
+        $appliedAt = Carbon::parse($request->created_at);
 
-        // Save application
-        $application = Application::create([
+        $inserted = 0;
+        $skipped  = 0;
+
+        // Insert one application per selected position (skip duplicates)
+        foreach (array_unique($request->jid) as $jid) {
+
+            // Prevent duplicate application for the same position
+            $exists = Application::where('email', $request->email)
+                ->where('jid', $jid)
+                ->exists();
+
+            if ($exists) {
+                $skipped++;
+                continue;
+            }
+
+            // Generate unique application number
+            do {
+                $year = Carbon::now()->format('Y');
+                $randomDigits = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
+                $randomLetter = strtoupper(Str::random(1));
+                $applicationNumber = "APP-{$year}-{$randomDigits}{$randomLetter}";
+            } while (Application::where('app_number', $applicationNumber)->exists());
+
+            Application::create([
+                'jid' => $jid,
+                'app_number' => $applicationNumber,
+                'first_name' => $request->first_name,
+                'middle_name' => $request->middle_name,
+                'last_name' => $request->last_name,
+                'age' => $request->age,
+                'sex' => $request->sex,
+                'mobile' => $request->mobile,
+                'email' => $request->email,
+                'address' => $request->address,
+                'education' => $educationString,
+                'eligibility' => $eligibilityString,
+                'created_at' => $appliedAt,
+            ]);
+
+            $inserted++;
+        }
+
+        if ($inserted === 0) {
+            return redirect()->back()->with('error', 'Applicant has already applied to all selected position(s).');
+        }
+
+        $message = "Applicant added to {$inserted} position(s) successfully.";
+        if ($skipped > 0) {
+            $message .= " {$skipped} position(s) skipped (already applied).";
+        }
+
+        return redirect()->back()->with('success', $message);
+    }
+
+    public function applicationUpdate(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer|exists:applications,id',
+            'jid' => 'required|integer|exists:job_hirings,id',
+            'first_name' => 'required|string',
+            'middle_name' => 'nullable|string',
+            'last_name' => 'required|string',
+            'age' => 'required|integer|min:18|max:65',
+            'sex' => 'required|string',
+            'mobile' => 'required|string',
+            'email' => 'required|email',
+            'address' => 'required|string',
+            'education' => 'required|string',
+            'eligibility' => 'nullable|string',
+            'created_at' => 'required',
+        ]);
+
+        $application = Application::findOrFail($request->id);
+
+        // Prevent moving to a position the applicant already applied to
+        $duplicate = Application::where('email', $request->email)
+            ->where('jid', $request->jid)
+            ->where('id', '!=', $application->id)
+            ->exists();
+
+        if ($duplicate) {
+            return redirect()->back()->with('error', 'This applicant has already applied for the selected position.');
+        }
+
+        $application->update([
             'jid' => $request->jid,
-            'app_number' => $applicationNumber,
             'first_name' => $request->first_name,
             'middle_name' => $request->middle_name,
             'last_name' => $request->last_name,
@@ -88,13 +157,12 @@ class ApplicationController extends Controller
             'mobile' => $request->mobile,
             'email' => $request->email,
             'address' => $request->address,
-            'education' => $educationString,
-            'eligibility' => $eligibilityString,
+            'education' => $request->education,
+            'eligibility' => $request->eligibility,
             'created_at' => Carbon::parse($request->created_at),
         ]);
 
-        return redirect()->back()->with('success', 'Applicatn Added Successfully.');
-    
+        return redirect()->back()->with('success', 'Applicant updated successfully.');
     }
 
     public function store(Request $request)

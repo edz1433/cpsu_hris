@@ -212,6 +212,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
 
         //application-manual
         Route::post('/application-store', [ApplicationController::class, 'applicationStore'])->name('applicationStore');
+        Route::post('/application-update', [ApplicationController::class, 'applicationUpdate'])->name('applicationUpdate');
 
         //ETE-Evaluation
         
