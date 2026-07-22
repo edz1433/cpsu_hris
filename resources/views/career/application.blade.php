@@ -567,7 +567,18 @@
                                                 'eligibility' => $app->eligibility,
                                                 'created_at'  => optional($app->created_at)->format('Y-m-d\TH:i'),
                                             ];
+
+                                            // Edit is only for manually-added applicants — those with
+                                            // no uploaded documents at all. Once any file exists, hide it.
+                                            $hasNoFiles = empty($app->pds)
+                                                && empty($app->wes)
+                                                && empty($app->intent)
+                                                && empty($app->resume)
+                                                && empty($app->tor)
+                                                && empty($app->coe)
+                                                && empty($app->cert_training);
                                         @endphp
+                                        @if($hasNoFiles)
                                         <button type="button"
                                                 class="btn btn-sm btn-primary edit-applicant"
                                                 data-toggle="modal"
@@ -576,6 +587,7 @@
                                                 title="Edit Applicant Details">
                                             <i class="fas fa-user-edit"></i>
                                         </button>
+                                        @endif
                                         @if($app->ctrl_no)
                                             <button type="button"
                                                     class="btn btn-sm btn-info set-ctrl"
