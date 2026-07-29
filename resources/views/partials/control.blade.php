@@ -81,7 +81,15 @@
             </a>
         </li>
 
-        @if($guard == "web")
+        @php
+            $navUser = auth()->guard($guard)->user();
+            $canAccessCareers = $guard == "web" && (
+                $navUser->role == "Administrator"
+                || ($navUser->role == "HR Administrator" && $navUser->username == "hrpds1@cpsu.edu.ph")
+            );
+        @endphp
+
+        @if($canAccessCareers)
         <li class="nav-item has-treeview {{ request()->is('career*') || request()->is('applications*') || request()->is('ete*') || request()->is('interview*') ? 'menu-open' : '' }}">
             <a href="#" class="nav-link text-success1 {{ request()->is('career*') || request()->is('applications*') || request()->is('ete*') || request()->is('interview*') ? 'active' : '' }}">
                 <i class="pt-1 nav-icon fas fa-briefcase"></i>
