@@ -85,7 +85,7 @@
             $navUser = auth()->guard($guard)->user();
             $canAccessCareers = $guard == "web" && (
                 $navUser->role == "Administrator"
-                || ($navUser->role == "HR Administrator" && $navUser->username == "hrpds1@cpsu.edu.ph")
+                || ($navUser->role == "HR Administrator" && in_array($navUser->username, ["hrpds1@cpsu.edu.ph", "hradmin2@cpsu.edu.ph"]))
             );
         @endphp
 

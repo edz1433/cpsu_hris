@@ -209,6 +209,9 @@ class EmployeeController extends Controller
         }
         $password = substr($newEmpID, 0, 3).substr($newEmpID, 3);
 
+        $orgEmail = trim($request->org_email);
+        $newUsername = ($orgEmail !== '') ? $orgEmail : $newEmpID;
+
         $employee = new Employee([
             'profile' => $fullFileName,
             'date_hired' => $request->date_hired,
@@ -245,7 +248,7 @@ class EmployeeController extends Controller
             'c_category' => $request->c_category,
             'country' => $request->country,
             'telephone' => $request->telephone,
-            'org_email' => $request->org_email,
+            'org_email' => $orgEmail,
             'mobile' => $request->mobile,
             'add_block' => $request->add_block,
             'add_street' => $request->add_street,
@@ -265,7 +268,7 @@ class EmployeeController extends Controller
             'padd_zcode' => $request->padd_zcode,
             // 'special_pl' => ($request->emp_status == 1) ? 3 : 0,
             // 'solo_pl' => ($request->emp_status == 1) ? 7 : 0,
-            'username' => $newEmpID,
+            'username' => $newUsername,
             'special_pl' => 0,
             'solo_pl' => 0,
             'password' => $password,
@@ -357,11 +360,13 @@ class EmployeeController extends Controller
             ]);
         } 
         elseif ($column == 'org_email') {
+            $orgEmail = trim($request->value);
+
             $employee->update([
-                $column => $request->value,
-                'username' => $request->value,
+                $column => $orgEmail,
+                'username' => ($orgEmail !== '') ? $orgEmail : $employee->emp_ID,
             ]);
-        } 
+        }
         elseif ($column == 'height_cm' || $column == 'height_m') {
             if ($column == 'height_cm') {
                 // Convert cm to meters
