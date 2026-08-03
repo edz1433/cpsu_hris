@@ -236,12 +236,15 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/my-assignments', [InterviewEvaluationController::class, 'assignments'])->name('interviewAssignments');
         Route::get('/my-assignments/status', [InterviewEvaluationController::class, 'assignmentStatus'])->name('interviewAssignmentsStatus');
         Route::get('/evaluations/{id}/rate/{applicationId}/status', [InterviewEvaluationController::class, 'ratingStatus'])->name('interviewRatingStatus');
+        Route::get('/position-locks', [InterviewEvaluationController::class, 'positionLockStates'])->name('interviewPositionLockStates');
         Route::get('/evaluations', [InterviewEvaluationController::class, 'index'])->name('interviewEvaluationList');
         Route::post('/evaluations/store', [InterviewEvaluationController::class, 'store'])->name('interviewEvaluationStore');
         Route::get('/evaluations/{id}/consolidated', [InterviewEvaluationController::class, 'consolidatedScreen'])->name('interviewConsolidatedScreen');
         Route::get('/evaluations/{id}/consolidated-data', [InterviewEvaluationController::class, 'consolidatedData'])->name('interviewConsolidatedData');
         Route::get('/evaluations/{id}/summary-rating', [InterviewEvaluationController::class, 'summaryRatingPdf'])->name('interviewSummaryRatingPdf');
         Route::get('/evaluations/{id}/panel-progress', [InterviewEvaluationController::class, 'panelProgress'])->name('interviewPanelProgress');
+        Route::post('/evaluations/{id}/position/{applicationId}/lock', [InterviewEvaluationController::class, 'togglePositionLock'])->name('interviewPositionLock');
+        Route::get('/evaluations/{id}/lock-status', [InterviewEvaluationController::class, 'lockStatus'])->name('interviewLockStatus');
         Route::get('/evaluations/{id}', [InterviewEvaluationController::class, 'show'])->name('interviewEvaluationShow');
         Route::post('/evaluations/{id}/candidate/{applicationId}/cast', [InterviewEvaluationController::class, 'cast'])->name('interviewCandidateCast');
         Route::post('/evaluations/{id}/candidate/{applicationId}/uncast', [InterviewEvaluationController::class, 'uncast'])->name('interviewCandidateUncast');
@@ -280,6 +283,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
 
     Route::prefix('pending')->group(function(){
         Route::get('/{type}/{cat?}', [PendingController::class, 'readPending'])->name('readPending');
+        Route::post('/undo/{id?}', [PendingController::class, 'leaveUndo'])->name('pendingLeaveUndo');
     });
     
     //pds

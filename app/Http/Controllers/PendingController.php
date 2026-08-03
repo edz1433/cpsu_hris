@@ -73,11 +73,11 @@ class PendingController extends Controller
                         $employees = $employees->where('leave_applications.emp_esign', '=', 2);
                     }
                     $employees = $employees->where('leave_applications.status', '=', 1);
-                    $employees = $employees->where('leave_applications.history', 1);
+                    $employees = $employees->whereIn('leave_applications.history', [0, 1]);
                 }
                 elseif ($cat !== null && in_array($cat, [2, 3])) {
                     $employees = $employees->where('leave_applications.status', '=', $cat);
-                    $employees = $employees->where('leave_applications.history', 1);
+                    $employees = $employees->whereIn('leave_applications.history', [0, 1]);
                 }
                 elseif ($cat == 4) {
                     $employees = $employees->where('leave_applications.status', '=', $cat);
@@ -91,13 +91,7 @@ class PendingController extends Controller
                 }
                 
                 $employees = $employees
-                    ->orderByRaw('CASE WHEN leave_applications.emp_esign = 0 THEN 1 ELSE 0 END DESC')
-                    ->orderByRaw('CASE 
-                                    WHEN leave_applications.status = 2 THEN 1 
-                                    WHEN leave_applications.status = 1 THEN 2 
-                                    WHEN leave_applications.status = 3 THEN 3 
-                                    WHEN leave_applications.status = 4 THEN 4 
-                                END ASC')
+                    ->orderBy('leave_applications.id', 'desc')
                     ->get();
                        
                 break;            
@@ -131,6 +125,31 @@ class PendingController extends Controller
         }
 
         return view('pending.index', compact('guard', 'cat', 'type', 'employees', 'eliCount', 'workexpCount', 'learDevCount', 'volWorkCount', 'leaveappCount'));
+    }
+
+    public function leaveUndo(Request $request, $id = null)
+    {
+        if ($id === null) {
+            $id = $request->id;
+        }
+
+        $leaveApplication = LeaveApplication::find($id);
+
+        if (!$leaveApplication) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Leave application not found.'
+            ], 404);
+        }
+
+        $leaveApplication->history = 1;
+        $leaveApplication->status = 3;
+        $leaveApplication->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Leave updated successfully.'
+        ]);
     }
 
 }

@@ -55,6 +55,8 @@ $(document).ready(function() {
         var leaveId = button.data('id');
         var urlTemplate = button.data('url-template');
 
+        $('#pdfPendingUndoBtn').attr('data-id', leaveId).data('id', leaveId);
+
         var previewUrl = urlTemplate.replace('__ID__', leaveId);
 
         $('#pdfIframe').attr('src', previewUrl);
@@ -70,6 +72,7 @@ $(document).ready(function() {
     $('#pdfModalHistory').on('show.bs.modal', function(event) {
         var button = $(event.relatedTarget);
         var leaveId = button.data('id');
+        $('#pdfHistoryUndoBtn').attr('data-id', leaveId).data('id', leaveId);
         $.ajax({
             url: "{{ route('getPdfPath') }}",
             type: 'POST',
@@ -96,5 +99,77 @@ $(document).ready(function() {
         $('#pdfIframeHistory').attr('src', '');
     });
 });
+</script>
+<script>
+    $(document).on('click', '.undo-leave', function(e){
+        e.preventDefault();
+        var id = $(this).data('id') || $(this).attr('data-id');
+        var to = $(this).data('to') || $(this).attr('data-to');
 
+        if (!id) {
+            console.error('Undo Leave: missing leave ID');
+            return;
+        }
+
+        var undoUrl = "{{ route('pendingLeaveUndo') }}";
+
+        function performUndo() {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "Do you want to undo leave application?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, undo it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        executeAjax();
+                    }
+                });
+            } else if (confirm("Do you want to undo leave application?")) {
+                executeAjax();
+            }
+        }
+
+        function executeAjax() {
+            $.ajax({
+                url: undoUrl,
+                type: 'POST',
+                data: {
+                    id: id,
+                    to: to,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire(
+                            'Undo!',
+                            'Leave has been successfully undone.',
+                            'success'
+                        );
+                    } else {
+                        alert('Leave has been successfully undone.');
+                    }
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1500);
+                },
+                error: function(xhr, status, error) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire(
+                            'Error!',
+                            'An error occurred while undoing the leave.',
+                            'error'
+                        );
+                    } else {
+                        alert('An error occurred while undoing the leave.');
+                    }
+                }
+            });
+        }
+
+        performUndo();
+    });
 </script>

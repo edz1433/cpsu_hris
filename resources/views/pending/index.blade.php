@@ -127,7 +127,6 @@
                                 <tr>
                                     @if($type == 1)
                                     <th width="70%">SIGNATORIES STATUS</th>
-                                    <th width="15%">DURATION</th>
                                     <th width="15%">REMARKS</th>
                                     @else
                                     <th width="80%">FULL NAME</th>
@@ -137,6 +136,45 @@
                             </thead>
                             @if($type == 1)
                                 @foreach ($employees as $emp)
+                                @php
+                                    $formattedDateRange = '';
+                                    $calculatedDays = 0;
+                                    if (!empty($emp->date_range)) {
+                                        if (strpos($emp->date_range, ' to ') !== false) {
+                                            [$sDate, $eDate] = explode(' to ', $emp->date_range);
+                                            try {
+                                                $startCarbon = \Carbon\Carbon::parse(trim($sDate));
+                                                $endCarbon = \Carbon\Carbon::parse(trim($eDate));
+                                                $formattedDateRange = $startCarbon->format('M d, Y') . ' - ' . $endCarbon->format('M d, Y');
+                                                
+                                                $tempDate = $startCarbon->copy();
+                                                while ($tempDate->lte($endCarbon)) {
+                                                    if (!$tempDate->isWeekend()) {
+                                                        $calculatedDays++;
+                                                    }
+                                                    $tempDate->addDay();
+                                                }
+                                            } catch (\Exception $e) {
+                                                $formattedDateRange = $emp->date_range;
+                                                $calculatedDays = $emp->days ?? 0;
+                                            }
+                                        } else {
+                                            try {
+                                                $startCarbon = \Carbon\Carbon::parse(trim($emp->date_range));
+                                                $formattedDateRange = $startCarbon->format('M d, Y');
+                                                if (!$startCarbon->isWeekend()) {
+                                                    $calculatedDays = 1;
+                                                }
+                                            } catch (\Exception $e) {
+                                                $formattedDateRange = $emp->date_range;
+                                                $calculatedDays = $emp->days ?? 0;
+                                            }
+                                        }
+                                    }
+                                    if ($calculatedDays == 0 && !empty($emp->days)) {
+                                        $calculatedDays = $emp->days;
+                                    }
+                                @endphp
                                 <tr>
                                     @if($type != 1)
                                     <td>
@@ -144,6 +182,14 @@
                                     </td>
                                     @endif
                                     <td>
+                                        <div class="w-100 mb-1">
+                                            <span class="badge badge-success"><b>#{{ $emp->transnum }}</b></span>
+                                            @if($formattedDateRange)
+                                                <span class="badge badge-info ml-1" title="Applied Leave Period">
+                                                    <i class="far fa-calendar-alt mr-1"></i>{{ $formattedDateRange }} @if($calculatedDays > 0)({{ $calculatedDays }} {{ \Illuminate\Support\Str::plural('day', $calculatedDays) }})@endif
+                                                </span>
+                                            @endif
+                                        </div>
                                         @if($emp->status == 1)
                                             <div class="d-flex flex-wrap align-items-center">
                                                 <!-- Employee E-sign Status -->
@@ -331,11 +377,9 @@
                                         @endif
                                     </td>
 
-                                    <td>{{ \Carbon\Carbon::parse($emp->date_filing)->diffForHumans() }}</td>
-
                                     <td>
                                         <!-- History Badge -->
-                                        @if($emp->history == 1)
+                                        @if(in_array($emp->history, [0, 1]))
                                             <span class="badge bg-warning">
                                                 <i class="fas fa-spinner fa-spin"></i> Ongoing...
                                             </span>
@@ -385,6 +429,9 @@
                                         value="{{ $emp->id }}">
                                             <i class="fas fa-exclamation-circle"></i>
                                         </a>
+                                        @if($cat == 4)
+                                            <button type="button" class="btn btn-warning btn-sm undo-leave" data-id="{{ $emp->id }}" data-to="4" title="Undo Complete Status" style="width: 30px; padding: 0px !important;"><i class="fas fa-undo"></i></button>
+                                        @endif
                                     </td>
                                 </tr>
                                 @endforeach
@@ -429,8 +476,18 @@
 <div class="modal fade" id="pdfModalPending" tabindex="-1" role="dialog" aria-labelledby="pdfModalPendingLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
-            <div class="modal-body">
+            <div class="modal-header py-2">
+                <h5 class="modal-title" id="pdfModalPendingLabel"><i class="fas fa-file-pdf"></i> Leave Application Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
                 <iframe id="pdfIframe" src="" width="100%" height="600px" style="border:none;"></iframe>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-warning btn-sm undo-leave" id="pdfPendingUndoBtn" data-id="" data-to="4"><i class="fas fa-undo"></i> Undo Complete Status</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -438,8 +495,18 @@
 <div class="modal fade" id="pdfModalHistory" tabindex="-1" role="dialog" aria-labelledby="pdfModalHistoryLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
-            <div class="modal-body">
+            <div class="modal-header py-2">
+                <h5 class="modal-title" id="pdfModalHistoryLabel"><i class="fas fa-file-pdf"></i> Leave Application Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
                 <iframe id="pdfIframeHistory" src="" width="100%" height="600px" style="border:none;"></iframe>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-warning btn-sm undo-leave" id="pdfHistoryUndoBtn" data-id="" data-to="4"><i class="fas fa-undo"></i> Undo Complete Status</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
