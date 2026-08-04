@@ -25,7 +25,7 @@ Route::get('/application/check/{jid}/{email}', [ApplicationController::class, 'a
 Route::get('/application/status/{appnumber}', [ApplicationController::class, 'applicationStatus'])->name('application.status');
 Route::get('/gad-gender-count', [GadController::class, 'genderCount'])->name('gender-count');
 
-Route::get('/cpt/sync', [CptController::class, 'sync']);
+Route::get('/fdt/sync', [FdtController::class, 'sync']);
 
 // DTR
 Route::prefix('app-dtr')->group(function () {

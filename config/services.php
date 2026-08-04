@@ -40,6 +40,6 @@ return [
         'api_key' => env('FOXIT_API_KEY'),
     ],
 
-    'cpt_sync' => ['token' => env('CPT_SYNC_TOKEN')],
+    'fdt_sync' => ['token' => env('FDT_SYNC_TOKEN')],
 ];
 

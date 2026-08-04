@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class CptController
+class FdtController
 {
     public function sync(Request $request)
     {
-        if ($request->bearerToken() !== config('services.cpt_sync.token')) {
+        if ($request->bearerToken() !== config('services.fdt_sync.token')) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
