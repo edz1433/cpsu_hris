@@ -42,6 +42,8 @@ class PendingController extends Controller
 
         switch ((string)$type) {
             case '1':
+                $hasSuffix = \Illuminate\Support\Facades\Schema::hasColumn('employees', 'suffix');
+
                 $query = LeaveApplication::join('employees as emp', 'emp.emp_ID', '=', 'leave_applications.empid')
                     ->leftJoin('employees as hr', 'hr.id', '=', 'leave_applications.hr')
                     ->leftJoin('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
@@ -53,19 +55,19 @@ class PendingController extends Controller
                         'emp.lname as employee_lname',
                         'emp.fname as employee_fname',
                         'emp.mname as employee_mname',
-                        'emp.suffix as employee_suffix',
+                        $hasSuffix ? 'emp.suffix as employee_suffix' : \DB::raw("'' as employee_suffix"),
                         'hr.lname as hr_lname',
                         'hr.fname as hr_fname',
                         'hr.mname as hr_mname',
-                        'hr.suffix as hr_suffix',
+                        $hasSuffix ? 'hr.suffix as hr_suffix' : \DB::raw("'' as hr_suffix"),
                         'sup.lname as supervisor_lname',
                         'sup.fname as supervisor_fname',
                         'sup.mname as supervisor_mname',
-                        'sup.suffix as supervisor_suffix',
+                        $hasSuffix ? 'sup.suffix as supervisor_suffix' : \DB::raw("'' as supervisor_suffix"),
                         'sucpres.lname as sucpres_lname',
                         'sucpres.fname as sucpres_fname',
                         'sucpres.mname as sucpres_mname',
-                        'sucpres.suffix as sucpres_suffix'
+                        $hasSuffix ? 'sucpres.suffix as sucpres_suffix' : \DB::raw("'' as sucpres_suffix")
                     );
 
                 // Add a filter for $cat

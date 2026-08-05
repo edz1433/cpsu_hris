@@ -14,22 +14,32 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="card-header">
-                        <div class="card-tools">
-                            <a href="{{ route('empQr') }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-qrcode"></i> 
-                            </a>
-                            <a href="{{ route('genEmp') }}" target="_blank" class="btn btn-outline-danger btn-sm">
-                                <i class="fas fa-file-pdf"></i> 
-                            </a>
-                            <a href="{{ route('empAdd') }}" class="btn btn-outline-success btn-sm">
-                                <i class="fas fa-user-plus"></i> ADD NEW
-                            </a>
+                    <div class="card-header border-0 pb-0">
+                        <div class="card-tools d-flex align-items-center w-100 justify-content-between">
+                            <div class="input-group input-group-sm" style="width: 300px;">
+                                <input type="text" name="table_search" id="empSearchInput" class="form-control" placeholder="Search employee..." autocomplete="off">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-default" id="btnEmpSearch">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="{{ route('empQr') }}" target="_blank" class="btn btn-outline-primary btn-sm mr-1">
+                                    <i class="fas fa-qrcode"></i> 
+                                </a>
+                                <a href="{{ route('genEmp') }}" target="_blank" class="btn btn-outline-danger btn-sm mr-1">
+                                    <i class="fas fa-file-pdf"></i> 
+                                </a>
+                                <a href="{{ route('empAdd') }}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-user-plus"></i> ADD NEW
+                                </a>
+                            </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-collapsed table-hover" id="example1">
+                    <div class="card-body pt-3">
+                        <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                            <table class="table table-collapsed table-hover" id="employeeTable">
                                 <thead>
                                     <tr>
                                         <th>NO.</th>
@@ -44,74 +54,23 @@
                                         <th>Action</th>
                                     </tr>
                                 </thead> 
-                                <tbody>
-                                    @php $cnt = 1; @endphp
-                                    @foreach ($employee as $emp)
-                                    @php
-                                        $hireDate = $emp->date_hired;
-                                        $currentDate = date('Y-m-d'); 
-
-                                        $startDate = new DateTime($hireDate);
-                                        $endDate = new DateTime($currentDate);
-
-                                        $interval = $startDate->diff($endDate);
-                                        
-                                        $years = $interval->y;
-                                        $months = $interval->m;
-                                    @endphp
-                                        <tr id="tr-{{ $emp->id }}">
-                                            <td>{{ $cnt++ }}</td>
-                                            <td><b>{{ $emp->lname }}, {{ $emp->fname }} {{ $emp->suffix }} {{ isset($emp->mname) ? strtoupper(substr($emp->mname, 0, 1)).'.' : '' }}</b><br><i>{{ $emp->position}}</i> </td>
-                                            <td>{{ $emp->emp_ID}}</td>
-                                            <td>{{ $emp->campus_abbr}}</td>
-                                            <td>
-                                            @if($emp->partime_rate > 0)
-                                                Part-time/JO
-                                            @elseif($emp->emp_status == 2)
-                                                {{ $emp->status_name }} ({{ $emp->qual }})
-                                            @else
-                                                {{ $emp->status_name }}
-                                            @endif
-                                            </td>
-                                            <td>{{ $emp->org_email }}</td>
-                                            <td>{{ $years.' years' .' '. $months. ' months' }}</td>
-                                            <td>{{ isset($hireDate) ? date('F d, Y', strtotime($hireDate)) : '' }}</td>
-                                            <td class="text-center">
-                                                <div class="custom-control custom-switch">
-                                                    <input type="checkbox"
-                                                        class="custom-control-input"
-                                                        onchange="openToggleDialog(this, '{{ $emp->fname }} {{ $emp->mname }} {{ $emp->lname }}', {{ $emp->id }})"
-                                                        id="switch{{ $emp->id }}"
-                                                        {{ $emp->stat_1 == 1 ? 'checked' : '' }}>
-                                                    <label class="custom-control-label" for="switch{{ $emp->id }}"></label>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class='d-flex align-items-center'>
-                                                    @if($emp->emp_status == 1)
-                                                    <a href="{{ route('leavesRead', $emp->id) }}" title="Leave Credits" class='btn btn-success btn-xs employee_edit mr-1' style='width: 30px;' value="{{ $emp->id }}">
-                                                        <i class="fas fa-calendar-check"></i>
-                                                    </a>
-                                                    @else
-                                                    <a href="#" title="Leave Credits" class='btn btn-secondary btn-xs employee_edit mr-1' style='width: 30px;' value="{{ $emp->id }}">
-                                                        <i class="fas fa-calendar-check"></i>
-                                                    </a>
-                                                    @endif
-                                                    <a href="{{ route('PDS', $emp->id) }}" title="PDS" class='btn btn-info btn-xs employee_edit mr-1' style='width: 30px;' value="{{ $emp->id }}">
-                                                        <i class='fas fa-file-alt'></i>
-                                                    </a>
-                                                    <a title="Working Hours" data-toggle="modal" data-target="#officialTime" onclick="OfficialTime('{{ $emp->emp_ID }}')" class='btn btn-primary btn-xs mr-1' style='width: 30px;'>
-                                                        <i class='fas fa-clock'></i>
-                                                    </a>
-                                                    {{-- <button type='button' class='btn btn-danger btn-xs employee_delete' style='width: 30px;' value="{{ $emp->id }}">
-                                                        <i class='fas fa-trash'></i>
-                                                    </button> --}}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
+                                <tbody id="employeeTableBody">
+                                    @include('emp.partials.employee_rows')
                                 </tbody> 
                             </table>
+                        </div>
+                        <div id="empBatchStatusContainer" class="p-2 border-top d-flex justify-content-between align-items-center bg-light">
+                            <span id="empBatchInfoText" class="text-muted" style="font-size: 0.875rem;">
+                                Showing <strong id="empLoadedCount">{{ count($employee) }}</strong> of <strong id="empTotalCount">{{ $totalCount }}</strong> employees
+                            </span>
+                            <div class="d-flex align-items-center">
+                                <div id="empBatchLoadingSpinner" class="spinner-border spinner-border-sm text-primary mr-2 d-none" role="status">
+                                    <span class="sr-only">Loading batch...</span>
+                                </div>
+                                <button id="btnLoadNextEmpBatch" class="btn btn-outline-primary btn-sm {{ $hasMore ? '' : 'd-none' }}">
+                                    <i class="fas fa-download mr-1"></i> Load Next Batch
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -176,7 +135,7 @@
                                 <input type="time" name="tue_noonout" class="form-control form-control-sm" required>
                             </div>
                         </div>
-                        {{-- Wendesday --}}
+                        {{-- Wednesday --}}
                         <div class="form-row">
                             <div class="col-md-3">
                                 <div class="form-group">
@@ -220,13 +179,13 @@
                                 <input type="time" name="thu_noonout" class="form-control form-control-sm" required>
                             </div>
                         </div>
-                        {{-- Thursday --}}
+                        {{-- Friday --}}
                         <div class="form-row">
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-append">
-                                            <span class="input-group-text custom-label custom-label"><b>FRI.</b></span>
+                                            <span class="input-group-text custom-label"><b>FRI.</b></span>
                                         </div>
                                         <input type="time" name="fri_mornin" class="form-control form-control-sm" required>
                                     </div>
@@ -279,12 +238,11 @@
 let pendingCheckbox = null;
 let pendingEmpId = null;
 let pendingNewState = null;
+
 function openToggleDialog(checkbox, fullname, empId) {
-    // Save original values
     pendingNewState = checkbox.checked;
     pendingEmpId = empId;
     pendingCheckbox = checkbox;
-    // Immediately revert so UI does NOT visually toggle yet
     checkbox.checked = !pendingNewState;
     const action = pendingNewState ? "enable" : "disable";
     document.getElementById("confirmMessage").innerHTML =
@@ -292,12 +250,113 @@ function openToggleDialog(checkbox, fullname, empId) {
         "<span class='text-dark font-weight-bold' style='font-size:18px;'>" + fullname + "</span>";
     $("#toggleConfirmModal").modal("show");
 }
+
 document.getElementById("confirmToggle").onclick = function () {
     $("#toggleConfirmModal").modal("hide");
-    // Now apply the new intended state
     pendingCheckbox.checked = pendingNewState;
     toggleStat(pendingNewState, pendingEmpId);
     pendingCheckbox = null;
 };
+</script>
+
+<script>
+    const empRouteBase = "{{ url('employees') }}";
+
+    let empState = {
+        page: {{ $page ?? 1 }},
+        limit: {{ $limit ?? 25 }},
+        total: {{ $totalCount ?? 0 }},
+        hasMore: {{ isset($hasMore) && $hasMore ? 'true' : 'false' }},
+        isLoading: false,
+        search: ''
+    };
+
+    function loadEmpBatch(reset = false) {
+        if (empState.isLoading) return;
+        
+        if (reset) {
+            empState.page = 1;
+            empState.hasMore = false;
+            $('#employeeTableBody').html('<tr><td colspan="10" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin fa-2x mb-2"></i><br>Loading employees...</td></tr>');
+        }
+        
+        if (!reset && !empState.hasMore) return;
+        
+        empState.isLoading = true;
+        $('#empBatchLoadingSpinner').removeClass('d-none');
+        $('#btnLoadNextEmpBatch').prop('disabled', true);
+        
+        $.ajax({
+            url: empRouteBase,
+            type: 'GET',
+            data: {
+                ajax: 1,
+                page: empState.page,
+                limit: empState.limit,
+                search: empState.search
+            },
+            dataType: 'json',
+            success: function(res) {
+                empState.isLoading = false;
+                $('#empBatchLoadingSpinner').addClass('d-none');
+                
+                if (res.success) {
+                    if (reset) {
+                        $('#employeeTableBody').html(res.html);
+                    } else {
+                        $('#employeeTableBody').append(res.html);
+                    }
+                    
+                    empState.total = res.total;
+                    empState.hasMore = res.has_more;
+                    
+                    let loaded = $('#employeeTableBody tr:not(.no-records)').length;
+                    $('#empLoadedCount').text(loaded);
+                    $('#empTotalCount').text(empState.total);
+                    
+                    if (empState.hasMore) {
+                        $('#btnLoadNextEmpBatch').removeClass('d-none').prop('disabled', false);
+                    } else {
+                        $('#btnLoadNextEmpBatch').addClass('d-none');
+                    }
+                }
+            },
+            error: function(err) {
+                empState.isLoading = false;
+                $('#empBatchLoadingSpinner').addClass('d-none');
+                $('#btnLoadNextEmpBatch').prop('disabled', false);
+                console.error('Failed to load employee batch:', err);
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        $('#btnLoadNextEmpBatch').on('click', function() {
+            if (empState.hasMore && !empState.isLoading) {
+                empState.page++;
+                loadEmpBatch(false);
+            }
+        });
+
+        $('.table-responsive').on('scroll', function() {
+            let container = $(this);
+            if (container.scrollTop() + container.innerHeight() >= container[0].scrollHeight - 60) {
+                if (empState.hasMore && !empState.isLoading) {
+                    empState.page++;
+                    loadEmpBatch(false);
+                }
+            }
+        });
+
+        let searchTimer;
+        $('#empSearchInput').on('input', function() {
+            clearTimeout(searchTimer);
+            let val = $(this).val();
+            searchTimer = setTimeout(function() {
+                empState.search = val;
+                loadEmpBatch(true);
+            }, 300);
+        });
+    });
 </script>
 @endsection

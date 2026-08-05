@@ -76,5 +76,20 @@ if (!function_exists('formatLeaveDateRange')) {
     }
 }
 
+if (!function_exists('calculateServiceDuration')) {
+    function calculateServiceDuration($hireDate) {
+        if (empty($hireDate)) {
+            return '';
+        }
+        try {
+            $startDate = new \DateTime($hireDate);
+            $endDate = new \DateTime();
+            $interval = $startDate->diff($endDate);
+            return $interval->y . ' years ' . $interval->m . ' months';
+        } catch (\Exception $e) {
+            return '';
+        }
+    }
+}
 
 

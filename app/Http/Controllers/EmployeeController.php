@@ -71,7 +71,7 @@ class EmployeeController extends Controller
         return $columnstatus;
     }
 
-    public function emp_list()
+    public function emp_list(Request $request)
     {
         // Get guard and user details
         $guard = $this->getGuard();
@@ -89,43 +89,87 @@ class EmployeeController extends Controller
             // Further filter statuses if the user's role is 'Payroll Extension'
             $stat->whereNotIn('status_name', ['Regular', 'Part-time/JO'])->get();
         }
+
+        $search = trim($request->input('search', $request->input('table_search', '')));
+        $page = (int) $request->input('page', 1);
+        if ($page < 1) $page = 1;
+        $limit = (int) $request->input('limit', 25);
+        if ($limit < 1 || $limit > 100) $limit = 25;
+    
+        $hasSuffix = \Illuminate\Support\Facades\Schema::hasColumn('employees', 'suffix');
+        $hasPartimeRate = \Illuminate\Support\Facades\Schema::hasColumn('employees', 'partime_rate');
+        $hasQual = \Illuminate\Support\Facades\Schema::hasColumn('employees', 'qual');
+
+        $selectFields = [
+            'employees.id',
+            'employees.emp_ID',
+            'employees.position',
+            'employees.org_email',
+            'employees.date_hired',
+            'employees.lname',
+            'employees.fname',
+            'employees.mname',
+            'employees.emp_dept',
+            'employees.emp_status',
+            'employees.camp_id',
+            'offices.office_name',
+            'statuses.status_name',
+            'campuses.campus_abbr',
+            'employees.stat_1',
+        ];
+
+        $selectFields[] = $hasSuffix ? 'employees.suffix' : \DB::raw("'' as suffix");
+        $selectFields[] = $hasPartimeRate ? 'employees.partime_rate' : \DB::raw("0 as partime_rate");
+        $selectFields[] = $hasQual ? 'employees.qual' : \DB::raw("'' as qual");
     
         // Create the employee query with Eloquent relationships
-        $employee = Employee::leftjoin('dbcpsupms.offices', 'employees.emp_dept', '=', 'dbcpsupms.offices.id')
+        $query = Employee::leftjoin('dbcpsupms.offices', 'employees.emp_dept', '=', 'dbcpsupms.offices.id')
             ->leftjoin('dbcpsupms.statuses', 'employees.emp_status', '=', 'dbcpsupms.statuses.id')
             ->leftjoin('campuses', 'employees.camp_id', '=', 'campuses.id')
-            ->select(
-                'employees.id',
-                'employees.emp_ID',
-                'employees.position',
-                'employees.org_email',
-                'employees.date_hired',
-                'employees.lname',
-                'employees.fname',
-                'employees.mname',
-                'employees.emp_dept',
-                'employees.emp_status',
-                'employees.camp_id',
-                'offices.office_name',
-                'statuses.status_name',
-                'campuses.campus_abbr',
-                'employees.emp_status',
-                'employees.stat_1'
-            );
+            ->select($selectFields);
         
-        // Optionally, apply campus_id filter if the user is not an administrator
-        // if (auth()->user()->role != "Administrator" && auth()->user()->role != "Payroll Administrator") {
-        //     $employee->where('employees.camp_id', '=', auth()->user()->campus_id);
-        // }
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('employees.lname', 'like', "%{$search}%")
+                  ->orWhere('employees.fname', 'like', "%{$search}%")
+                  ->orWhere('employees.mname', 'like', "%{$search}%")
+                  ->orWhere('employees.emp_ID', 'like', "%{$search}%")
+                  ->orWhere('employees.position', 'like', "%{$search}%")
+                  ->orWhere('employees.org_email', 'like', "%{$search}%")
+                  ->orWhere('campuses.campus_abbr', 'like', "%{$search}%")
+                  ->orWhere('statuses.status_name', 'like', "%{$search}%");
+            });
+        }
+
+        $totalCount = $query->count();
     
         // Retrieve employees
-        $employee = $employee->get();
+        $employee = $query
+            ->orderBy('employees.lname', 'asc')
+            ->skip(($page - 1) * $limit)
+            ->take($limit)
+            ->get();
     
         // Manually add row numbers to employees collection
-        $employee = $employee->map(function($item, $key) {
-            $item->ids = $key + 1; // Row number starts from 1
+        $startCnt = ($page - 1) * $limit + 1;
+        $employee = $employee->map(function($item, $key) use ($startCnt) {
+            $item->ids = $startCnt + $key;
             return $item;
         });
+
+        $hasMore = ($page * $limit) < $totalCount;
+
+        if ($request->ajax() || $request->has('ajax') || $request->wantsJson()) {
+            $html = view('emp.partials.employee_rows', compact('employee', 'page', 'startCnt'))->render();
+            return response()->json([
+                'success' => true,
+                'html' => $html,
+                'page' => $page,
+                'limit' => $limit,
+                'total' => $totalCount,
+                'has_more' => $hasMore
+            ]);
+        }
     
         // Get all qualifications
         $quali = Qualification::all();
@@ -136,8 +180,9 @@ class EmployeeController extends Controller
                 : Campus::where('id', auth()->user()->campus_id)->get();
     
         // Return the view with the data
-        return view("emp.emplist", compact('employee', 'offices', 'stat', 'quali', 'camp', 'guard'));
+        return view("emp.emplist", compact('employee', 'offices', 'stat', 'quali', 'camp', 'guard', 'page', 'limit', 'totalCount', 'hasMore'));
     }
+
     
 
     public function empAdd(){
