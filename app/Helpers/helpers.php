@@ -33,6 +33,48 @@ if (!function_exists('shortDecrypt')) {
     }
 }
 
+if (!function_exists('formatLeaveDateRange')) {
+    function formatLeaveDateRange($dateRange, $days = 0) {
+        if (empty($dateRange)) {
+            return ['formatted' => '', 'calculatedDays' => $days ?? 0];
+        }
+        if (strpos($dateRange, ' to ') !== false) {
+            [$sDate, $eDate] = explode(' to ', $dateRange);
+            try {
+                $startCarbon = \Carbon\Carbon::parse(trim($sDate));
+                $endCarbon = \Carbon\Carbon::parse(trim($eDate));
+                $formatted = $startCarbon->format('M d, Y') . ' - ' . $endCarbon->format('M d, Y');
+                
+                $calculatedDays = 0;
+                $tempDate = $startCarbon->copy();
+                while ($tempDate->lte($endCarbon)) {
+                    if (!$tempDate->isWeekend()) {
+                        $calculatedDays++;
+                    }
+                    $tempDate->addDay();
+                }
+                if ($calculatedDays == 0 && !empty($days)) {
+                    $calculatedDays = $days;
+                }
+                return ['formatted' => $formatted, 'calculatedDays' => $calculatedDays];
+            } catch (\Exception $e) {
+                return ['formatted' => $dateRange, 'calculatedDays' => $days ?? 0];
+            }
+        } else {
+            try {
+                $startCarbon = \Carbon\Carbon::parse(trim($dateRange));
+                $formatted = $startCarbon->format('M d, Y');
+                $calculatedDays = $startCarbon->isWeekend() ? ($days ?? 0) : 1;
+                if ($calculatedDays == 0 && !empty($days)) {
+                    $calculatedDays = $days;
+                }
+                return ['formatted' => $formatted, 'calculatedDays' => $calculatedDays];
+            } catch (\Exception $e) {
+                return ['formatted' => $dateRange, 'calculatedDays' => $days ?? 0];
+            }
+        }
+    }
+}
 
 
 

@@ -29,38 +29,38 @@
                 <div class="card-footer p-0">
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a href="{{ route('readPending', 1) }}" class="nav-link">
-                                <i class="{{ request()->is('pending/1') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-calendar-check" style="width: 20px;"></i>
-                                <span class="{{ request()->is('pending/1') ? 'text-dark' : 'text-muted' }} text-bold">Leave Application</span>
-                                <span class="float-right badge badge-warning" class="">{{ number_format($leaveappCount) }}</span>
+                            <a href="{{ route('readPending', 1) }}" data-type="1" class="nav-link pending-nav-link {{ request()->is('pending/1*') ? 'active' : '' }}">
+                                <i class="{{ request()->is('pending/1*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-calendar-check" style="width: 20px;"></i>
+                                <span class="{{ request()->is('pending/1*') ? 'text-dark' : 'text-muted' }} text-bold">Leave Application</span>
+                                <span class="float-right badge badge-warning" id="badge-leave">{{ number_format($leaveappCount) }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('readPending', 2) }}" class="nav-link">
-                                <i class="{{ request()->is('pending/2') ? 'text-dark' : 'text-muted' }} pr-2 fas fas fa-certificate" style="width: 20px;"></i>
-                                <span class="{{ request()->is('pending/2') ? 'text-dark' : 'text-muted' }} text-bold">Eligibility</span>
-                                <span class="float-right badge badge-warning" class="">{{ number_format($eliCount) }}</span>
+                            <a href="{{ route('readPending', 2) }}" data-type="2" class="nav-link pending-nav-link {{ request()->is('pending/2*') ? 'active' : '' }}">
+                                <i class="{{ request()->is('pending/2*') ? 'text-dark' : 'text-muted' }} pr-2 fas fas fa-certificate" style="width: 20px;"></i>
+                                <span class="{{ request()->is('pending/2*') ? 'text-dark' : 'text-muted' }} text-bold">Eligibility</span>
+                                <span class="float-right badge badge-warning" id="badge-eli">{{ number_format($eliCount) }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('readPending', 3) }}" class="nav-link">
-                                <i class="{{ request()->is('pending/3') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-briefcase" style="width: 20px;"></i>
-                                <span class="{{ request()->is('pending/3') ? 'text-dark' : 'text-muted' }} text-bold">Work Experience</span>
-                                <span class="float-right badge badge-warning" class="">{{ number_format($workexpCount) }}</span>
+                            <a href="{{ route('readPending', 3) }}" data-type="3" class="nav-link pending-nav-link {{ request()->is('pending/3*') ? 'active' : '' }}">
+                                <i class="{{ request()->is('pending/3*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-briefcase" style="width: 20px;"></i>
+                                <span class="{{ request()->is('pending/3*') ? 'text-dark' : 'text-muted' }} text-bold">Work Experience</span>
+                                <span class="float-right badge badge-warning" id="badge-workexp">{{ number_format($workexpCount) }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('readPending', 5) }}" class="nav-link">
-                                <i class="{{ request()->is('pending/5') ? 'text-dark' : 'text-muted' }} pr-2 fas fas fa-book" style="width: 20px;"></i>
-                                <span class="{{ request()->is('pending/5') ? 'text-dark' : 'text-muted' }} text-bold">Learning and Development</span>
-                                <span class="float-right badge badge-warning" class="">{{ number_format($learDevCount) }}</span>
+                            <a href="{{ route('readPending', 5) }}" data-type="5" class="nav-link pending-nav-link {{ request()->is('pending/5*') ? 'active' : '' }}">
+                                <i class="{{ request()->is('pending/5*') ? 'text-dark' : 'text-muted' }} pr-2 fas fas fa-book" style="width: 20px;"></i>
+                                <span class="{{ request()->is('pending/5*') ? 'text-dark' : 'text-muted' }} text-bold">Learning and Development</span>
+                                <span class="float-right badge badge-warning" id="badge-learndev">{{ number_format($learDevCount) }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{ route('readPending', 4) }}" class="nav-link">
-                                <i class="{{ request()->is('pending/4') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-hand-holding-heart" style="width: 20px;"></i>
-                                <span class="{{ request()->is('pending/4') ? 'text-dark' : 'text-muted' }} text-bold">Voluntary Work</span>
-                                <span class="float-right badge badge-warning" class="">{{ number_format($volWorkCount) }}</span>
+                            <a href="{{ route('readPending', 4) }}" data-type="4" class="nav-link pending-nav-link {{ request()->is('pending/4*') ? 'active' : '' }}">
+                                <i class="{{ request()->is('pending/4*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-hand-holding-heart" style="width: 20px;"></i>
+                                <span class="{{ request()->is('pending/4*') ? 'text-dark' : 'text-muted' }} text-bold">Voluntary Work</span>
+                                <span class="float-right badge badge-warning" id="badge-volwork">{{ number_format($volWorkCount) }}</span>
                             </a>
                         </li> 
                     </ul>
@@ -73,401 +73,72 @@
                 <h3 class="card-title"></h3>
                 <div class="card-tools d-flex justify-content-between align-items-center w-100">
                     <!-- Dropdown list on the left -->
-                    @if($type == 1)
-                    <div class="p-1" style="flex: 1; margin-left: -12px;">
-                        <select class="form-control form-control-sm" style="width: 20%;" onchange="redirectToPendingLeave(this)">
-                            <option value="0" {{ ($cat == 0) ? 'selected' : '' }}>All</option>
-                            <option value="0.1" {{ ($cat == 0.1) ? 'selected' : '' }}>Waiting...</option>
-                            <option value="0.2" {{ ($cat == 0.2) ? 'selected' : '' }}>Employee</option>
-                            <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>HRMO</option>
-                            <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>Supervisor</option>
-                            <option value="3" {{ ($cat == 3) ? 'selected' : '' }}>SUCPRES</option>
-                            <option value="4" {{ ($cat == 4) ? 'selected' : '' }}>APPROVED</option>
-                            <option value="5" {{ ($cat == 5) ? 'selected' : '' }}>DISAPPROVED</option>
-                        </select>
-                    </div>
-                    <form 
-                        action="{{ route('leaveReport') }}" method="POST" class="input-group w-50" 
-                        target="_blank" style="float: right;">
-                        @csrf
-                        <input type="text" id="date_range" name="date" placeholder="SELECT DATE"class="form-control form-control-sm">
-                        <div class="input-group-append">
-                            <button type="submit" class="btn btn-danger btn-sm">
-                                <i class="fas fa-file-pdf"></i>
-                            </button>
+                    <div id="leaveHeaderTools" class="{{ $type == 1 ? '' : 'd-none' }} w-100 d-flex justify-content-between align-items-center">
+                        <div class="p-1" style="flex: 1; margin-left: -12px;">
+                            <select class="form-control form-control-sm" style="width: 20%;" id="pendingCategorySelect" onchange="changePendingCategory(this)">
+                                <option value="0" {{ ($cat == 0) ? 'selected' : '' }}>All</option>
+                                <option value="0.1" {{ ($cat == 0.1) ? 'selected' : '' }}>Waiting...</option>
+                                <option value="0.2" {{ ($cat == 0.2) ? 'selected' : '' }}>Employee</option>
+                                <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>HRMO</option>
+                                <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>Supervisor</option>
+                                <option value="3" {{ ($cat == 3) ? 'selected' : '' }}>SUCPRES</option>
+                                <option value="4" {{ ($cat == 4) ? 'selected' : '' }}>APPROVED</option>
+                                <option value="5" {{ ($cat == 5) ? 'selected' : '' }}>DISAPPROVED</option>
+                            </select>
                         </div>
-                    </form>
-                    @else
-                    <!-- Search input on the right -->
-                    <div class="input-group input-group-sm" style="width: 20%; flex: 0 0 auto; margin-left: auto;">
-                        <input type="text" name="table_search" class="form-control" placeholder="Search">
-                        <div class="input-group-append">
-                            <button type="submit" class="btn btn-default">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
+                        <form 
+                            action="{{ route('leaveReport') }}" method="POST" class="input-group w-50" 
+                            target="_blank" style="float: right;">
+                            @csrf
+                            <input type="text" id="date_range" name="date" placeholder="SELECT DATE" class="form-control form-control-sm">
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-file-pdf"></i>
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                    @endif
                 </div>
             </div>
-                <div class="card-body table-responsive p-0" style="height: 500px;">
-                    @if($type == 1)
+                <div class="card-body table-responsive p-0" style="height: 500px;" id="pendingTableContainer">
                     <div class="input-group input-group-sm m-2" style="width: 20%; flex: 0 0 auto; margin-left: 1rem; float: right;">
-                        <input type="text" name="table_search" class="form-control float-right" placeholder="Search" autocomplete="off">
+                        <input type="text" name="table_search" id="pendingSearchInput" class="form-control float-right" placeholder="Search" autocomplete="off">
                         <div class="input-group-append">
-                            <button type="submit" class="btn btn-default">
+                            <button type="button" class="btn btn-default" id="btnSearchTrigger">
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
                     </div> 
-                    @endif
                     <table class="table table-head-fixed text-nowrap">
-                        <tbody>
-                            <thead> 
-                                <tr>
-                                    @if($type == 1)
-                                    <th width="70%">SIGNATORIES STATUS</th>
-                                    <th width="15%">REMARKS</th>
-                                    @else
-                                    <th width="80%">FULL NAME</th>
-                                    @endif
-                                    <th width="20%" class="text-center">ACTION</th>
-                                </tr>
-                            </thead>
-                            @if($type == 1)
-                                @foreach ($employees as $emp)
-                                @php
-                                    $formattedDateRange = '';
-                                    $calculatedDays = 0;
-                                    if (!empty($emp->date_range)) {
-                                        if (strpos($emp->date_range, ' to ') !== false) {
-                                            [$sDate, $eDate] = explode(' to ', $emp->date_range);
-                                            try {
-                                                $startCarbon = \Carbon\Carbon::parse(trim($sDate));
-                                                $endCarbon = \Carbon\Carbon::parse(trim($eDate));
-                                                $formattedDateRange = $startCarbon->format('M d, Y') . ' - ' . $endCarbon->format('M d, Y');
-                                                
-                                                $tempDate = $startCarbon->copy();
-                                                while ($tempDate->lte($endCarbon)) {
-                                                    if (!$tempDate->isWeekend()) {
-                                                        $calculatedDays++;
-                                                    }
-                                                    $tempDate->addDay();
-                                                }
-                                            } catch (\Exception $e) {
-                                                $formattedDateRange = $emp->date_range;
-                                                $calculatedDays = $emp->days ?? 0;
-                                            }
-                                        } else {
-                                            try {
-                                                $startCarbon = \Carbon\Carbon::parse(trim($emp->date_range));
-                                                $formattedDateRange = $startCarbon->format('M d, Y');
-                                                if (!$startCarbon->isWeekend()) {
-                                                    $calculatedDays = 1;
-                                                }
-                                            } catch (\Exception $e) {
-                                                $formattedDateRange = $emp->date_range;
-                                                $calculatedDays = $emp->days ?? 0;
-                                            }
-                                        }
-                                    }
-                                    if ($calculatedDays == 0 && !empty($emp->days)) {
-                                        $calculatedDays = $emp->days;
-                                    }
-                                @endphp
-                                <tr>
-                                    @if($type != 1)
-                                    <td>
-                                        {{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname, 0, 1)).'.' : '' }}
-                                    </td>
-                                    @endif
-                                    <td>
-                                        <div class="w-100 mb-1">
-                                            <span class="badge badge-success"><b>#{{ $emp->transnum }}</b></span>
-                                            @if($formattedDateRange)
-                                                <span class="badge badge-info ml-1" title="Applied Leave Period">
-                                                    <i class="far fa-calendar-alt mr-1"></i>{{ $formattedDateRange }} @if($calculatedDays > 0)({{ $calculatedDays }} {{ \Illuminate\Support\Str::plural('day', $calculatedDays) }})@endif
-                                                </span>
-                                            @endif
-                                        </div>
-                                        @if($emp->status == 1)
-                                            <div class="d-flex flex-wrap align-items-center">
-                                                <!-- Employee E-sign Status -->
-                                                <div class="mr-1">
-                                                    <span class="badge bg-{{ in_array($emp->emp_esign, [0, 1]) ? 'danger' : 'success' }}">
-                                                        <i class="fas fa-{{ in_array($emp->emp_esign, [0, 1]) ? 'times' : 'check' }}"></i> 
-                                                    </span>
-                                                </div>
-
-                                                <!-- Employee Status -->
-                                                <div class="mr-1">
-                                                    <span class="badge bg-secondary span-fix">
-                                                        <i class="fas fa-user"></i> {{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname, 0, 1)).'.' : '' }}
-                                                    </span>
-                                                </div>
-
-                                                <!-- HRMO Status -->
-                                                <span class="badge bg-danger mr-1">
-                                                    <i class="fas fa-times"></i> 
-                                                </span>
-                                                <div class="mr-1">
-                                                    <span class="badge bg-secondary span-fix">
-                                                        <i class="fas fa-user-tie"></i> {{ $emp->hr_lname }}, {{ $emp->hr_fname }} {{ $emp->hr_suffix }} {{ isset($emp->hr_mname) ? strtoupper(substr($emp->hr_mname, 0, 1)).'.' : '' }}
-                                                    </span>
-                                                </div>
-
-                                                <!-- Immediate Supervisor Status -->
-                                                <span class="badge bg-danger mr-1">
-                                                    <i class="fas fa-times"></i> 
-                                                </span>
-                                                <div class="mr-1">
-                                                    <span class="badge bg-secondary span-fix">
-                                                        <i class="fas fa-user-check"></i> {{ $emp->supervisor_lname }}, {{ $emp->supervisor_fname }} {{ $emp->supervisor_suffix }} {{ isset($emp->supervisor_mname) ? strtoupper(substr($emp->supervisor_mname, 0, 1)).'.' : '' }}
-                                                    </span>
-                                                </div>
-
-                                                <!-- SUC President Status -->
-                                                <span class="badge bg-danger mr-1">
-                                                    <i class="fas fa-times"></i> 
-                                                </span>
-                                                <div>
-                                                    <span class="badge bg-secondary span-fix">
-                                                        <i class="fas fa-user-shield"></i> {{ $emp->sucpres_lname }}, {{ $emp->sucpres_fname }} {{ $emp->sucpres_suffix }} {{ isset($emp->sucpres_mname) ? strtoupper(substr($emp->sucpres_mname, 0, 1)).'.' : '' }}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        @elseif($emp->status == 2)
-                                        <div class="d-flex flex-wrap align-items-center">
-                                                <!-- Employee E-sign Status -->
-                                                <div class="mr-1">
-                                                    <span class="badge bg-success">
-                                                        <i class="fas fa-check"></i> 
-                                                    </span>
-                                                </div>
-
-                                                <!-- Employee Status -->
-                                                <div class="mr-1">
-                                                    <span class="badge bg-secondary span-fix">
-                                                        <i class="fas fa-user"></i> {{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname, 0, 1)).'.' : '' }}
-                                                    </span>
-                                                </div>
-
-                                                <!-- HRMO Status -->
-                                                <span class="badge bg-{{ ($emp->status == 2) ? 'success' : 'danger' }} mr-1">
-                                                    <i class="fas fa-{{ ($emp->status == 2) ? 'check' : 'times' }}"></i> 
-                                                </span>
-                                                <div class="mr-1">
-                                                    <span class="badge bg-secondary span-fix">
-                                                        <i class="fas fa-user-tie"></i> {{ $emp->hr_lname }}, {{ $emp->hr_fname }} {{ $emp->hr_suffix }} {{ isset($emp->hr_mname) ? strtoupper(substr($emp->hr_mname, 0, 1)).'.' : '' }}
-                                                    </span>
-                                                </div>
-
-                                                <!-- Immediate Supervisor Status -->
-                                                <span class="badge bg-danger mr-1">
-                                                    <i class="fas fa-times"></i> 
-                                                </span>
-                                                <div class="mr-1">
-                                                    <span class="badge bg-secondary span-fix">
-                                                        <i class="fas fa-user-check"></i> {{ $emp->supervisor_lname }}, {{ $emp->supervisor_fname }} {{ $emp->supervisor_suffix }} {{ isset($emp->supervisor_mname) ? strtoupper(substr($emp->supervisor_mname, 0, 1)).'.' : '' }}
-                                                    </span>
-                                                </div>
-
-                                                <!-- SUC President Status -->
-                                                <span class="badge bg-danger mr-1">
-                                                    <i class="fas fa-times"></i> 
-                                                </span>
-                                                <div>
-                                                    <span class="badge bg-secondary span-fix">
-                                                        <i class="fas fa-user-shield"></i> {{ $emp->sucpres_lname }}, {{ $emp->sucpres_fname }} {{ $emp->sucpres_suffix }} {{ isset($emp->sucpres_mname) ? strtoupper(substr($emp->sucpres_mname, 0, 1)).'.' : '' }}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        @elseif($emp->status == 3)
-                                            <div class="d-flex flex-wrap align-items-center">
-                                                <!-- Employee E-sign Status -->
-                                                <div class="mr-1">
-                                                    <span class="badge bg-success">
-                                                        <i class="fas fa-check"></i> 
-                                                    </span>
-                                                </div>
-
-                                                <!-- Employee Status -->
-                                                <div class="mr-1">
-                                                    <span class="badge bg-secondary span-fix">
-                                                        <i class="fas fa-user"></i> {{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname, 0, 1)).'.' : '' }}
-                                                    </span>
-                                                </div>
-
-                                                <!-- HRMO Status -->
-                                                <span class="badge bg-success mr-1">
-                                                    <i class="fas fa-check"></i> 
-                                                </span>
-                                                <div class="mr-1">
-                                                    <span class="badge bg-secondary span-fix">
-                                                        <i class="fas fa-user-tie"></i> {{ $emp->hr_lname }}, {{ $emp->hr_fname }} {{ $emp->hr_suffix }} {{ isset($emp->hr_mname) ? strtoupper(substr($emp->hr_mname, 0, 1)).'.' : '' }}
-                                                    </span>
-                                                </div>
-
-                                                <!-- Immediate Supervisor Status -->
-                                                <span class="badge bg-{{ ($emp->status == 3) ? 'success' : 'danger' }} mr-1">
-                                                    <i class="fas fa-{{ ($emp->status == 3) ? 'check' : 'times' }}"></i> 
-                                                </span>
-                                                <div class="mr-1">
-                                                    <span class="badge bg-secondary span-fix">
-                                                        <i class="fas fa-user-check"></i> {{ $emp->supervisor_lname }}, {{ $emp->supervisor_fname }} {{ $emp->supervisor_suffix }} {{ isset($emp->supervisor_mname) ? strtoupper(substr($emp->supervisor_mname, 0, 1)).'.' : '' }}
-                                                    </span>
-                                                </div>
-
-                                                <!-- SUC President Status -->
-                                                <span class="badge bg-danger mr-1">
-                                                    <i class="fas fa-times"></i> 
-                                                </span>
-                                                <div>
-                                                    <span class="badge bg-secondary span-fix">
-                                                        <i class="fas fa-user-shield"></i> {{ $emp->sucpres_lname }}, {{ $emp->sucpres_fname }} {{ $emp->sucpres_suffix }} {{ isset($emp->sucpres_mname) ? strtoupper(substr($emp->sucpres_mname, 0, 1)).'.' : '' }}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        @elseif($emp->status == 4)
-                                            <div class="d-flex flex-wrap align-items-center">
-                                                <!-- Employee E-sign Status -->
-                                                <div class="mr-1">
-                                                    <span class="badge bg-success">
-                                                        <i class="fas fa-check"></i> 
-                                                    </span>
-                                                </div>
-
-                                                <!-- Employee Status -->
-                                                <div class="mr-1">
-                                                    <span class="badge bg-secondary span-fix">
-                                                        <i class="fas fa-user"></i> {{ $emp->employee_lname }}, {{ $emp->employee_fname }} {{ $emp->employee_suffix }} {{ isset($emp->employee_mname) ? strtoupper(substr($emp->employee_mname, 0, 1)).'.' : '' }}
-                                                    </span>
-                                                </div>
-
-                                                <!-- HRMO Status -->
-                                                <span class="badge bg-success mr-1">
-                                                    <i class="fas fa-check"></i> 
-                                                </span>
-                                                <div class="mr-1">
-                                                    <span class="badge bg-secondary span-fix">
-                                                        <i class="fas fa-user-tie"></i> {{ $emp->hr_lname }}, {{ $emp->hr_fname }} {{ $emp->hr_suffix }} {{ isset($emp->hr_mname) ? strtoupper(substr($emp->hr_mname, 0, 1)).'.' : '' }}
-                                                    </span>
-                                                </div>
-
-                                                <!-- Immediate Supervisor Status -->
-                                                <span class="badge bg-success mr-1">
-                                                    <i class="fas fa-check"></i> 
-                                                </span>
-                                                <div class="mr-1">
-                                                    <span class="badge bg-secondary span-fix">
-                                                        <i class="fas fa-user-check"></i> {{ $emp->supervisor_lname }}, {{ $emp->supervisor_fname }} {{ $emp->supervisor_suffix }} {{ isset($emp->supervisor_mname) ? strtoupper(substr($emp->supervisor_mname, 0, 1)).'.' : '' }}
-                                                    </span>
-                                                </div>
-
-                                                <!-- SUC President Status -->
-                                                <span class="badge bg-{{ ($emp->status == 4) ? 'success' : 'danger' }} mr-1">
-                                                    <i class="fas fa-{{ ($emp->status == 4) ? 'check' : 'times' }}"></i> 
-                                                </span>
-                                                <div>
-                                                    <span class="badge bg-secondary span-fix">
-                                                        <i class="fas fa-user-shield"></i> {{ $emp->sucpres_lname }}, {{ $emp->sucpres_fname }} {{ $emp->sucpres_suffix }} {{ isset($emp->sucpres_mname) ? strtoupper(substr($emp->sucpres_mname, 0, 1)).'.' : '' }}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </td>
-
-                                    <td>
-                                        <!-- History Badge -->
-                                        @if(in_array($emp->history, [0, 1]))
-                                            <span class="badge bg-warning">
-                                                <i class="fas fa-spinner fa-spin"></i> Ongoing...
-                                            </span>
-                                        @else
-                                            @if($emp->remarks_stat == 0)
-                                                <span class="badge bg-success">
-                                                    <i class="fas fa-check-circle"></i> Complete
-                                                </span>
-                                            @else
-                                                <span class="badge bg-danger">
-                                                    <i class="fas fa-check-circle"></i> Disapproved
-                                                </span>
-                                            @endif
-                                        @endif
-                                    </td>
-
-                                    <td class="text-center">
-                                        <!-- Action Button -->
-                                        @if($emp->status != 4)
-                                            <a href="#" data-id="{{ $emp->id }}" data-url-template="{{ url('leave/preview-leave/__ID__') }}" 
-                                                data-toggle="modal" data-target="#pdfModalPending" 
-                                                id="preview{{ $emp->id }}"
-                                                class="btn btn-danger btn-sm" 
-                                                style="width: 30px; padding: 0px !important;" >
-                                                <i class="fas fa-file-pdf" style="font-size: 0.75rem;"></i>
-                                            </a>
-                                        @else
-                                            <a href="#" data-id="{{ $emp->id }}" data-toggle="modal" data-target="#pdfModalHistory"
-                                                id="preview{{ $emp->id }}"
-                                                class="btn btn-danger btn-sm" 
-                                                style="width: 30px; padding: 0px !important;" >
-                                                <i class="fas fa-file-pdf" style="font-size: 0.75rem;"></i>
-                                            </a>
-                                        @endif
-                                        {{-- <button type="button"
-                                                class="btn btn-danger btn-round btn-sm"
-                                                data-id="{{ $emp->id }}"
-                                                data-url-template="{{ url('leave/preview-leave/__ID__') }}"
-                                                data-toggle="modal"
-                                                data-target="#pdfModalPending">
-                                            <i class="fas fa-file-pdf"></i>
-                                        </button> --}}
-                                        <a href="{{ route('leaveStatus', $emp->employid) }}" 
-                                        target="_blank" 
-                                        class="btn btn-{{ (in_array($emp->emp_esign, [1, 2])) ? 'success' : 'info' }} btn-sm" 
-                                        style="width: 30px; padding: 0px !important;" 
-                                        value="{{ $emp->id }}">
-                                            <i class="fas fa-exclamation-circle"></i>
-                                        </a>
-                                        @if($cat == 4)
-                                            <button type="button" class="btn btn-warning btn-sm undo-leave" data-id="{{ $emp->id }}" data-to="4" title="Undo Complete Status" style="width: 30px; padding: 0px !important;"><i class="fas fa-undo"></i></button>
-                                        @endif
-                                    </td>
-                                </tr>
-                                @endforeach
-                            @else
-                                @foreach ($employees as $emp)
-                                    @php
-                                    switch ($type) {
-                                        case '2':
-                                            $route = route('eligibility', $emp->id);
-                                            break;
-                                
-                                        case '3':
-                                            $route = route('work-experience', $emp->id);
-                                            break;
-                                        
-                                        case '4':
-                                            $route = route('voluntary-work', $emp->id);
-                                            break;
-                                
-                                        case '5':
-                                            $route = route('learning-dev', $emp->id);
-                                            break;
-                                    }
-                                    @endphp
-                                    <tr>
-                                        <td>{{ $emp->lname }}, {{ $emp->fname }} {{ $emp->suffix }} {{ isset($emp->mname) ? strtoupper(substr($emp->mname, 0, 1)).'.' : '' }}</td>
-                                        <td class="text-center">
-                                            <a href="{{ $route }}" target="_blank" class='btn btn-info btn-sm mr-1' style='width: 30px;' value="{{ $emp->id }}">
-                                                <i class="fas fa-exclamation-circle" style="font-size: 0.75rem;"></i>  
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @endif
+                        <thead> 
+                            <tr id="tableHeaderRow">
+                                @if($type == 1)
+                                <th width="70%">SIGNATORIES STATUS</th>
+                                <th width="15%">REMARKS</th>
+                                <th width="15%" class="text-center">ACTION</th>
+                                @else
+                                <th width="80%">FULL NAME</th>
+                                <th width="20%" class="text-center">ACTION</th>
+                                @endif
+                            </tr>
+                        </thead>
+                        <tbody id="pendingTableBody">
+                            @include('pending.partials.table_rows')
                         </tbody>
                     </table>
+                </div>
+                <div id="batchStatusContainer" class="p-2 border-top d-flex justify-content-between align-items-center bg-light">
+                    <span id="batchInfoText" class="text-muted" style="font-size: 0.875rem;">
+                        Showing <strong id="loadedCount">{{ count($employees) }}</strong> of <strong id="totalCount">{{ $totalCount }}</strong> items
+                    </span>
+                    <div class="d-flex align-items-center">
+                        <div id="batchLoadingSpinner" class="spinner-border spinner-border-sm text-primary mr-2 d-none" role="status">
+                            <span class="sr-only">Loading batch...</span>
+                        </div>
+                        <button id="btnLoadNextBatch" class="btn btn-outline-primary btn-sm {{ $hasMore ? '' : 'd-none' }}">
+                            <i class="fas fa-download mr-1"></i> Load Next Batch
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -512,34 +183,177 @@
     </div>
 </div>
 </section>
+
 <script>
+    const pendingRouteBase = "{{ url('pending') }}";
+
+    let pendingState = {
+        type: "{{ $type }}",
+        cat: "{{ $cat ?? 0 }}",
+        page: {{ $page ?? 1 }},
+        limit: {{ $limit ?? 25 }},
+        total: {{ $totalCount ?? 0 }},
+        hasMore: {{ isset($hasMore) && $hasMore ? 'true' : 'false' }},
+        isLoading: false,
+        search: ''
+    };
+
+    function loadPendingBatch(reset = false) {
+        if (pendingState.isLoading) return;
+        
+        if (reset) {
+            pendingState.page = 1;
+            pendingState.hasMore = false;
+            let colSpan = pendingState.type == 1 ? 3 : 2;
+            $('#pendingTableBody').html('<tr><td colspan="' + colSpan + '" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin fa-2x mb-2"></i><br>Loading records...</td></tr>');
+        }
+        
+        if (!reset && !pendingState.hasMore) return;
+        
+        pendingState.isLoading = true;
+        $('#batchLoadingSpinner').removeClass('d-none');
+        $('#btnLoadNextBatch').prop('disabled', true);
+        
+        let fetchUrl = pendingRouteBase + '/' + pendingState.type + '/' + (pendingState.cat || 0);
+        
+        $.ajax({
+            url: fetchUrl,
+            type: 'GET',
+            data: {
+                ajax: 1,
+                page: pendingState.page,
+                limit: pendingState.limit,
+                search: pendingState.search
+            },
+            dataType: 'json',
+            success: function(res) {
+                pendingState.isLoading = false;
+                $('#batchLoadingSpinner').addClass('d-none');
+                
+                if (res.success) {
+                    if (reset) {
+                        $('#pendingTableBody').html(res.html);
+                    } else {
+                        $('#pendingTableBody').append(res.html);
+                    }
+                    
+                    pendingState.total = res.total;
+                    pendingState.hasMore = res.has_more;
+                    
+                    if (res.counts) {
+                        $('#badge-leave').text(Number(res.counts.leaveappCount).toLocaleString());
+                        $('#badge-eli').text(Number(res.counts.eliCount).toLocaleString());
+                        $('#badge-workexp').text(Number(res.counts.workexpCount).toLocaleString());
+                        $('#badge-learndev').text(Number(res.counts.learDevCount).toLocaleString());
+                        $('#badge-volwork').text(Number(res.counts.volWorkCount).toLocaleString());
+                    }
+                    
+                    let loaded = $('#pendingTableBody tr:not(.no-records)').length;
+                    $('#loadedCount').text(loaded);
+                    $('#totalCount').text(pendingState.total);
+                    
+                    if (pendingState.hasMore) {
+                        $('#btnLoadNextBatch').removeClass('d-none').prop('disabled', false);
+                    } else {
+                        $('#btnLoadNextBatch').addClass('d-none');
+                    }
+                }
+            },
+            error: function(err) {
+                pendingState.isLoading = false;
+                $('#batchLoadingSpinner').addClass('d-none');
+                $('#btnLoadNextBatch').prop('disabled', false);
+                console.error('Failed to load pending batch:', err);
+            }
+        });
+    }
+
+    function changePendingCategory(selectElement) {
+        let cat = selectElement.value;
+        pendingState.cat = cat;
+        pendingState.search = '';
+        $('#pendingSearchInput').val('');
+        
+        let newUrl = pendingRouteBase + '/1/' + cat;
+        window.history.pushState({type: 1, cat: cat}, '', newUrl);
+        
+        loadPendingBatch(true);
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.querySelector('input[name="table_search"]');
-        const tableRows = document.querySelectorAll('.table tbody tr');
-    
-        searchInput.addEventListener('input', function() {
-            const searchTerm = searchInput.value.toLowerCase();
-    
-            tableRows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                const found = Array.from(cells).some(cell => cell.textContent.toLowerCase().includes(searchTerm));
-                row.style.display = found ? '' : 'none';
-            });
+        // Intercept sidebar navigation links
+        $(document).on('click', '.pending-nav-link', function(e) {
+            e.preventDefault();
+            let href = $(this).attr('href');
+            let type = $(this).data('type');
+            
+            $('.pending-nav-link i').removeClass('text-dark').addClass('text-muted');
+            $('.pending-nav-link span.text-bold').removeClass('text-dark').addClass('text-muted');
+            $('.pending-nav-link').removeClass('active');
+            
+            $(this).addClass('active');
+            $(this).find('i').removeClass('text-muted').addClass('text-dark');
+            $(this).find('span.text-bold').removeClass('text-muted').addClass('text-dark');
+            
+            pendingState.type = type;
+            pendingState.cat = 0;
+            pendingState.search = '';
+            $('#pendingSearchInput').val('');
+            
+            window.history.pushState({type: type, cat: 0}, '', href);
+            
+            if (type == 1) {
+                $('#leaveHeaderTools').removeClass('d-none');
+                $('#pendingCategorySelect').val('0');
+                $('#tableHeaderRow').html('<th width="70%">SIGNATORIES STATUS</th><th width="15%">REMARKS</th><th width="15%" class="text-center">ACTION</th>');
+            } else {
+                $('#leaveHeaderTools').addClass('d-none');
+                $('#tableHeaderRow').html('<th width="80%">FULL NAME</th><th width="20%" class="text-center">ACTION</th>');
+            }
+            
+            loadPendingBatch(true);
+        });
+
+        // Load next batch button
+        $(document).on('click', '#btnLoadNextBatch', function() {
+            if (pendingState.hasMore && !pendingState.isLoading) {
+                pendingState.page++;
+                loadPendingBatch(false);
+            }
+        });
+
+        // Infinite scroll inside table container
+        $('#pendingTableContainer').on('scroll', function() {
+            let container = $(this);
+            if (container.scrollTop() + container.innerHeight() >= container[0].scrollHeight - 60) {
+                if (pendingState.hasMore && !pendingState.isLoading) {
+                    pendingState.page++;
+                    loadPendingBatch(false);
+                }
+            }
+        });
+
+        // Debounced search input handler
+        let searchTimer;
+        $(document).on('input', '#pendingSearchInput', function() {
+            clearTimeout(searchTimer);
+            let val = $(this).val();
+            searchTimer = setTimeout(function() {
+                pendingState.search = val;
+                loadPendingBatch(true);
+            }, 300);
+        });
+
+        // Browser back/forward button handling
+        window.addEventListener('popstate', function(event) {
+            let path = window.location.pathname;
+            let match = path.match(/\/pending\/(\d+)(?:\/([\d.]+))?/);
+            if (match) {
+                pendingState.type = match[1] || '1';
+                pendingState.cat = match[2] || '0';
+                loadPendingBatch(true);
+            }
         });
     });
-</script>
-<script>
-    const pendingRouteBase = "{{ route('readPending', ['type' => 1, 'cat' => ':cat']) }}";
-</script>
-<script>
-    function redirectToPendingLeave(selectElement) {
-        const selectedCategory = selectElement.value; // Get the selected value
-
-        // Replace the placeholder in the route with the selected category
-        const url = pendingRouteBase.replace(':cat', selectedCategory);
-
-        // Redirect to the constructed URL
-        window.location.href = url;
-    }
 </script>
 @endsection
