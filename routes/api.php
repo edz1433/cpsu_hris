@@ -9,8 +9,10 @@ use App\Http\Controllers\Api\JobHiringController;
 use App\Http\Controllers\Api\ApplicationController;
 use App\Http\Controllers\Api\ClinicController;
 use App\Http\Controllers\Api\CoasController;
+use App\Http\Controllers\Api\FdtController;
 use App\Http\Controllers\Api\GadController;
 use App\Http\Controllers\Api\CptController;
+use App\Http\Controllers\Api\PayrollController;
 
 
 Route::post('/dtrs', [DtrController::class, 'syncDtr'])->name('api.syncDtr');
@@ -24,6 +26,17 @@ Route::post('/application/store', [ApplicationController::class, 'applicationSto
 Route::get('/application/check/{jid}/{email}', [ApplicationController::class, 'applicationCheck'])->name('application.check');
 Route::get('/application/status/{appnumber}', [ApplicationController::class, 'applicationStatus'])->name('application.status');
 Route::get('/gad-gender-count', [GadController::class, 'genderCount'])->name('gender-count');
+
+Route::prefix('payroll')->middleware('payroll.api.key')->group(function () {
+    Route::post('/connection-check', [PayrollController::class, 'connectionCheck'])->name('api.payroll.connectionCheck');
+    Route::post('/employees', [PayrollController::class, 'employees'])->name('api.payroll.employees');
+    Route::post('/tardiness', [PayrollController::class, 'tardiness'])->name('api.payroll.tardiness');
+    Route::post('/leaves', [PayrollController::class, 'leaves'])->name('api.payroll.leaves');
+});
+
+Route::prefix('hris')->middleware('payroll.api.key')->group(function () {
+    Route::post('/connection-check', [PayrollController::class, 'connectionCheck'])->name('api.hris.connectionCheck');
+});
 
 Route::get('/fdt/sync', [FdtController::class, 'sync']);
 

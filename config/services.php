@@ -41,5 +41,8 @@ return [
     ],
 
     'fdt_sync' => ['token' => env('FDT_SYNC_TOKEN')],
-];
 
+    'payroll_api' => [
+        'key' => env('PAYROLL_API_KEY'),
+    ],
+];
