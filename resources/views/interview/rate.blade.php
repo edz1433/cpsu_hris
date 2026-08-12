@@ -181,6 +181,17 @@
         border-radius:8px;
         min-height:38px;
     }
+    .applicant-file-actions {
+        display:flex;
+        flex-wrap:wrap;
+        gap:6px;
+        margin-top:10px;
+    }
+    .applicant-file-actions .btn {
+        border-radius:8px;
+        font-size:.78rem;
+        font-weight:700;
+    }
     
     /* Compact trait row */
     .trait-row td:first-child { 
@@ -293,6 +304,29 @@
                         <div class="text-muted small">{{ $interview->job->plantilla_item_no }}</div>
                     @endif
                     {{-- <div class="text-muted small">{{ $interview->eteEvaluation->office->office_name ?? '' }}</div> --}}
+
+                    @if(!empty($application->pds) || !empty($application->wes))
+                        <div class="applicant-file-actions">
+                            @if(!empty($application->pds))
+                                <a href="{{ asset('storage/' . $application->pds) }}"
+                                   class="btn btn-sm btn-outline-primary"
+                                   target="_blank"
+                                   rel="noopener"
+                                   title="Personal Data Sheet">
+                                    <i class="fas fa-file-alt"></i> PDS
+                                </a>
+                            @endif
+                            @if(!empty($application->wes))
+                                <a href="{{ asset('storage/' . $application->wes) }}"
+                                   class="btn btn-sm btn-outline-info"
+                                   target="_blank"
+                                   rel="noopener"
+                                   title="Work Experience Sheet">
+                                    <i class="fas fa-briefcase"></i> WES
+                                </a>
+                            @endif
+                        </div>
+                    @endif
 
                     @if($relatedPositions->count() > 1)
                         <div class="position-switcher">
