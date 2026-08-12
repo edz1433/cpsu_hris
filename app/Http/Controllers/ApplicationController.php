@@ -424,6 +424,11 @@ class ApplicationController extends Controller
                 ]);
         }
 
+        // Interview schedule emails are currently disabled; only save the schedule/status.
+        if ((int) $request->status === 2) {
+            return back()->with('success', 'Interview schedule successfully set. Email notification was skipped.');
+        }
+
         // ------------------------------
         // 👤 Prepare Applicant Details
         // ------------------------------

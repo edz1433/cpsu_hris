@@ -173,7 +173,7 @@
                     <div class="form-group">
                         <label for="ete_interview_datetime">Interview Schedule <span class="text-danger">*</span></label>
                         <input type="datetime-local" id="ete_interview_datetime" name="interview_datetime" class="form-control" required>
-                        <small class="form-text text-muted">This will mark the applicant as Qualified / Ready for Interview and send the interview email.</small>
+                        <small class="form-text text-muted">This will mark the applicant as Qualified / Ready for Interview. Email notification is currently disabled.</small>
                     </div>
 
                     <div class="form-group">
@@ -187,7 +187,7 @@
                         <i class="fas fa-times"></i> Cancel
                     </button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-paper-plane"></i> Confirm & Send Email
+                        <i class="fas fa-check"></i> Confirm Schedule
                     </button>
                 </div>
             </form>
