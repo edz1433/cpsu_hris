@@ -631,7 +631,7 @@
                                                 </button>
                                             </form>
 
-                                            <form method="POST" action="{{ route('updateStatus') }}" style="display:inline;">
+                                            <form method="POST" action="{{ route('updateStatus') }}" class="top5-confirm-form" style="display:inline;">
                                                 @csrf
                                                 <input type="hidden" name="id" value="{{ $app->id }}">
                                                 <input type="hidden" name="status" value="5">
@@ -928,6 +928,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $(document).on('click', '.removeEligibility', function () {
         $(this).closest('.eligibility-row').remove();
+    });
+
+    document.querySelectorAll('.top5-confirm-form').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'Confirm Next Stage?',
+                    text: 'Select this applicant for the Top 5 / Psychological or Pre-Employment Test stage?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#007bff',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes',
+                    cancelButtonText: 'No'
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+                return;
+            }
+
+            if (confirm('Select this applicant for the Top 5 / Psychological or Pre-Employment Test stage?')) {
+                form.submit();
+            }
+        });
     });
 
 });
