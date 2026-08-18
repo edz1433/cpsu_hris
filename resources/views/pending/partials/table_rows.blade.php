@@ -205,9 +205,28 @@
             <td>
                 <!-- History Badge -->
                 @if(in_array($emp->history, [0, 1]))
-                    <span class="badge bg-warning">
-                        <i class="fas fa-spinner fa-spin"></i> Ongoing...
-                    </span>
+                    @php
+                        $pendingInfo = leavePendingDays($emp->date_filing, $emp->created_at);
+                    @endphp
+                    <div class="w-100 mb-1">
+                        <span class="badge bg-warning">
+                            <i class="fas fa-spinner fa-spin"></i> Ongoing...
+                        </span>
+                    </div>
+                    @if($pendingInfo)
+                        <div class="w-100">
+                            <span class="badge bg-{{ $pendingInfo['days'] >= 7 ? 'danger' : ($pendingInfo['days'] >= 3 ? 'warning' : 'info') }}"
+                                title="Filed on {{ $pendingInfo['filed']->format('M d, Y') }} - pending as of {{ \Carbon\Carbon::now('Asia/Manila')->format('M d, Y') }}">
+                                <i class="far fa-clock mr-1"></i>
+                                @if($pendingInfo['days'] == 0)
+                                    Filed today
+                                @else
+                                    {{ $pendingInfo['days'] }} {{ \Illuminate\Support\Str::plural('day', $pendingInfo['days']) }} pending
+                                @endif
+                            </span>
+                        </div>
+                        <small class="text-muted d-block">Filed: {{ $pendingInfo['filed']->format('M d, Y') }}</small>
+                    @endif
                 @else
                     @if($emp->remarks_stat == 0)
                         <span class="badge bg-success">

@@ -93,3 +93,26 @@ if (!function_exists('calculateServiceDuration')) {
 }
 
 
+
+if (!function_exists('leavePendingDays')) {
+    /**
+     * Number of days a leave application has been pending:
+     * date it was filed (applied) vs the current date.
+     */
+    function leavePendingDays($dateFiling, $fallback = null) {
+        $raw = !empty($dateFiling) ? $dateFiling : $fallback;
+        if (empty($raw)) {
+            return null;
+        }
+        try {
+            $filed = \Carbon\Carbon::parse($raw, 'Asia/Manila')->setTimezone('Asia/Manila')->startOfDay();
+            $today = \Carbon\Carbon::now('Asia/Manila')->startOfDay();
+            if ($filed->gt($today)) {
+                return ['days' => 0, 'filed' => $filed];
+            }
+            return ['days' => $filed->diffInDays($today), 'filed' => $filed];
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+}
