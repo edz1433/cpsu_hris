@@ -16,7 +16,7 @@ class FdtController
 
         // Fail closed on an unset token. Comparing a null config against a null
         // bearer token passes, and this route has no auth middleware in front
-        // of it, so that served the whole directory — password hashes included
+        // of it, so that served the whole directory — sensitive employee data included
         // — to anyone.
         if ($token === '' || ! hash_equals($token, (string) $request->bearerToken())) {
             return response()->json(['message' => 'Unauthorized'], 401);
@@ -62,7 +62,7 @@ class FdtController
 
         $employeeSelect = collect([
             'id', 'fname', 'mname', 'lname', 'emp_ID', 'camp_id', 'emp_status',
-            'emp_dept', 'supervisor', 'org_email', 'password', 'stat_1', 'esign',
+            'emp_dept', 'supervisor', 'org_email', 'stat_1', 'esign',
             'created_at', 'updated_at',
         ])->filter(fn ($column) => in_array($column, $employeeColumns, true))->values()->all();
 
