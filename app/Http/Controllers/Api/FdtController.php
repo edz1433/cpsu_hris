@@ -16,8 +16,7 @@ class FdtController
 
         // Fail closed on an unset token. Comparing a null config against a null
         // bearer token passes, and this route has no auth middleware in front
-        // of it, so that served the whole directory — sensitive employee data included
-        // — to anyone.
+        // of it, so that served the whole directory — sensitive employee data included to anyone.
         if ($token === '' || ! hash_equals($token, (string) $request->bearerToken())) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
