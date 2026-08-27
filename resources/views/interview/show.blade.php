@@ -18,7 +18,7 @@
     .panel-assignment .panel-link,
     .panel-assignment .panel-pill { margin:0; }
     .panel-remove { border-radius:999px; height:28px; line-height:1; padding:0; width:28px; }
-    .action-cell { min-width:190px; width:190px; }
+    .action-cell { min-width:270px; width:270px; }
     .action-stack { align-items:center; display:flex; flex-direction:row; gap:6px; justify-content:center; }
     .action-stack form { margin:0; }
     .action-stack .btn { min-width:74px; }
@@ -195,6 +195,22 @@
                                                 @csrf
                                                 <button class="btn btn-sm btn-success"><i class="fas fa-bullhorn"></i> Cast</button>
                                             </form>
+                                        @endif
+                                        @if($completedRatings->isNotEmpty())
+                                            <a href="{{ route('interviewCandidateAssessmentReport', [$interview->id, $applicant->id]) }}"
+                                               target="_blank"
+                                               rel="noopener"
+                                               class="btn btn-sm btn-outline-danger"
+                                               title="Print each panel member's Interview and Potential Assessment forms">
+                                                <i class="fas fa-file-pdf"></i> Report
+                                            </a>
+                                        @else
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    title="The report is available after at least one panel member completes the rating"
+                                                    disabled>
+                                                <i class="fas fa-file-pdf"></i> Report
+                                            </button>
                                         @endif
                                     </div>
                                 </td>

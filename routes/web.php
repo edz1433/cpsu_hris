@@ -248,6 +248,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/evaluations/{id}', [InterviewEvaluationController::class, 'show'])->name('interviewEvaluationShow');
         Route::post('/evaluations/{id}/candidate/{applicationId}/cast', [InterviewEvaluationController::class, 'cast'])->name('interviewCandidateCast');
         Route::post('/evaluations/{id}/candidate/{applicationId}/uncast', [InterviewEvaluationController::class, 'uncast'])->name('interviewCandidateUncast');
+        Route::get('/evaluations/{id}/candidate/{applicationId}/assessment-report', [InterviewEvaluationController::class, 'assessmentReport'])->name('interviewCandidateAssessmentReport');
         Route::post('/evaluations/{id}/candidate/{applicationId}/panel', [InterviewEvaluationController::class, 'addApplicantPanel'])->name('interviewCandidatePanelAdd');
         Route::post('/evaluations/{id}/candidate/{applicationId}/panel/{employeeId}/remove', [InterviewEvaluationController::class, 'removeApplicantPanel'])->name('interviewCandidatePanelRemove');
         Route::post('/evaluations/{id}/panel/{employeeId}/chairman', [InterviewEvaluationController::class, 'setPanelChairman'])->name('interviewPanelSetChairman');
@@ -268,6 +269,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/update', [EmployeeController::class, 'empUpdate'])->name('empUpdate');
         Route::post('/employee-update', [EmployeeController::class, 'employeeUpdate'])->name('employeeUpdate');
         Route::post('/toggle-acct-stat', [EmployeeController::class, 'toggleAcctStat'])->name('toggleAcctStat');
+        Route::post('/sync-payroll/{id}', [EmployeeController::class, 'syncPayrollEmployee'])->name('syncPayrollEmployee');
         Route::post('/official-time/{empid}', [EmployeeController::class, 'OfficialTimeRead'])->name('OfficialTimeRead');
         Route::post('/official-time-create', [EmployeeController::class, 'OfficialTimeCreate'])->name('OfficialTimeCreate');
         Route::get('/emp-qr', [EmployeeController::class, 'empQr'])->name('empQr');
@@ -369,12 +371,6 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/upload-signature/{id?}', [PdsController::class, 'uploadSignature'])->name('uploadSignature');
     });
     
-    // Modify
-    Route::prefix('modify')->group(function() {
-        Route::post('/show', [ModifyController::class, 'modifyShow'])->name('modifyShow');
-        Route::post('/update', [ModifyController::class, 'modifyUpdate'])->name('modifyUpdate');
-    });
-
     // Office
     Route::prefix('office')->group(function() {
         Route::get('/', [OfficeController::class, 'officeList'])->name('officeList');

@@ -10,6 +10,7 @@ use App\Models\InterviewApplicant;
 use App\Models\InterviewEvaluation;
 use App\Models\InterviewPanel;
 use App\Models\InterviewRating;
+use App\Services\InterviewAssessmentReport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -842,6 +843,40 @@ class InterviewEvaluationController extends Controller
         });
 
         return back()->with('success', 'Candidate uncast successfully.');
+    }
+
+    public function assessmentReport($id, $applicationId, InterviewAssessmentReport $report)
+    {
+        $this->authorizeAdmin();
+
+        $interview = InterviewEvaluation::with(['job', 'eteEvaluation.office'])->findOrFail($id);
+        $application = Application::where('jid', $interview->jid)->findOrFail($applicationId);
+        $ratings = InterviewRating::with('panelEmployee')
+            ->where('interview_id', $interview->id)
+            ->where('application_id', $application->id)
+            ->get()
+            ->filter(fn ($rating) => $this->ratingComplete($rating))
+            ->sortBy(function ($rating) {
+                $panel = $rating->panelEmployee;
+
+                return strtolower(trim(($panel->lname ?? '').' '.($panel->fname ?? '')));
+            })
+            ->values();
+
+        abort_if($ratings->isEmpty(), 404, 'No completed panel ratings are available for this applicant.');
+
+        $applicantProfile = EteApplicantRating::where('ete_id', $interview->ete_id)
+            ->where('application_id', $application->id)
+            ->latest('updated_at')
+            ->first();
+        $fileName = 'assessment-report-'.preg_replace('/[^A-Za-z0-9_-]+/', '-', $application->app_number ?: $application->id).'.pdf';
+        $contents = $report->generate($interview, $application, $ratings, $applicantProfile);
+
+        return response($contents, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$fileName.'"',
+            'Cache-Control' => 'private, no-store, no-cache, must-revalidate',
+        ]);
     }
 
     public function addApplicantPanel(Request $request, $id, $applicationId)
