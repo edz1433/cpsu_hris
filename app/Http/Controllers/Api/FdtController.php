@@ -7,16 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 class FdtController
 {
-    /** Column lists memoised per request; the table shape cannot move inside one. */
     private array $columnCache = [];
 
     public function sync(Request $request)
     {
         $token = (string) config('services.fdt_sync.token');
 
-        // Fail closed on an unset token. Comparing a null config against a null
-        // bearer token passes, and this route has no auth middleware in front
-        // of it, so that served the whole directory — sensitive employee data included to anyone.
         if ($token === '' || ! hash_equals($token, (string) $request->bearerToken())) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
@@ -24,23 +20,20 @@ class FdtController
         $updatedSince = $request->query('updated_since');
         $page = max((int) $request->query('page', 1), 1);
         $perPage = min(max((int) $request->query('per_page', 25), 1), 100);
-        // Keyset cursor: the highest employee id the client has already applied.
         $after = max((int) $request->query('after', 0), 0);
 
         $officeColumns = $this->columnsFor('dbcpsupms', 'offices');
         $employeeColumns = $this->columnsFor('dbcpsuhris', 'employees');
+        $campusColumns = $this->columnsFor('dbcpsuhris', 'campuses');
+        $settingsColumns = $this->columnsFor('dbcpsuhris', 'settings');
 
-        // Offices ride along with the first request of a walk only.
-        $withOffices = $page === 1;
+        $withSharedData = $page === 1;
 
-        // Identity probe: COUNT(*) + MAX(updated_at) over the filtered set,
-        // never a hash of the payload — the whole point is to answer an
-        // unchanged set without loading the esign blobs (381 of 1371 rows,
-        // ~194KB average, 7.18MB worst). Keyed on every parameter that changes
-        // which rows this request would return, or it would 304 a page the
-        // client never fetched. Both tables have a leading BTREE index on
-        // updated_at; this probe and the filter below ride on it.
-        $signature = ($withOffices ? $this->tableSignature('dbcpsupms.offices', $officeColumns, $updatedSince) : '')
+        $signature = ($withSharedData
+                ? $this->tableSignature('dbcpsupms.offices', $officeColumns, $updatedSince)
+                    .'|'.$this->campusesSignature($campusColumns)
+                    .'|'.$this->dtrAcctSignature($settingsColumns)
+                : '')
             .'|'.$this->tableSignature('dbcpsuhris.employees', $employeeColumns, $updatedSince);
 
         $etag = '"'.md5($signature.'|'.$page.'|'.$perPage.'|'.$after.'|'.(string) $updatedSince).'"';
@@ -65,7 +58,7 @@ class FdtController
             'created_at', 'updated_at',
         ])->filter(fn ($column) => in_array($column, $employeeColumns, true))->values()->all();
 
-        $offices = $withOffices
+        $offices = $withSharedData
             ? DB::table('dbcpsupms.offices')
                 ->select($officeSelect)
                 ->when($updatedSince && in_array('updated_at', $officeColumns, true), function ($query) use ($updatedSince) {
@@ -75,16 +68,22 @@ class FdtController
                 ->get()
             : collect();
 
+        $campuses = $withSharedData && $this->hasColumns($campusColumns, ['id', 'campus_name', 'campus_abbr'])
+            ? DB::table('dbcpsuhris.campuses')
+                ->select(['id', 'campus_name', 'campus_abbr'])
+                ->orderBy('id')
+                ->get()
+            : collect();
+
+        $settings = $withSharedData && in_array('dtr_acct', $settingsColumns, true)
+            ? ['dtr_acct' => $this->dtrAcctValue($settingsColumns)]
+            : (object) [];
+
         $employeeQuery = DB::table('dbcpsuhris.employees')
             ->when($updatedSince && in_array('updated_at', $employeeColumns, true), function ($query) use ($updatedSince) {
                 $query->where('updated_at', '>=', $updatedSince);
             });
 
-        // Keyset, not offset. The set is filtered by updated_since, so any row
-        // touched mid-walk joins it and shifts every later offset backward —
-        // offset paging dropped rows with nothing reporting the gap. The >=
-        // comparison above is what lets the next sync re-collect a row skipped
-        // that way.
         $employees = (clone $employeeQuery)
             ->select($employeeSelect)
             ->where('id', '>', $after)
@@ -92,18 +91,15 @@ class FdtController
             ->limit($perPage)
             ->get();
 
-        // Probe for a next page on the id index alone. Fetching one extra row
-        // instead would pull an esign blob just to throw it away.
         $hasMoreEmployees = $employees->isNotEmpty() && (clone $employeeQuery)
             ->where('id', '>', (int) $employees->last()->id)
             ->exists();
 
         return response()
             ->json([
-                // Deliberately no wall-clock field: a synced_at in the body
-                // changes every request and the ETag could never match. The
-                // client takes its cursor from the rows' own updated_at.
                 'offices' => $offices,
+                'campuses' => $campuses,
+                'settings' => $settings,
                 'employees' => $employees,
                 'next_page_url' => $hasMoreEmployees
                     ? $request->fullUrlWithQuery([
@@ -132,6 +128,40 @@ class FdtController
         return $table.':'.($row->row_count ?? 0).':'.($row->max_updated_at ?? '');
     }
 
+    private function campusesSignature(array $columns): string
+    {
+        if (! $this->hasColumns($columns, ['id', 'campus_name', 'campus_abbr'])) {
+            return 'dbcpsuhris.campuses:missing';
+        }
+
+        $rows = DB::table('dbcpsuhris.campuses')
+            ->select(['id', 'campus_name', 'campus_abbr'])
+            ->orderBy('id')
+            ->get();
+
+        return 'dbcpsuhris.campuses:'.md5($rows->toJson());
+    }
+
+    private function dtrAcctSignature(array $columns): string
+    {
+        if (! in_array('dtr_acct', $columns, true)) {
+            return 'dbcpsuhris.settings.dtr_acct:missing';
+        }
+
+        return 'dbcpsuhris.settings.dtr_acct:'.md5($this->dtrAcctValue($columns));
+    }
+
+    private function dtrAcctValue(array $columns): string
+    {
+        if (! in_array('dtr_acct', $columns, true)) {
+            return '';
+        }
+
+        return (string) (DB::table('dbcpsuhris.settings')
+            ->orderBy('id')
+            ->value('dtr_acct') ?? '');
+    }
+
     private function columnsFor(string $database, string $table): array
     {
         $key = $database.'.'.$table;
@@ -144,5 +174,10 @@ class FdtController
     private function selectColumnOrNull(array $columns, string $column)
     {
         return in_array($column, $columns, true) ? $column : DB::raw('NULL as '.$column);
+    }
+
+    private function hasColumns(array $columns, array $required): bool
+    {
+        return count(array_intersect($required, $columns)) === count($required);
     }
 }
