@@ -49,7 +49,7 @@ class LeaveApplicationController extends Controller
         $supemp = Employee::find($employee->supervisor);
         $presemp = Employee::find($setting->suc_pres);
         $hremp = Employee::find($setting->hr);
-        $payrollEmployee = PayrollEmployee::where('emp_ID', $request->empid)->first();
+        $payrollEmployee = PayrollEmployee::forEmpId($request->empid)->first();
         $purpose = $request->leave_purpose;
     
         if (is_null($employee->supervisor) || $employee->supervisor == 0) {
@@ -72,7 +72,7 @@ class LeaveApplicationController extends Controller
             'total_vl' => $employee->vl,
             'total_sl' => $employee->sl,
             'date_filing' => $request->date_filing . ' ' . \Carbon\Carbon::now('Asia/Manila')->format('H:i:s'),
-            'salary' => $payrollEmployee->emp_salary,
+            'salary' => $payrollEmployee ? $payrollEmployee->monthly_salary : null,
             'commutation' => ($purpose == 7 || $purpose == 8) ? 2 : 1,
             'supervisor' => $employee->supervisor,
             'sup_prefix' => $supemp->prefix,
@@ -80,7 +80,7 @@ class LeaveApplicationController extends Controller
             'pres_prefix' => $presemp->prefix,
             'hr' => $setting->hr,
             'hr_prefix' => $hremp->prefix,
-            'department' => $payrollEmployee->emp_dept,
+            'department' => $employee->emp_dept,
         ]);
 
         $leaveTypes = [

@@ -10,6 +10,6 @@ class PayrollUser extends Model
     protected $connection = 'payroll';
     protected $table = 'users';
     protected $fillable = [
-        'campus_id', 'fname', 'mname', 'lname', 'username', 'password', 'role'
+        'campus_id', 'name', 'email', 'password', 'role_id', 'is_active'
     ];
 }
