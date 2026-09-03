@@ -50,6 +50,10 @@ class TirednessController extends Controller
         ];
     }
 
+    /**
+     * Normalize punches to whole minutes so seconds and milliseconds never
+     * affect tardiness or undertime totals in either PDF report.
+     */
     private function normalizeClockMinute($time)
     {
         if (!$time) {

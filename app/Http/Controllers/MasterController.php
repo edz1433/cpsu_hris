@@ -27,6 +27,42 @@ use Carbon\Carbon;
 
 class MasterController extends Controller
 {
+    /**
+     * Normalize DTR punches to whole clock minutes. Seconds and fractional
+     * seconds are deliberately discarded before tardiness is calculated.
+     */
+    private function normalizeClockMinute($time)
+    {
+        if (!$time) {
+            return null;
+        }
+
+        $time = trim((string) $time);
+
+        try {
+            return Carbon::parse($time)->format('H:i');
+        } catch (\Exception $e) {
+            if (preg_match('/\b(\d{1,2}):(\d{2})\b/', $time, $matches)) {
+                return sprintf('%02d:%02d', (int) $matches[1], (int) $matches[2]);
+            }
+        }
+
+        return null;
+    }
+
+    private function clockToMinutes($time)
+    {
+        $minuteTime = $this->normalizeClockMinute($time);
+
+        if (!$minuteTime) {
+            return null;
+        }
+
+        [$hours, $minutes] = array_map('intval', explode(':', $minuteTime));
+
+        return ($hours * 60) + $minutes;
+    }
+
     private function dtrTimes($value)
     {
         if (!$value) {
@@ -34,9 +70,10 @@ class MasterController extends Controller
         }
 
         return collect(explode(',', $value))
-            ->map(fn ($time) => trim($time))
+            ->map(fn ($time) => $this->normalizeClockMinute($time))
             ->filter()
-            ->sortBy(fn ($time) => strtotime($time))
+            ->unique()
+            ->sortBy(fn ($time) => $this->clockToMinutes($time))
             ->values();
     }
 
@@ -84,11 +121,11 @@ class MasterController extends Controller
 
     private function parseOfficialRange($range, $fallbackStart, $fallbackEnd)
     {
-        $times = $range ? explode('-', $range) : [];
+        $times = $range ? array_map('trim', explode('-', $range)) : [];
 
         return [
-            $times[0] ?? $fallbackStart,
-            $times[1] ?? $fallbackEnd,
+            $this->normalizeClockMinute($times[0] ?? null) ?: $fallbackStart,
+            $this->normalizeClockMinute($times[1] ?? null) ?: $fallbackEnd,
         ];
     }
 
@@ -105,16 +142,16 @@ class MasterController extends Controller
 
         if (!$officialTime || !isset($dayMap[$day])) {
             return [
-                'mornin' => '08:00:00',
-                'mornout' => '12:00:00',
-                'aftin' => '13:00:00',
-                'aftout' => '17:00:00',
+                'mornin' => '08:00',
+                'mornout' => '12:00',
+                'aftin' => '13:00',
+                'aftout' => '17:00',
             ];
         }
 
         [$morningField, $afternoonField] = $dayMap[$day];
-        [$mornIn, $mornOut] = $this->parseOfficialRange($officialTime->{$morningField}, '08:00:00', '12:00:00');
-        [$aftIn, $aftOut] = $this->parseOfficialRange($officialTime->{$afternoonField}, '13:00:00', '17:00:00');
+        [$mornIn, $mornOut] = $this->parseOfficialRange($officialTime->{$morningField}, '08:00', '12:00');
+        [$aftIn, $aftOut] = $this->parseOfficialRange($officialTime->{$afternoonField}, '13:00', '17:00');
 
         return [
             'mornin' => $mornIn,
@@ -129,21 +166,21 @@ class MasterController extends Controller
         $timeIns = $this->dtrTimes(optional($dtr)->time_in);
         $timeOuts = $this->dtrTimes(optional($dtr)->time_out);
         $schedule = $schedule ?: [
-            'mornin' => '08:00:00',
-            'mornout' => '12:00:00',
-            'aftin' => '13:00:00',
-            'aftout' => '17:00:00',
+            'mornin' => '08:00',
+            'mornout' => '12:00',
+            'aftin' => '13:00',
+            'aftout' => '17:00',
         ];
 
-        $latestUsefulTimeIn = Carbon::parse($schedule['aftin'])->copy()->addMinutes(30)->format('H:i');
-        $earliestUsefulTimeOut = Carbon::parse($schedule['mornout'])->copy()->subMinutes(60)->format('H:i');
+        $latestUsefulTimeIn = $this->clockToMinutes($schedule['aftin']) + 30;
+        $earliestUsefulTimeOut = $this->clockToMinutes($schedule['mornout']) - 60;
 
         $dailyTimeIns = $timeIns
-            ->filter(fn ($time) => substr($time, 0, 5) <= $latestUsefulTimeIn)
+            ->filter(fn ($time) => $this->clockToMinutes($time) <= $latestUsefulTimeIn)
             ->values();
 
         $dailyTimeOuts = $timeOuts
-            ->filter(fn ($time) => substr($time, 0, 5) >= $earliestUsefulTimeOut)
+            ->filter(fn ($time) => $this->clockToMinutes($time) >= $earliestUsefulTimeOut)
             ->values();
 
         return [
@@ -151,31 +188,33 @@ class MasterController extends Controller
             'am_out' => $dailyTimeOuts->first(),
             'pm_in' => $dailyTimeIns->count() >= 2 ? $dailyTimeIns->last() : null,
             'pm_out' => $dailyTimeOuts->count() >= 2 ? $dailyTimeOuts->last() : null,
+            'time_in_count' => $dailyTimeIns->count(),
+            'time_out_count' => $dailyTimeOuts->count(),
         ];
     }
 
     private function minutesAfter($time, $limit)
     {
-        if (!$time) {
+        $actual = $this->clockToMinutes($time);
+        $expected = $this->clockToMinutes($limit);
+
+        if ($actual === null || $expected === null || $actual <= $expected) {
             return 0;
         }
 
-        $actual = Carbon::createFromFormat('H:i', substr($time, 0, 5));
-        $expected = Carbon::createFromFormat('H:i', $limit);
-
-        return $actual->greaterThan($expected) ? $actual->diffInMinutes($expected) : 0;
+        return $actual - $expected;
     }
 
     private function minutesBefore($time, $limit)
     {
-        if (!$time) {
+        $actual = $this->clockToMinutes($time);
+        $expected = $this->clockToMinutes($limit);
+
+        if ($actual === null || $expected === null || $actual >= $expected) {
             return 0;
         }
 
-        $actual = Carbon::createFromFormat('H:i', substr($time, 0, 5));
-        $expected = Carbon::createFromFormat('H:i', $limit);
-
-        return $actual->lessThan($expected) ? $actual->diffInMinutes($expected) : 0;
+        return $expected - $actual;
     }
 
     private function dtrTardinessSummary($dtrRecords, $officialTime = null)
@@ -183,11 +222,17 @@ class MasterController extends Controller
         return $dtrRecords->reduce(function ($summary, $dtr) use ($officialTime) {
             $schedule = $this->officialScheduleForDate($officialTime, $dtr->date);
             $punches = $this->dailyWorkPunches($dtr, $schedule);
+            $hasCompleteTimeIns = $punches['time_in_count'] >= 2;
+            $hasCompleteTimeOuts = $punches['time_out_count'] >= 2;
 
-            $lateMinutes = $this->minutesAfter($punches['am_in'], substr($schedule['mornin'], 0, 5))
-                + $this->minutesAfter($punches['pm_in'], substr($schedule['aftin'], 0, 5));
-            $undertimeMinutes = $this->minutesBefore($punches['am_out'], substr($schedule['mornout'], 0, 5))
-                + $this->minutesBefore($punches['pm_out'], substr($schedule['aftout'], 0, 5));
+            $lateMinutes = $hasCompleteTimeIns
+                ? $this->minutesAfter($punches['am_in'], $schedule['mornin'])
+                    + $this->minutesAfter($punches['pm_in'], $schedule['aftin'])
+                : 0;
+            $undertimeMinutes = $hasCompleteTimeOuts
+                ? $this->minutesBefore($punches['am_out'], $schedule['mornout'])
+                    + $this->minutesBefore($punches['pm_out'], $schedule['aftout'])
+                : 0;
 
             $summary['late_minutes'] += $lateMinutes;
             $summary['undertime_minutes'] += $undertimeMinutes;
