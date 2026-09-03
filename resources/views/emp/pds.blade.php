@@ -299,13 +299,6 @@
                                     <input type="text" name="mobile" id="mobile" value="{{ $employee->mobile }}" data-column-id="{{ $empid }}" data-column-name="mobile" class="form-control form-control-sm update-field" placeholder="N/A">
                                 </div>
 
-                                @if($guard == "web")
-                                    <div class="col-md-3">
-                                        <label class="badge badge-secondary lbel">Salary</label><br>
-                                        <input type="text" name="emp_salary" id="emp_salary" value="{{ $payrollemp->emp_salary }}" data-column-id="{{ $empid }}" data-column-name="emp_salary" class="form-control form-control-sm update-field" placeholder="N/A">
-                                    </div>
-                                @endif
-                                
                                 {{-- <div class="col-md-3">
                                     <label class="badge badge-secondary lbel">Biometric Area</label><br>
                                     <select class="form-control form-control-sm select2 update-field" style="width: 100%;" name="supervisor">

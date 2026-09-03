@@ -47,15 +47,23 @@ use App\Http\Controllers\EteEvaluationController;
 use App\Http\Controllers\InterviewEvaluationController;
 
 //login
-Route::get('/hr-admin',[LoginAuthController::class,'getLoginAdmin'])->name('getLoginAdmin');
-Route::get('/',[LoginAuthController::class,'getLogin'])->name('getLogin')->middleware([NoCacheMiddleware::class]);
-Route::post('/post-login',[LoginAuthController::class,'postLogin'])->name('postLogin');
-// Route::get('/update-pass', [EmployeeController::class, 'updateEmployeePasswords']);
+Route::middleware('maintenance.login')->group(function () {
+    Route::get('/hr-admin',[LoginAuthController::class,'getLoginAdmin'])->name('getLoginAdmin');
+    Route::get('/',[LoginAuthController::class,'getLogin'])->name('getLogin')->middleware([NoCacheMiddleware::class]);
+    Route::post('/post-login',[LoginAuthController::class,'postLogin'])->name('postLogin');
+    // Route::get('/update-pass', [EmployeeController::class, 'updateEmployeePasswords']);
 
-Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('google.login');
-Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
-Route::get('/verify', [GoogleAuthController::class, 'verifyForm'])->name('verify');
-Route::post('/verify', [GoogleAuthController::class, 'verify'])->name('verify.code');
+    Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('google.login');
+    Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
+    Route::get('/verify', [GoogleAuthController::class, 'verifyForm'])->name('verify');
+    Route::post('/verify', [GoogleAuthController::class, 'verify'])->name('verify.code');
+});
+
+// Lightweight heartbeat used to remove already-authenticated employees when
+// maintenance mode is switched on. The global web middleware performs logout.
+Route::get('/maintenance-status', function () {
+    return response()->noContent();
+})->name('maintenance.status');
 // Route::get('/convert-esign', [PdsController::class, 'convertEsign'])->name('convertEsign');
 
 Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], function() {
@@ -269,7 +277,6 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/update', [EmployeeController::class, 'empUpdate'])->name('empUpdate');
         Route::post('/employee-update', [EmployeeController::class, 'employeeUpdate'])->name('employeeUpdate');
         Route::post('/toggle-acct-stat', [EmployeeController::class, 'toggleAcctStat'])->name('toggleAcctStat');
-        Route::post('/sync-payroll/{id}', [EmployeeController::class, 'syncPayrollEmployee'])->name('syncPayrollEmployee');
         Route::post('/official-time/{empid}', [EmployeeController::class, 'OfficialTimeRead'])->name('OfficialTimeRead');
         Route::post('/official-time-create', [EmployeeController::class, 'OfficialTimeCreate'])->name('OfficialTimeCreate');
         Route::get('/emp-qr', [EmployeeController::class, 'empQr'])->name('empQr');
@@ -453,6 +460,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
 
     Route::get('/settings', [MasterController::class, 'systemSetting'])->name('settings');
+    Route::patch('/settings/maintenance', [MasterController::class, 'updateMaintenance'])->name('settings.maintenance.update');
     Route::get('/leave/disapprove', [LeaveApplicationController::class, 'leaveDisapprove']);
     Route::post('/logout', [MasterController::class, 'logout'])->name('logout');
 });

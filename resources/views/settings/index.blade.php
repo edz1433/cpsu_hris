@@ -158,18 +158,37 @@
                         </div>
                     </div>
 
-                    <!-- Group 4: System & Kiosk Controls -->
+                    <!-- Group 4: Maintenance -->
                     <div class="settings-group">
-                        <div class="group-header">System & Kiosk Controls</div>
-                        <div class="row">
-                            <div class="col-6 col-md-4">
-                                <div class="mb-3">
-                                    <label class="d-block font-weight-bold mb-2">System Maintenance Mode</label>
-                                    <input type="checkbox" id="maintenanceSwitch" data-bootstrap-switch
-                                           data-off-color="danger" data-on-color="success">
+                        <div class="group-header">Maintenance</div>
+                        <form id="maintenanceSettingsForm" method="POST" action="{{ route('settings.maintenance.update') }}">
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" name="maintenance" value="0">
+
+                            <div class="row align-items-center">
+                                <div class="col-12">
+                                    <div class="mb-0">
+                                        <label class="d-block font-weight-bold mb-2" for="maintenanceSwitch">System Maintenance Mode</label>
+                                        <input type="checkbox" id="maintenanceSwitch" name="maintenance" value="1"
+                                               data-bootstrap-switch data-off-color="danger" data-on-color="success"
+                                               {{ $settings->maintenance ? 'checked' : '' }}>
+                                        <small class="form-text text-muted mt-2">
+                                            Changes save automatically. When enabled, the login form and Google sign-in are replaced by the Under Maintenance page for everyone, including administrators. Keep this session open so you can turn maintenance mode off again.
+                                        </small>
+                                        <small id="maintenanceSaving" class="form-text text-success mt-1 d-none">
+                                            <i class="fas fa-spinner fa-spin mr-1"></i> Saving maintenance setting...
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
+                        </form>
+                    </div>
 
+                    <!-- Group 5: Kiosk Controls -->
+                    <div class="settings-group">
+                        <div class="group-header">Kiosk Controls</div>
+                        <div class="row">
                             <div class="col-6 col-md-4">
                                 <div class="mb-3">
                                     <label class="d-block font-weight-bold mb-2">HR Kiosk Backtrack Sync</label>
@@ -185,4 +204,25 @@
         </div>
     </div>
 </div>
+
+<script>
+    window.addEventListener('load', function () {
+        if (!window.jQuery || !jQuery.fn.bootstrapSwitch) {
+            return;
+        }
+
+        const maintenanceSwitch = jQuery('#maintenanceSwitch');
+        let isSubmitting = false;
+
+        maintenanceSwitch.on('switchChange.bootstrapSwitch', function () {
+            if (isSubmitting) {
+                return;
+            }
+
+            isSubmitting = true;
+            document.getElementById('maintenanceSaving').classList.remove('d-none');
+            document.getElementById('maintenanceSettingsForm').submit();
+        });
+    });
+</script>
 @endsection

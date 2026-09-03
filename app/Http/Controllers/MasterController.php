@@ -577,15 +577,45 @@ class MasterController extends Controller
         return $pdf->stream('application-report.pdf');
     }
 
-    public function systemSetting(){
+    public function systemSetting()
+    {
+        $this->authorizeSystemSettings();
+
         $guard = $this->getGuard();
         $employees = Employee::select('id', 'emp_ID', 'fname', 'lname')->get();
-        $settings = Setting::first();
+        $settings = Setting::firstOrCreate([], ['maintenance' => false]);
 
-        $kioskAccess = explode(',', $settings->hr_kiosk);
-        $dtrFullAccess = explode(',', $settings->dtr_acct);
+        $kioskAccess = array_filter(explode(',', (string) $settings->hr_kiosk));
+        $dtrFullAccess = array_filter(explode(',', (string) $settings->dtr_acct));
 
         return view('settings.index', compact('guard', 'employees', 'settings', 'kioskAccess', 'dtrFullAccess'));
+    }
+
+    public function updateMaintenance(Request $request)
+    {
+        $this->authorizeSystemSettings();
+
+        $validated = $request->validate([
+            'maintenance' => ['required', 'boolean'],
+        ]);
+
+        $settings = Setting::firstOrCreate([], ['maintenance' => false]);
+        $settings->maintenance = $validated['maintenance'];
+        $settings->save();
+
+        $message = $settings->maintenance
+            ? 'Maintenance mode enabled. New logins are now blocked.'
+            : 'Maintenance mode disabled. Users can log in again.';
+
+        return redirect()->route('settings')->with('success', $message);
+    }
+
+    private function authorizeSystemSettings(): void
+    {
+        abort_unless(
+            Auth::guard('web')->check() && Auth::guard('web')->user()->role === 'Administrator',
+            403
+        );
     }
 
     public function dataPrivacyNotice(Request $request)

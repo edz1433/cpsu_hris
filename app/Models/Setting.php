@@ -9,6 +9,10 @@ class Setting extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'maintenance' => 'boolean',
+    ];
+
     protected $fillable = [
         'hr',
         'suc_pres',
@@ -23,4 +27,9 @@ class Setting extends Model
         'job_portal_email',
         'maintenance',
     ];
+
+    public static function maintenanceModeEnabled(): bool
+    {
+        return (bool) static::query()->value('maintenance');
+    }
 }

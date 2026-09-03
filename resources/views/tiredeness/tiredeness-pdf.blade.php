@@ -70,14 +70,14 @@
                     <tr>
                         <th class="text-center p">{{ $no++ }}</th>
                         <th class="pl-2">{{ $record->lname }} {{ $record->prefix }} {{ $record->fname }} {{ isset($record->mname) ? substr($record->mname, 0, 1).'.' : '' }}</th>
-                        <td class="text-center {{ ($record->morning_count >= 10) ? 'text-danger' : '' }}">{{ $record->morning_count }}</td>
-                        <td class="text-center">{{ $record->total_hours }} : {{ $record->remaining_minutes }}</td>
-                        <td class="text-center {{ ($record->noon_count >= 10) ? 'text-danger' : '' }}">{{ $record->noon_count }}</td>
-                        <td class="text-center">{{ floor($record->total_noon_minutes / 60) }} : {{ $record->total_noon_minutes % 60 }}</td>
-                        <td class="text-center {{ ($record->undertime_count >= 10) ? 'text-danger' : '' }}">{{ $record->undertime_count }}</td>
-                        <td class="text-center">{{ floor($record->total_undertime_minutes / 60) }} : {{ $record->total_undertime_minutes % 60 }}</td>
-                        <td class="text-center {{ ($record->afternoon_undertime_count >= 10) ? 'text-danger' : '' }}">{{ $record->afternoon_undertime_count }}</td>
-                        <td class="text-center">{{ floor($record->total_afternoon_undertime_minutes / 60) }} : {{ $record->total_afternoon_undertime_minutes % 60 }}</td>
+                        <td class="text-center {{ ($record->morning_late_days >= 10) ? 'text-danger' : '' }}">{{ $record->morning_late_days }}</td>
+                        <td class="text-center">{{ $record->morning_late_time }}</td>
+                        <td class="text-center {{ ($record->afternoon_late_days >= 10) ? 'text-danger' : '' }}">{{ $record->afternoon_late_days }}</td>
+                        <td class="text-center">{{ $record->afternoon_late_time }}</td>
+                        <td class="text-center {{ ($record->morning_undertime_days >= 10) ? 'text-danger' : '' }}">{{ $record->morning_undertime_days }}</td>
+                        <td class="text-center">{{ $record->morning_undertime_time }}</td>
+                        <td class="text-center {{ ($record->afternoon_undertime_days >= 10) ? 'text-danger' : '' }}">{{ $record->afternoon_undertime_days }}</td>
+                        <td class="text-center">{{ $record->afternoon_undertime_time }}</td>
                     </tr>
                 @endforeach
             </tbody>

@@ -27,7 +27,6 @@ use App\Models\OtherInfo;
 use App\Models\InfoQuestion;
 use App\Models\PdsReference;
 use App\Models\GovId;
-use App\Models\PayrollEmployee;
 use App\Models\Device;
 use App\Models\OfficialTime;
 use Illuminate\Support\Facades\Hash;
@@ -149,7 +148,7 @@ class EmployeeController extends Controller
             ->skip(($page - 1) * $limit)
             ->take($limit)
             ->get();
-    
+
         // Manually add row numbers to employees collection
         $startCnt = ($page - 1) * $limit + 1;
         $employee = $employee->map(function($item, $key) use ($startCnt) {
@@ -321,18 +320,6 @@ class EmployeeController extends Controller
         
         $employee->save();
         
-        PayrollEmployee::create([
-            'emp_ID' => $newEmpID,
-            'lname' => $request->lname,
-            'fname' => $request->fname,
-            'mname' => $request->mname,
-            'position' => $request->position,
-            'emp_status' => $request->emp_status,
-            'emp_dept' => $request->emp_dept,
-            'camp_id' => $request->camp_id,
-            'emp_salary' => 0.00,
-        ]);
-        
         $models = ['FamilyBg', 'EducBg', 'OtherInfo', 'InfoQuestion', 'PdsReference', 'GovId', 'OfficialTime'];
 
         foreach ($models as $model) {
@@ -386,7 +373,6 @@ class EmployeeController extends Controller
     public function employeeUpdate(Request $request)
     {
         $employee = Employee::findOrFail($request->id);
-        $payrollemp = PayrollEmployee::where('emp_ID', $employee->emp_ID)->first();
         $column = $request->column;
     
         if ($column == 'bdate') {
@@ -450,10 +436,6 @@ class EmployeeController extends Controller
                 ]);
             }
         }
-        elseif ($column == 'emp_salary') {
-            $value = filter_var($request->value, FILTER_VALIDATE_FLOAT);
-            $payrollemp->update(['emp_salary' => round($value, 2)]);
-        }
         else {
             $columnsToCapitalize = ['lname', 'fname', 'mname'];
     
@@ -469,7 +451,6 @@ class EmployeeController extends Controller
         $guard = $this->getGuard();
         $empid = $id; 
         $employee = Employee::find($empid);
-        $payrollemp = PayrollEmployee::where('emp_ID', $employee->emp_ID)->first();
         $columnstatus = $this->columnStat($employee->emp_ID);
         $devices = Device::all();
 
@@ -492,7 +473,7 @@ class EmployeeController extends Controller
         $quali = Qualification::all();
         $camp = (auth()->user()->campus_id == 1) ? Campus::all() : Campus::where('id', auth()->user()->campus_id)->get();
 
-        return view("emp.pds", compact('employee', 'payrollemp', 'supervisor', 'guard', 'devices', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid', 'columnstatus'));
+        return view("emp.pds", compact('employee', 'supervisor', 'guard', 'devices', 'camp', 'offices', 'stat', 'quali', 'regions', 'hprovinces', 'hcities', 'hbarangays', 'gprovinces', 'gcities', 'gbarangays', 'empid', 'columnstatus'));
     }
 
     public function genEmp(){

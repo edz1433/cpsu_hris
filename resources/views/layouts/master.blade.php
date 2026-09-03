@@ -259,6 +259,27 @@
 @include('script.masterScript')
 @include('script.driveScript')
 @include('script.officeScript')
+@if(auth()->guard('employee')->check())
+<script>
+    (function () {
+        const maintenanceStatusUrl = @json(route('maintenance.status'));
+        const maintenancePageUrl = @json(route('getLogin'));
+
+        window.setInterval(function () {
+            fetch(maintenanceStatusUrl, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                cache: 'no-store'
+            }).then(function (response) {
+                if (response.status === 503) {
+                    window.location.replace(maintenancePageUrl);
+                }
+            }).catch(function () {
+                // A temporary network failure should not sign the employee out.
+            });
+        }, 3000);
+    })();
+</script>
+@endif
 @if(request()->is('pds/family-bg/*') || request()->is('pds/family-bg'))
     @include('script.familybgScript')
 @endif
