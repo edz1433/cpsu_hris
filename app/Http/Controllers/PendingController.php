@@ -125,28 +125,24 @@ class PendingController extends Controller
                           ->orWhere('leave_applications.transnum', 'like', $like);
                     });
 
-                    // Rank by which signatory matched, following the order the
-                    // badges are drawn in: applicant, HR, supervisor, president.
-                    // So the person's own applications come first, then the ones
-                    // where they sign second, third, and so on.
+                    // Order the hits by what the REMARKS column shows: the ones
+                    // still moving first, then Complete, then Disapproved.
                     $searchRank = 'CASE'
-                        . " WHEN {$nameLike('emp')} OR emp.emp_ID LIKE ? THEN 1"
-                        . " WHEN {$nameLike('hr')} THEN 2"
-                        . " WHEN {$nameLike('sup')} THEN 3"
-                        . " WHEN {$nameLike('sucpres')} THEN 4"
-                        . ' ELSE 5 END';
-                    $searchRankBindings = [
-                        $like, $like, $like,   // applicant name, then employee ID
-                        $like, $like,          // HR
-                        $like, $like,          // supervisor
-                        $like, $like,          // president
-                    ];
+                        . ' WHEN leave_applications.history IN (0, 1) THEN 1'
+                        . ' WHEN leave_applications.remarks_stat = 0 THEN 2'
+                        . ' ELSE 3 END';
+                    $searchRankBindings = [];
                 }
 
                 $totalCount = $query->count();
 
                 if ($searchRank !== null) {
-                    $query->orderByRaw($searchRank, $searchRankBindings);
+                    $query->orderByRaw($searchRank, $searchRankBindings)
+                        // Inside the ongoing group, the longest pending sits on
+                        // top, matching the "N days pending" badge. Finished rows
+                        // get NULL here and fall through to newest first below.
+                        ->orderByRaw("CASE WHEN leave_applications.history IN (0, 1)"
+                            . " THEN COALESCE(NULLIF(leave_applications.date_filing, ''), leave_applications.created_at) END ASC");
                 }
 
                 $employees = $query
