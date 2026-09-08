@@ -100,22 +100,54 @@ class PendingController extends Controller
                     }
                 }
 
+                $searchRank = null;
+                $searchRankBindings = [];
+
                 if ($search !== '') {
                     $like = '%' . $search . '%';
 
-                    $query->where(function($q) use ($search, $like) {
-                        $q->where('emp.lname', 'like', $like)
-                          ->orWhere('emp.fname', 'like', $like)
-                          ->orWhere('emp.mname', 'like', $like)
+                    // Match a person by name written either way round, so "jevy",
+                    // "jevy yee" and "yee jevy" all find the same rows.
+                    $nameLike = function ($alias) {
+                        return "(CONCAT_WS(' ', {$alias}.fname, {$alias}.mname, {$alias}.lname) LIKE ?"
+                            . " OR CONCAT_WS(' ', {$alias}.lname, {$alias}.fname, {$alias}.mname) LIKE ?)";
+                    };
+
+                    // The name is looked for in every signatory of the application,
+                    // not just the applicant: an employee shows up on their own
+                    // leave and on every leave they have to sign.
+                    $query->where(function($q) use ($like, $nameLike) {
+                        $q->whereRaw($nameLike('emp'), [$like, $like])
+                          ->orWhereRaw($nameLike('hr'), [$like, $like])
+                          ->orWhereRaw($nameLike('sup'), [$like, $like])
+                          ->orWhereRaw($nameLike('sucpres'), [$like, $like])
                           ->orWhere('emp.emp_ID', 'like', $like)
-                          ->orWhere('leave_applications.transnum', 'like', $like)
-                          // so "juan cruz" and "cruz, juan" both hit
-                          ->orWhereRaw("CONCAT_WS(' ', emp.fname, emp.mname, emp.lname) LIKE ?", [$like])
-                          ->orWhereRaw("CONCAT_WS(', ', emp.lname, emp.fname) LIKE ?", [$like]);
+                          ->orWhere('leave_applications.transnum', 'like', $like);
                     });
+
+                    // Rank by which signatory matched, following the order the
+                    // badges are drawn in: applicant, HR, supervisor, president.
+                    // So the person's own applications come first, then the ones
+                    // where they sign second, third, and so on.
+                    $searchRank = 'CASE'
+                        . " WHEN {$nameLike('emp')} OR emp.emp_ID LIKE ? THEN 1"
+                        . " WHEN {$nameLike('hr')} THEN 2"
+                        . " WHEN {$nameLike('sup')} THEN 3"
+                        . " WHEN {$nameLike('sucpres')} THEN 4"
+                        . ' ELSE 5 END';
+                    $searchRankBindings = [
+                        $like, $like, $like,   // applicant name, then employee ID
+                        $like, $like,          // HR
+                        $like, $like,          // supervisor
+                        $like, $like,          // president
+                    ];
                 }
 
                 $totalCount = $query->count();
+
+                if ($searchRank !== null) {
+                    $query->orderByRaw($searchRank, $searchRankBindings);
+                }
 
                 $employees = $query
                     ->orderBy('leave_applications.id', 'desc')
