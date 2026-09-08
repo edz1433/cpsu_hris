@@ -91,15 +91,27 @@ class PendingController extends Controller
                     $query->where('leave_applications.history', 2);
                     $query->where('leave_applications.remarks_stat', '!=', 0);
                 } else {
-                    $query->where('leave_applications.history', '!=', 2);
+                    // "All" view. Its default list is the applications still in
+                    // motion, but a search from here looks through every
+                    // application, finished ones included. Picking a category
+                    // above narrows the search back down to that category.
+                    if ($search === '') {
+                        $query->where('leave_applications.history', '!=', 2);
+                    }
                 }
 
-                if (!empty($search)) {
-                    $query->where(function($q) use ($search) {
-                        $q->where('emp.lname', 'like', "%{$search}%")
-                          ->orWhere('emp.fname', 'like', "%{$search}%")
-                          ->orWhere('emp.emp_ID', 'like', "%{$search}%")
-                          ->orWhere('leave_applications.transnum', 'like', "%{$search}%");
+                if ($search !== '') {
+                    $like = '%' . $search . '%';
+
+                    $query->where(function($q) use ($search, $like) {
+                        $q->where('emp.lname', 'like', $like)
+                          ->orWhere('emp.fname', 'like', $like)
+                          ->orWhere('emp.mname', 'like', $like)
+                          ->orWhere('emp.emp_ID', 'like', $like)
+                          ->orWhere('leave_applications.transnum', 'like', $like)
+                          // so "juan cruz" and "cruz, juan" both hit
+                          ->orWhereRaw("CONCAT_WS(' ', emp.fname, emp.mname, emp.lname) LIKE ?", [$like])
+                          ->orWhereRaw("CONCAT_WS(', ', emp.lname, emp.fname) LIKE ?", [$like]);
                     });
                 }
 
@@ -139,12 +151,16 @@ class PendingController extends Controller
 
         if ((string)$type !== '1') {
             $empQuery = Employee::whereIn('emp_ID', $empids);
-            if (!empty($search)) {
-                $empQuery->where(function($q) use ($search) {
-                    $q->where('lname', 'like', "%{$search}%")
-                      ->orWhere('fname', 'like', "%{$search}%")
-                      ->orWhere('mname', 'like', "%{$search}%")
-                      ->orWhere('emp_ID', 'like', "%{$search}%");
+            if ($search !== '') {
+                $like = '%' . $search . '%';
+
+                $empQuery->where(function($q) use ($like) {
+                    $q->where('lname', 'like', $like)
+                      ->orWhere('fname', 'like', $like)
+                      ->orWhere('mname', 'like', $like)
+                      ->orWhere('emp_ID', 'like', $like)
+                      ->orWhereRaw("CONCAT_WS(' ', fname, mname, lname) LIKE ?", [$like])
+                      ->orWhereRaw("CONCAT_WS(', ', lname, fname) LIKE ?", [$like]);
                 });
             }
             $totalCount = $empQuery->count();

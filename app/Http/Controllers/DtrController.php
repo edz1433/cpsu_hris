@@ -9,11 +9,43 @@ use App\Models\Fdevice;
 use App\Models\Logzone;
 use App\Models\OfficialTime;
 use App\Models\Setting;
-use Carbon\Carbon; 
+use Carbon\Carbon;
 use PDF;
+use App\Http\Controllers\Concerns\CalculatesTardiness;
 
 class DtrController extends Controller
 {
+    use CalculatesTardiness;
+
+    /**
+     * The Late/UT figures are an administrative view, so they are limited to
+     * Administrator and HR Administrator accounts. Employees (and anyone on the
+     * employee guard) never see them, on screen or in the generated PDF.
+     */
+    private function canShowTardiness()
+    {
+        $guard = $this->getGuard();
+
+        if ($guard !== 'web') {
+            return false;
+        }
+
+        $user = auth()->guard($guard)->user();
+
+        return $user && in_array($user->role, ['Administrator', 'HR Administrator'], true);
+    }
+
+    /**
+     * Small-print label for the DTR form. Always plain minutes, never rolled
+     * up into hours, e.g. "30 mins." / "72 mins."
+     */
+    private function tardinessLabel($minutes)
+    {
+        $minutes = (int) $minutes;
+
+        return $minutes . ' min' . ($minutes == 1 ? '' : 's') . '.';
+    }
+
     public function getGuard()
     {
         if(\Auth::guard('web')->check()) {
@@ -52,7 +84,9 @@ class DtrController extends Controller
             $acctstat = 1;
         }    
 
-        return view('dtr.dtr', compact('guard', 'employeeall', 'acctstat'));
+        $canTardiness = $this->canShowTardiness();
+
+        return view('dtr.dtr', compact('guard', 'employeeall', 'acctstat', 'canTardiness'));
     }
 
     public function dtrSearch(Request $request)
@@ -75,14 +109,16 @@ class DtrController extends Controller
         $period = $request->input('period');
         $date = $request->input('date');
         $overtime = $request->input('overtime');
+        $canTardiness = $this->canShowTardiness();
+        $tardiness = $canTardiness ? $request->input('tardiness') : null;
         $acctstat = $request->input('acctstat');
 
         $dtr = Dtr::where('emp_ID', $employ)
-                ->whereYear('date', substr($date, 0, 4)) 
+                ->whereYear('date', substr($date, 0, 4))
                 ->whereMonth('date', substr($date, 5, 2))
                 ->get();
 
-        return view('dtr.dtr', compact('guard', 'dtr', 'employeeall', 'employee', 'period', 'date', 'overtime', 'acctstat'));
+        return view('dtr.dtr', compact('guard', 'dtr', 'employeeall', 'employee', 'period', 'date', 'overtime', 'tardiness', 'acctstat', 'canTardiness'));
     }
 
     public function dtrPdf(Request $request)
@@ -92,13 +128,15 @@ class DtrController extends Controller
             'period' => 'required',
             'date' => 'required|date_format:Y-m',
             'overtime' => 'nullable',
+            'tardiness' => 'nullable',
         ]);
-    
+
         $employeeId = $request->input('employee');
         $period = $request->input('period');
         $date = $request->input('date');
         $overtime = $request->input('overtime');
-    
+        $tardiness = $request->input('tardiness');
+
         $year = substr($date, 0, 4);
         $month = substr($date, 5, 2);
 
@@ -142,9 +180,28 @@ class DtrController extends Controller
         $offtime = OfficialTime::where('empid', '=', $employeeId)->first();
 
         // dd($offtime);
-        
+
+        // Late/undertime for the selected period only. Uses the same trait as the
+        // Tardiness reports and the dashboard so all three always agree.
+        // Enforced here too, not just hidden in the form: the query string is
+        // user-editable, so an employee adding &tardiness=1 must still get nothing.
+        $showTardiness = ($tardiness == 1) && $this->canShowTardiness();
+        $periodRecords = $dtrRecords->filter(function ($record) use ($startDate, $endDate) {
+            $recordDate = Carbon::parse($record->date)->startOfDay();
+
+            return $recordDate->gte($startDate->copy()->startOfDay())
+                && $recordDate->lte($endDate->copy()->startOfDay());
+        });
+        $periodTotals = $this->dtrTardinessTotals($periodRecords, $offtime);
+        $tardinessTotals = [
+            'late_minutes' => $periodTotals['late_minutes'],
+            'undertime_minutes' => $periodTotals['undertime_minutes'],
+            'late_label' => $this->tardinessLabel($periodTotals['late_minutes']),
+            'undertime_label' => $this->tardinessLabel($periodTotals['undertime_minutes']),
+        ];
+
         $form = ($overtime == 1) ? 'dtr.dtr-pdf-overtime' : 'dtr.dtr-pdf';
-    
+
         $pdf = PDF::loadView($form, [
             'employee' => $employee,
             'supervisor' => $supervisor,
@@ -153,8 +210,10 @@ class DtrController extends Controller
             'date' => $date,
             'startDate' => $startDate->format('F j'),
             'endDate' => $endDate->format('j'),
-            'year' => $year, 
+            'year' => $year,
             'offtime' => $offtime,
+            'showTardiness' => $showTardiness,
+            'tardinessTotals' => $tardinessTotals,
         ])->setPaper('Legal', 'portrait');
     
         return $pdf->stream();

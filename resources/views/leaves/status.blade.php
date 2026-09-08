@@ -285,9 +285,9 @@
                             @endforeach
 
                             {{-- @if(($oic->oic_id == auth()->guard($guard)->user()->id) || ($isOfficeHead) || ($setting->suc_pres == auth()->guard($guard)->user()->id)) --}}
-                            @if( (optional($oic)->oic_id ?? 0) == auth()->guard($guard)->user()->id || $isOfficeHead || (optional($setting)->suc_pres ?? 0) == auth()->guard($guard)->user()->id )
+                            @if(count($leavesapphead))
                                 @foreach($leavesapphead as $leaves)
-                                    @if($leaves->supervisor_emp_dept == auth()->guard($guard)->user()->emp_dept || $setting->suc_pres == auth()->guard($guard)->user()->id)
+                                    @php $rowOic = $officeOics[$leaves->department] ?? null; @endphp
                                     <div class="timeline timeline-inverse">
                                         <!-- Step 1 -->
                                         <div class="time-label">
@@ -392,12 +392,12 @@
                                             <div class="timeline-item">
                                                 <span class="time time-sup{{ $leaves->id }}">{{ (!empty($leaves->sup_sdate)) ? \Carbon\Carbon::parse($leaves->sup_sdate)->format('F j, Y h:i A') : '' }}</span>
                                                 <h3 class="timeline-header border-0">
-                                                    @if(!empty($oic->oic_id))
-                                                        <a href="#">{{ strtoupper($oic->olname) }}, {{ strtoupper($oic->ofname) }} {{ isset($oic->osuffix) ? strtoupper($oic->osuffix).'.' : '' }} {{ isset($oic->omname) ? strtoupper(substr($oic->omname, 0, 1)) . '.' : ''}}</a><br>
+                                                    @if(!empty($rowOic->oic_id))
+                                                        <a href="#">{{ strtoupper($rowOic->olname) }}, {{ strtoupper($rowOic->ofname) }} {{ isset($rowOic->osuffix) ? strtoupper($rowOic->osuffix).'.' : '' }} {{ isset($rowOic->omname) ? strtoupper(substr($rowOic->omname, 0, 1)) . '.' : ''}}</a><br>
                                                     @else
                                                         <a href="#">{{ strtoupper($leaves->supervisor_lname) }}, {{ strtoupper($leaves->supervisor_fname) }} {{ isset($leaves->supervisor_suffix) ? strtoupper($leaves->supervisor_suffix).'.' : '' }} {{ isset($leaves->supervisor_mname) ? strtoupper(substr($leaves->supervisor_mname, 0, 1)) . '.' : ''}}</a><br>
                                                     @endif
-                                                    <span><i>{{ !empty($oic->oic_id) ? 'OIC' : 'Immediate Supervisor' }}</i></span>
+                                                    <span><i>{{ !empty($rowOic->oic_id) ? 'OIC' : 'Immediate Supervisor' }}</i></span>
                                                     @if($leaves->remarks_stat == 2)<br>
                                                     <div class="callout callout-danger" style="margin: 8px 0px 0px 0px !important; padding: 10px !important;">
                                                         <p>{{ $leaves->remarks_details }}</p>
@@ -415,7 +415,7 @@
                                                 @endif
                                                 @if($guard == "employee")
                                                     @if($leaves->supervisor == auth()->guard($guard)->user()->id && $leaves->status == 2 && $leaves->remarks_stat !== 2 && $leaves->emp_esign == 2)
-                                                        @if(empty($oic->oic_id))
+                                                        @if(empty($rowOic->oic_id))
                                                         <div class="timeline-footer mb-4" id="action-button1{{ $leaves->id }}">
                                                             <div class="float-right">
                                                                 @if(auth()->guard($guard)->user()->esign == NULL)
@@ -427,10 +427,16 @@
                                                                 @endif
                                                             </div>
                                                         </div>
+                                                        @elseif($rowOic->oic_id != auth()->guard($guard)->user()->id)
+                                                        <div class="timeline-footer mb-4">
+                                                            <div class="float-right">
+                                                                <span class="text-muted"><i class="fas fa-info-circle"></i> Waiting for the OIC to sign in your place.</span>
+                                                            </div>
+                                                        </div>
                                                         @endif
                                                     @endif
                                                     @if($leaves->status == 2 && $leaves->remarks_stat !== 2 && $leaves->emp_esign == 2)
-                                                        @if(!empty($oic->oic_id) && $oic->oic_id == auth()->guard($guard)->user()->id)
+                                                        @if(!empty($rowOic->oic_id) && $rowOic->oic_id == auth()->guard($guard)->user()->id)
                                                         <div class="timeline-footer mb-4" id="action-button1{{ $leaves->id }}">
                                                             <div class="float-right">
                                                                 @if(auth()->guard($guard)->user()->esign == NULL)
@@ -488,7 +494,6 @@
                                             </button>
                                         </div>
                                     </div>
-                                    @endif
                                 @endforeach
                             @endif
                         </div>

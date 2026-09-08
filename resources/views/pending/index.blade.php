@@ -333,8 +333,15 @@
             }
         });
 
-        // Debounced search input handler
+        // Debounced search input handler. The term goes to the server, so it
+        // searches every record, not only the batches already on screen.
         let searchTimer;
+        function runPendingSearch() {
+            clearTimeout(searchTimer);
+            pendingState.search = $('#pendingSearchInput').val();
+            loadPendingBatch(true);
+        }
+
         $(document).on('input', '#pendingSearchInput', function() {
             clearTimeout(searchTimer);
             let val = $(this).val();
@@ -342,6 +349,15 @@
                 pendingState.search = val;
                 loadPendingBatch(true);
             }, 300);
+        });
+
+        // Magnifier button and Enter search straight away.
+        $(document).on('click', '#btnSearchTrigger', runPendingSearch);
+        $(document).on('keydown', '#pendingSearchInput', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                runPendingSearch();
+            }
         });
 
         // Browser back/forward button handling

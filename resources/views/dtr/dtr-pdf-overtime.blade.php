@@ -208,6 +208,7 @@
                     </tr>
                 @endforeach
             @endif
+                @include('dtr.partials.tardiness-row')
             </tbody>
         </table>            
         <p style="font-size: 10px; text-align: left;">
@@ -336,6 +337,7 @@
                     </tr>
                 @endforeach
             @endif
+                @include('dtr.partials.tardiness-row')
             </tbody>
         </table>
         <p style="font-size: 10px; text-align: left;">

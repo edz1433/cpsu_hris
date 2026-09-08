@@ -60,8 +60,7 @@
                         <th class="text-center">
                             @if (!$row['has_record'])
 
-                            @elseif ($row['time_in_review'])
-                                Review
+                            @elseif ($row['no_schedule'])
                             @else
                                 {{ $row['morning_late_minutes'] > 0 ? sprintf('%02d:%02d', floor($row['morning_late_minutes'] / 60), $row['morning_late_minutes'] % 60) : '' }}
                             @endif
@@ -71,8 +70,7 @@
                         <th class="text-center">
                             @if (!$row['has_record'])
                             
-                            @elseif ($row['time_in_review'])
-                                Review
+                            @elseif ($row['no_schedule'])
                             @else
                                 {{ $row['afternoon_late_minutes'] > 0 ? sprintf('%02d:%02d', floor($row['afternoon_late_minutes'] / 60), $row['afternoon_late_minutes'] % 60) : '' }}
                             @endif
@@ -82,8 +80,7 @@
                         <th class="text-center">
                             @if (!$row['has_record'])
                             
-                            @elseif ($row['time_out_review'])
-                                Review
+                            @elseif ($row['no_schedule'])
                             @else
                                 {{ $row['morning_undertime_minutes'] > 0 ? sprintf('%02d:%02d', floor($row['morning_undertime_minutes'] / 60), $row['morning_undertime_minutes'] % 60) : '' }}
                             @endif
@@ -93,8 +90,7 @@
                         <th class="text-center">
                             @if (!$row['has_record'])
                             
-                            @elseif ($row['time_out_review'])
-                                Review
+                            @elseif ($row['no_schedule'])
                             @else
                                 {{ $row['afternoon_undertime_minutes'] > 0 ? sprintf('%02d:%02d', floor($row['afternoon_undertime_minutes'] / 60), $row['afternoon_undertime_minutes'] % 60) : '' }}
                             @endif

@@ -136,6 +136,20 @@ class LeaveApplicationController extends Controller
             )
             ->first();
         // dd($oic);
+        // OIC per office, so each application in the approval list is matched with
+        // the OIC of the applicant's own office instead of the viewer's office.
+        $officeOics = Office::join('dbcpsuhris.employees as oic', 'offices.oic_id', '=', 'oic.id')
+            ->select(
+                'offices.id',
+                'offices.oic_id',
+                'oic.fname as ofname',
+                'oic.lname as olname',
+                'oic.mname as omname',
+                'oic.suffix as osuffix'
+            )
+            ->get()
+            ->keyBy('id');
+
         $isOfficeHead = Office::where('office_head_id', $employee->id)->first();
 
         $leavesapp = LeaveApplication::where('empid', $employee->emp_ID)
@@ -186,14 +200,30 @@ class LeaveApplicationController extends Controller
         //     $leavesapphead->whereIn('leave_applications.status', [3]);
         // }
 
-        if ($setting->suc_pres !== auth()->guard($guard)->user()->id) {
-            if ($oic == null) {
-                $leavesapphead->where('leave_applications.supervisor', auth()->guard($guard)->user()->id);
-            }else{
-                $leavesapphead->where('leave_applications.empid', '!=', $employee->emp_ID);
-            }
-        }else{
+        $authid = auth()->guard($guard)->user()->id;
+
+        // Offices the signed-in user answers for, aside from being an immediate supervisor.
+        $headOfficeIds = Office::where('office_head_id', $authid)->pluck('id')->all();
+        $oicOfficeIds = Office::where('oic_id', $authid)->pluck('id')->all();
+
+        if ((int) optional($setting)->suc_pres === (int) $authid) {
             $leavesapphead->whereIn('leave_applications.status', [3]);
+        }else{
+            // Applications the user has to act on: the ones filed under them as
+            // immediate supervisor, plus those of the office they head or sit as
+            // OIC for. Their own application never shows up here.
+            $leavesapphead->where('leave_applications.empid', '!=', $employee->emp_ID)
+                ->where(function ($query) use ($authid, $headOfficeIds, $oicOfficeIds) {
+                    $query->where('leave_applications.supervisor', $authid);
+
+                    if ($oicOfficeIds) {
+                        $query->orWhereIn('leave_applications.department', $oicOfficeIds);
+                    }
+
+                    if ($headOfficeIds) {
+                        $query->orWhereIn('sup.emp_dept', $headOfficeIds);
+                    }
+                });
         }
         
         $leavesapphead = $leavesapphead->select(
@@ -224,7 +254,7 @@ class LeaveApplicationController extends Controller
         
         $emplalls = Employee::where('emp_status', 1)->get();
 
-        return view("leaves.status", compact('guard', 'setting', 'employee', 'leavesapp', 'isOfficeHead', 'leavesapphead', 'oic', 'emplalls', 'empid'));
+        return view("leaves.status", compact('guard', 'setting', 'employee', 'leavesapp', 'isOfficeHead', 'leavesapphead', 'oic', 'officeOics', 'emplalls', 'empid'));
     }
 
     public function leaveWpay(Request $request)
@@ -514,6 +544,32 @@ class LeaveApplicationController extends Controller
     //     ]);
     // }
 
+    /**
+     * Who signs the immediate-supervisor step of an application: the OIC of the
+     * applicant's office when one is declared, otherwise the assigned supervisor.
+     * The supervisor keeps the application on their list either way, they just
+     * cannot sign it while an OIC stands in for them.
+     */
+    protected function leaveSupervisorSignatory($leaveApplication)
+    {
+        $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
+        $officeid = $leaveApplication->department ?: optional($employee)->emp_dept;
+        $office = $officeid ? Office::find($officeid) : null;
+        $supervisor = (int) ($leaveApplication->supervisor ?: optional($employee)->supervisor);
+
+        // An office with no OIC, or one pointing at an employee who no longer
+        // exists, leaves the immediate supervisor as the signatory.
+        $oicid = ($office && $office->oic_id && Employee::where('id', $office->oic_id)->exists())
+            ? (int) $office->oic_id
+            : null;
+
+        return [
+            'id' => $oicid ?: $supervisor,
+            'supervisor' => $supervisor,
+            'is_oic' => (bool) $oicid,
+        ];
+    }
+
     public function leaveApprove(Request $request)
     {
         $request->validate([
@@ -610,12 +666,23 @@ class LeaveApplicationController extends Controller
 
         if($request->by == 2){
             $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
+            $signatory = $this->leaveSupervisorSignatory($leaveApplication);
+
+            // An OIC takes over the signing while assigned, so the immediate
+            // supervisor can still open the application but not sign it.
+            if($guard == 'employee' && (int) $authid !== $signatory['id']){
+                return response()->json([
+                    'success' => false,
+                    'message' => $signatory['is_oic']
+                        ? 'This application is for the OIC of the office to sign.'
+                        : 'Only the immediate supervisor of this employee can sign this application.',
+                ], 403);
+            }
+
             $leaveApplication->sup_sdate = Carbon::now();
             $leaveApplication->hr_sign = 2;
 
-            $officeoic = Office::find($employee->emp_dept);
-
-            if($officeoic && $officeoic->oic_id && $authid !== $employee->supervisor && $authid == $officeoic->oic_id){
+            if($signatory['is_oic'] && (int) $authid === $signatory['id'] && $signatory['id'] !== $signatory['supervisor']){
                 $leaveApplication->oic = $authid;
             }else{
                 $leaveApplication->sup_sign = 2;
@@ -763,10 +830,26 @@ class LeaveApplicationController extends Controller
             'day_wpay' => 'nullable|integer',
         ]);
     
+        $guard = $this->getGuard();
+        $authid = optional(auth()->guard($guard)->user())->id;
+
         $leaveApplication = LeaveApplication::find($request->id);
         $currdate = Carbon::now('Asia/Manila')->toDateTimeString();
         $currdate1 = Carbon::now('Asia/Manila')->format('F j, Y h:i A');
         if ($leaveApplication) {
+            if ($request->by == 2 && $guard == 'employee') {
+                $signatory = $this->leaveSupervisorSignatory($leaveApplication);
+
+                if ((int) $authid !== $signatory['id']) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $signatory['is_oic']
+                            ? 'This application is for the OIC of the office to act on.'
+                            : 'Only the immediate supervisor of this employee can act on this application.',
+                    ], 403);
+                }
+            }
+
             $leaveApplication->remarks_stat = $request->by;
             
             if ($request->by == 1) {
@@ -855,6 +938,21 @@ class LeaveApplicationController extends Controller
                 'success' => false,
                 'message' => 'Leave application not found.'
             ], 404);
+        }
+
+        $guard = $this->getGuard();
+
+        if ($request->to == 2 && $guard == 'employee') {
+            $signatory = $this->leaveSupervisorSignatory($leaveApplication);
+
+            if ((int) optional(auth()->guard($guard)->user())->id !== $signatory['id']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $signatory['is_oic']
+                        ? 'This application is for the OIC of the office to act on.'
+                        : 'Only the immediate supervisor of this employee can act on this application.',
+                ], 403);
+            }
         }
     
         switch ($request->to) {
@@ -960,7 +1058,7 @@ class LeaveApplicationController extends Controller
         $leaveApplication = LeaveApplication::with(['office:id,office_name,office_abbr'])
             ->join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
             ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
-            ->join('employees as oic', 'oic.id', '=', 'leave_applications.oic')
+            ->leftJoin('employees as oic', 'oic.id', '=', 'leave_applications.oic')
             ->join('employees as pres', 'pres.id', '=', 'leave_applications.president')
             ->join('employees as hr', 'hr.id', '=', 'leave_applications.hr')
             ->select('leave_applications.*', 

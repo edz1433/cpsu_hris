@@ -79,14 +79,22 @@
                                         <input type="checkbox" value="1" name="overtime" class="form-control form-control-sm" style="margin-top: 9px;" {{ isset($employee) && $overtime == 1 ? 'checked' : '' }}>
                                     </div>
                                 </div>
-                                <div class="col-md-2 col-sm-6 d-flex align-items-end">
+                                @if(!empty($canTardiness))
+                                <div class="col-md-1 col-sm-6 d-flex align-items-center">
+                                    <div>
+                                        <label class="badge badge-secondary lbel d-block">Late/UT</label>
+                                        <input type="checkbox" value="1" name="tardiness" class="form-control form-control-sm" style="margin-top: 9px;" {{ isset($employee) && isset($tardiness) && $tardiness == 1 ? 'checked' : '' }}>
+                                    </div>
+                                </div>
+                                @endif
+                                <div class="col-md-{{ !empty($canTardiness) ? 1 : 2 }} col-sm-6 d-flex align-items-end">
                                     <button class="btn btn-success btn-sm btn-block"><i class="fas fa-file-pdf"></i> Generate</button>
                                 </div>
                             </div>
                         </div>                        
                     </form>
                     <iframe 
-                    src="{{ isset($employee, $period, $date) ? route('dtr-pdf', ['employee' => $employee->emp_ID, 'period' => $period, 'date' => $date, 'overtime' => $overtime]) : '' }}" width="100%" height="600px"></iframe>
+                    src="{{ isset($employee, $period, $date) ? route('dtr-pdf', ['employee' => $employee->emp_ID, 'period' => $period, 'date' => $date, 'overtime' => $overtime, 'tardiness' => $tardiness ?? null]) : '' }}" width="100%" height="600px"></iframe>
                  </div>
             </div>
         </div>

@@ -637,6 +637,15 @@
         const dateFrom = $('#date_from');
         const dateTo = $('#date_to');
 
+        // Payroll cutoffs: 1st-15th and 16th-end of month.
+        const cutoffFor = function (date) {
+            return date.date() <= 15
+                ? [date.clone().startOf('month'), date.clone().date(15)]
+                : [date.clone().date(16), date.clone().endOf('month')];
+        };
+        const thisCutoff = cutoffFor(moment());
+        const previousCutoff = cutoffFor(thisCutoff[0].clone().subtract(1, 'day'));
+
         rangeInput.daterangepicker({
             startDate: moment(dateFrom.val(), 'YYYY-MM-DD'),
             endDate: moment(dateTo.val(), 'YYYY-MM-DD'),
@@ -646,6 +655,8 @@
                 separator: ' - '
             },
             ranges: {
+                'This Cutoff': thisCutoff,
+                'Previous Cutoff': previousCutoff,
                 'This Week': [moment().startOf('week'), moment().endOf('week')],
                 'Today': [moment(), moment()],
                 'Last 7 Days': [moment().subtract(6, 'days'), moment()],

@@ -24,58 +24,11 @@ use App\Models\OfficialTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
+use App\Http\Controllers\Concerns\CalculatesTardiness;
 
 class MasterController extends Controller
 {
-    /**
-     * Normalize DTR punches to whole clock minutes. Seconds and fractional
-     * seconds are deliberately discarded before tardiness is calculated.
-     */
-    private function normalizeClockMinute($time)
-    {
-        if (!$time) {
-            return null;
-        }
-
-        $time = trim((string) $time);
-
-        try {
-            return Carbon::parse($time)->format('H:i');
-        } catch (\Exception $e) {
-            if (preg_match('/\b(\d{1,2}):(\d{2})\b/', $time, $matches)) {
-                return sprintf('%02d:%02d', (int) $matches[1], (int) $matches[2]);
-            }
-        }
-
-        return null;
-    }
-
-    private function clockToMinutes($time)
-    {
-        $minuteTime = $this->normalizeClockMinute($time);
-
-        if (!$minuteTime) {
-            return null;
-        }
-
-        [$hours, $minutes] = array_map('intval', explode(':', $minuteTime));
-
-        return ($hours * 60) + $minutes;
-    }
-
-    private function dtrTimes($value)
-    {
-        if (!$value) {
-            return collect();
-        }
-
-        return collect(explode(',', $value))
-            ->map(fn ($time) => $this->normalizeClockMinute($time))
-            ->filter()
-            ->unique()
-            ->sortBy(fn ($time) => $this->clockToMinutes($time))
-            ->values();
-    }
+    use CalculatesTardiness;
 
     private function formatDtrTime($value)
     {
@@ -109,6 +62,18 @@ class MasterController extends Controller
             });
     }
 
+    /**
+     * "08:00 AM - 12:00 PM", or a dash when nothing is scheduled for that half.
+     */
+    private function scheduleHalfLabel($schedule, $startKey, $endKey)
+    {
+        if (!$schedule || empty($schedule[$startKey]) || empty($schedule[$endKey])) {
+            return '—';
+        }
+
+        return $this->formatDtrTime($schedule[$startKey]) . ' - ' . $this->formatDtrTime($schedule[$endKey]);
+    }
+
     private function firstDtrIn($dtr)
     {
         return $this->formatDtrTime($this->dtrTimes(optional($dtr)->time_in)->first());
@@ -119,133 +84,25 @@ class MasterController extends Controller
         return $this->formatDtrTime($this->dtrTimes(optional($dtr)->time_out)->last());
     }
 
-    private function parseOfficialRange($range, $fallbackStart, $fallbackEnd)
+    /**
+     * Payroll cutoff the given date falls in: the 1st-15th half of the month,
+     * or the 16th through the last day (28th/29th/30th/31st).
+     */
+    private function semiMonthlyCutoff($date)
     {
-        $times = $range ? array_map('trim', explode('-', $range)) : [];
+        $date = Carbon::parse($date);
 
-        return [
-            $this->normalizeClockMinute($times[0] ?? null) ?: $fallbackStart,
-            $this->normalizeClockMinute($times[1] ?? null) ?: $fallbackEnd,
-        ];
-    }
-
-    private function officialScheduleForDate($officialTime, $date)
-    {
-        $day = strtolower(Carbon::parse($date)->format('D'));
-        $dayMap = [
-            'mon' => ['morn_mon', 'aft_mon'],
-            'tue' => ['morn_tue', 'aft_tue'],
-            'wed' => ['morn_wed', 'aft_wed'],
-            'thu' => ['morn_thu', 'aft_thu'],
-            'fri' => ['morn_fri', 'aft_fri'],
-        ];
-
-        if (!$officialTime || !isset($dayMap[$day])) {
+        if ($date->day <= 15) {
             return [
-                'mornin' => '08:00',
-                'mornout' => '12:00',
-                'aftin' => '13:00',
-                'aftout' => '17:00',
+                'from' => $date->copy()->startOfMonth()->toDateString(),
+                'to' => $date->copy()->day(15)->toDateString(),
             ];
         }
 
-        [$morningField, $afternoonField] = $dayMap[$day];
-        [$mornIn, $mornOut] = $this->parseOfficialRange($officialTime->{$morningField}, '08:00', '12:00');
-        [$aftIn, $aftOut] = $this->parseOfficialRange($officialTime->{$afternoonField}, '13:00', '17:00');
-
         return [
-            'mornin' => $mornIn,
-            'mornout' => $mornOut,
-            'aftin' => $aftIn,
-            'aftout' => $aftOut,
+            'from' => $date->copy()->day(16)->toDateString(),
+            'to' => $date->copy()->endOfMonth()->toDateString(),
         ];
-    }
-
-    private function dailyWorkPunches($dtr, $schedule = null)
-    {
-        $timeIns = $this->dtrTimes(optional($dtr)->time_in);
-        $timeOuts = $this->dtrTimes(optional($dtr)->time_out);
-        $schedule = $schedule ?: [
-            'mornin' => '08:00',
-            'mornout' => '12:00',
-            'aftin' => '13:00',
-            'aftout' => '17:00',
-        ];
-
-        $latestUsefulTimeIn = $this->clockToMinutes($schedule['aftin']) + 30;
-        $earliestUsefulTimeOut = $this->clockToMinutes($schedule['mornout']) - 60;
-
-        $dailyTimeIns = $timeIns
-            ->filter(fn ($time) => $this->clockToMinutes($time) <= $latestUsefulTimeIn)
-            ->values();
-
-        $dailyTimeOuts = $timeOuts
-            ->filter(fn ($time) => $this->clockToMinutes($time) >= $earliestUsefulTimeOut)
-            ->values();
-
-        return [
-            'am_in' => $dailyTimeIns->first(),
-            'am_out' => $dailyTimeOuts->first(),
-            'pm_in' => $dailyTimeIns->count() >= 2 ? $dailyTimeIns->last() : null,
-            'pm_out' => $dailyTimeOuts->count() >= 2 ? $dailyTimeOuts->last() : null,
-            'time_in_count' => $dailyTimeIns->count(),
-            'time_out_count' => $dailyTimeOuts->count(),
-        ];
-    }
-
-    private function minutesAfter($time, $limit)
-    {
-        $actual = $this->clockToMinutes($time);
-        $expected = $this->clockToMinutes($limit);
-
-        if ($actual === null || $expected === null || $actual <= $expected) {
-            return 0;
-        }
-
-        return $actual - $expected;
-    }
-
-    private function minutesBefore($time, $limit)
-    {
-        $actual = $this->clockToMinutes($time);
-        $expected = $this->clockToMinutes($limit);
-
-        if ($actual === null || $expected === null || $actual >= $expected) {
-            return 0;
-        }
-
-        return $expected - $actual;
-    }
-
-    private function dtrTardinessSummary($dtrRecords, $officialTime = null)
-    {
-        return $dtrRecords->reduce(function ($summary, $dtr) use ($officialTime) {
-            $schedule = $this->officialScheduleForDate($officialTime, $dtr->date);
-            $punches = $this->dailyWorkPunches($dtr, $schedule);
-            $hasCompleteTimeIns = $punches['time_in_count'] >= 2;
-            $hasCompleteTimeOuts = $punches['time_out_count'] >= 2;
-
-            $lateMinutes = $hasCompleteTimeIns
-                ? $this->minutesAfter($punches['am_in'], $schedule['mornin'])
-                    + $this->minutesAfter($punches['pm_in'], $schedule['aftin'])
-                : 0;
-            $undertimeMinutes = $hasCompleteTimeOuts
-                ? $this->minutesBefore($punches['am_out'], $schedule['mornout'])
-                    + $this->minutesBefore($punches['pm_out'], $schedule['aftout'])
-                : 0;
-
-            $summary['late_minutes'] += $lateMinutes;
-            $summary['undertime_minutes'] += $undertimeMinutes;
-            $summary['late_days'] += $lateMinutes > 0 ? 1 : 0;
-            $summary['undertime_days'] += $undertimeMinutes > 0 ? 1 : 0;
-
-            return $summary;
-        }, [
-            'late_minutes' => 0,
-            'undertime_minutes' => 0,
-            'late_days' => 0,
-            'undertime_days' => 0,
-        ]);
     }
 
     private function formatMinutes($minutes)
@@ -322,8 +179,9 @@ class MasterController extends Controller
             $employee = \Auth::guard('employee')->user();
             $officialTime = OfficialTime::where('empid', $employee->emp_ID)->first();
             $today = Carbon::now('Asia/Manila')->toDateString();
-            $dateFrom = $request->input('date_from', Carbon::now('Asia/Manila')->startOfWeek()->toDateString());
-            $dateTo = $request->input('date_to', Carbon::now('Asia/Manila')->endOfWeek()->toDateString());
+            $currentCutoff = $this->semiMonthlyCutoff(Carbon::now('Asia/Manila'));
+            $dateFrom = $request->input('date_from', $currentCutoff['from']);
+            $dateTo = $request->input('date_to', $currentCutoff['to']);
 
             if (Carbon::parse($dateFrom)->greaterThan(Carbon::parse($dateTo))) {
                 [$dateFrom, $dateTo] = [$dateTo, $dateFrom];
@@ -367,7 +225,7 @@ class MasterController extends Controller
                 'pm_in' => $this->formatDtrTime($todayDailyPunchesRaw['pm_in']),
                 'pm_out' => $this->formatDtrTime($todayDailyPunchesRaw['pm_out']),
             ];
-            $tardinessSummary = $this->dtrTardinessSummary($filteredDtrs, $officialTime);
+            $tardinessSummary = $this->dtrTardinessTotals($filteredDtrs, $officialTime);
             $totalLate = $this->formatMinutes($tardinessSummary['late_minutes']);
             $totalUndertime = $this->formatMinutes($tardinessSummary['undertime_minutes']);
             $recentDtrs = $recentDtrs->map(function ($dtr) use ($officialTime) {
@@ -377,9 +235,10 @@ class MasterController extends Controller
                 $dtr->formatted_time_in = $this->firstDtrIn($dtr);
                 $dtr->formatted_time_out = $this->lastDtrOut($dtr);
                 $dtr->arranged_punches = $this->arrangedDtrPunches($dtr);
+                // $schedule is null on days with no official working hours.
                 $dtr->official_schedule = [
-                    'am' => $this->formatDtrTime($schedule['mornin']) . ' - ' . $this->formatDtrTime($schedule['mornout']),
-                    'pm' => $this->formatDtrTime($schedule['aftin']) . ' - ' . $this->formatDtrTime($schedule['aftout']),
+                    'am' => $this->scheduleHalfLabel($schedule, 'mornin', 'mornout'),
+                    'pm' => $this->scheduleHalfLabel($schedule, 'aftin', 'aftout'),
                 ];
                 $dtr->daily_punches = [
                     'am_in' => $this->formatDtrTime($dailyPunches['am_in']),

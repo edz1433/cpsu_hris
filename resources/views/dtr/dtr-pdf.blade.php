@@ -338,6 +338,7 @@
                 </tr>
                 @endfor
 
+                @include('dtr.partials.tardiness-row')
             </tbody>
 
         </table>
@@ -497,6 +498,7 @@
                     <td></td>
                 </tr>
                 @endfor
+                @include('dtr.partials.tardiness-row')
             </tbody>
 
         </table>

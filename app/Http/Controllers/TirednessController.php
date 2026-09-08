@@ -9,9 +9,12 @@ use App\Models\Fdevice;
 use App\Models\OfficialTime;
 use Carbon\Carbon;
 use PDF;
+use App\Http\Controllers\Concerns\CalculatesTardiness;
 
 class TirednessController extends Controller
 {
+    use CalculatesTardiness;
+
     public function getGuard()
     {
         if(\Auth::guard('web')->check()) {
@@ -38,206 +41,6 @@ class TirednessController extends Controller
         }
     
         return view('tiredeness.tiredeness', compact('guard', 'employee', 'employeeall', 'employeeId', 'month'));
-    }
-
-    private function defaultSchedule()
-    {
-        return [
-            'mornin' => '08:00',
-            'mornout' => '12:00',
-            'aftin' => '13:00',
-            'aftout' => '17:00',
-        ];
-    }
-
-    /**
-     * Normalize punches to whole minutes so seconds and milliseconds never
-     * affect tardiness or undertime totals in either PDF report.
-     */
-    private function normalizeClockMinute($time)
-    {
-        if (!$time) {
-            return null;
-        }
-
-        $time = trim((string) $time);
-
-        try {
-            return Carbon::parse($time)->format('H:i');
-        } catch (\Exception $e) {
-            if (preg_match('/\b(\d{1,2}):(\d{2})\b/', $time, $matches)) {
-                return sprintf('%02d:%02d', (int) $matches[1], (int) $matches[2]);
-            }
-        }
-
-        return null;
-    }
-
-    private function clockToMinutes($time)
-    {
-        $minuteTime = $this->normalizeClockMinute($time);
-
-        if (!$minuteTime) {
-            return null;
-        }
-
-        [$hours, $minutes] = array_map('intval', explode(':', $minuteTime));
-
-        return ($hours * 60) + $minutes;
-    }
-
-    private function minutesAfter($time, $limit)
-    {
-        $actual = $this->clockToMinutes($time);
-        $expected = $this->clockToMinutes($limit);
-
-        if ($actual === null || $expected === null || $actual <= $expected) {
-            return 0;
-        }
-
-        return $actual - $expected;
-    }
-
-    private function minutesBefore($time, $limit)
-    {
-        $actual = $this->clockToMinutes($time);
-        $expected = $this->clockToMinutes($limit);
-
-        if ($actual === null || $expected === null || $actual >= $expected) {
-            return 0;
-        }
-
-        return $expected - $actual;
-    }
-
-    private function parseOfficialRange($range, $fallbackStart, $fallbackEnd)
-    {
-        $times = $range ? array_map('trim', explode('-', $range)) : [];
-
-        return [
-            $this->normalizeClockMinute($times[0] ?? null) ?: $fallbackStart,
-            $this->normalizeClockMinute($times[1] ?? null) ?: $fallbackEnd,
-        ];
-    }
-
-    private function officialScheduleForDate($officialTime, $date)
-    {
-        $default = $this->defaultSchedule();
-        $day = strtolower(Carbon::parse($date)->format('D'));
-        $dayMap = [
-            'mon' => ['morn_mon', 'aft_mon'],
-            'tue' => ['morn_tue', 'aft_tue'],
-            'wed' => ['morn_wed', 'aft_wed'],
-            'thu' => ['morn_thu', 'aft_thu'],
-            'fri' => ['morn_fri', 'aft_fri'],
-        ];
-
-        if (!$officialTime || !isset($dayMap[$day])) {
-            return $default;
-        }
-
-        [$morningField, $afternoonField] = $dayMap[$day];
-        [$mornIn, $mornOut] = $this->parseOfficialRange($officialTime->{$morningField}, $default['mornin'], $default['mornout']);
-        [$aftIn, $aftOut] = $this->parseOfficialRange($officialTime->{$afternoonField}, $default['aftin'], $default['aftout']);
-
-        return [
-            'mornin' => $mornIn,
-            'mornout' => $mornOut,
-            'aftin' => $aftIn,
-            'aftout' => $aftOut,
-        ];
-    }
-
-    private function dtrTimes($value)
-    {
-        if (!$value) {
-            return collect();
-        }
-
-        return collect(explode(',', $value))
-            ->map(fn ($time) => $this->normalizeClockMinute($time))
-            ->filter()
-            ->unique()
-            ->sortBy(fn ($time) => $this->clockToMinutes($time))
-            ->values();
-    }
-
-    private function dailyWorkPunches($dtr, $schedule)
-    {
-        $timeIns = $this->dtrTimes(optional($dtr)->time_in);
-        $timeOuts = $this->dtrTimes(optional($dtr)->time_out);
-        $latestUsefulTimeIn = $this->clockToMinutes($schedule['aftin']) + 30;
-        $earliestUsefulTimeOut = $this->clockToMinutes($schedule['mornout']) - 60;
-
-        $dailyTimeIns = $timeIns
-            ->filter(fn ($time) => $this->clockToMinutes($time) <= $latestUsefulTimeIn)
-            ->values();
-
-        $dailyTimeOuts = $timeOuts
-            ->filter(fn ($time) => $this->clockToMinutes($time) >= $earliestUsefulTimeOut)
-            ->values();
-
-        return [
-            'am_in' => $dailyTimeIns->first(),
-            'am_out' => $dailyTimeOuts->first(),
-            'pm_in' => $dailyTimeIns->count() >= 2 ? $dailyTimeIns->last() : null,
-            'pm_out' => $dailyTimeOuts->count() >= 2 ? $dailyTimeOuts->last() : null,
-            'time_in_count' => $dailyTimeIns->count(),
-            'time_out_count' => $dailyTimeOuts->count(),
-        ];
-    }
-
-    private function emptyTardinessSummary()
-    {
-        return [
-            'morning_late_minutes' => 0,
-            'morning_late_days' => 0,
-            'afternoon_late_minutes' => 0,
-            'afternoon_late_days' => 0,
-            'morning_undertime_minutes' => 0,
-            'morning_undertime_days' => 0,
-            'afternoon_undertime_minutes' => 0,
-            'afternoon_undertime_days' => 0,
-        ];
-    }
-
-    private function calculateDayTardiness($dtr, $officialTime)
-    {
-        $schedule = $this->officialScheduleForDate($officialTime, $dtr->date);
-        $punches = $this->dailyWorkPunches($dtr, $schedule);
-        $hasCompleteTimeIns = $punches['time_in_count'] >= 2;
-        $hasCompleteTimeOuts = $punches['time_out_count'] >= 2;
-
-        return [
-            'schedule' => $schedule,
-            'punches' => $punches,
-            'time_in_review' => !$hasCompleteTimeIns,
-            'time_out_review' => !$hasCompleteTimeOuts,
-            'morning_late_minutes' => $hasCompleteTimeIns ? $this->minutesAfter($punches['am_in'], $schedule['mornin']) : 0,
-            'afternoon_late_minutes' => $hasCompleteTimeIns ? $this->minutesAfter($punches['pm_in'], $schedule['aftin']) : 0,
-            'morning_undertime_minutes' => $hasCompleteTimeOuts ? $this->minutesBefore($punches['am_out'], $schedule['mornout']) : 0,
-            'afternoon_undertime_minutes' => $hasCompleteTimeOuts ? $this->minutesBefore($punches['pm_out'], $schedule['aftout']) : 0,
-        ];
-    }
-
-    private function summarizeDtrRecords($dtrRecords, $officialTime)
-    {
-        $summary = $this->emptyTardinessSummary();
-
-        foreach ($dtrRecords as $dtr) {
-            $day = $this->calculateDayTardiness($dtr, $officialTime);
-
-            foreach (['morning_late', 'afternoon_late', 'morning_undertime', 'afternoon_undertime'] as $key) {
-                $minutesKey = $key . '_minutes';
-                $daysKey = $key . '_days';
-                $minutes = $day[$minutesKey];
-
-                $summary[$minutesKey] += $minutes;
-                $summary[$daysKey] += $minutes > 0 ? 1 : 0;
-            }
-        }
-
-        return $summary;
     }
 
     private function buildMonthlyRows($dtrRecords, $officialTime, $year, $monthNumber)
@@ -267,6 +70,9 @@ class TirednessController extends Controller
                 'date' => $date->format('Y-m-d'),
                 'day_of_week' => $date->format('l'),
                 'has_record' => (bool) $rowData,
+                'no_schedule' => $calculation['no_schedule'] ?? false,
+                'morning_charged' => $calculation['morning_charged'] ?? false,
+                'afternoon_charged' => $calculation['afternoon_charged'] ?? false,
                 'time_in_review' => $calculation['time_in_review'] ?? false,
                 'time_out_review' => $calculation['time_out_review'] ?? false,
                 'morning_late_minutes' => $calculation['morning_late_minutes'] ?? null,
