@@ -107,8 +107,8 @@ class TimeEntryDtrController extends Controller
         }
         // Employee data
         $employee = Employee::where('employees.emp_ID', $empid)
-            ->join('campuses', 'employees.camp_id', '=', 'campuses.id')
-            ->join('dbcpsupms.offices', 'employees.emp_dept', '=', 'dbcpsupms.offices.id')
+            ->leftJoin('campuses', 'employees.camp_id', '=', 'campuses.id')
+            ->leftJoin('dbcpsupms.offices', 'employees.emp_dept', '=', 'dbcpsupms.offices.id')
             ->select(
                 'employees.*',
                 'campuses.campus_name',
@@ -118,7 +118,7 @@ class TimeEntryDtrController extends Controller
         // Supervisor data (optional)
         $supervisor = $employee->supervisor
             ? Employee::where('id', $employee->supervisor)
-                ->select('fname', 'lname', 'mname', 'prefix')
+                ->select('fname', 'lname', 'mname', 'prefix', 'suffix')
                 ->first()
             : null;
         // DTR records

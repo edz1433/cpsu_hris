@@ -110,7 +110,7 @@
             <span class="font">Name of Employee :</span> <span class="header" style="relative; display: inline-block; width: 73%; text-align: left;">&nbsp; {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->prefix)) }} {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(ucwords($employee->mname)) }}</span>
         </div>
         <div style="margin-top: -9px;">
-            <span class="font">Office/Campus/College : </span> <span class="header" style="relative; display: inline-block; width: 67.5%; text-align: left;">&nbsp;{{ strtoupper(ucwords($employee->office_name)) }}</span>
+            <span class="font">Office/Campus/College : </span> <span class="header" style="relative; display: inline-block; width: 67.5%; text-align: left;">&nbsp;{{ strtoupper(ucwords($employee->camp_id == 1 ? ($employee->office_name ?? $employee->campus_name ?? 'N/A') : ($employee->campus_name ?? $employee->office_name ?? 'N/A'))) }}</span>
         </div>
         <div style="margin-top: -9px;">
             <span class="font">For the month of : </span> <span class="header" style="relative; display: inline-block; width: 37%; text-align: left;">&nbsp;{{ $startDate }} - {{ $endDate }}</span>, <span class="header" style="relative; display: inline-block; width: 36%; text-align: left;">&nbsp;{{ $year }}</span>
@@ -239,7 +239,7 @@
             <span class="font">Name of Employee :</span> <span class="header" style="relative; display: inline-block; width: 73%; text-align: left;">&nbsp;  {{ strtoupper(ucwords($employee->lname)) }} {{ strtoupper(ucwords($employee->prefix)) }} {{ strtoupper(ucwords($employee->fname)) }} {{ strtoupper(ucwords($employee->mname)) }}</span>
         </div>
         <div style="margin-top: -9px;">
-            <span class="font">Office/Campus/College : </span> <span class="header" style="relative; display: inline-block; width: 67.5%; text-align: left;">&nbsp;{{ strtoupper(ucwords($employee->office_name)) }}</span>
+            <span class="font">Office/Campus/College : </span> <span class="header" style="relative; display: inline-block; width: 67.5%; text-align: left;">&nbsp;{{ strtoupper(ucwords($employee->camp_id == 1 ? ($employee->office_name ?? $employee->campus_name ?? 'N/A') : ($employee->campus_name ?? $employee->office_name ?? 'N/A'))) }}</span>
         </div>
         <div style="margin-top: -9px;">
             <span class="font">For the month of : </span> <span class="header" style="relative; display: inline-block; width: 37%; text-align: left;">&nbsp;{{ $startDate }} - {{ $endDate }}</span>, <span class="header" style="relative; display: inline-block; width: 36%; text-align: left;">&nbsp;{{ $year }}</span>

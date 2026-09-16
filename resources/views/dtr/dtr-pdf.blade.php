@@ -222,9 +222,11 @@
             <span class="header" style="position: relative; display: inline-block; width: 67.5%; text-align: left;">
                 &nbsp;
                 {{ isset($employee)
-                    ? ($employee->camp_id == 1
-                        ? strtoupper(ucwords($employee->office_name))
-                        : strtoupper(ucwords($employee->campus_name)))
+                    ? strtoupper(ucwords(
+                        $employee->camp_id == 1
+                            ? ($employee->office_name ?? $employee->campus_name ?? 'N/A')
+                            : ($employee->campus_name ?? $employee->office_name ?? 'N/A')
+                    ))
                     : ''
                 }}
             </span>
@@ -383,9 +385,11 @@
             <span class="header" style="position: relative; display: inline-block; width: 67.5%; text-align: left;">
                 &nbsp;
                 {{ isset($employee)
-                    ? ($employee->camp_id == 1
-                        ? strtoupper(ucwords($employee->office_name))
-                        : strtoupper(ucwords($employee->campus_name)))
+                    ? strtoupper(ucwords(
+                        $employee->camp_id == 1
+                            ? ($employee->office_name ?? $employee->campus_name ?? 'N/A')
+                            : ($employee->campus_name ?? $employee->office_name ?? 'N/A')
+                    ))
                     : ''
                 }}
             </span>
