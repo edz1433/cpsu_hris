@@ -162,14 +162,13 @@
             <div class="bold" style="margin-left: -43%; margin-bottom: -3.5%;">FINAL RATING BY:</div>
 
             <div class="name-block bold underline">
-                {{-- ALADINO C. MORACA, Ph.D. --}}
-                {{-- {{ --}}
-                    {{-- strtoupper($approveby[0]->fname) . ' ' .
+                {{
+                    strtoupper($approveby[0]->fname) . ' ' .
                     (isset($approveby[0]->mname) ? strtoupper(substr($approveby[0]->mname, 0, 1)) . '. ' : '') .
                     strtoupper($approveby[0]->lname) .
                     (!empty($approveby[0]->suffix) ? ' ' . $approveby[0]->suffix : '') .
-                    (!empty($approveby[0]->prefix) ? ', ' . $approveby[0]->prefix : '') --}}
-                {{-- }} --}}
+                    (!empty($approveby[0]->prefix) ? ', ' . $approveby[0]->prefix : '')
+                }}
             </div>
             <div>President</div>
             <div class="label" style="margin-left: -3.5%;">Date:</div>
