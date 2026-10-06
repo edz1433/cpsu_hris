@@ -45,6 +45,8 @@ use App\Http\Controllers\JobHiringController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\EteEvaluationController;
 use App\Http\Controllers\InterviewEvaluationController;
+use App\Http\Controllers\ContractPeriodController;
+use App\Http\Controllers\EmployeeContractController;
 
 //login
 Route::middleware('maintenance.login')->group(function () {
@@ -463,4 +465,21 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     Route::patch('/settings/maintenance', [MasterController::class, 'updateMaintenance'])->name('settings.maintenance.update');
     Route::get('/leave/disapprove', [LeaveApplicationController::class, 'leaveDisapprove']);
     Route::post('/logout', [MasterController::class, 'logout'])->name('logout');
+
+    // Contract of Services
+    Route::prefix('contracts')->name('contracts.')->group(function() {
+        Route::get('/', [ContractPeriodController::class, 'index'])->name('index');
+        Route::post('/', [ContractPeriodController::class, 'store'])->name('store');
+        Route::get('/{period}', [ContractPeriodController::class, 'show'])->name('show')->whereNumber('period');
+        Route::post('/{period}/update', [ContractPeriodController::class, 'update'])->name('update')->whereNumber('period');
+        Route::post('/{period}/close', [ContractPeriodController::class, 'close'])->name('close')->whereNumber('period');
+        Route::post('/{period}/employees', [EmployeeContractController::class, 'store'])->name('employees.store')->whereNumber('period');
+        Route::get('/{period}/download-all', [EmployeeContractController::class, 'downloadAll'])->name('downloadAll')->whereNumber('period');
+        Route::post('/{period}/download-selected', [EmployeeContractController::class, 'downloadSelected'])->name('downloadSelected')->whereNumber('period');
+        Route::post('/contract/{contract}/update', [EmployeeContractController::class, 'update'])->name('contract.update')->whereNumber('contract');
+        Route::post('/contract/{contract}/sign', [EmployeeContractController::class, 'sign'])->name('contract.sign')->whereNumber('contract');
+        Route::post('/contract/{contract}/cancel', [EmployeeContractController::class, 'cancel'])->name('contract.cancel')->whereNumber('contract');
+        Route::post('/contract/{contract}/remove', [EmployeeContractController::class, 'destroy'])->name('contract.remove')->whereNumber('contract');
+        Route::get('/contract/{contract}/download', [EmployeeContractController::class, 'download'])->name('contract.download')->whereNumber('contract');
+    });
 });

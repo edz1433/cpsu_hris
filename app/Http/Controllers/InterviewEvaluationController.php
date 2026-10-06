@@ -10,6 +10,7 @@ use App\Models\InterviewApplicant;
 use App\Models\InterviewEvaluation;
 use App\Models\InterviewPanel;
 use App\Models\InterviewRating;
+use App\Models\Setting;
 use App\Services\InterviewAssessmentReport;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -1288,10 +1289,11 @@ class InterviewEvaluationController extends Controller
             ->values();
         $chairman = $panelistData->firstWhere('is_chairman', true);
         $panelists = $panelistData->reject(fn ($panelist) => $panelist['is_chairman'])->values();
+        $president = Employee::find(Setting::first()?->suc_pres);
         $fileName = 'summary-rating-applicants-' . $interview->id . '.pdf';
         $longBondPaper = [0, 0, 612, 936];
 
-        return \PDF::loadView('interview.summary-rating-pdf', compact('interview', 'rows', 'panelists', 'chairman'))
+        return \PDF::loadView('interview.summary-rating-pdf', compact('interview', 'rows', 'panelists', 'chairman', 'president'))
             ->setPaper($longBondPaper, 'portrait')
             ->stream($fileName);
     }

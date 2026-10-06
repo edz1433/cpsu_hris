@@ -1,9 +1,9 @@
 <!-- Job Application Notifications -->
 @if(in_array(auth()->guard('employee')->user()->org_email, ['cbaligyan@cpsu.edu.ph','janetoledo@cpsu.edu.ph','wbantigue@cpsu.edu.ph']))
 <li class="nav-item dropdown">
-    <a class="nav-link" href="#" data-toggle="dropdown" title="Job Applications">
+    <a class="nav-link" href="#" data-toggle="dropdown" title="{{ $jobapplication->count() }} Job Applications">
         <i class="fas fa-envelope text-success1"></i>
-        <span class="badge badge-danger navbar-badge">{{ $jobapplication->count() }}</span>
+        <span class="badge badge-danger navbar-badge">{{ $jobapplication->count() > 99 ? '99+' : $jobapplication->count() }}</span>
     </a>
 
     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
@@ -102,7 +102,7 @@
     </style>
     <a class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
         <i class="fas fa-bell text-success1"></i>
-        <span class="badge badge-warning navbar-badge">{{ ($notificationsCount1 != 0) ? $notificationsCount1 : '' }}</span>
+        <span class="badge badge-warning navbar-badge">{{ ($notificationsCount1 != 0) ? ($notificationsCount1 > 99 ? '99+' : $notificationsCount1) : '' }}</span>
     </a>
     <div class="dropdown-menu notifications dropdown-notification dropdown-menu-lg dropdown-menu-right" style="left: inherit; right: 0; max-height: 400px; overflow-y: auto;">
         <div class="dropdown-item dropdown-header d-flex justify-content-between align-items-center">

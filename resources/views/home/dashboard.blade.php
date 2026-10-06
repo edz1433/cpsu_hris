@@ -50,9 +50,26 @@
     .action-card {
         background: #fff;
         border: 1px solid #e7ece9;
-        border-radius: 8px;
-        box-shadow: 0 8px 20px rgba(31,49,43,.05);
+        border-radius: 12px;
+        box-shadow: 0 1px 2px rgba(16,40,28,.05), 0 1px 3px rgba(16,40,28,.06);
         min-height: 112px;
+    }
+    .metric-card .text-muted:first-child {
+        font-size: 13px;
+        font-weight: 600;
+    }
+    .metric-card h4 {
+        font-size: 26px;
+        font-weight: 700;
+    }
+    .employee-dashboard .card {
+        border: 1px solid #e7ece9;
+        border-radius: 12px;
+        box-shadow: 0 1px 2px rgba(16,40,28,.05), 0 1px 3px rgba(16,40,28,.06);
+        overflow: hidden;
+    }
+    .employee-dashboard .card-header {
+        border-bottom: 1px solid #e7ece9;
     }
     .metric-card .icon-wrap {
         width: 42px;
@@ -175,18 +192,18 @@
         cursor: pointer;
     }
 </style>
-<div class="container-fluid employee-dashboard">
-    <div class="employee-hero">
+<div class="container-fluid employee-dashboard dash">
+    <div class="dash-hero">
         <div class="d-flex flex-wrap align-items-center justify-content-between">
-            <div class="d-flex align-items-center mb-3 mb-md-0">
-                <img src="{{ $profileImage }}" class="employee-avatar mr-3" alt="Profile Image">
+            <div class="d-flex align-items-center">
+                <img src="{{ $profileImage }}" class="dash-avatar mr-3" alt="Profile Image">
                 <div>
-                    <div class="text-muted text-sm">{{ $todayLabel }}</div>
-                    <h3 class="mb-1 font-weight-bold">Welcome, {{ $fullName }}</h3>
-                    <div class="text-muted">
+                    <div class="dash-eyebrow">{{ $todayLabel }}</div>
+                    <h3>Welcome, {{ $fullName }}</h3>
+                    <div class="dash-sub">
                         {{ $employee->position ?: 'Employee' }}
                         @if($employee->emp_ID)
-                            <span class="mx-2">|</span>{{ $employee->emp_ID }}
+                            <span class="mx-2">&middot;</span>ID {{ $employee->emp_ID }}
                         @endif
                     </div>
                 </div>
@@ -348,276 +365,176 @@
     </section>
 </div>
 @else
-<div class="container-fluid">
-    <div class="wrapper">
-        <section class="content">
-            <div class="row">
-                <div class="col-lg-8 col-sm-12">
-                  <div class="row">
-                    <div class="col-12">
-                      <div class="row">
-                          <div class="col-lg-3 col-6">
-                              <!-- small box -->
-                              <div class="small-box pl-1 pt-2 bg-white">
-                                  <div class="inner">
-                                      <h6 class="text-gray">Employee</h6>
-                                      <h3 class="">{{ number_format($totalEmployees) }}</h3>
-                                  </div>
-                                  <div class="icon">
-                                      <i class="fa-solid fa-user-tie" style="color: #9E9E9E; font-size: 30px !important;"></i>
-                                  </div>
-                              </div>
-                          </div>
-                          <div class="col-lg-3 col-6">
-                              <!-- small box -->
-                              <div class="small-box pl-1 pt-2 bg-white">
-                                  <div class="inner">
-                                      <h6 class="text-muted">Present</h6>
-                                      <h3>{{ number_format($dtrCount) }}</h3>
-                                  </div>
-                                  <div class="icon">
-                                      <i class="fa-solid fa-users-viewfinder" style="color: #607D8B; font-size: 30px !important;"></i>
-                                  </div>
-                              </div>
-                          </div>
-                          <div class="col-lg-3 col-6">
-                              <!-- small box -->
-                              <div class="small-box pl-1 pt-2 bg-white">
-                                  <div class="inner">
-                                      <h6 class="text-muted">Absent</h6>
-                                      <h3>{{ number_format($totalEmployees - $dtrCount) }}</h3>
-                                  </div>
-                                  <div class="icon">
-                                      <i class="fas fa-users-viewfinder" style="color: #FF7043; font-size: 30px !important;"></i>
-                                  </div>
-                              </div>
-                          </div>
-                          
-                          <div class="col-lg-3 col-6">
-                            <!-- small box -->
-                            <a href="{{ route('readPending', 1) }}"> 
-                              <div class="small-box pl-1 pt-2 bg-white">
-                                  <div class="inner">
-                                      <h6 class="text-muted">Leave Application</h6>
-                                      <h3>{{ number_format($leaveappCount) }}</h3>
-                                  </div>
-                                  <div class="icon">
-                                      <i class="fas fa-file-alt"  style="color: #9575CD;  font-size: 30px !important;"></i>
-                                  </div>
-                              </div>
-                            </a>
-                          </div>
-
-                          <div class="col-lg-3 col-6">
-                            <!-- small box -->
-                            <a href="{{ route('readPending', 2) }}">
-                              <div class="small-box pl-1 pt-2 bg-white">
-                                  <div class="inner">
-                                      <h6 class="text-muted">Eligibility</h6>
-                                      <h3>{{ number_format($eliCount) }}</h3>
-                                  </div>
-                                  <div class="icon">
-                                      <i class="fas fa-award"  style="color: #FFEB3B;  font-size: 30px !important;"></i>
-                                  </div>
-                              </div>
-                            </a>
-                          </div>
-
-                          <div class="col-lg-3 col-6">
-                            <!-- small box -->
-                            <a href="{{ route('readPending', 3) }}">
-                              <div class="small-box pl-1 pt-2 bg-white">
-                                  <div class="inner">
-                                      <h6 class="text-muted">Working experience</h6>
-                                      <h3>{{ number_format($workexpCount) }}</h3>
-                                  </div>
-                                  <div class="icon">
-                                      <i class="fas fa-tools"  style="color: #FF5722;  font-size: 30px !important;"></i>
-                                  </div>
-                              </div>
-                            </a>
-                          </div>
-
-                          <div class="col-lg-3 col-6">
-                            <!-- small box -->
-                            <a href="{{ route('readPending', 5) }}">
-                              <div class="small-box pl-1 pt-2 bg-white">
-                                  <div class="inner">
-                                      <h6 class="text-muted">Learning & Development</h6>
-                                      <h3>{{ number_format($learDevCount) }}</h3>
-                                  </div>
-                                  <div class="icon">
-                                      <i class="fas fa-book"  style="color: #7986CB;  font-size: 30px !important;"></i>
-                                  </div>
-                              </div>
-                            </a>
-                          </div>
-
-                          <div class="col-lg-3 col-6">
-                            <!-- small box -->
-                            <a href="{{ route('readPending', 4) }}">
-                              <div class="small-box pl-1 pt-2 bg-white">
-                                  <div class="inner">
-                                      <h6 class="text-muted">Voluntary works</h6>
-                                      <h3>{{ number_format($volWorkCount) }}</h3>
-                                  </div>
-                                  <div class="icon">
-                                      <i class="fas fa-hands-helping"  style="color: #388E3C;  font-size: 30px !important;"></i>
-                                  </div>
-                              </div>
-                            </a>
-                          </div>
-                      </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="card  p-0">
-                            <div class="card-body" style="background-color: #e9ecef;">
-                                <div id="external-events">
-  
-                                </div>
-                                <div id="calendar" class="bg-white"></div>
-                            </div>
-                        </div>
-                    </div>
-                  </div>
+@php
+    $adminUser = auth()->guard($guard)->user();
+    $adminProfilePath = public_path('Profile/Employee/' . $adminUser->profile);
+    $adminProfile = $adminUser->profile && file_exists($adminProfilePath) ? asset('Profile/Employee/' . $adminUser->profile) : asset('Profile/Employee/default.png');
+    $nowManila = now('Asia/Manila');
+    $greeting = $nowManila->hour < 12 ? 'Good morning' : ($nowManila->hour < 18 ? 'Good afternoon' : 'Good evening');
+    $greetingIcon = $nowManila->hour < 12 ? 'fas fa-sun' : ($nowManila->hour < 18 ? 'fas fa-cloud-sun' : 'fas fa-moon is-evening');
+    $pendingTotal = $leaveappCount + $eliCount + $workexpCount + $learDevCount + $volWorkCount;
+    $pendingItems = [
+        ['route' => route('readPending', 1), 'label' => 'Leave Applications', 'count' => $leaveappCount, 'icon' => 'fas fa-file-alt', 'tone' => 'tone-green'],
+        ['route' => route('readPending', 2), 'label' => 'Eligibility', 'count' => $eliCount, 'icon' => 'fas fa-award', 'tone' => 'tone-blue'],
+        ['route' => route('readPending', 3), 'label' => 'Work Experience', 'count' => $workexpCount, 'icon' => 'fas fa-tools', 'tone' => 'tone-purple'],
+        ['route' => route('readPending', 5), 'label' => 'Learning & Development', 'count' => $learDevCount, 'icon' => 'fas fa-book', 'tone' => 'tone-orange'],
+        ['route' => route('readPending', 4), 'label' => 'Voluntary Works', 'count' => $volWorkCount, 'icon' => 'fas fa-hands-helping', 'tone' => 'tone-teal'],
+    ];
+    $firstPending = collect($pendingItems)->firstWhere('count', '>', 0);
+    $pendingLink = $firstPending ? $firstPending['route'] : route('readPending', 1);
+    $statusRows = [
+        1 => ['label' => 'Regular', 'color' => 'var(--cpsu-green-600)'],
+        2 => ['label' => 'Full-time / Part-time', 'color' => 'var(--cpsu-gold-500)'],
+        3 => ['label' => 'Part-time / Part-time', 'color' => '#3fb37a'],
+        4 => ['label' => 'Job Order', 'color' => '#7a8b82'],
+    ];
+    $todayMd = $nowManila->format('F j');
+@endphp
+<div class="container-fluid dash">
+    <div class="dash-hero">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+            <div class="d-flex align-items-center mb-3 mb-md-0">
+                <img src="{{ $adminProfile }}" class="dash-avatar mr-3" alt="Profile Image">
+                <div>
+                    <div class="dash-eyebrow">{{ $nowManila->format('l, F j, Y') }}</div>
+                    <h3>{{ $greeting }}, {{ ucwords(strtolower($adminUser->fname)) }} <i class="{{ $greetingIcon }} dash-greet-icon" aria-hidden="true"></i></h3>
+                    <div class="dash-sub">{{ ucfirst($adminUser->role) }} &middot; CPSU Human Resource Information System</div>
                 </div>
-
-                <div class="col-lg-4 col-sm-6">
-                  {{-- <div class="row">
-                    <div class="col-12">
-                        <div class="row">
-                          <div class="col-12">
-                            <div class="card">
-                              <div class="card-header">
-                                <h3 class="card-title"><b>Male/Female</b></h3>
-                              </div>
-                              <!-- /.card-header -->
-                              <div class="card-body p-0">
-    
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                    </div> --}}
-                    <div class="col-12">
-                      <div class="card">
-                        <div class="card-header">
-                          <h3 class="card-title"><b>Employee Status</b></h3>
-                        </div>
-                        <!-- /.card-header -->
-                        <div class="card-body p-0">
-                          <table class="table table-sm">
-                            <tbody>
-                              <tr>
-                                  <td>Regular</td>
-                                  <td width="100">
-                                      <div class="progress progress-xs mt-2">
-                                          <div class="progress-bar bg-danger" style="width: {{ number_format($empStatusPercentages->get(1)['percentage'], 2) }}%"></div>
-                                      </div>
-                                  </td>
-                                  <td>
-                                      <span class="badge bg-danger">
-                                          {{ number_format($empStatusPercentages->get(1)['percentage'], 2) . '%' }} 
-                                      </span>  
-                                      <span class="badge badge-secondary float-right">{{ $empStatusPercentages->get(1)['count'] }}</span>
-                                  </td>
-                              </tr>
-                              <tr>
-                                  <td>Full-time / Part-time</td>
-                                  <td width="100">
-                                      <div class="progress progress-xs mt-2">
-                                          <div class="progress-bar bg-warning" style="width: {{ number_format($empStatusPercentages->get(2)['percentage'], 2) }}%"></div>
-                                      </div>
-                                  </td>
-                                  <td>
-                                      <span class="badge bg-warning">
-                                          {{ number_format($empStatusPercentages->get(2)['percentage'], 2) . '%' }}
-                                      </span>  
-                                      <span class="badge badge-secondary float-right">{{ $empStatusPercentages->get(2)['count'] }}</span>
-                                  </td>
-                              </tr>
-                              <tr>
-                                  <td>Part-time / Part-time</td>
-                                  <td width="100">
-                                      <div class="progress progress-xs mt-2 progress-striped active">
-                                          <div class="progress-bar bg-primary" style="width: {{ number_format($empStatusPercentages->get(3)['percentage'], 2) }}%"></div>
-                                      </div>
-                                  </td>
-                                  <td>
-                                      <span class="badge bg-primary">
-                                          {{ number_format($empStatusPercentages->get(3)['percentage'], 2) . '%' }}
-                                      </span>
-                                      <span class="badge badge-secondary float-right">{{ $empStatusPercentages->get(3)['count'] }}</span> 
-                                  </td>
-                              </tr>
-                              <tr>
-                                  <td>Job Order</td>
-                                  <td width="100"> 
-                                      <div class="progress progress-xs mt-2 progress-striped active">
-                                          <div class="progress-bar bg-success" style="width: {{ number_format($empStatusPercentages->get(4)['percentage'], 2) }}%"></div>
-                                      </div>
-                                  </td>
-                                  <td>
-                                      <span class="badge bg-success">
-                                          {{ number_format($empStatusPercentages->get(4)['percentage'], 2) . '%' }}  
-                                      </span>  
-                                      <span class="badge badge-secondary float-right">{{ $empStatusPercentages->get(4)['count'] }}</span>
-                                  </td>
-                              </tr>
-                          </tbody>
-                          
-                          </table>
-                        </div>
-                        <!-- /.card-body -->
-                      </div>
-                    </div>
-                    <div class="col-12">
-                      <div class="card">
-                        <div class="card-header">
-                          <h3 class="card-title"><b>Birthday</b></h3>
-                          <div class="card-tools">
-                            {{-- <input type="month" class="form-control form-control-sm" style="width: auto; display: inline-block;" id="monthInput"> --}}
-                          </div>
-                        </div>
-                        <div class="card-body p-0">
-                          <ul class="products-list product-list-in-card pl-2 pr-2">
-                            @foreach($upcomingBirthdays as $employee)
-                              <li class="item">
-                                <div class="product-img">
-                                    @php
-                                        $imageUrl = asset('Profile/Employee/' . $employee->profile);
-                                        $imagePath = public_path('Profile/Employee/' . $employee->profile);
-                                    @endphp
-                                    <img class="border-radius" src="{{ file_exists($imagePath) ? $imageUrl : asset('Profile/Employee/default.png') }}" alt="Product Image">
-                                </div>
-                                <div class="product-info">
-                                  <a href="#" class="product-title text-dark">{{ ucfirst(strtolower($employee->lname)) . ' ' . ucfirst(strtolower($employee->fname)) }}
-                                    @php
-                                        $birthday = Carbon\Carbon::parse($employee->bdate);
-                                    @endphp
-                                    
-                                    <span class="float-right" style="margin-top: -2px;">
-                                        @if ($employee->bdate->format('F j') == now('Asia/Manila')->format('F j'))
-                                            <i class="fas fa-birthday-cake" style="color: #e71515;"></i>
-                                        @endif
-                                    </span>
-                                  </a>
-                                  <span class="product-description">
-                                    {{ $employee->office_abbr }} <span class="float-right" style="margin-top: -2px;">{{ $employee->bdate->format('F j, Y') }}</span>
-                                  </span>
-                                </div>
-                              </li>
-                            @endforeach
-                          </ul>
-                        </div>
-                      </div>
-                    </div>                    
-                  </div>
-                </div>
-                
             </div>
-        </section>
+            <a href="{{ $pendingLink }}" class="dash-chip">
+                <span class="dash-chip-icon"><i class="fas fa-inbox"></i></span>
+                {{ number_format($pendingTotal) }} pending {{ $pendingTotal == 1 ? 'item' : 'items' }} to review
+                <i class="fas fa-chevron-right fa-xs"></i>
+            </a>
+        </div>
     </div>
+
+    <section class="content">
+        <div class="row">
+            <div class="col-lg-8 col-sm-12">
+                <div class="row">
+                    <div class="col-md-4 col-12">
+                        <div class="stat-card tone-green">
+                            <span class="stat-icon"><i class="fa-solid fa-user-tie"></i></span>
+                            <i class="fa-solid fa-users stat-watermark" aria-hidden="true"></i>
+                            <div>
+                                <div class="stat-label">Employees</div>
+                                <div class="stat-value">{{ number_format($totalEmployees) }}</div>
+                                <div class="stat-foot">Active workforce</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-6">
+                        <div class="stat-card tone-gold">
+                            <span class="stat-icon"><i class="fa-solid fa-users-viewfinder"></i></span>
+                            <i class="fa-solid fa-people-group stat-watermark" aria-hidden="true"></i>
+                            <div>
+                                <div class="stat-label">Present</div>
+                                <div class="stat-value">{{ number_format($dtrCount) }}</div>
+                                <div class="stat-foot">With DTR today</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-6">
+                        <div class="stat-card tone-rose">
+                            <span class="stat-icon"><i class="fas fa-user-clock"></i></span>
+                            <i class="fa-solid fa-user-xmark stat-watermark" aria-hidden="true"></i>
+                            <div>
+                                <div class="stat-label">Absent</div>
+                                <div class="stat-value">{{ number_format($totalEmployees - $dtrCount) }}</div>
+                                <div class="stat-foot">No DTR today</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <h5><i class="fas fa-clipboard-check" style="color: var(--cpsu-green-600);"></i>Pending Reviews</h5>
+                        <span class="dash-card-hint d-none d-sm-inline">Click a card to review submissions <i class="fas fa-arrow-right fa-xs ml-1" style="color: var(--cpsu-green-600);"></i></span>
+                    </div>
+                    <div class="dash-card-body">
+                        <div class="review-grid">
+                            @foreach($pendingItems as $item)
+                                <a href="{{ $item['route'] }}" class="review-tile {{ $item['tone'] }}">
+                                    <div class="review-top">
+                                        <i class="{{ $item['icon'] }}"></i>
+                                        <span class="review-count {{ $item['count'] == 0 ? 'is-zero' : '' }}">{{ number_format($item['count']) }}</span>
+                                    </div>
+                                    <div class="review-label">{{ $item['label'] }}</div>
+                                    <div class="review-cta">Review <i class="fas fa-arrow-right fa-xs ml-1"></i></div>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dash-card dash-calendar">
+                    <div class="dash-card-header">
+                        <h5><i class="fas fa-calendar-alt" style="color: var(--cpsu-green-600);"></i>Campus Events</h5>
+                    </div>
+                    <div class="dash-card-body">
+                        <div id="external-events"></div>
+                        <div id="calendar" class="bg-white"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-sm-12">
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <h5><i class="fas fa-chart-column" style="color: var(--cpsu-green-600);"></i>Employee Status</h5>
+                        <span class="dash-card-hint">{{ number_format($totalEmployees) }} total</span>
+                    </div>
+                    <div class="dash-card-body">
+                        @foreach($statusRows as $statusKey => $row)
+                            @php $stat = $empStatusPercentages->get($statusKey); @endphp
+                            <div class="status-row">
+                                <div class="status-meta">
+                                    <strong>{{ $row['label'] }}</strong>
+                                    <span>{{ number_format($stat['count']) }} &middot; {{ number_format($stat['percentage'], 2) }}%</span>
+                                </div>
+                                <div class="status-bar">
+                                    <div style="width: {{ number_format($stat['percentage'], 2) }}%; background: {{ $row['color'] }};"></div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <h5><i class="fas fa-gift" style="color: var(--cpsu-gold-500);"></i>Upcoming Birthdays</h5>
+                    </div>
+                    <ul class="bday-list">
+                        @forelse($upcomingBirthdays as $employee)
+                            @php
+                                $imageUrl = asset('Profile/Employee/' . $employee->profile);
+                                $imagePath = public_path('Profile/Employee/' . $employee->profile);
+                                $isToday = $employee->bdate->format('F j') == $todayMd;
+                            @endphp
+                            <li class="{{ $isToday ? 'is-today' : '' }}">
+                                <img src="{{ file_exists($imagePath) ? $imageUrl : asset('Profile/Employee/default.png') }}" alt="Profile Image">
+                                <div style="min-width: 0;">
+                                    <div class="bday-name">{{ ucfirst(strtolower($employee->lname)) . ' ' . ucfirst(strtolower($employee->fname)) }}</div>
+                                    <div class="bday-office">{{ $employee->office_abbr }}</div>
+                                </div>
+                                <div class="bday-date">
+                                    @if($isToday)
+                                        <span class="badge">Today <i class="fas fa-birthday-cake"></i></span>
+                                    @else
+                                        {{ $employee->bdate->format('F j') }}
+                                    @endif
+                                </div>
+                            </li>
+                        @empty
+                            <li class="text-muted">No upcoming birthdays.</li>
+                        @endforelse
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
 @endif
 <script>

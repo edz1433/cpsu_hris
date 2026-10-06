@@ -1,8 +1,18 @@
-<nav style="margin-right: -30px; !important">
+<nav class="mt-2">
     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+        @php
+            $navUser = auth()->guard($guard)->user();
+            $canAccessCareers = $guard == "web" && (
+                $navUser->role == "Administrator"
+                || ($navUser->role == "HR Administrator" && in_array($navUser->username, ["hrpds1@cpsu.edu.ph", "hradmin2@cpsu.edu.ph"]))
+            );
+            $canAccessContracts = $guard == "web" && in_array($navUser->role, ["Administrator", "HR Administrator"], true);
+        @endphp
+
+        <li class="nav-header">Main Menu</li>
         <li class="nav-item">
             <a href="{{ route('dashboard') }}" class="nav-link text-success1 {{ request()->is('dashboard') || request()->is('myaccount') || request()->is('pending/*') ? 'active' : '' }}">
-                <i class="pt-1 nav-icon fas fa-tachometer-alt"></i>
+                <i class="pt-1 nav-icon fas fa-house"></i>
                 <p>Dashboard</p>
             </a>
         </li>
@@ -28,7 +38,7 @@
             <li class="nav-item">
                 <a href="#" class="nav-link text-success1 {{ request()->is('payslip') ? 'active' : '' }}">
                     <i class="pt-1 nav-icon fas fa-file-invoice"></i>
-                    <p>PAYSLIP</p>
+                    <p>Payslip</p>
                 </a>
             </li>
         @endif
@@ -46,7 +56,7 @@
             <li class="nav-item">
                 <a href="{{ route('leavesRead', 1) }}" class="nav-link text-success1 {{ request()->is('leave') || request()->is('leave/*') || request()->is('leaves*') ? 'active' : '' }}">
                     <i class="pt-1 nav-icon fas fa-calendar-check"></i>
-                    <p>LEAVE</p>
+                    <p>Leave</p>
                 </a>
             </li>
         @else
@@ -54,7 +64,7 @@
                 <li class="nav-item">
                     <a href="{{ route('leavesReadEmp') }}" class="nav-link text-success1 {{ request()->is('leave') || request()->is('leave/*') ? 'active' : '' }}">
                         <i class="pt-1 nav-icon fas fa-calendar-check"></i>
-                        <p>LEAVE</p>
+                        <p>Leave</p>
                     </a>
                 </li>
             @endif
@@ -81,21 +91,13 @@
             </a>
         </li>
 
-        @php
-            $navUser = auth()->guard($guard)->user();
-            $canAccessCareers = $guard == "web" && (
-                $navUser->role == "Administrator"
-                || ($navUser->role == "HR Administrator" && in_array($navUser->username, ["hrpds1@cpsu.edu.ph", "hradmin2@cpsu.edu.ph"]))
-            );
-        @endphp
-
         @if($canAccessCareers)
         <li class="nav-item has-treeview {{ request()->is('career*') || request()->is('applications*') || request()->is('ete*') || request()->is('interview*') ? 'menu-open' : '' }}">
             <a href="#" class="nav-link text-success1 {{ request()->is('career*') || request()->is('applications*') || request()->is('ete*') || request()->is('interview*') ? 'active' : '' }}">
                 <i class="pt-1 nav-icon fas fa-briefcase"></i>
                 <p>
                     Careers
-                    <i class="right fas fa-angle-left"></i>
+                    <i class="right fas fa-chevron-right"></i>
                 </p>
             </a>
             <ul class="nav nav-treeview">
@@ -127,12 +129,21 @@
         </li>
         @endif
 
-        @if(auth()->guard($guard)->user()->role == "Administrator")
+        @if($canAccessContracts)
+            <li class="nav-item">
+                <a href="{{ route('contracts.index') }}" class="nav-link text-success1 {{ request()->is('contracts*') ? 'active' : '' }}">
+                    <i class="pt-1 nav-icon fas fa-file-signature"></i>
+                    <p>Contracts</p>
+                </a>
+            </li>
+        @endif
 
+        @if(auth()->guard($guard)->user()->role == "Administrator")
+            <li class="nav-header">System</li>
             <li class="nav-item">
                 <a href="{{ route('ulist') }}" class="nav-link text-success1 {{ request()->is('user*') ? 'active' : '' }}">
                     <i class="pt-1 nav-icon fas fa-user-cog"></i>
-                    <p>Users</p>
+                    <p>User Management</p>
                 </a>
             </li>
             

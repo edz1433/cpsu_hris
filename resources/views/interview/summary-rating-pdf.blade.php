@@ -345,7 +345,17 @@
 
         <div class="approved">APPROVED:</div>
         <div class="approved-sign">
-            <div class="sign-name">ALADINO C. MORACA, Ph. D.</div>
+            <div class="sign-name">
+                @if($president)
+                    {{
+                        strtoupper($president->fname) . ' ' .
+                        (!empty($president->mname) ? strtoupper(substr($president->mname, 0, 1)) . '. ' : '') .
+                        strtoupper($president->lname) .
+                        (!empty($president->suffix) ? ' ' . $president->suffix : '') .
+                        (!empty($president->prefix) ? ', ' . $president->prefix : '')
+                    }}
+                @endif
+            </div>
             <div class="sign-role">SUC President</div>
         </div>
     </div>

@@ -28,6 +28,8 @@
     <link rel="stylesheet" href="{{ asset('template/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
     <!-- Custom style -->
     <link rel="stylesheet" href="{{ asset('template/dist/css/style.css') }}">
+    <!-- CPSU theme layer -->
+    <link rel="stylesheet" href="{{ asset('template/dist/css/theme.css') }}">
     <!-- QR -->
     <script src="{{ asset('template/dist/js/html2canvas.min.js') }}"></script>
     <script src="{{ asset('template/dist/js/qrcode.min.js') }}"></script>
@@ -71,16 +73,10 @@
     }
     </style>
 </head>
-<body class="hold-transition sidebar-mini layout-fixed sidebar-collapse layout-navbar-fixed text-sm">
+<body class="hold-transition sidebar-mini layout-fixed sidebar-collapse layout-navbar-fixed text-sm sb-layout">
     <div class="wrapper">
         <!-- Navbar -->
         <nav class="main-header navbar navbar-expand navbar-warning">
-            <!-- Left navbar links -->
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars text-success1"></i></a>
-                </li>
-            </ul>
             
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
@@ -126,32 +122,53 @@
         <!-- /.navbar -->
 
         <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-dim-green elevation-2">
-            <!-- Brand Logo -->
-            <a href="#" class="brand-link">
-                <img src="{{ asset('template/img/CPSU_L.png') }}" alt="AdminLTE Logo" class="brand-image img-circle">
-                <span class="brand-text font-weight-bold text-success1">CPSU HRIS</span>
-            </a>        
+        <aside class="main-sidebar sidebar-dim-green sb" id="mainSidebar">
+            <div class="sb-bg" aria-hidden="true"></div>
 
-            <!-- Sidebar -->
+            <!-- Edge handle: collapse / expand -->
+            <button type="button" class="sb-collapse" data-widget="pushmenu" title="Toggle sidebar" aria-label="Toggle sidebar" aria-controls="mainSidebar" aria-expanded="false">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <!-- Sidebar header -->
+            <div class="sb-header">
+                <a href="{{ route('dashboard') }}" class="brand-link sb-brand">
+                    <img src="{{ asset('template/img/CPSU_L.png') }}" alt="CPSU Logo" class="brand-image">
+                    <span class="brand-text sb-brand-text">
+                        <span class="sb-brand-title">CPSU HRIS</span>
+                        <span class="sb-brand-sub">HR Information System</span>
+                    </span>
+                </a>
+            </div>
+
+            <!-- Menu search -->
+            <div class="sb-search">
+                <i class="fas fa-magnifying-glass sb-search-icon" aria-hidden="true"></i>
+                <input type="search" id="sbSearch" class="sb-search-input" placeholder="Search menu..." autocomplete="off" aria-label="Search menu">
+                <kbd class="sb-kbd">Ctrl K</kbd>
+            </div>
+
+            <!-- Sidebar content (scrolls) -->
             <div class="sidebar">
-                <hr class="sidebar-divider">
-                <!-- Sidebar user panel (optional) -->
-                <div class="user-panel mt-4 d-flex">
-                    <div class="image">
-                        @php
-                            $profileUrl = asset('Profile/Employee/' . auth()->guard($guard)->user()->profile);
-                            $profilePath = public_path('Profile/Employee/' . auth()->guard($guard)->user()->profile);
-                        @endphp
-                        <img src="{{ file_exists($profilePath) && auth()->guard($guard)->check() && auth()->guard($guard)->user()->profile ? $profileUrl : asset('Profile/Employee/default.png') }}" 
-                             class="img-circle1 elevation-2" 
-                             alt="User Image">
-                    </div>                    
-                    <div class="info ml-2" style="margin-top: -7px;">
-                        <span class="d-block">
+                @include('partials.control')
+                <p class="sb-search-empty" id="sbSearchEmpty">No menu items found</p>
+            </div>
+
+            <!-- Sidebar footer (pinned) -->
+            <div class="sb-footer">
+                <div class="sb-user">
+                    @php
+                        $profileUrl = asset('Profile/Employee/' . auth()->guard($guard)->user()->profile);
+                        $profilePath = public_path('Profile/Employee/' . auth()->guard($guard)->user()->profile);
+                    @endphp
+                    <img src="{{ file_exists($profilePath) && auth()->guard($guard)->check() && auth()->guard($guard)->user()->profile ? $profileUrl : asset('Profile/Employee/default.png') }}"
+                         class="sb-avatar"
+                         alt="User Image">
+                    <div class="sb-user-info">
+                        <span class="sb-user-name">
                             {{ ucwords(strtolower(auth()->guard($guard)->user()->fname)) }} {{ ucwords(strtolower(auth()->guard($guard)->user()->lname)) }}
                         </span>
-                        <span class="d-block text-sm text-muted">
+                        <span class="sb-user-role">
                             @if($guard == "employee")
                                 {{ auth()->guard($guard)->user()->emp_status == 1 ? auth()->guard($guard)->user()->position : 'Employee' }}
                             @else
@@ -159,13 +176,14 @@
                             @endif
                         </span>
                     </div>
-                </div>                
-                <hr>
-                <!-- Sidebar Menu -->
-                @include('partials.control')
-                <!-- /.sidebar-menu -->
+                    <form action="{{ route('logout') }}" method="POST" class="sb-logout-form">
+                        @csrf
+                        <button type="submit" class="sb-logout" title="Sign out" aria-label="Sign out">
+                            <i class="fas fa-arrow-right-from-bracket"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
-            <!-- /.sidebar -->
         </aside>
 
         <!-- Content Wrapper. Contains page content -->
@@ -235,20 +253,16 @@
         </div>
 
         <!-- Main Footer -->
-        <footer class="main-footer" style="padding: 15px 20px; background-color: #f8f9fa; border-top: 1px solid #dee2e6; font-size: 14px; color: #495057;">
-            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;">
+        <footer class="main-footer cpsu-footer">
+            <div class="d-flex flex-wrap justify-content-between align-items-center">
                 <div>
-                    <strong>All rights reserved.</strong>
-                    &nbsp;|&nbsp;
-                    <a href="#" data-toggle="modal" data-target="#dataPrivacyModal" style="text-decoration: none; color: #007bff;">
-                        Data Privacy Policy
-                    </a>
+                    &copy; {{ now()->year }} Central Philippines State University. All rights reserved.
+                    &nbsp;&middot;&nbsp;
+                    <a href="#" data-toggle="modal" data-target="#dataPrivacyModal">Data Privacy Policy</a>
                 </div>
-                <div class="d-none d-sm-inline" style="margin-top: 5px;">
-                    Maintained and Managed by 
-                    <a href="https://www.facebook.com/cpsumiso.main" target="_blank" style="text-decoration: none; color: #007bff;">
-                        MIS
-                    </a>.
+                <div class="d-none d-sm-inline">
+                    Maintained and managed by
+                    <a href="https://www.facebook.com/cpsumiso.main" target="_blank" rel="noopener">MIS</a>
                 </div>
             </div>
         </footer>
@@ -380,5 +394,147 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 @endif
+<script>
+// Sidebar: menu search (Ctrl/Cmd + K), and keep the mini sidebar expanded while anything in it has focus.
+(function () {
+    var sidebar = document.querySelector('.main-sidebar.sb');
+    var input = document.getElementById('sbSearch');
+    if (!sidebar || !input) {
+        return;
+    }
+    var menu = sidebar.querySelector('.nav-sidebar');
+    var empty = document.getElementById('sbSearchEmpty');
+
+    function matches(el, term) {
+        return el.textContent.toLowerCase().indexOf(term) !== -1;
+    }
+
+    function filterMenu() {
+        var term = input.value.trim().toLowerCase();
+        var anyVisible = false;
+        var header = null;
+        var headerHasItems = false;
+
+        Array.prototype.forEach.call(menu.children, function (li) {
+            if (li.classList.contains('nav-header')) {
+                if (header) {
+                    header.classList.toggle('sb-hidden', !headerHasItems);
+                }
+                header = li;
+                headerHasItems = false;
+                return;
+            }
+
+            var match = term === '' || matches(li, term);
+            li.classList.toggle('sb-hidden', !match);
+
+            if (li.classList.contains('has-treeview')) {
+                var parentMatch = term === '' || matches(li.querySelector('.nav-link'), term);
+                li.classList.toggle('sb-search-open', match && term !== '');
+                Array.prototype.forEach.call(li.querySelectorAll('.nav-treeview > .nav-item'), function (sub) {
+                    sub.classList.toggle('sb-hidden', !(parentMatch || matches(sub, term)));
+                });
+            }
+
+            if (match) {
+                anyVisible = true;
+                headerHasItems = true;
+            }
+        });
+
+        if (header) {
+            header.classList.toggle('sb-hidden', !headerHasItems);
+        }
+        empty.classList.toggle('is-visible', !anyVisible);
+    }
+
+    function firstResult() {
+        var links = menu.querySelectorAll('.nav-item:not(.sb-hidden) > .nav-link');
+        for (var i = 0; i < links.length; i++) {
+            var href = links[i].getAttribute('href');
+            if (href && href !== '#' && links[i].offsetParent !== null) {
+                return links[i];
+            }
+        }
+        return null;
+    }
+
+    input.addEventListener('input', filterMenu);
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            input.value = '';
+            filterMenu();
+            input.blur();
+        } else if (e.key === 'Enter') {
+            var link = firstResult();
+            if (link) {
+                window.location.href = link.href;
+            }
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+            e.preventDefault();
+            openOnSmallScreen();
+            input.focus();
+            input.select();
+        }
+    });
+
+    // Collapse button: AdminLTE toggles the body class; we stop hover/focus from
+    // immediately re-expanding the rail while the pointer is still over it.
+    var collapseBtn = sidebar.querySelector('.sb-collapse');
+    if (collapseBtn) {
+        collapseBtn.addEventListener('click', function () {
+            var willCollapse = !document.body.classList.contains('sidebar-collapse');
+            collapseBtn.blur();
+            sidebar.classList.remove('sidebar-focused');
+            if (willCollapse && window.innerWidth >= 992) {
+                sidebar.classList.add('sidebar-no-expand');
+            }
+        });
+    }
+    // Phones/tablets have no hover: tapping the search icon in the rail opens the drawer.
+    function openOnSmallScreen() {
+        if (window.innerWidth < 992 && document.body.classList.contains('sidebar-collapse') && collapseBtn) {
+            collapseBtn.click();
+        }
+    }
+    sidebar.querySelector('.sb-search').addEventListener('click', function () {
+        openOnSmallScreen();
+        input.focus();
+    });
+
+    // Keep aria-expanded in sync with AdminLTE's body classes
+    function syncExpanded() {
+        if (collapseBtn) {
+            collapseBtn.setAttribute('aria-expanded', document.body.classList.contains('sidebar-collapse') ? 'false' : 'true');
+        }
+    }
+    new MutationObserver(syncExpanded).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    syncExpanded();
+
+    sidebar.addEventListener('mouseleave', function () {
+        sidebar.classList.remove('sidebar-no-expand');
+    });
+
+    sidebar.addEventListener('focusin', function (e) {
+        if (e.target === collapseBtn) {
+            return;
+        }
+        sidebar.classList.add('sidebar-focused');
+    });
+    sidebar.addEventListener('focusout', function (e) {
+        if (!sidebar.contains(e.relatedTarget)) {
+            sidebar.classList.remove('sidebar-focused');
+        }
+    });
+
+    if (/Mac|iPhone|iPad/.test(navigator.platform)) {
+        sidebar.querySelector('.sb-kbd').textContent = '⌘ K';
+    }
+})();
+</script>
 </body>
 </html>
