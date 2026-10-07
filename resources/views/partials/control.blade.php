@@ -104,7 +104,7 @@
         </li>
         @endif
 
-        @if($canOpen('events'))
+        @if($isWebUser && $canOpen('events'))
         <li class="nav-item">
             <a href="{{ route('eventIndex') }}" class="nav-link text-success1 {{ request()->is('event*') ? 'active' : '' }}">
                 <i class="pt-1 nav-icon fas fa-calendar"></i>

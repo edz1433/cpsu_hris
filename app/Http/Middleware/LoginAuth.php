@@ -31,6 +31,12 @@ class LoginAuth
             || $request->is('pds/references/*') || $request->is('pds/government-id/*')) {
                 return redirect()->route('dashboard')->with('error1', 'You do not have permission to access this page');
             }
+            // Events are managed from the admin side only. The dashboard calendar
+            // still needs the read-only feed, so that one URL stays open.
+            if (($request->is('event') || $request->is('event/*') || $request->is('events') || $request->is('events/*'))
+                && !$request->is('event/event-json')) {
+                return redirect()->route('dashboard')->with('error1', 'You do not have permission to access this page');
+            }
             if ($request->is('leave') && auth()->guard('employee')->user()->emp_status != 1) {
                 return redirect()->route('dashboard')->with('error1', 'You do not have permission to access this page');
             }    
