@@ -1,89 +1,113 @@
 @extends('layouts.master')
 
 @section('body')
-<div class="container-fluid">
-  <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+@php
+  // Preset label => colour class saved with the event (same classes as the swatches).
+  $presets = [
+    'Academic Council' => 'bg-primary',
+    'Admin Council' => 'bg-info',
+    'Convocation' => 'bg-warning',
+    'Trainings & Seminar' => 'bg-success',
+    'Orientation' => 'bg-danger',
+    'Meeting' => 'bg-secondary',
+  ];
+  $swatches = [
+    'bg-primary' => ['text-primary', 'Blue'],
+    'bg-info' => ['text-info', 'Teal'],
+    'bg-warning' => ['text-warning', 'Yellow'],
+    'bg-success' => ['text-success', 'Green'],
+    'bg-danger' => ['text-danger', 'Red'],
+    'bg-secondary' => ['text-secondary', 'Gray'],
+  ];
+@endphp
+<div class="container-fluid dash">
+  <div class="dtr-head">
     <div>
-      <h4 class="font-weight-bold mb-0"><i class="fas fa-calendar-alt mr-1"></i> Events Calendar</h4>
-      <small class="text-muted"><i class="fas fa-hand-pointer mr-1"></i> Click or drag on the calendar to add an event &bull; click an event to edit &bull; drag to reschedule</small>
+      <h1>Events</h1>
+      <p>University events shown on every employee's dashboard calendar.</p>
     </div>
-    <a href="{{ route('showReport') }}" class="btn btn-secondary"><i class="fas fa-file-pdf mr-1"></i> Reports</a>
+    @include('events.submenu')
   </div>
 
-  <div class="card card-primary">
-    <div class="card-body p-0">
-      <div id="external-events">
-            <div class="px-3 pt-2 text-muted small"><i class="fas fa-grip-vertical mr-1"></i> Drag a preset onto a date to create an event:</div>
-            <div class="row m-2">
-              <div class="col-md-2 col-4">
-                <div class="external-event bg-muted"><i class="fas fa-square mr-2 text-primary"></i> Academic Council</div>
+  <div class="row">
+    <div class="col-xl-3 col-lg-4">
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <h5><i class="fas fa-bolt" style="color: var(--cpsu-green-600);"></i>Quick add</h5>
+        </div>
+        <div class="dash-card-body">
+          <p class="ev-hint">Drag a preset onto a date. The event form opens with the title and colour filled in.</p>
+          <div id="external-events" class="ev-presets">
+            @foreach($presets as $label => $color)
+              <div class="external-event ev-preset ev-tone-{{ substr($color, 3) }}" data-color="{{ $color }}" title="Drag onto the calendar">
+                <span class="ev-dot" aria-hidden="true"></span>{{ $label }}
               </div>
-              <div class="col-md-2 col-4">
-                <div class="external-event bg-muted"><i class="fas fa-square mr-2 text-info"></i> Admin Council</div>
-              </div>
-              <div class="col-md-2 col-4">
-                <div class="external-event bg-muted"><i class="fas fa-square mr-2 text-warning"></i> Convocation</div>
-              </div>
-              <div class="col-md-2 col-4">
-                <div class="external-event bg-muted"><i class="fas fa-square mr-2 text-success"></i> Trainings &amp; Seminar</div>
-              </div>
-              <div class="col-md-2 col-4">
-                <div class="external-event bg-muted"><i class="fas fa-square mr-2 text-danger"></i> Orientation</div>
-              </div>
-              <div class="col-md-2 col-4">
-                <div class="external-event bg-muted"><i class="fas fa-square mr-2 text-secondary"></i> Meeting</div>
-              </div>
-            </div>
-            <hr class="mt-1 mb-0">
+            @endforeach
           </div>
-      <div id="calendar" class="p-2"></div>
+        </div>
+        <div class="ev-howto">
+          <h6>On the calendar</h6>
+          <ul>
+            <li><i class="fas fa-mouse-pointer"></i><span><b>Click a day</b> to add an event on it</span></li>
+            <li><i class="fas fa-arrows-alt-h"></i><span><b>Drag across days</b> for a multi-day event</span></li>
+            <li><i class="fas fa-pen"></i><span><b>Click an event</b> to edit or delete it</span></li>
+            <li><i class="fas fa-arrows-alt"></i><span><b>Drag an event</b> to move it to another date</span></li>
+          </ul>
+        </div>
+      </div>
     </div>
-    <!-- /.card-body -->
+
+    <div class="col-xl-9 col-lg-8">
+      <div class="dash-card dash-calendar">
+        <div class="dash-card-body">
+          <div id="calendar" class="bg-white"></div>
+        </div>
+      </div>
+    </div>
   </div>
-  <!-- /.card -->
-</div><!-- /.container-fluid -->
+</div>
 
 <!-- Create Event Modal (opened by clicking / dragging the calendar) -->
-<div class="modal fade" id="createEventModal" tabindex="-1" role="dialog" aria-labelledby="createEventModalLabel" aria-hidden="true">
+<div class="modal fade ev-modal" id="createEventModal" tabindex="-1" role="dialog" aria-labelledby="createEventModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
-    <form class="modal-content" method="POST" action="{{ route('eventCreate') }}">
+    <form class="modal-content dtr-form" method="POST" action="{{ route('eventCreate') }}">
       @csrf
       <input type="hidden" name="user_id" value="{{ Auth::user()->id }}">
       <input type="hidden" name="bg_color" id="create_bg_color" value="bg-primary">
 
-      <div class="modal-header bg-success text-white">
-        <h5 class="modal-title" id="createEventModalLabel"><i class="fas fa-plus mr-1"></i> New Event</h5>
-        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createEventModalLabel"><i class="fas fa-calendar-plus"></i> New event</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
 
       <div class="modal-body">
-        <div class="form-group">
-          <label>Event Title</label>
-          <input type="text" class="form-control form-control-sm" name="title" id="create_title" required>
+        <div class="dtr-field">
+          <label class="dtr-label" for="create_title">Event title</label>
+          <input type="text" class="form-control" name="title" id="create_title" required>
         </div>
-        <div class="form-group">
-          <label>Venue</label>
-          <input type="text" class="form-control form-control-sm" name="venue" required>
+        <div class="dtr-field">
+          <label class="dtr-label" for="create_venue">Venue</label>
+          <input type="text" class="form-control" name="venue" id="create_venue" required>
         </div>
-        <div class="form-group">
-          <label>Organizing Department/s</label>
-          <input type="text" class="form-control form-control-sm" name="org_dept" required>
+        <div class="dtr-field">
+          <label class="dtr-label" for="create_org_dept">Organizing department/s</label>
+          <input type="text" class="form-control" name="org_dept" id="create_org_dept" required>
         </div>
         <div class="form-row">
-          <div class="form-group col-6">
-            <label>Campus</label>
-            <select class="form-control form-control-sm" name="campus_id" required>
+          <div class="col-6 dtr-field">
+            <label class="dtr-label" for="create_campus">Campus</label>
+            <select class="form-control" name="campus_id" id="create_campus" required>
               <option value="0">All</option>
               @foreach ($campus as $cp)
                 <option value="{{ $cp->id }}">{{ $cp->campus_name }}</option>
               @endforeach
             </select>
           </div>
-          <div class="form-group col-6">
-            <label>Employee Status</label>
-            <select class="form-control form-control-sm" name="emp_status" required>
+          <div class="col-6 dtr-field">
+            <label class="dtr-label" for="create_emp_status">Employee status</label>
+            <select class="form-control" name="emp_status" id="create_emp_status" required>
               <option value="0">All</option>
               @foreach ($status as $st)
                 <option value="{{ $st->id }}">{{ $st->status_name }}</option>
@@ -92,106 +116,93 @@
           </div>
         </div>
         <div class="form-row">
-          <div class="form-group col-6">
-            <label>Start Time</label>
-            <input type="datetime-local" class="form-control form-control-sm" name="start" id="create_start" required>
+          <div class="col-6 dtr-field">
+            <label class="dtr-label" for="create_start">Starts</label>
+            <input type="datetime-local" class="form-control" name="start" id="create_start" required>
           </div>
-          <div class="form-group col-6">
-            <label>End Time</label>
-            <input type="datetime-local" class="form-control form-control-sm" name="end" id="create_end">
+          <div class="col-6 dtr-field">
+            <label class="dtr-label" for="create_end">Ends <span class="font-weight-normal">(optional)</span></label>
+            <input type="datetime-local" class="form-control" name="end" id="create_end">
           </div>
         </div>
-        <div class="form-group mb-0">
-          <label class="d-block">Color</label>
-          <ul class="fc-color-picker mb-0 color-picker" id="createEventColor" data-target="create_bg_color">
-            <li><a href="#" class="text-primary color-swatch selected" data-color="bg-primary"><i class="fas fa-square"></i></a></li>
-            <li><a href="#" class="text-info color-swatch" data-color="bg-info"><i class="fas fa-square"></i></a></li>
-            <li><a href="#" class="text-warning color-swatch" data-color="bg-warning"><i class="fas fa-square"></i></a></li>
-            <li><a href="#" class="text-success color-swatch" data-color="bg-success"><i class="fas fa-square"></i></a></li>
-            <li><a href="#" class="text-danger color-swatch" data-color="bg-danger"><i class="fas fa-square"></i></a></li>
-            <li><a href="#" class="text-secondary color-swatch" data-color="bg-secondary"><i class="fas fa-square"></i></a></li>
+        <div>
+          <span class="dtr-label">Colour on the calendar</span>
+          <ul class="color-picker" id="createEventColor" data-target="create_bg_color">
+            @foreach($swatches as $color => [$textClass, $name])
+              <li><a href="#" class="{{ $textClass }} color-swatch {{ $color === 'bg-primary' ? 'selected' : '' }}" data-color="{{ $color }}" title="{{ $name }}" aria-label="{{ $name }}"></a></li>
+            @endforeach
           </ul>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-light border btn-sm" data-dismiss="modal">Cancel</button>
-        <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-save"></i> Save Event</button>
+        <button type="button" class="lv-btn" data-dismiss="modal">Cancel</button>
+        <button type="submit" class="dtr-generate"><i class="fas fa-save mr-1"></i> Save event</button>
       </div>
     </form>
   </div>
 </div>
 
 <!-- Edit / Delete Event Modal -->
-<div class="modal fade" id="editEventModal" tabindex="-1" role="dialog" aria-labelledby="editEventModalLabel" aria-hidden="true">
+<div class="modal fade ev-modal" id="editEventModal" tabindex="-1" role="dialog" aria-labelledby="editEventModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
-    <form class="modal-content" method="POST" action="{{ route('eventUpdateSave') }}">
+    <form class="modal-content dtr-form" method="POST" action="{{ route('eventUpdateSave') }}">
       @csrf
       <input type="hidden" name="id" id="edit_event_id">
       <input type="hidden" name="bg_color" id="edit_bg_color" value="bg-primary">
 
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title" id="editEventModalLabel"><i class="fas fa-edit mr-1"></i> Manage Event</h5>
-        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editEventModalLabel"><i class="fas fa-calendar-check"></i> Edit event</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
 
       <div class="modal-body">
-        <div class="form-group">
-          <label>Event Title</label>
-          <input type="text" class="form-control form-control-sm" name="title" id="edit_title" required>
+        <div class="dtr-field">
+          <label class="dtr-label" for="edit_title">Event title</label>
+          <input type="text" class="form-control" name="title" id="edit_title" required>
         </div>
-        <div class="form-group">
-          <label>Venue</label>
-          <input type="text" class="form-control form-control-sm" name="venue" id="edit_venue" required>
+        <div class="dtr-field">
+          <label class="dtr-label" for="edit_venue">Venue</label>
+          <input type="text" class="form-control" name="venue" id="edit_venue" required>
         </div>
-        <div class="form-group">
-          <label>Organizing Department/s</label>
-          <input type="text" class="form-control form-control-sm" name="org_dept" id="edit_org_dept" required>
+        <div class="dtr-field">
+          <label class="dtr-label" for="edit_org_dept">Organizing department/s</label>
+          <input type="text" class="form-control" name="org_dept" id="edit_org_dept" required>
         </div>
         <div class="form-row">
-          <div class="form-group col-6">
-            <label>Start Time</label>
-            <input type="datetime-local" class="form-control form-control-sm" name="start" id="edit_start" required>
+          <div class="col-6 dtr-field">
+            <label class="dtr-label" for="edit_start">Starts</label>
+            <input type="datetime-local" class="form-control" name="start" id="edit_start" required>
           </div>
-          <div class="form-group col-6">
-            <label>End Time</label>
-            <input type="datetime-local" class="form-control form-control-sm" name="end" id="edit_end">
+          <div class="col-6 dtr-field">
+            <label class="dtr-label" for="edit_end">Ends <span class="font-weight-normal">(optional)</span></label>
+            <input type="datetime-local" class="form-control" name="end" id="edit_end">
           </div>
         </div>
-        <div class="form-group mb-0">
-          <label class="d-block">Color</label>
-          <ul class="fc-color-picker mb-0 color-picker" id="editEventColor" data-target="edit_bg_color">
-            <li><a href="#" class="text-primary color-swatch" data-color="bg-primary"><i class="fas fa-square"></i></a></li>
-            <li><a href="#" class="text-info color-swatch" data-color="bg-info"><i class="fas fa-square"></i></a></li>
-            <li><a href="#" class="text-warning color-swatch" data-color="bg-warning"><i class="fas fa-square"></i></a></li>
-            <li><a href="#" class="text-success color-swatch" data-color="bg-success"><i class="fas fa-square"></i></a></li>
-            <li><a href="#" class="text-danger color-swatch" data-color="bg-danger"><i class="fas fa-square"></i></a></li>
-            <li><a href="#" class="text-secondary color-swatch" data-color="bg-secondary"><i class="fas fa-square"></i></a></li>
+        <div>
+          <span class="dtr-label">Colour on the calendar</span>
+          <ul class="color-picker" id="editEventColor" data-target="edit_bg_color">
+            @foreach($swatches as $color => [$textClass, $name])
+              <li><a href="#" class="{{ $textClass }} color-swatch" data-color="{{ $color }}" title="{{ $name }}" aria-label="{{ $name }}"></a></li>
+            @endforeach
           </ul>
         </div>
       </div>
 
       <div class="modal-footer justify-content-between">
-        <button type="button" class="btn btn-outline-danger btn-sm" id="deleteEventBtn" data-id="">
+        <button type="button" class="lv-btn is-danger" id="deleteEventBtn" data-id="">
           <i class="fas fa-trash"></i> Delete
         </button>
-        <div>
-          <button type="button" class="btn btn-light border btn-sm" data-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-save"></i> Save Changes</button>
+        <div class="d-flex" style="gap: 8px;">
+          <button type="button" class="lv-btn" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="dtr-generate"><i class="fas fa-save mr-1"></i> Save changes</button>
         </div>
       </div>
     </form>
   </div>
 </div>
-
-<style>
-  .color-picker { display:flex; gap:6px; list-style:none; padding:0; }
-  .color-picker .color-swatch { font-size:1.4rem; line-height:1; display:inline-block; opacity:.55; transition:.12s ease; }
-  .color-picker .color-swatch:hover { opacity:.85; transform:translateY(-1px); }
-  .color-picker .color-swatch.selected { opacity:1; transform:scale(1.15); }
-</style>
 
 <script>
   (function () {
@@ -199,18 +210,37 @@
     var csrf = document.querySelector('meta[name="csrf-token"]');
     csrf = csrf ? csrf.getAttribute('content') : '';
 
+    function selectSwatch(picker, color) {
+      var target = document.getElementById(picker.getAttribute('data-target'));
+      var swatch = picker.querySelector('.color-swatch[data-color="' + color + '"]');
+      if (!target || !swatch) return;
+      target.value = color;
+      picker.querySelectorAll('.color-swatch').forEach(function (s) { s.classList.remove('selected'); });
+      swatch.classList.add('selected');
+    }
+
     document.addEventListener('click', function (e) {
       var swatch = e.target.closest('.color-picker .color-swatch');
       if (swatch) {
         e.preventDefault();
-        var picker = swatch.closest('.color-picker');
-        var targetId = picker && picker.getAttribute('data-target');
-        if (targetId && document.getElementById(targetId)) {
-          document.getElementById(targetId).value = swatch.getAttribute('data-color');
-        }
-        picker.querySelectorAll('.color-swatch').forEach(function (s) { s.classList.remove('selected'); });
-        swatch.classList.add('selected');
+        selectSwatch(swatch.closest('.color-picker'), swatch.getAttribute('data-color'));
       }
+    });
+
+    // A dragged-in preset brings its colour; a click on the calendar starts from blue.
+    // The calendar script sets window._pendingDropEvent before opening this modal.
+    window.addEventListener('load', function () {
+      if (!window.jQuery) return;
+      jQuery('#createEventModal').on('show.bs.modal', function () {
+        var color = 'bg-primary';
+        var dropped = window._pendingDropEvent;
+        if (dropped) {
+          document.querySelectorAll('#external-events .external-event').forEach(function (el) {
+            if (el.innerText.trim() === (dropped.title || '').trim()) color = el.getAttribute('data-color');
+          });
+        }
+        selectSwatch(document.getElementById('createEventColor'), color);
+      });
     });
 
     var deleteBtn = document.getElementById('deleteEventBtn');
