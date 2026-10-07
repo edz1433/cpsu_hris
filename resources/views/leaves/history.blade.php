@@ -17,15 +17,13 @@
     }
 </style>
 <section class="content">
-<div class="container-fluid">
+<div class="container-fluid dash">
+    @include("leaves.page-head")
     <div class="row">
         @include("leaves.side-menu")
         <div class="col-lg-9">
-            <div class="card card-info card-outline">
-                <div class="card-header">
-                    @include("leaves.top-menu")
-                </div>           
-                <div class="card-body">
+            <div class="dash-card">
+                <div class="dash-card-body">
                     @if($guard == "web")
                     <div class="row justify-content-end">
                         <div class="col-md-6"> <!-- HALF WIDTH -->

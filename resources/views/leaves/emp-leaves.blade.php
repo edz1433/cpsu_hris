@@ -2,299 +2,256 @@
 
 @section('body')
 @include('leaves.style')
+@php
+    // [value, name, legal basis, element id used by the leave script, available]
+    $leaveTypes = [
+        [1, 'Vacation Leave', 'Sec. 51, Rule XVI, Omnibus Rules Implementing E.O No. 292', 'vacation-leave', true],
+        [2, 'Mandatory/Forced Leave', 'Sec. 51, Rule XVI, Omnibus Rules Implementing E.O No. 292', null, true],
+        [3, 'Sick Leave', 'Sec. 51, Rule XVI, Omnibus Rules Implementing E.O No. 292', 'sick-leave', true],
+        [4, 'Maternity Leave', 'R.A No. 11210/IRR issued by CSC, DOLE and SSS', null, false],
+        [5, 'Paternity Leave', 'R.A No. 8187/CSC MC No. 71,s. 1998, as amended', null, false],
+        [6, 'Special Privilege Leave', 'Sec. 21, Rule XVI, Omnibus Rules Implementing E.O No. 292', null, true],
+        [7, 'Solo Parent Leave', 'R.A. No. 8972/CSC MC No. 8, s. 2004', null, false],
+        [15, 'Wellness Leave', null, null, true],
+        [8, 'Study Leave', 'Sec. 68, Rule XVI, Omnibus Rules Implementing E.O No. 292', 'study-leave', false],
+        [9, '10-Day VAWC Leave', 'R.A No. 9262/CSC MO No. 15,s. 2005', null, false],
+        [10, 'Rehabilitation Privilege', 'Sec. 55, Rule XVI, omnibus Rules Implementing E.O No. 292', null, false],
+        [11, 'Special Leave Benefits for Women', 'R.A No. 9710/CSC MC No. 25,s. 2010', null, false],
+        [12, 'Special Emergency (Calamity) Leave', 'CSC MC No. 2,s. 2012, as amended', null, false],
+        [13, 'Adoption Leave', 'R.A. No. 8552', null, false],
+        [14, 'Vacation Service Credit', 'R.A. No. 4670', null, true],
+    ];
+@endphp
 <section class="content">
-<div class="container-fluid">
+<div class="container-fluid dash">
+    @include("leaves.page-head")
+
     <div class="row">
         @include("leaves.side-menu")
         <div class="col-lg-9">
-            <div class="card card-info card-outline">
-                <div class="card-header">
-                    @include("leaves.top-menu")
-                </div>
-                <div class="card-body">
-                @if($guard == "web")
-                    @if(count($leaves) == 0)
-                    <div class="form-row lbel">
-                        <div class="col-md-12">
+        @if($guard == "web")
+            @if(count($leaves) == 0)
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <h5><i class="fas fa-flag-checkered" style="color: var(--cpsu-green-600);"></i>Set starting balance</h5>
+                    </div>
+                    <div class="dash-card-body">
+                        <p class="lv-note">This employee has no leave credit records yet. Enter their current balances to start the ledger; later credits and deductions are added from here.</p>
+                        <form class="dtr-form" action="{{ route('leavesCreate') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="empid" value="{{ $employee->id }}">
                             <div class="row">
-                                <div class="col-12 ">
-                                    <div class="card  p-4">
-                                        <h2 class="text-warning font-weight-bold text-center">Input Leave Credit Balance to Start</h2>
-                                        <p class="text-muted text-center">Please enter employee leave credit balance below to proceed.</p>
-                                        <form class="form-horizontal" action="{{ route('leavesCreate') }}" method="POST">
-                                            @csrf
-                                            <div class="row">
-                                                <div class="col-md-3 col-sm-4 mb-3"></div>
-                                        
-                                                <div class="col-md-3 col-sm-4 mb-3">
-                                                    <div class="form-check">
-                                                        <label class="badge badge-secondary">Sick Leave</label>
-                                                        <input type="hidden" name="empid" value="{{ $employee->id }}">
-                                                        <input class="form-control form-control-sm" type="number" name="sl" step="0.001" min="0" max="{{ (count($leaves) == 0) ? '' : 30 }}" placeholder="0.00" required>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="col-md-3 col-sm-4">
-                                                    <div class="form-check">
-                                                        <label class="badge badge-secondary">Vacation Leave</label>
-                                                        <input class="form-control form-control-sm" type="number" name="vl" step="0.001" min="0" required>
-                                                    </div>
-                                                </div>
-                                        
-                                                <div class="col-md-3 col-sm-4"></div>
-                                        
-                                                <div class="col-md-3"></div>
+                                <div class="col-md-4 col-sm-6 dtr-field">
+                                    <label class="dtr-label" for="start-sl">Sick Leave</label>
+                                    <input class="form-control" id="start-sl" type="number" name="sl" step="0.001" min="0" max="{{ (count($leaves) == 0) ? '' : 30 }}" placeholder="0.000" required>
+                                </div>
+                                <div class="col-md-4 col-sm-6 dtr-field">
+                                    <label class="dtr-label" for="start-vl">Vacation Leave</label>
+                                    <input class="form-control" id="start-vl" type="number" name="vl" step="0.001" min="0" placeholder="0.000" required>
+                                </div>
+                                <div class="col-md-8 dtr-field">
+                                    <label class="dtr-label" for="start-remarks">Remarks <span class="font-weight-normal">(optional)</span></label>
+                                    <textarea class="form-control" id="start-remarks" name="remarks" rows="3" style="height: auto;"></textarea>
+                                </div>
+                            </div>
+                            <button type="submit" name="btn-submit" class="dtr-generate">
+                                <i class="fas fa-save mr-1"></i> Save starting balance
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @else
+                <div class="dash-card">
+                    <div class="dash-card-header flex-wrap">
+                        <h5><i class="fas fa-book" style="color: var(--cpsu-green-600);"></i>Credit ledger</h5>
+                        <div class="lv-actions">
+                            <button type="button" class="lv-btn" data-toggle="modal" data-target="#leaveModalDeduct">
+                                <i class="fas fa-minus"></i> Deduct
+                            </button>
+                            <button type="button" class="lv-btn is-primary" data-toggle="modal" data-target="#leaveModal">
+                                <i class="fas fa-plus"></i> Add credits
+                            </button>
+                        </div>
+                    </div>
+                    <div class="dash-card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover lv-table" id="example3">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">SL</th>
+                                        <th class="text-center">VL</th>
+                                        <th>For the month of</th>
+                                        <th>Remarks</th>
+                                        <th>Recorded</th>
+                                        <th class="text-center">Entry</th>
+                                        <th class="text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($leaves as $leave)
+                                    @php
+                                        $date = ($leave->created_at) ? \Carbon\Carbon::parse($leave->created_at)->format('F d, Y') : '';
+                                        $isDeduction = $leave->stat == 1 && $leave->days == 0;
+                                    @endphp
+                                        <tr id="tr-{{ $leave->id }}">
+                                            <td class="text-center lv-num">{{ $leave->earn_sl }}</td>
+                                            <td class="text-center lv-num">{{ $leave->earn_vl }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($leave->date)->format('F Y') }}</td>
+                                            <td class="{{ $leave->remarks ? '' : 'lv-muted' }}">{{ $leave->remarks ?: '—' }}</td>
+                                            <td style="white-space: nowrap;">{{ $date }}</td>
+                                            <td class="text-center">
+                                                @if($leave->stat == 0)
+                                                    <span class="lv-pill is-start">Starting balance</span>
+                                                @elseif($isDeduction)
+                                                    <span class="lv-pill is-deducted">Deducted</span>
+                                                @else
+                                                    <span class="lv-pill is-added">Added</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-center" width="100">
+                                                <span class="lv-row-actions">
+                                                    <a href="#" class="lv-icon-btn leaves_edit" data-id="{{ $leave->id }}" title="Edit" aria-label="Edit" data-toggle="modal" data-target="{{ $isDeduction ? '#leaveModalDeductEdit' : '#leaveEditModal' }}">
+                                                        <i class="fas fa-pen"></i>
+                                                    </a>
+                                                    @if($leave->stat == 0)
+                                                        <button type="button" class="lv-icon-btn" value="{{ $leave->id }}" title="The starting balance can't be deleted" aria-label="Delete" disabled>
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    @else
+                                                        <button type="button" class="lv-icon-btn is-danger leaves_delete" value="{{ $leave->id }}" title="Delete" aria-label="Delete">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    @endif
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        @else
+            <form class="dtr-form lv-apply add-form" id="leaveApplyForm" action="{{ route('LeaveAppCreate') }}" method="POST">
+                @csrf
+                <input type="hidden" name="empid" value="{{ $employee->emp_ID }}">
 
-                                                <div class="col-md-6 col-sm-4 mb-3">
-                                                    <div class="form-check">
-                                                        <label class="badge badge-secondary">Remarks</label>
-                                                        <textarea class="form-control form-control-sm" type="text" name="remarks" step="0.001" rows="3"></textarea>
-                                                    </div>
-                                                </div>
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <h5><i class="fas fa-umbrella-beach" style="color: var(--cpsu-green-600);"></i>Type of leave</h5>
+                        <span class="dash-card-hint d-none d-sm-inline">Dashed options aren't available for online filing</span>
+                    </div>
+                    <div class="dash-card-body">
+                        <div class="lv-options" role="radiogroup" aria-label="Type of leave">
+                            @foreach($leaveTypes as [$value, $name, $basis, $id, $available])
+                                <label class="lv-option">
+                                    <input class="leave-type" type="radio" value="{{ $value }}" name="leave_type" @if($id) id="{{ $id }}" @endif {{ $available ? '' : 'disabled' }} required>
+                                    <span>
+                                        <span class="lv-option-name">{{ $name }}</span>
+                                        @if($basis)<span class="lv-option-basis">{{ $basis }}</span>@endif
+                                    </span>
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
 
-                                                <div class="col-md-6"></div>
-                                                
-                                                <div class="col-md-3 text-right">
-                                                    <button type="submit" name="btn-submit" class="btn btn-success btn-sm">
-                                                        <i class="fas fa-save"></i> submit
-                                                    </button>
-                                                </div>
-                                        
-                                                <div class="col-md-3"></div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>                                                             
-                                <div class="col-3">
-                       
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <h5><i class="fas fa-clipboard-list" style="color: var(--cpsu-green-600);"></i>Details of leave</h5>
+                        <span class="dash-card-hint d-none d-sm-inline">Opens up for the leave type you choose</span>
+                    </div>
+                    <div class="dash-card-body">
+                        <div class="lv-details">
+                            <div class="lv-detail-group">
+                                <h6>Vacation / Special Privilege Leave</h6>
+                                <label class="lv-choice">
+                                    <input class="vacation-check" type="radio" value="1" name="leave_purpose" required disabled>
+                                    Within the Philippines
+                                </label>
+                                <label class="lv-choice">
+                                    <input class="vacation-check" type="radio" value="2" name="leave_purpose" id="abroad" required disabled>
+                                    Abroad
+                                    <input class="input-details vacation-leave" type="text" id="leaves_1" name="leave_detail[]" placeholder="Specify country" autocomplete="off">
+                                </label>
+                            </div>
+
+                            <div class="lv-detail-group">
+                                <h6>Sick Leave</h6>
+                                <label class="lv-choice">
+                                    <input class="sick-leave-detail" type="radio" value="3" name="leave_purpose" id="in-hospital" required disabled>
+                                    In hospital (specify illness)
+                                </label>
+                                <label class="lv-choice">
+                                    <input class="sick-leave-detail" type="radio" value="4" name="leave_purpose" id="out-patient" required disabled>
+                                    Out patient
+                                    <input class="input-details sick-leave" type="text" id="leaves_2" name="leave_detail[]" placeholder="Specify illness">
+                                </label>
+                            </div>
+
+                            <div class="lv-detail-group">
+                                <h6>Study Leave</h6>
+                                <label class="lv-choice">
+                                    <input class="leave-check" type="radio" value="5" name="leave_purpose" required disabled>
+                                    Completion of Master's Degree
+                                </label>
+                                <label class="lv-choice">
+                                    <input class="leave-check" type="radio" value="6" name="leave_purpose" required disabled>
+                                    BAR/Board Examination Review
+                                    <input class="input-details study-leave" type="text" id="leaves_3" name="leave_detail[]" autocomplete="off">
+                                </label>
+                            </div>
+
+                            <div class="lv-detail-group">
+                                <h6>Other purpose</h6>
+                                <input type="radio" value="" name="leave_purpose" style="display: none;" checked id="monetizationdefault">
+                                <div class="purpose-detail">
+                                    <label class="lv-choice" for="monetization">
+                                        <input type="radio" value="7" name="leave_purpose" id="monetization" disabled>
+                                        Monetization of Leave Credits
+                                    </label>
+                                </div>
+                                <div class="purpose-detail">
+                                    <label class="lv-choice" for="terminal-leave">
+                                        <input type="radio" value="8" name="leave_purpose" id="terminal-leave" disabled>
+                                        Terminal Leave
+                                        <input class="input-details" type="text" id="leaves_4" name="leave_detail[]" autocomplete="off">
+                                    </label>
                                 </div>
                             </div>
                         </div>
-                    </div>    
-                    @else
-                    <button class="btn btn-sm btn-info float-right mb-2" data-toggle="modal" data-target="#leaveModal"><i class="fas fa-plus"></i></button>
-                    <button class="btn btn-sm btn-warning float-right mb-2 mr-1" data-toggle="modal" data-target="#leaveModalDeduct"><i class="fas fa-minus"></i></button>
-                    <div class="table-responsive ">
-                        <table class="table table-collapsed table-hover" id="example3">
-                            <thead>
-                                <tr>
-                                    <th>SL</th>
-                                    <th>VL</th>
-                                    <th>For the Month of</th>
-                                    <th>Remarks</th>
-                                    <th>Date</th>
-                                    <th></th>
-                                    <th class="text-center">Action</th>
-                                </tr>
-                            </thead> 
-                            <tbody>
-                                @foreach($leaves as $leave)
-                                @php $date = ($leave->created_at) ? \Carbon\Carbon::parse($leave->created_at)->format('F d, Y') : '' @endphp
-                                    <tr id="tr-{{ $leave->id }}">
-                                        <td class="text-center">{{ $leave->earn_sl }}</td>
-                                        <td class="text-center">{{ $leave->earn_vl }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($leave->date)->format('F Y') }}</td>
-                                        <td>{{ $leave->remarks }}</td>
-                                        <td>{{ $date }}</td>
-                                        <td class="text-center">@if($leave->stat == 0) <span class="badge badge-warning">(starting Balance)</span> @elseif($leave->stat == 1 && $leave->days == 0) <span class="badge badge-danger">deducted</span> @else <span class="badge badge-success">addedd</span> @endif</td>
-                                        <td  width="100" class="text-center">
-                                            <a href="#" class="btn btn-info btn-sm mb-2 leaves_edit" data-id="{{ $leave->id }}" title="Edit" data-toggle="modal" data-target="{{ ($leave->stat == 1 && $leave->days == 0) ?  '#leaveModalDeductEdit ' : '#leaveEditModal' }}  ">
-                                                <i class="fas fa-pen"></i>
-                                            </a>
-                                            <button class="btn {{ ($leave->stat == 0) ? 'btn-secondary' : 'btn-danger leaves_delete' }} btn-sm mb-2" value="{{ $leave->id }}" title="Delete">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr> 
-                                @endforeach
-                            </tbody>
-                        </table>                    
                     </div>
-                    @endif
-                @else
-                <form class="form-horizontal add-form" action="{{ route('LeaveAppCreate') }}" method="POST">
-                    @csrf
-                    <div class="form-group mtop">
-                        <div class="form-row">
-                            <div class="col-md-6">
-                                <label class="badge badge-secondary lbel">TYPE OF LEAVE TO AVAILED OF</label><br>
-                                <div class="form-check">
-                                    <input class="form-check-input leave-type" type="radio" value="1" name="leave_type" id="vacation-leave" required>
-                                    <label class="form-check-label" for="vacation-leave">
-                                        <b>Vacation Leave</b><span class="ft">(Sec. 51, Rule XVI, Omnibus Rules Implementing E.O No. 292)</span>
-                                    </label>
-                                    <input type="hidden" name="empid" value="{{ $employee->emp_ID }}">
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input leave-type" type="radio" value="2" name="leave_type" required>
-                                    <label class="form-check-label" for="radio2">
-                                        <b>Mandatory/Forced Leave</b> <span class="ft">(Sec. 51, Rule XVI, Omnibus Rules Implementing E.O No. 292)</span>
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input leave-type" type="radio" value="3" name="leave_type" id="sick-leave" required>
-                                    <label class="form-check-label" for="sick-leave">
-                                        <b>Sick Leave</b> <span class="ft">(Sec. 51, Rule XVI, Omnibus Rules Implementing E.O No. 292)</span>
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input leave-type" type="radio" value="4" name="leave_type" disabled required>
-                                    <label class="form-check-label" for="radio3">
-                                        <b>Maternity Leave</b> <span class="ft">(R.A No. 11210/IRR issued by CSC, DOLE and SSS)</span>
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input leave-type" type="radio" value="5" name="leave_type" disabled required>
-                                    <label class="form-check-label" for="radio3">
-                                        <b>Paternity Leave</b> <span class="ft">(R.A No. 8187/CSC MC No. 71,s. 1998, as amended)</span>
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input leave-type" type="radio" value="6" name="leave_type" required>
-                                    <label class="form-check-label" for="radio3">
-                                        <b>Special Privilege Leave</b> <span class="ft">(Sec. 21, Rule XVI, Omnibus Rules Implementing E.O No. 292)</span>
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input leave-type" type="radio" value="7" name="leave_type" disabled required>
-                                    <label class="form-check-label" for="radio3">
-                                        <b>Solo Parent Leave</b> <span class="ft">(R.A. No. 8972/CSC MC No. 8, s. 2004)</span>
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input leave-type" type="radio" value="15" name="leave_type" required>
-                                    <label class="form-check-label" for="radio3">
-                                        <b>Wellness Leave</b> <span class="ft"></span>
-                                    </label>
-                                </div>
-                            </div>   
-                            <div class="col-md-6"><br>
-                                <div class="form-check">
-                                    <input class="form-check-input leave-type" type="radio" value="8" name="leave_type" id="study-leave" disabled required>
-                                    <label class="form-check-label" for="study-leave">
-                                        <b>Study Leave</b><span class="ft">(Sec. 68, Rule XVI, Omnibus Rules Implementing E.O No. 292)</span>
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input leave-type" type="radio" value="9" name="leave_type" disabled required>
-                                    <label class="form-check-label" for="radio3">
-                                        <b>10-Day VAWC Leave</b> <span class="ft">(R.A No. 9262/CSC MO No. 15,s. 2005)</span>
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input leave-type" type="radio" value="10" name="leave_type" disabled required>
-                                    <label class="form-check-label" for="radio3">
-                                        <b>Rehabilitation Privilege</b> <span class="ft">(Sec. 55, Rule XVI, omnibus Rules Implementing E.O No. 292)</span>
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input leave-type" type="radio" value="11" name="leave_type" disabled required>
-                                    <label class="form-check-label" for="radio3">
-                                        <b>Special Leave Benefits for Women</b> <span class="ft">(R.A No. 9710/CSC MC No. 25,s. 2010)</span>
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input leave-type" type="radio" value="12" name="leave_type" disabled required>
-                                    <label class="form-check-label" for="radio3">
-                                        <b>Special Emergency (Calamity) Leave</b> <span class="ft">(CSC MC No. 2,s. 2012, as amended)</span>
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input leave-type" type="radio" value="13" name="leave_type" disabled required>
-                                    <label class="form-check-label" for="radio3">
-                                        <b>Adoption Leave</b> <span class="ft">(R.A. No. 8552)</span>
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input leave-type" type="radio" value="14" name="leave_type" required>
-                                    <label class="form-check-label" for="radio3">
-                                        <b>Vacation Service Credit</b> <span class="ft">(R.A. No. 4670)</span>
-                                    </label>
-                                </div>
-                            </div> 
-                            <div class="col-md-6">
-                                <label class="badge badge-secondary lbel mt-2">DETAILS OF LEAVE</label><br>
-                                <i>In case of Vacation/Special Privilege Leave</i>
-                                <div class="form-check w-100">
-                                    <input class="form-check-input vacation-check" type="radio" value="1" name="leave_purpose" required disabled>
-                                    <label class="form-check-label" for="within-philippines">
-                                        <b>Within the Philippines</b>
-                                    </label>
-                                </div>
-                                <div class="form-check w-100">
-                                    <input class="form-check-input vacation-check" type="radio" value="2" name="leave_purpose" id="abroad" required disabled>
-                                    <label class="form-check-label" for="abroad">
-                                        <b>Abroad (Specify)</b>
-                                        <input class="input-details vacation-leave ml-5" type="text" id="leaves_1" name="leave_detail[]" autocomplete="off" >
-                                    </label>
-                                </div>                                   
-                                <i>In case of Sick Leave</i>
-                                <div class="form-check w-100">
-                                    <input class="form-check-input sick-leave-detail" type="radio" value="3" name="leave_purpose" id="in-hospital" required disabled>
-                                    <label class="form-check-label" for="in-hospital">
-                                        <b>In Hospital (Specify Illness)</b>
-                                    </label>
-                                </div>
-                                <div class="form-check w-100">
-                                    <input class="form-check-input sick-leave-detail" type="radio" value="4" name="leave_purpose" id="out-patient" required disabled>
-                                    <label class="form-check-label" for="out-patient">
-                                        <b>Out Patient (Specify Illness)</b> <input class="input-details sick-leave ml-2" type="text" id="leaves_2" name="leave_detail[]">
-                                    </label>
-                                </div>
-                            </div>  
-                            <div class="col-md-6">
-                                <br>
-                                <i>In case of Study Leave</i>
-                                <div class="form-check w-100">
-                                    <input class="form-check-input leave-check" type="radio" value="5" name="leave_purpose" required disabled>
-                                    <label class="form-check-label" for="radio1">
-                                        <b>Completion of Master's Degree</b>
-                                    </label>
-                                </div>
-                                <div class="form-check w-100">
-                                    <input class="form-check-input leave-check" type="radio" value="6" name="leave_purpose" required disabled>
-                                    <label class="form-check-label" for="radio1">
-                                        <b>BAR/Board Examination Review</b>
-                                        <input class="input-details study-leave ml-2" type="text" id="leaves_3" name="leave_detail[]" autocomplete="off" >
-                                    </label>
-                                </div>
-                                <i>Other Purpose</i>
-                                <input class="form-check-input" type="radio" value="" name="leave_purpose" style="display: none;" checked id="monetizationdefault">    
-                                <div class="form-check w-100 purpose-detail">
-                                    <input class="form-check-input" type="radio" value="7" name="leave_purpose" id="monetization" disabled>
-                                    
-                                    <label class="form-check-label" for="monetization">
-                                        <b>Monetization of Leave Credits</b>
-                                    </label>
-                                </div> 
-                                <div class="form-check w-100 purpose-detail">
-                                    <input class="form-check-input" type="radio" value="8" name="leave_purpose" id="terminal-leave" disabled>
-                                    <label class="form-check-label" for="terminal-leave">
-                                        <b>Terminal Leave</b> <input class="input-details ml-5" type="text" id="leaves_4" name="leave_detail[]" autocomplete="off" >
-                                    </label>
-                                </div>
-                            </div>  
-                            <div class="col-md-6">
-                                <label class="badge badge-secondary text-wrap text-center lbel mb-1 mt-2">INCLUSIVE DATES</label>
-                                <div style="display: flex; justify-content: space-between;">
-                                    <input type="text" id="date_range" name="date_range" class="form-control form-control-sm" placeholder="Select Date Range" required>
-                                </div>
-                            </div>  
+                </div>
 
-                            <div class="col-md-3">
-                                <label class="badge badge-secondary text-wrap text-center lbel mb-1 mt-2">DAYS APPLIED</label>
-                                <input type="text" id="day" name="days" class="form-control form-control-sm" autocomplete="off" style="flex: 1; margin-right: 5px;" readonly>
-                            </div>         
-                            <div class="col-md-3">
-                                <label class="badge badge-secondary text-wrap text-center lbel mb-1 mt-2">DATE OF FILING</label>
-                                <input type="date" name="date_filing" class="form-control form-control-sm" value="{{ \Carbon\Carbon::now()->toDateString() }}" readonly>
-                            </div>                                     
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <h5><i class="far fa-calendar-alt" style="color: var(--cpsu-green-600);"></i>Inclusive dates</h5>
+                    </div>
+                    <div class="dash-card-body">
+                        <div class="row">
+                            <div class="col-md-6 dtr-field">
+                                <label class="dtr-label" for="date_range">Dates</label>
+                                <input type="text" id="date_range" name="date_range" class="form-control" placeholder="Pick the first and last day" required>
+                            </div>
+                            <div class="col-md-3 col-6 dtr-field">
+                                <label class="dtr-label" for="day">Days applied</label>
+                                <input type="text" id="day" name="days" class="form-control" autocomplete="off" placeholder="Weekdays only" readonly>
+                            </div>
+                            <div class="col-md-3 col-6 dtr-field">
+                                <label class="dtr-label" for="date-filing">Date of filing</label>
+                                <input type="date" id="date-filing" name="date_filing" class="form-control" value="{{ \Carbon\Carbon::now()->toDateString() }}" readonly>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="dtr-generate">
+                                <i class="fas fa-paper-plane mr-1"></i> Submit application
+                            </button>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-sm btn-success float-right">Submit</button>
-                </form>                
-                @endif
-            </div>                        
+                </div>
+            </form>
+        @endif
         </div>
     </div>
 </div>

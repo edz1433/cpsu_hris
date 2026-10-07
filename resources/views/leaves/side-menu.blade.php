@@ -1,7 +1,26 @@
+@php
+    $profileImagePath = 'Profile/Employee/' . $employee->profile;
+    $imagePath = \Illuminate\Support\Facades\File::exists(public_path($profileImagePath)) ? $profileImagePath : 'Profile/Employee/default.png';
+
+    // [element id kept for the live balance refresh, label, value]
+    $otherCredits = [
+        ['special-pl', 'Special Privilege Leave', $employee->special_pl],
+        ['solo-pl', 'Solo Parent Leave', $employee->solo_pl],
+        ['study-leave', 'Study Leave', $employee->study_leave],
+        ['vawc-leave', '10-Day VAWC Leave', $employee->vawc_leave],
+        ['rehab-leave', 'Rehabilitation Privilege', $employee->rehab_leave],
+        ['benefits-leave', 'Special Leave Benefits for Women', $employee->benefits_leave],
+        ['calamity-leave', 'Special Emergency (Calamity) Leave', $employee->calamity_leave],
+        ['adopt-leave', 'Adoption Leave', $employee->adopt_leave],
+        ['servcred-leave', 'Vacation Service Credit', $employee->servcred_leave],
+        ['wellness-leave', 'Wellness Leave', $employee->well_leave],
+    ];
+@endphp
 <div class="col-lg-3">
-    <div class="card card-info card-outline">
-        @if($guard == "web")
-            <div class="p-1">
+    @if($guard == "web")
+        <div class="dash-card">
+            <div class="dash-card-body dtr-form">
+                <label class="dtr-label" for="employee">Employee</label>
                 <select class="form-control select2" id="employee" style="width: 100%;" onchange="redirectToLeaveRead(this)">
                     @foreach ($emplalls as $emp)
                         <option value="{{ $emp->id }}" {{ ($employee->id == $emp->id) ? 'selected' : '' }}>
@@ -10,69 +29,47 @@
                     @endforeach
                 </select>
             </div>
-        @endif
-        <div class="card-body box-profile">
-            <div class="text-center position-relative">
-                @php
-                    use Illuminate\Support\Facades\File;
-                    $profileImagePath = 'Profile/Employee/' . $employee->profile;
-                    $imagePath = File::exists(public_path($profileImagePath)) ? $profileImagePath : 'Profile/Employee/default.png';
-                @endphp
-                <div class="profile-image-container">
-                    <img src="{{ asset($imagePath) }}" alt="User Image" class="profile-user-img img-fluid" id="changeProfilePicture">
-                </div>
-                <input type="file" id="profilePictureInput" style="display: none;" accept="image/*">
-            </div>
-            
-            <h3 class="profile-username text-center">{{ ucwords(strtolower($employee->fname)) }} {{ ucwords(strtolower($employee->lname)) }}</h3>
-
-            <p class="text-muted text-center">{{ $employee->position }}</p>
-    
-            <ul class="list-group list-group-unbordered custom-gap">
-                @if($guard == "web")
-                    <i class="fas fa-cog" data-toggle="modal" data-target="#modalSettingLeave" style="color: rgb(135, 129, 129); margin-left: 100%; margin-bottom: -8px; float: right;"></i>
-                @endif
-                <li class="list-group-item">
-                    <b>Vacation Leave</b> <span class="float-right mt-1 badge badge-info" id="b-vl">{{ $employee->vl }}</span>
-                </li>
-                {{-- <li class="list-group-item">
-                    <b>Mandatory Leave</b> <span class="float-right mt-1 badge badge-info" id="b-ml">{{ $employee->special_pl }}</span>
-                </li> --}}
-                <li class="list-group-item">
-                    <b>Sick Leave</b> <span class="float-right mt-1 badge badge-info" id="b-sl">{{ $employee->sl }}</span>
-                </li>
-                <li class="list-group-item">
-                    <b>Special Privilege Leave</b> <span class="float-right mt-1 badge badge-info" id="special-pl">{{ $employee->special_pl ?? 0 }}</span>
-                </li>
-                <li class="list-group-item">
-                    <b>Solo Parent Leave</b> <span class="float-right mt-1 badge badge-info" id="solo-pl">{{ $employee->solo_pl ?? 0 }}</span>
-                </li>
-                <li class="list-group-item">
-                    <b>Study Leave</b> <span class="float-right mt-1 badge badge-info" id="study-leave">{{ $employee->study_leave ?? 0 }}</span>
-                </li>
-                <li class="list-group-item">
-                    <b>10-Day VAWC Leave</b> <span class="float-right mt-1 badge badge-info" id="vawc-leave">{{ $employee->vawc_leave ?? 0 }}</span>
-                </li>
-                <li class="list-group-item">
-                    <b>Rehabilitation Privilege</b> <span class="float-right mt-1 badge badge-info" id="rehab-leave">{{ $employee->rehab_leave ?? 0 }}</span>
-                </li>
-                <li class="list-group-item">
-                    <b>Special Leave Benefits for Women</b> <span class="float-right mt-1 badge badge-info" id="benefits-leave">{{ $employee->benefits_leave ?? 0 }}</span>
-                </li>
-                <li class="list-group-item">
-                    <b>Special Emergency (Calamity) Leave</b> <span class="float-right mt-1 badge badge-info" id="calamity-leave">{{ $employee->calamity_leave ?? 0 }}</span>
-                </li>
-                <li class="list-group-item">
-                    <b>Adoption Leave</b> <span class="float-right mt-1 badge badge-info" id="adopt-leave">{{ $employee->adopt_leave ?? 0 }}</span>
-                </li>
-                <li class="list-group-item">
-                    <b>Vacation Service Credit</b> <span class="float-right mt-1 badge badge-info" id="servcred-leave">{{ $employee->servcred_leave ?? 0 }}</span>
-                </li>
-                <li class="list-group-item">
-                    <b>Wellness Leave</b> <span class="float-right mt-1 badge badge-info" id="wellness-leave">{{ $employee->well_leave ?? 0 }}</span>
-                </li>
-            </ul>
         </div>
-        <!-- /.card-body -->
+    @endif
+
+    <div class="dash-card lv-profile">
+        <div class="lv-profile-head">
+            <img src="{{ asset($imagePath) }}" alt="" class="lv-avatar" id="changeProfilePicture">
+            <input type="file" id="profilePictureInput" style="display: none;" accept="image/*">
+            <div style="min-width: 0;">
+                <h3 class="lv-name">{{ ucwords(strtolower($employee->fname)) }} {{ ucwords(strtolower($employee->lname)) }}</h3>
+                <p class="lv-position">{{ $employee->position }}</p>
+            </div>
+        </div>
+
+        <div class="lv-tiles">
+            <div class="lv-tile">
+                <span class="lv-tile-label">Vacation Leave</span>
+                <span class="lv-tile-value" id="b-vl">{{ $employee->vl }}</span>
+                <span class="lv-tile-unit">days left</span>
+            </div>
+            <div class="lv-tile is-sick">
+                <span class="lv-tile-label">Sick Leave</span>
+                <span class="lv-tile-value" id="b-sl">{{ $employee->sl }}</span>
+                <span class="lv-tile-unit">days left</span>
+            </div>
+        </div>
+
+        <div class="lv-others-head">
+            Other leave credits
+            @if($guard == "web")
+                <button type="button" class="lv-icon-btn" data-toggle="modal" data-target="#modalSettingLeave" title="Edit other leave credits" aria-label="Edit other leave credits">
+                    <i class="fas fa-cog"></i>
+                </button>
+            @endif
+        </div>
+        <ul class="lv-balances">
+            @foreach($otherCredits as [$id, $label, $value])
+                <li><span>{{ $label }}</span> <span id="{{ $id }}">{{ $value ?? 0 }}</span></li>
+            @endforeach
+        </ul>
     </div>
 </div>
+@if($guard == "web")
+    @include('leaves.settings-modal')
+@endif

@@ -27,6 +27,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
 use App\Http\Controllers\Concerns\CalculatesTardiness;
+use App\Services\DtrSheetPunches;
 
 class MasterController extends Controller
 {
@@ -43,6 +44,16 @@ class MasterController extends Controller
         } catch (\Exception $e) {
             return $value;
         }
+    }
+
+    /**
+     * AM/PM columns exactly as the printed DTR shows them, formatted for display.
+     */
+    private function dtrSheetPunches($dtr)
+    {
+        $punches = DtrSheetPunches::forDay(optional($dtr)->time_in, optional($dtr)->time_out);
+
+        return array_map(fn ($time) => $time ? $time->format('h:i A') : null, $punches);
     }
 
     private function arrangedDtrPunches($dtr)
@@ -219,20 +230,12 @@ class MasterController extends Controller
             $todayTimeIn = $this->firstDtrIn($todayDtr);
             $todayTimeOut = $this->lastDtrOut($todayDtr);
             $todayPunches = $this->arrangedDtrPunches($todayDtr);
-            $todaySchedule = $this->officialScheduleForDate($officialTime, $today);
-            $todayDailyPunchesRaw = $this->dailyWorkPunches($todayDtr, $todaySchedule);
-            $todayDailyPunches = [
-                'am_in' => $this->formatDtrTime($todayDailyPunchesRaw['am_in']),
-                'am_out' => $this->formatDtrTime($todayDailyPunchesRaw['am_out']),
-                'pm_in' => $this->formatDtrTime($todayDailyPunchesRaw['pm_in']),
-                'pm_out' => $this->formatDtrTime($todayDailyPunchesRaw['pm_out']),
-            ];
+            $todayDailyPunches = $this->dtrSheetPunches($todayDtr);
             $tardinessSummary = $this->dtrTardinessTotals($filteredDtrs, $officialTime);
             $totalLate = $this->formatMinutes($tardinessSummary['late_minutes']);
             $totalUndertime = $this->formatMinutes($tardinessSummary['undertime_minutes']);
             $recentDtrs = $recentDtrs->map(function ($dtr) use ($officialTime) {
                 $schedule = $this->officialScheduleForDate($officialTime, $dtr->date);
-                $dailyPunches = $this->dailyWorkPunches($dtr, $schedule);
 
                 $dtr->formatted_time_in = $this->firstDtrIn($dtr);
                 $dtr->formatted_time_out = $this->lastDtrOut($dtr);
@@ -242,12 +245,8 @@ class MasterController extends Controller
                     'am' => $this->scheduleHalfLabel($schedule, 'mornin', 'mornout'),
                     'pm' => $this->scheduleHalfLabel($schedule, 'aftin', 'aftout'),
                 ];
-                $dtr->daily_punches = [
-                    'am_in' => $this->formatDtrTime($dailyPunches['am_in']),
-                    'am_out' => $this->formatDtrTime($dailyPunches['am_out']),
-                    'pm_in' => $this->formatDtrTime($dailyPunches['pm_in']),
-                    'pm_out' => $this->formatDtrTime($dailyPunches['pm_out']),
-                ];
+                // Same AM/PM columns as the printed DTR, so the two never disagree.
+                $dtr->daily_punches = $this->dtrSheetPunches($dtr);
 
                 return $dtr;
             });
