@@ -786,9 +786,9 @@
     gap: 8px;
     padding: 8px 14px 8px 10px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, .12);
-    border: 1px solid rgba(255, 255, 255, .32);
-    color: #fff !important;
+    background: rgba(255, 255, 255, .92);
+    border: 1px solid rgba(255, 255, 255, .95);
+    color: #000 !important;
     font-size: 12.5px;
     font-weight: 600;
     text-decoration: none !important;
@@ -797,8 +797,8 @@
     transition: background-color .15s ease, border-color .15s ease;
 }
 .dash-hero a.dash-chip:hover {
-    background: rgba(255, 255, 255, .22);
-    border-color: rgba(255, 255, 255, .5);
+    background: #fff;
+    border-color: #fff;
 }
 .dash-hero .dash-chip .dash-chip-icon {
     width: 24px;
@@ -807,7 +807,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: rgba(255, 255, 255, .18);
+    background: rgba(0, 0, 0, .08);
     font-size: 11px;
 }
 
@@ -1224,13 +1224,58 @@
     background: var(--cpsu-green-600);
 }
 
+/* ---------- Responsive ---------- */
+.dash-hero .dash-avatar { flex-shrink: 0; }
+.dash-hero .dash-avatar + div { min-width: 0; }
+.dash-hero h3 { flex-wrap: wrap; overflow-wrap: anywhere; }
+
+@media (max-width: 991.98px) {
+    .dash-hero::before { width: 85%; }
+    .dash-hero h3 { font-size: 24px; }
+    .dash .fc .fc-toolbar-title { font-size: 1.1rem; }
+}
+
+@media (max-width: 767.98px) {
+    .dash-hero .dash-chip { margin-top: 4px; }
+    .dash .fc .fc-toolbar-chunk:last-child .btn-group > .btn { padding: 0 10px; }
+}
+
 @media (max-width: 575.98px) {
-    .dash-hero { padding: 18px; }
+    .dash { --dash-radius: 12px; }
+    .dash-hero { padding: 18px; margin-bottom: 16px; }
     .dash-hero::before { width: 100%; opacity: .25; }
-    .dash-hero h3 { font-size: 22px; }
-    .dash-hero .dash-avatar { width: 60px; height: 60px; }
+    .dash-hero h3 { font-size: 20px; gap: 8px; }
+    .dash-hero .dash-greet-icon { font-size: 18px; }
+    .dash-hero .dash-sub { font-size: 13px; }
+    .dash-hero .dash-avatar { width: 56px; height: 56px; margin-right: 12px !important; }
+    .dash-hero .dash-chip { width: 100%; justify-content: center; }
+
+    .dash-card { margin-bottom: 16px; }
+    .dash-card > .dash-card-header { padding: 12px 14px; }
+    .dash-card > .dash-card-body { padding: 14px; }
+    .bday-list li { padding: 10px 14px; }
+
+    /* Two stat cards share a row on phones: stack icon above the figures. */
+    .stat-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        height: calc(100% - 16px);
+        padding: 14px;
+        margin-bottom: 16px;
+    }
+    .stat-card .stat-icon { flex: 0 0 auto; width: 38px; height: 38px; font-size: 16px; border-radius: 10px; }
     .stat-card .stat-value { font-size: 22px; }
     .stat-card .stat-watermark { display: none; }
+    .col-12 > .stat-card { flex-direction: row; align-items: center; }
+
+    .review-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .review-tile { padding: 12px; }
+    .review-tile:last-child:nth-child(odd) { grid-column: span 2; }
+
     .dash .fc .fc-toolbar.fc-header-toolbar { flex-direction: column; align-items: stretch; }
     .dash .fc .fc-toolbar-chunk { display: flex; justify-content: center; }
+    .dash .fc .fc-toolbar-title { font-size: 1rem; text-align: center; }
+    .dash .fc .fc-list-event-title,
+    .dash .fc .fc-list-event-time { font-size: 13px; }
 }

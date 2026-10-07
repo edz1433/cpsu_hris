@@ -11,6 +11,7 @@ class Setting extends Model
 
     protected $casts = [
         'maintenance' => 'boolean',
+        'sync_backups' => 'boolean',
     ];
 
     protected $fillable = [

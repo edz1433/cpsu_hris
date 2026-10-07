@@ -22,6 +22,8 @@ use App\Models\SpmsPersonnel;
 use App\Models\Setting;
 use App\Models\OfficialTime;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
 use App\Http\Controllers\Concerns\CalculatesTardiness;
@@ -486,7 +488,10 @@ class MasterController extends Controller
         $this->authorizeSystemSettings();
 
         $guard = $this->getGuard();
-        $employees = Employee::select('id', 'emp_ID', 'fname', 'lname')->get();
+        $employees = Employee::select('id', 'emp_ID', 'fname', 'lname')
+            ->orderBy('lname')
+            ->orderBy('fname')
+            ->get();
         $settings = Setting::firstOrCreate([], ['maintenance' => false]);
 
         $kioskAccess = array_filter(explode(',', (string) $settings->hr_kiosk));
@@ -512,6 +517,81 @@ class MasterController extends Controller
             : 'Maintenance mode disabled. Users can log in again.';
 
         return redirect()->route('settings')->with('success', $message);
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $this->authorizeSystemSettings();
+
+        $validated = $request->validate([
+            'suc_pres' => ['required', 'integer', 'exists:employees,id'],
+            'vpaa' => ['nullable', 'integer', 'exists:employees,id'],
+            'vpaf' => ['nullable', 'integer', 'exists:employees,id'],
+            'hr' => ['required', 'integer', 'exists:employees,id'],
+            'te_rstrct_lvl' => ['required', Rule::in([0, 1, 2])],
+            'hr_kiosk' => ['nullable', 'array'],
+            'hr_kiosk.*' => ['string', 'exists:employees,emp_ID'],
+            'dtr_acct' => ['nullable', 'array'],
+            'dtr_acct.*' => ['integer', 'exists:employees,id'],
+            'records_office_email' => ['nullable', 'email', 'max:255'],
+            'job_portal_email' => ['nullable', 'email', 'max:255'],
+            'sync_backups' => ['required', 'boolean'],
+        ], [], [
+            'suc_pres' => 'SUC President',
+            'vpaa' => 'Vice President of Academic Affairs',
+            'vpaf' => 'Vice President of Administration and Finance',
+            'hr' => 'HR Head',
+            'te_rstrct_lvl' => 'Time Entry Restriction',
+            'hr_kiosk' => 'HR Kiosk Access',
+            'dtr_acct' => 'DTR Full Access',
+            'sync_backups' => 'HR Kiosk Backtrack Sync',
+        ]);
+
+        $settings = Setting::firstOrCreate([], ['maintenance' => false]);
+        $previousPres = (int) $settings->suc_pres;
+        $previousHr = (int) $settings->hr;
+
+        DB::transaction(function () use ($settings, $validated, $previousPres, $previousHr) {
+            $settings->fill([
+                'suc_pres' => $validated['suc_pres'],
+                'vpaa' => $validated['vpaa'] ?? null,
+                'vpaf' => $validated['vpaf'] ?? null,
+                'hr' => $validated['hr'],
+                'te_rstrct_lvl' => $validated['te_rstrct_lvl'],
+                'hr_kiosk' => implode(',', array_unique($validated['hr_kiosk'] ?? [])),
+                'dtr_acct' => implode(',', array_unique($validated['dtr_acct'] ?? [])),
+                'records_office_email' => $validated['records_office_email'] ?? null,
+                'job_portal_email' => $validated['job_portal_email'] ?? null,
+                'sync_backups' => $validated['sync_backups'],
+            ])->save();
+
+            // Applications still waiting on a signature move to the newly assigned
+            // signatory, so the new president/HR head can act on them and the
+            // printed form carries their name. Signed ones keep the original signer.
+            if ($previousPres !== (int) $settings->suc_pres) {
+                LeaveApplication::where('history', 1)
+                    ->where(fn ($q) => $q->whereNull('pres_sign')->orWhere('pres_sign', '!=', 2))
+                    ->update([
+                        'president' => $settings->suc_pres,
+                        'pres_prefix' => Employee::whereKey($settings->suc_pres)->value('prefix'),
+                    ]);
+            }
+
+            if ($previousHr !== (int) $settings->hr) {
+                LeaveApplication::where('history', 1)
+                    ->where('status', 1)
+                    ->where(fn ($q) => $q->whereNull('hr_sign')->orWhere('hr_sign', '!=', 2))
+                    ->update([
+                        'hr' => $settings->hr,
+                        'hr_prefix' => Employee::whereKey($settings->hr)->value('prefix'),
+                    ]);
+            }
+        });
+
+        // The kiosk API caches the restriction level for 30 seconds.
+        Cache::forget('settings:te_rstrct');
+
+        return redirect()->route('settings')->with('success', 'System settings saved.');
     }
 
     private function authorizeSystemSettings(): void

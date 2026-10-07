@@ -106,8 +106,29 @@
         background: #fff4d3;
         color: #8b6b00;
     }
-    .dashboard-table td {
-        vertical-align: middle;
+    .quick-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    .dtr-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    .dtr-list li {
+        padding: 12px 14px;
+    }
+    .dtr-list li + li {
+        border-top: 1px solid #e7ece9;
+    }
+    .dtr-list .dtr-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 2px 10px;
+        margin-bottom: 8px;
     }
     .punch-list {
         display: flex;
@@ -136,7 +157,7 @@
     }
     .session-grid {
         display: grid;
-        grid-template-columns: repeat(4, minmax(66px, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 6px;
     }
     .session-cell {
@@ -191,6 +212,43 @@
         background: #f9fbfa;
         cursor: pointer;
     }
+    /* Tablet: the sidebar column drops under the calendar's row, so spread actions out. */
+    @media (min-width: 576px) and (max-width: 991.98px) {
+        .quick-actions {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+    @media (max-width: 575.98px) {
+        .metric-card {
+            min-height: 0;
+            padding: 12px !important;
+        }
+        .metric-card .text-muted:first-child {
+            font-size: 12px;
+        }
+        .metric-card h4 {
+            font-size: 20px;
+        }
+        .metric-card small {
+            display: block;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+        .metric-card .icon-wrap {
+            width: 32px;
+            height: 32px;
+            flex: 0 0 32px;
+            font-size: 13px;
+        }
+        .date-filter {
+            padding: 12px;
+        }
+    }
+    @media (max-width: 359.98px) {
+        .session-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
 </style>
 <div class="container-fluid employee-dashboard dash">
     <div class="dash-hero">
@@ -228,7 +286,7 @@
     <section class="content">
         <div class="row">
             @if($isRegularEmployee)
-            <div class="col-lg-3 col-md-6 mb-3">
+            <div class="col-6 col-lg-3 mb-3">
                 <div class="metric-card p-3">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -241,7 +299,7 @@
                 </div>
             </div>
             @endif
-            <div class="col-lg-3 col-md-6 mb-3">
+            <div class="col-6 col-lg-3 mb-3">
                 <div class="metric-card p-3">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -253,7 +311,7 @@
                     <small class="text-muted">For selected range</small>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-6 mb-3">
+            <div class="col-6 col-lg-3 mb-3">
                 <div class="metric-card p-3">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -265,7 +323,7 @@
                     <small class="text-muted">For selected range</small>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-6 mb-3">
+            <div class="col-6 col-lg-3 mb-3">
                 <div class="metric-card p-3">
                     <div class="d-flex justify-content-between">
                         <div>
@@ -280,7 +338,7 @@
         </div>
 
         <div class="row">
-            <div class="col-lg-8">
+            <div class="col-lg-8 order-2 order-lg-1">
                 <div class="card">
                     <div class="card-header bg-white">
                         <h3 class="card-title font-weight-bold">Campus Events</h3>
@@ -291,74 +349,69 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-4 order-1 order-lg-2">
                 <div class="card">
                     <div class="card-header bg-white">
                         <h3 class="card-title font-weight-bold">Recent DTR</h3>
                     </div>
                     <div class="card-body p-0">
-                        <table class="table table-sm dashboard-table mb-0">
-                            <tbody>
-                                @forelse($recentDtrs as $dtr)
-                                    <tr>
-                                        <td>
-                                            <strong>{{ \Carbon\Carbon::parse($dtr->date)->format('M d') }}</strong>
-                                            <div class="official-hours-note">
-                                                AM {{ $dtr->official_schedule['am'] }}<br>
-                                                PM {{ $dtr->official_schedule['pm'] }}
-                                            </div>
-                                        </td>
-                                        <td colspan="2">
-                                            <div class="session-grid">
-                                                <div class="session-cell">
-                                                    <span>AM In</span>
-                                                    <strong>{{ $dtr->daily_punches['am_in'] ?: '--' }}</strong>
-                                                </div>
-                                                <div class="session-cell">
-                                                    <span>AM Out</span>
-                                                    <strong>{{ $dtr->daily_punches['am_out'] ?: '--' }}</strong>
-                                                </div>
-                                                <div class="session-cell">
-                                                    <span>PM In</span>
-                                                    <strong>{{ $dtr->daily_punches['pm_in'] ?: '--' }}</strong>
-                                                </div>
-                                                <div class="session-cell">
-                                                    <span>PM Out</span>
-                                                    <strong>{{ $dtr->daily_punches['pm_out'] ?: '--' }}</strong>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td class="text-muted p-3">No DTR records yet.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                        <ul class="dtr-list">
+                            @forelse($recentDtrs as $dtr)
+                                <li>
+                                    <div class="dtr-head">
+                                        <strong>{{ \Carbon\Carbon::parse($dtr->date)->format('M d') }}</strong>
+                                        <span class="official-hours-note">
+                                            AM {{ $dtr->official_schedule['am'] }} &middot; PM {{ $dtr->official_schedule['pm'] }}
+                                        </span>
+                                    </div>
+                                    <div class="session-grid">
+                                        <div class="session-cell">
+                                            <span>AM In</span>
+                                            <strong>{{ $dtr->daily_punches['am_in'] ?: '--' }}</strong>
+                                        </div>
+                                        <div class="session-cell">
+                                            <span>AM Out</span>
+                                            <strong>{{ $dtr->daily_punches['am_out'] ?: '--' }}</strong>
+                                        </div>
+                                        <div class="session-cell">
+                                            <span>PM In</span>
+                                            <strong>{{ $dtr->daily_punches['pm_in'] ?: '--' }}</strong>
+                                        </div>
+                                        <div class="session-cell">
+                                            <span>PM Out</span>
+                                            <strong>{{ $dtr->daily_punches['pm_out'] ?: '--' }}</strong>
+                                        </div>
+                                    </div>
+                                </li>
+                            @empty
+                                <li class="text-muted">No DTR records yet.</li>
+                            @endforelse
+                        </ul>
                     </div>
                 </div>
 
                 <div class="action-card p-3 mb-3">
                     <h5 class="font-weight-bold mb-3">Quick Actions</h5>
-                    <a class="quick-action mb-2" href="{{ route('empPDS') }}">
-                        <i class="fas fa-clipboard"></i>
-                        <span>Open PDS</span>
-                    </a>
-                    @if($isRegularEmployee)
-                        <a class="quick-action mb-2" href="{{ route('leavesReadEmp') }}">
-                            <i class="fas fa-calendar-plus"></i>
-                            <span>File or Check Leave</span>
+                    <div class="quick-actions">
+                        <a class="quick-action" href="{{ route('empPDS') }}">
+                            <i class="fas fa-clipboard"></i>
+                            <span>Open PDS</span>
                         </a>
-                    @endif
-                    <a class="quick-action mb-2" href="{{ route('dtr-read') }}">
-                        <i class="fas fa-clock"></i>
-                        <span>View DTR</span>
-                    </a>
-                    <a class="quick-action" href="{{ route('drive') }}">
-                        <i class="fas fa-folder-open"></i>
-                        <span>Open SPMS</span>
-                    </a>
+                        @if($isRegularEmployee)
+                            <a class="quick-action" href="{{ route('leavesReadEmp') }}">
+                                <i class="fas fa-calendar-plus"></i>
+                                <span>File or Check Leave</span>
+                            </a>
+                        @endif
+                        <a class="quick-action" href="{{ route('dtr-read') }}">
+                            <i class="fas fa-clock"></i>
+                            <span>View DTR</span>
+                        </a>
+                        <a class="quick-action" href="{{ route('drive') }}">
+                            <i class="fas fa-folder-open"></i>
+                            <span>Open SPMS</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

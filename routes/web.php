@@ -462,6 +462,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
 
     Route::get('/settings', [MasterController::class, 'systemSetting'])->name('settings');
+    Route::patch('/settings', [MasterController::class, 'updateSettings'])->name('settings.update');
     Route::patch('/settings/maintenance', [MasterController::class, 'updateMaintenance'])->name('settings.maintenance.update');
     Route::get('/leave/disapprove', [LeaveApplicationController::class, 'leaveDisapprove']);
     Route::post('/logout', [MasterController::class, 'logout'])->name('logout');

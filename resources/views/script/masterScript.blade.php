@@ -176,19 +176,29 @@
         .catch(function () { if (window.toastr) toastr.error('Failed to reschedule event.'); });
     }
 
+    // Phones get a list view and natural height; month grids are unreadable at that width.
+    function isPhone() { return window.innerWidth < 576; }
+
+    // Fit the calendar within the viewport so the whole month is visible with
+    // minimal page scrolling; rows compress and overflow scrolls internally.
+    function calendarHeight() {
+      return isPhone() ? 'auto' : Math.max(480, window.innerHeight - 170);
+    }
+
+    function calendarToolbar() {
+      return isPhone()
+        ? { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listWeek' }
+        : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek' };
+    }
+
     var calendar = new Calendar(calendarEl, {
-      headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-      },
+      headerToolbar: calendarToolbar(),
+      initialView: isPhone() ? 'listWeek' : 'dayGridMonth',
       themeSystem: 'bootstrap',
       navLinks: true,
       nowIndicator: true,
       dayMaxEvents: true,
-      // Fit the calendar within the viewport so the whole month is visible with
-      // minimal page scrolling; rows compress and overflow scrolls internally.
-      height: Math.max(480, window.innerHeight - 170),
+      height: calendarHeight(),
       expandRows: true,
 
       events: function (fetchInfo, successCallback, failureCallback) {
@@ -294,9 +304,16 @@
 
     calendar.render();
 
-    // Keep the calendar fitted to the window as it resizes.
+    // Keep the calendar fitted to the window as it resizes, swapping to the
+    // phone layout (and back) when the breakpoint is crossed.
+    var wasPhone = isPhone();
     window.addEventListener('resize', function () {
-      calendar.setOption('height', Math.max(480, window.innerHeight - 170));
+      calendar.setOption('height', calendarHeight());
+      if (isPhone() !== wasPhone) {
+        wasPhone = isPhone();
+        calendar.setOption('headerToolbar', calendarToolbar());
+        calendar.changeView(wasPhone ? 'listWeek' : 'dayGridMonth');
+      }
     });
 
     // Remove a dragged-in preset from the calendar if its create modal is cancelled;

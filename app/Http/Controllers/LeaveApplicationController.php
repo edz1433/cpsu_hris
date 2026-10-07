@@ -175,17 +175,19 @@ class LeaveApplicationController extends Controller
 
         // dd($leavesapp);
 
-        $setting = Setting::join('employees as hr', 'hr.id', '=', 'settings.hr')
-        ->join('employees as sucpres', 'sucpres.id', '=', 'settings.suc_pres')
+        // Left joins so a missing HR Head or President in settings doesn't hide
+        // the settings row, which is what identifies the president below.
+        $setting = Setting::leftJoin('employees as hr', 'hr.id', '=', 'settings.hr')
+        ->leftJoin('employees as sucpres', 'sucpres.id', '=', 'settings.suc_pres')
         ->select(
-            'settings.*', 
-            'hr.lname as hr_lname', 
-            'hr.fname as hr_fname', 
-            'hr.mname as hr_mname', 
+            'settings.*',
+            'hr.lname as hr_lname',
+            'hr.fname as hr_fname',
+            'hr.mname as hr_mname',
             'hr.suffix as hr_suffix',
-            'sucpres.lname as sucpres_lname', 
-            'sucpres.fname as sucpres_fname', 
-            'sucpres.mname as sucpres_mname', 
+            'sucpres.lname as sucpres_lname',
+            'sucpres.fname as sucpres_fname',
+            'sucpres.mname as sucpres_mname',
             'sucpres.suffix as sucpres_suffix',
         )
         ->first();
@@ -206,25 +208,34 @@ class LeaveApplicationController extends Controller
         $headOfficeIds = Office::where('office_head_id', $authid)->pluck('id')->all();
         $oicOfficeIds = Office::where('oic_id', $authid)->pluck('id')->all();
 
-        if ((int) optional($setting)->suc_pres === (int) $authid) {
-            $leavesapphead->whereIn('leave_applications.status', [3]);
-        }else{
+        $isPresident = (int) optional($setting)->suc_pres === (int) $authid;
+
+        $leavesapphead->where(function ($query) use ($isPresident, $employee, $authid, $headOfficeIds, $oicOfficeIds) {
             // Applications the user has to act on: the ones filed under them as
             // immediate supervisor, plus those of the office they head or sit as
             // OIC for. Their own application never shows up here.
-            $leavesapphead->where('leave_applications.empid', '!=', $employee->emp_ID)
-                ->where(function ($query) use ($authid, $headOfficeIds, $oicOfficeIds) {
-                    $query->where('leave_applications.supervisor', $authid);
+            $query->where(function ($query) use ($employee, $authid, $headOfficeIds, $oicOfficeIds) {
+                $query->where('leave_applications.empid', '!=', $employee->emp_ID)
+                    ->where(function ($query) use ($authid, $headOfficeIds, $oicOfficeIds) {
+                        $query->where('leave_applications.supervisor', $authid);
 
-                    if ($oicOfficeIds) {
-                        $query->orWhereIn('leave_applications.department', $oicOfficeIds);
-                    }
+                        if ($oicOfficeIds) {
+                            $query->orWhereIn('leave_applications.department', $oicOfficeIds);
+                        }
 
-                    if ($headOfficeIds) {
-                        $query->orWhereIn('sup.emp_dept', $headOfficeIds);
-                    }
-                });
-        }
+                        if ($headOfficeIds) {
+                            $query->orWhereIn('sup.emp_dept', $headOfficeIds);
+                        }
+                    });
+            });
+
+            // The president also gives the final approval on every application
+            // that has cleared the supervisor, and still signs as supervisor for
+            // the employees reporting directly to them.
+            if ($isPresident) {
+                $query->orWhere('leave_applications.status', 3);
+            }
+        });
         
         $leavesapphead = $leavesapphead->select(
             'leave_applications.*',

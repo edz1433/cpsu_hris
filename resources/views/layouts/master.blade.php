@@ -73,7 +73,14 @@
     }
     </style>
 </head>
-<body class="hold-transition sidebar-mini layout-fixed sidebar-collapse layout-navbar-fixed text-sm sb-layout">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed text-sm sb-layout">
+    <script>
+        // The sidebar starts open on desktop. Phones/tablets start on the icon
+        // rail, which the theme only draws when the sidebar is collapsed.
+        if (window.innerWidth < 992) {
+            document.body.classList.add('sidebar-collapse');
+        }
+    </script>
     <div class="wrapper">
         <!-- Navbar -->
         <nav class="main-header navbar navbar-expand navbar-warning">
@@ -97,25 +104,6 @@
                         </a>
                     </li>
                 @endif
-                
-                <!-- User Dropdown -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle text-success1" href="#" role="button" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        @php
-                            $profileUrl = asset('Profile/Employee/' . auth()->guard($guard)->user()->profile);
-                            $profilePath = public_path('Profile/Employee/' . auth()->guard($guard)->user()->profile);
-                        @endphp
-                        <img src="{{ file_exists($profilePath) && isset(auth()->guard($guard)->user()->profile) ? $profileUrl : asset('Profile/Employee/default.png') }}" alt="User Image" class="profile-image">
-                    </a>                    
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: inline;">
-                            @csrf
-                            <button type="submit" class="dropdown-item">
-                                <i class="fas fa-power-off fa-xs"></i> Sign Out
-                            </button>
-                        </form>
-                    </div>
-                </li>
             </ul>
         </nav>
         
