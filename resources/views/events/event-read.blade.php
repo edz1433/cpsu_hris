@@ -72,7 +72,8 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <form class="modal-content dtr-form" method="POST" action="{{ route('eventCreate') }}">
       @csrf
-      <input type="hidden" name="user_id" value="{{ Auth::user()->id }}">
+      {{-- Signed-in account on either guard; Auth::user() alone is null for employees. --}}
+      <input type="hidden" name="user_id" value="{{ optional(auth()->guard($guard)->user())->id }}">
       <input type="hidden" name="bg_color" id="create_bg_color" value="bg-primary">
 
       <div class="modal-header">

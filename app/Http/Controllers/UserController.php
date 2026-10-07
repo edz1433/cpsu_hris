@@ -61,10 +61,7 @@ class UserController extends Controller
             'gender' => $request->input('gender'),
         ];
     
-        $accessPermissions = array_fill(0, 8, '0');
-        foreach ($request->input('access', []) as $index => $value) {
-            $accessPermissions[$index] = '1';
-        }
+        $accessPermissions = $this->accessFlags($request);
     
         // if ($request->input('Role') === 'Administrator') {
         //     $accessPermissions[7] = '1';
@@ -82,7 +79,9 @@ class UserController extends Controller
     public function uEdit($id)
     {
         $guard = $this->getGuaard();
-        $users = User::select('id as uid', 'users.*')->get();
+        $users = User::join('dbcpsupms.campuses', 'users.campus_id', '=', 'campuses.id')
+            ->select('users.id as uid', 'users.*', 'campuses.*')
+            ->get();
         $uEdit = User::find($id);
         $camp = Campus::on('payroll')->get();
     
@@ -128,11 +127,7 @@ class UserController extends Controller
             'gender' => $request->input('gender'),
         ];
     
-        $accessPermissions = array_fill(0, 9, '0');
-    
-        foreach ($request->input('access', []) as $index => $value) {
-            $accessPermissions[$index] = '1';
-        }
+        $accessPermissions = $this->accessFlags($request);
     
         $userData['access'] = implode(',', $accessPermissions);
     
@@ -140,6 +135,23 @@ class UserController extends Controller
     
         return redirect()->back()->with('success', 'User updated successfully.');
     }    
+
+    /**
+     * One 0/1 flag per entry of User::PAGE_ACCESS, always in that order. Filling
+     * every slot first matters: implode() follows insertion order, not keys.
+     */
+    private function accessFlags(Request $request): array
+    {
+        $flags = array_fill(0, count(User::PAGE_ACCESS), '0');
+
+        foreach (array_keys($request->input('access', [])) as $index) {
+            if (array_key_exists($index, $flags)) {
+                $flags[$index] = '1';
+            }
+        }
+
+        return $flags;
+    }
 
     public function uDelete(Request $request) {
         $user = User::find($request->id);

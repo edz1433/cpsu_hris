@@ -14,8 +14,6 @@ use Illuminate\Support\Str;
 
 class EmployeeContractController extends Controller
 {
-    const ROLES = ['Administrator', 'HR Administrator'];
-
     protected $generator;
 
     public function __construct(ContractGenerator $generator)
@@ -26,7 +24,8 @@ class EmployeeContractController extends Controller
 
         $this->middleware(function ($request, $next) {
             $user = auth()->guard('web')->user();
-            abort_unless($this->getGuard() === 'web' && $user && in_array($user->role, self::ROLES, true), 403);
+            // Granted per account in User Management (Administrators always have it).
+            abort_unless($this->getGuard() === 'web' && $user && $user->canAccessPage('contracts'), 403);
 
             return $next($request);
         });

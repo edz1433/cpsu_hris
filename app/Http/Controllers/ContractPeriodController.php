@@ -10,8 +10,6 @@ use Illuminate\Http\Request;
 
 class ContractPeriodController extends Controller
 {
-    const ROLES = ['Administrator', 'HR Administrator'];
-
     public function __construct()
     {
         // Shares the navbar notification data the layout needs.
@@ -19,7 +17,8 @@ class ContractPeriodController extends Controller
 
         $this->middleware(function ($request, $next) {
             $user = auth()->guard('web')->user();
-            abort_unless($this->getGuard() === 'web' && $user && in_array($user->role, self::ROLES, true), 403);
+            // Granted per account in User Management (Administrators always have it).
+            abort_unless($this->getGuard() === 'web' && $user && $user->canAccessPage('contracts'), 403);
 
             return $next($request);
         });

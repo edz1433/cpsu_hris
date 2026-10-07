@@ -595,8 +595,9 @@ class MasterController extends Controller
 
     private function authorizeSystemSettings(): void
     {
+        // Administrators only; see User::canAccessPage().
         abort_unless(
-            Auth::guard('web')->check() && Auth::guard('web')->user()->role === 'Administrator',
+            Auth::guard('web')->check() && Auth::guard('web')->user()->canAccessPage('settings'),
             403
         );
     }

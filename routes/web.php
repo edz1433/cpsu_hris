@@ -79,8 +79,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
 
     // Drive 
     Route::prefix('spms')->group(function() {
-        Route::get('/', [MasterController::class, 'drive'])->name('drive');
-        Route::get('/{id}', [DocumentFolderController::class, 'subFolder'])->name('sub-folder');
+        Route::get('/', [MasterController::class, 'drive'])->name('drive')->middleware('page.access:spms');
+        Route::get('/{id}', [DocumentFolderController::class, 'subFolder'])->name('sub-folder')->middleware('page.access:spms');
         Route::post('/create', [DocumentFolderController::class, 'createFolder'])->name('create-folder');
         Route::post('/update', [DocumentFolderController::class, 'updateFolder'])->name('update-folder');
         Route::post('/create-sub/{id}', [DocumentFolderController::class, 'createSubFolder'])->name('create-subfolder');
@@ -139,7 +139,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/update-asignatories', [DocumentController::class, 'updateAsignatories'])->name('updateAsignatories');
     });
 
-    Route::prefix('spms-set')->group(function() {
+    Route::prefix('spms-set')->middleware('page.access:spms')->group(function() {
         //PR PMT
         Route::get('/{cat}', [SpmsPersonnelController::class, 'spmsPersonnlist'])->name('spmsPersonnlist');
         Route::post('/create', [SpmsPersonnelController::class, 'spmsPersonnCreate'])->name('spmsPersonnCreate');
@@ -149,7 +149,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
 
     //DEANS
-    Route::prefix('deans')->group(function() {
+    Route::prefix('deans')->middleware('page.access:spms')->group(function() {
         Route::get('/', [DeansController::class, 'deanlist'])->name('deanlist');
         Route::post('/create', [DeansController::class, 'deanCreate'])->name('deanCreate');
         Route::get('/edit/{id}', [DeansController::class, 'deanEdit'])->name('deanEdit');
@@ -158,7 +158,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
 
     //PR SETTINGS
-    Route::prefix('spms-mfo-settings')->group(function() {
+    Route::prefix('spms-mfo-settings')->middleware('page.access:spms')->group(function() {
         Route::get('/', [SpmsMfoPercentageController::class, 'mfoSettings'])->name('mfoSettings');
         Route::post('/mfo-setting-create', [SpmsMfoPercentageController::class, 'mfoSettingsCreate'])->name('mfoSettingsCreate');
         Route::get('/mfo-setting-edit/{id}', [SpmsMfoPercentageController::class, 'mfoSettingsEdit'])->name('mfoSettingsEdit');
@@ -166,7 +166,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
 
     // DTR
-    Route::prefix('dtr')->group(function() {
+    Route::prefix('dtr')->middleware('page.access:dtr')->group(function() {
         Route::get('/', [DtrController::class, 'dtrRead'])->name('dtr-read');
         Route::post('/', [DtrController::class, 'dtrSearch'])->name('dtrSearch');
         Route::get('/dtr-logs', [DtrController::class, 'dtrLogs'])->name('dtrLogs');
@@ -270,9 +270,9 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
 
     // Employee
     Route::prefix('employees')->group(function() {
-        Route::get('/', [EmployeeController::class, 'emp_list'])->name('emp_list');
-        Route::get('/add', [EmployeeController::class, 'empAdd'])->name('empAdd');
-        Route::get('/generate', [EmployeeController::class, 'genEmp'])->name('genEmp');
+        Route::get('/', [EmployeeController::class, 'emp_list'])->name('emp_list')->middleware('page.access:employees');
+        Route::get('/add', [EmployeeController::class, 'empAdd'])->name('empAdd')->middleware('page.access:employees');
+        Route::get('/generate', [EmployeeController::class, 'genEmp'])->name('genEmp')->middleware('page.access:employees');
 
         Route::post('/create', [EmployeeController::class, 'empCreate'])->name('empCreate');
         Route::post('/update-profile/{id}', [EmployeeController::class, 'updateProfilePicture'])->name('updateProfilePicture');
@@ -281,12 +281,12 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/toggle-acct-stat', [EmployeeController::class, 'toggleAcctStat'])->name('toggleAcctStat');
         Route::post('/official-time/{empid}', [EmployeeController::class, 'OfficialTimeRead'])->name('OfficialTimeRead');
         Route::post('/official-time-create', [EmployeeController::class, 'OfficialTimeCreate'])->name('OfficialTimeCreate');
-        Route::get('/emp-qr', [EmployeeController::class, 'empQr'])->name('empQr');
+        Route::get('/emp-qr', [EmployeeController::class, 'empQr'])->name('empQr')->middleware('page.access:employees');
 
-        Route::get('/delete/{id}', [EmployeeController::class, 'empDelete'])->name('empDelete');
+        Route::get('/delete/{id}', [EmployeeController::class, 'empDelete'])->name('empDelete')->middleware('page.access:employees');
     });
     
-    Route::prefix('tardiness')->group(function(){
+    Route::prefix('tardiness')->middleware('page.access:dtr')->group(function(){
         Route::get('/data', [TirednessController::class, 'readTiredness'])->name('readTiredness');
         Route::post('/data', [TirednessController::class, 'readTiredness'])->name('tirednessSearch');
         Route::get('/pdf/{employeeId}/{month}', [TirednessController::class, 'pdfTirednes'])->name('pdfTirednes');
@@ -298,7 +298,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
     
     //pds
-    Route::prefix('pds')->group(function() {
+    Route::prefix('pds')->middleware('page.access:employees')->group(function() {
         Route::get('/', [PdsController::class, 'empPDS'])->name('empPDS');  
         Route::get('/generate/{id?}', [PdsController::class, 'generatepds'])->name('generatepds');
         Route::get('/attachment/{id?}', [PdsController::class, 'genpdsAtthachment'])->name('genpdsAtthachment');
@@ -381,7 +381,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
     
     // Office
-    Route::prefix('office')->group(function() {
+    Route::prefix('office')->middleware('page.access:offices')->group(function() {
         Route::get('/', [OfficeController::class, 'officeList'])->name('officeList');
         Route::post('/create', [OfficeController::class, 'officeCreate'])->name('officeCreate');
         Route::get('/edit/{id}', [OfficeController::class, 'officeEdit'])->name('officeEdit');
@@ -397,7 +397,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     }); 
 
     // Calendar
-    Route::prefix('events')->group(function() {
+    Route::prefix('events')->middleware('page.access:events')->group(function() {
         Route::get('/list', [CalendarController::class, 'eventRead'])->name('eventRead');
         Route::get('/show', [CalendarController::class, 'eventShow'])->name('eventShow');
         // Route::post('/create', [CalendarController::class, 'eventCreate'])->name('eventCreate');
@@ -407,7 +407,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
     
     //Leave-Credits
-    Route::prefix('leaves')->group(function() {
+    Route::prefix('leaves')->middleware('page.access:leave')->group(function() {
         Route::get('/{id?}', [LeaveCreditController::class, 'leavesRead'])->name('leavesRead');
         Route::post('/leaves-create', [LeaveCreditController::class, 'leavesCreate'])->name('leavesCreate');
         Route::post('/leaves-deduct', [LeaveCreditController::class, 'leavescreditDeduct'])->name('leavescreditDeduct');
@@ -426,7 +426,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
 
     // leave
-    Route::prefix('leave')->group(function() {
+    Route::prefix('leave')->middleware('page.access:leave')->group(function() {
         Route::get('/', [LeaveCreditController::class, 'leavesReadEmp'])->name('leavesReadEmp');
         Route::post('/create', [LeaveApplicationController::class, 'LeaveAppCreate'])->name('LeaveAppCreate');
         
@@ -450,7 +450,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
     
     // events
-    Route::prefix('event')->group(function() {
+    Route::prefix('event')->middleware('page.access:events')->group(function() {
         Route::get('/', [EventController::class, 'eventIndex'])->name('eventIndex');
         Route::post('/create', [EventController::class, 'eventCreate'])->name('eventCreate');
         Route::get('/event-json', [EventController::class, 'eventShow'])->name('eventJson');
@@ -461,14 +461,14 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/reports-generate/{eventid}/{campusid}/{statusid}', [EventController::class, 'reportGenrate'])->name('reportGenrate');
     });
 
-    Route::get('/settings', [MasterController::class, 'systemSetting'])->name('settings');
-    Route::patch('/settings', [MasterController::class, 'updateSettings'])->name('settings.update');
-    Route::patch('/settings/maintenance', [MasterController::class, 'updateMaintenance'])->name('settings.maintenance.update');
+    Route::get('/settings', [MasterController::class, 'systemSetting'])->name('settings')->middleware('page.access:settings');
+    Route::patch('/settings', [MasterController::class, 'updateSettings'])->name('settings.update')->middleware('page.access:settings');
+    Route::patch('/settings/maintenance', [MasterController::class, 'updateMaintenance'])->name('settings.maintenance.update')->middleware('page.access:settings');
     Route::get('/leave/disapprove', [LeaveApplicationController::class, 'leaveDisapprove']);
     Route::post('/logout', [MasterController::class, 'logout'])->name('logout');
 
     // Contract of Services
-    Route::prefix('contracts')->name('contracts.')->group(function() {
+    Route::prefix('contracts')->name('contracts.')->middleware('page.access:contracts')->group(function() {
         Route::get('/', [ContractPeriodController::class, 'index'])->name('index');
         Route::post('/', [ContractPeriodController::class, 'store'])->name('store');
         Route::get('/{period}', [ContractPeriodController::class, 'show'])->name('show')->whereNumber('period');
