@@ -50,7 +50,7 @@ use App\Http\Controllers\EmployeeContractController;
 
 //login
 Route::middleware('maintenance.login')->group(function () {
-    // Route::get('/hr-admin',[LoginAuthController::class,'getLoginAdmin'])->name('getLoginAdmin');
+    Route::get('/hr-admin',[LoginAuthController::class,'getLoginAdmin'])->name('getLoginAdmin');
     Route::get('/',[LoginAuthController::class,'getLogin'])->name('getLogin')->middleware([NoCacheMiddleware::class]);
     Route::post('/post-login',[LoginAuthController::class,'postLogin'])->name('postLogin');
     // Route::get('/update-pass', [EmployeeController::class, 'updateEmployeePasswords']);
