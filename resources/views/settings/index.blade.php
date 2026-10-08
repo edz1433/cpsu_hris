@@ -1,190 +1,191 @@
 @extends('layouts.master')
 
 @section('body')
-<style>
-    .custom-label {
-        width: 45px;
-        padding: 0px;
-        padding-left: 5px;
-        text-align: center;
-    }
-    .settings-group {
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        padding: 1.25rem;
-        margin-bottom: 1.5rem;
-        background: #fff;
-    }
-    .group-header {
-        margin: -1.25rem -1.25rem 1.25rem -1.25rem;
-        padding: 0.75rem 1.25rem;
-        background: #f8f9fa;
-        border-bottom: 1px solid #e0e0e0;
-        border-radius: 6px 6px 0 0;
-        font-weight: 600;
-        color: #2c3e50;
-    }
-</style>
+@php
+    $positionFields = [
+        'suc_pres' => ['SUC President', true],
+        'vpaa' => ['Vice President of Academic Affairs', false],
+        'vpaf' => ['Vice President of Administration and Finance', false],
+        'hr' => ['HR Head', true],
+    ];
+    $selectedKiosk = old('hr_kiosk', $kioskAccess);
+    $selectedDtr = array_map('intval', old('dtr_acct', $dtrFullAccess));
+    // [label, what it does on the HR kiosk]
+    $restrictionLevels = [
+        0 => ['None', 'Time entries are allowed at any time.'],
+        1 => ['Partial', 'Time entries are allowed only from 11:00 AM to 1:30 PM.'],
+        2 => ['Full', 'Time entries are not available.'],
+    ];
+    $currentLevel = (int) old('te_rstrct_lvl', $settings->te_rstrct_lvl ?? 2);
+    $isMaintenance = (bool) $settings->maintenance;
+@endphp
+<div class="container-fluid dash">
+    <div class="dtr-head">
+        <div>
+            <h1>Settings</h1>
+            <p>System-wide signatories, time and attendance rules, notification emails and maintenance mode.</p>
+        </div>
+        <span class="lv-pill {{ $isMaintenance ? 'is-deducted' : 'is-added' }} set-state">
+            <i class="fas fa-circle"></i> {{ $isMaintenance ? 'Maintenance mode is on' : 'System is live' }}
+        </span>
+    </div>
 
-<div class="container-fluid">
     <div class="row">
-        <div class="col-lg-12">
-            <div class="card card-outline card-success">
-                <div class="card-header">
-                    <h2 class="card-title text-success1"><b>SYSTEM SETTINGS</b></h2>
+        <div class="col-xl-8">
+            <form id="systemSettingsForm" method="POST" action="{{ route('settings.update') }}" class="dtr-form">
+                @csrf
+                @method('PATCH')
+
+                {{-- Signatories --}}
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <h5><i class="fas fa-user-tie" style="color: var(--cpsu-green-600);"></i>Executive / leadership positions</h5>
+                    </div>
+                    <div class="dash-card-body">
+                        <div class="form-row">
+                            @foreach($positionFields as $field => [$label, $required])
+                                <div class="col-md-6 dtr-field">
+                                    <label class="dtr-label" for="{{ $field }}">
+                                        {{ $label }} @if($required)<span class="text-danger">*</span>@else<span class="font-weight-normal">(optional)</span>@endif
+                                    </label>
+                                    <select id="{{ $field }}" name="{{ $field }}" class="form-control select2 @error($field) is-invalid @enderror" style="width: 100%;" {{ $required ? 'required' : '' }}>
+                                        <option value="">-- Select employee --</option>
+                                        @foreach($employees as $emp)
+                                            <option value="{{ $emp->id }}" {{ (int) old($field, $settings->$field) === (int) $emp->id ? 'selected' : '' }}>
+                                                {{ ucfirst($emp->fname) }} {{ ucfirst($emp->lname) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error($field)<small class="text-danger">{{ $message }}</small>@enderror
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="ete-note mb-0">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Changing the SUC President or HR Head moves leave applications still waiting on their signature to the new person. Applications they already signed keep the original signatory.</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="card-body bg-form">
-                    @php
-                        $positionFields = [
-                            'suc_pres' => ['SUC President', true],
-                            'vpaa' => ['Vice President of Academic Affairs', false],
-                            'vpaf' => ['Vice President of Administration and Finance', false],
-                            'hr' => ['HR Head', true],
-                        ];
-                        $selectedKiosk = old('hr_kiosk', $kioskAccess);
-                        $selectedDtr = array_map('intval', old('dtr_acct', $dtrFullAccess));
-                    @endphp
+                {{-- Time & attendance --}}
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <h5><i class="fas fa-clock" style="color: var(--cpsu-green-600);"></i>Time and attendance</h5>
+                    </div>
+                    <div class="dash-card-body">
+                        <div class="set-row">
+                            <div class="set-row-text">
+                                <span class="dtr-label mb-1" id="te_rstrct_lvl_label">Time entry restriction</span>
+                                <p class="set-help" id="teRestrictionHelp">{{ $restrictionLevels[$currentLevel][1] ?? '' }}</p>
+                            </div>
+                            <div class="dtr-seg set-seg" role="radiogroup" aria-labelledby="te_rstrct_lvl_label">
+                                @foreach($restrictionLevels as $value => [$label, $help])
+                                    <input type="radio" name="te_rstrct_lvl" id="te_rstrct_lvl{{ $value }}" value="{{ $value }}" data-help="{{ $help }}" {{ $currentLevel === $value ? 'checked' : '' }} required>
+                                    <label for="te_rstrct_lvl{{ $value }}">{{ $label }}</label>
+                                @endforeach
+                            </div>
+                        </div>
+                        @error('te_rstrct_lvl')<small class="text-danger d-block">{{ $message }}</small>@enderror
 
-                    <form id="systemSettingsForm" method="POST" action="{{ route('settings.update') }}">
+                        <div class="set-row">
+                            <div class="set-row-text">
+                                <label class="dtr-label mb-0" for="sync_backups">HR kiosk backtrack sync</label>
+                            </div>
+                            <input type="hidden" name="sync_backups" value="0">
+                            <label class="set-switch">
+                                <input type="checkbox" id="sync_backups" name="sync_backups" value="1" {{ old('sync_backups', $settings->sync_backups) ? 'checked' : '' }}>
+                                <span class="set-switch-track" aria-hidden="true"></span>
+                                <span class="set-switch-text" data-on="On" data-off="Off"></span>
+                            </label>
+                        </div>
+
+                        <div class="dtr-field mt-3">
+                            <label class="dtr-label" for="hr_kiosk">HR kiosk access <span class="font-weight-normal set-count" data-count-for="hr_kiosk"></span></label>
+                            <select id="hr_kiosk" name="hr_kiosk[]" class="form-control select2" style="width: 100%;" multiple>
+                                @foreach($employees as $emp)
+                                    <option value="{{ $emp->emp_ID }}" {{ in_array($emp->emp_ID, $selectedKiosk, true) ? 'selected' : '' }}>
+                                        {{ ucfirst($emp->fname) }} {{ ucfirst($emp->lname) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <p class="set-help mt-1">Employees who can sign in to the HR kiosk's admin mode.</p>
+                            @error('hr_kiosk.*')<small class="text-danger">{{ $message }}</small>@enderror
+                        </div>
+
+                        <div class="dtr-field mb-0">
+                            <label class="dtr-label" for="dtr_acct">DTR full access <span class="font-weight-normal set-count" data-count-for="dtr_acct"></span></label>
+                            <select id="dtr_acct" name="dtr_acct[]" class="form-control select2" style="width: 100%;" multiple>
+                                @foreach($employees as $emp)
+                                    <option value="{{ $emp->id }}" {{ in_array((int) $emp->id, $selectedDtr, true) ? 'selected' : '' }}>
+                                        {{ ucfirst($emp->fname) }} {{ ucfirst($emp->lname) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('dtr_acct.*')<small class="text-danger">{{ $message }}</small>@enderror
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Email --}}
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <h5><i class="fas fa-envelope" style="color: var(--cpsu-green-600);"></i>Email and notifications</h5>
+                    </div>
+                    <div class="dash-card-body">
+                        <div class="form-row">
+                            @foreach(['records_office_email' => 'Records office email', 'job_portal_email' => 'Job portal email'] as $field => $label)
+                                <div class="col-md-6 dtr-field mb-md-0">
+                                    <label class="dtr-label" for="{{ $field }}">{{ $label }} <span class="font-weight-normal">(optional)</span></label>
+                                    <input type="email" id="{{ $field }}" name="{{ $field }}" value="{{ old($field, $settings->$field) }}"
+                                           class="form-control @error($field) is-invalid @enderror" placeholder="name@cpsu.edu.ph" autocomplete="off">
+                                    @error($field)<small class="text-danger">{{ $message }}</small>@enderror
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                <div class="set-savebar">
+                    <span class="set-help mb-0">Saves the three sections above. Maintenance mode saves on its own.</span>
+                    <button type="submit" class="dtr-generate" id="saveSettingsBtn">
+                        <i class="fas fa-save mr-1"></i> Save settings
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-xl-4">
+            {{-- Maintenance --}}
+            <div class="dash-card set-maint {{ $isMaintenance ? 'is-on' : '' }}">
+                <div class="dash-card-header">
+                    <h5><i class="fas fa-tools" style="color: {{ $isMaintenance ? '#c53b30' : 'var(--cpsu-green-600)' }};"></i>Maintenance</h5>
+                </div>
+                <div class="dash-card-body">
+                    <form id="maintenanceSettingsForm" method="POST" action="{{ route('settings.maintenance.update') }}">
                         @csrf
                         @method('PATCH')
+                        <input type="hidden" name="maintenance" value="0">
 
-                        <!-- Group 1: Executive / Leadership Positions -->
-                        <div class="settings-group">
-                            <div class="group-header">Executive / Leadership Positions</div>
-                            <div class="row">
-                                @foreach($positionFields as $field => [$label, $required])
-                                    <div class="col-md-6 col-lg-3">
-                                        <div class="mb-3">
-                                            <label class="d-block font-weight-bold" for="{{ $field }}">
-                                                {{ $label }} @if($required)<span class="text-danger">*</span>@endif
-                                            </label>
-                                            <select id="{{ $field }}" name="{{ $field }}" class="form-control form-select select2 @error($field) is-invalid @enderror" style="width: 100%;" {{ $required ? 'required' : '' }}>
-                                                <option value="">-- Select employee --</option>
-                                                @foreach($employees as $emp)
-                                                    <option value="{{ $emp->id }}" {{ (int) old($field, $settings->$field) === (int) $emp->id ? 'selected' : '' }}>
-                                                        {{ ucfirst($emp->fname) }} {{ ucfirst($emp->lname) }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            @error($field)<small class="text-danger">{{ $message }}</small>@enderror
-                                        </div>
-                                    </div>
-                                @endforeach
+                        <div class="set-row pt-0 border-0">
+                            <div class="set-row-text">
+                                <label class="dtr-label mb-1" for="maintenanceSwitch">System maintenance mode</label>
+                                <p class="set-help">{{ $isMaintenance ? 'On: new logins are blocked.' : 'Off: everyone can log in.' }}</p>
                             </div>
-                            <small class="form-text text-muted">
-                                Changing the SUC President or HR Head moves leave applications still waiting on their signature to the new person. Applications they already signed keep the original signatory.
-                            </small>
+                            <label class="set-switch is-danger">
+                                <input type="checkbox" id="maintenanceSwitch" name="maintenance" value="1" {{ $isMaintenance ? 'checked' : '' }}>
+                                <span class="set-switch-track" aria-hidden="true"></span>
+                                <span class="set-switch-text" data-on="On" data-off="Off"></span>
+                            </label>
                         </div>
 
-                        <!-- Group 2: Time & Attendance Settings -->
-                        <div class="settings-group">
-                            <div class="group-header">Time & Attendance Settings</div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="d-block font-weight-bold" for="te_rstrct_lvl">Time Entry Restriction</label>
-                                        <select id="te_rstrct_lvl" name="te_rstrct_lvl" class="form-control form-select select2" style="width: 100%;">
-                                            @foreach([0 => 'None', 1 => 'Partial Restriction', 2 => 'Full Restriction'] as $value => $label)
-                                                <option value="{{ $value }}" {{ (int) old('te_rstrct_lvl', $settings->te_rstrct_lvl ?? 2) === $value ? 'selected' : '' }}>{{ $label }}</option>
-                                            @endforeach
-                                        </select>
-                                        @error('te_rstrct_lvl')<small class="text-danger">{{ $message }}</small>@enderror
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="d-block font-weight-bold mb-2" for="sync_backups">HR Kiosk Backtrack Sync</label>
-                                        <input type="hidden" name="sync_backups" value="0">
-                                        <input type="checkbox" id="sync_backups" name="sync_backups" value="1" data-bootstrap-switch
-                                               data-off-color="danger" data-on-color="success"
-                                               {{ old('sync_backups', $settings->sync_backups) ? 'checked' : '' }}>
-                                    </div>
-                                </div>
-
-                                <div class="col-12">
-                                    <div class="mb-3">
-                                        <label class="d-block font-weight-bold" for="hr_kiosk">HR Kiosk Access</label>
-                                        <select id="hr_kiosk" name="hr_kiosk[]" class="form-control form-select select2" style="width: 100%;" multiple>
-                                            @foreach($employees as $emp)
-                                                <option value="{{ $emp->emp_ID }}" {{ in_array($emp->emp_ID, $selectedKiosk, true) ? 'selected' : '' }}>
-                                                    {{ ucfirst($emp->fname) }} {{ ucfirst($emp->lname) }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('hr_kiosk.*')<small class="text-danger">{{ $message }}</small>@enderror
-                                    </div>
-                                </div>
-
-                                <div class="col-12">
-                                    <div class="mb-3">
-                                        <label class="d-block font-weight-bold" for="dtr_acct">DTR Full Access</label>
-                                        <select id="dtr_acct" name="dtr_acct[]" class="form-control form-select select2" style="width: 100%;" multiple>
-                                            @foreach($employees as $emp)
-                                                <option value="{{ $emp->id }}" {{ in_array((int) $emp->id, $selectedDtr, true) ? 'selected' : '' }}>
-                                                    {{ ucfirst($emp->fname) }} {{ ucfirst($emp->lname) }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('dtr_acct.*')<small class="text-danger">{{ $message }}</small>@enderror
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="set-warn">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Changes save automatically. When enabled, the login form and Google sign-in are replaced by the Under Maintenance page for everyone, including administrators. Keep this session open so you can turn maintenance mode off again.</span>
                         </div>
-
-                        <!-- Group 3: Email & Notification Settings -->
-                        <div class="settings-group">
-                            <div class="group-header">Email & Notification Settings</div>
-                            <div class="row">
-                                @foreach(['records_office_email' => 'Records Office Email', 'job_portal_email' => 'Job Portal Email'] as $field => $label)
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="d-block font-weight-bold" for="{{ $field }}">{{ $label }}</label>
-                                            <input type="email" id="{{ $field }}" name="{{ $field }}" value="{{ old($field, $settings->$field) }}"
-                                                   class="form-control form-control-sm @error($field) is-invalid @enderror" placeholder="Enter email">
-                                            @error($field)<small class="text-danger">{{ $message }}</small>@enderror
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-
-                        <div class="text-right mb-4">
-                            <button type="submit" class="btn btn-success" id="saveSettingsBtn">
-                                <i class="fas fa-save mr-1"></i> Save Settings
-                            </button>
-                        </div>
+                        <p id="maintenanceSaving" class="set-help text-success mt-2 mb-0 d-none">
+                            <i class="fas fa-spinner fa-spin mr-1"></i> Saving maintenance setting...
+                        </p>
                     </form>
-
-                    <!-- Group 4: Maintenance -->
-                    <div class="settings-group">
-                        <div class="group-header">Maintenance</div>
-                        <form id="maintenanceSettingsForm" method="POST" action="{{ route('settings.maintenance.update') }}">
-                            @csrf
-                            @method('PATCH')
-                            <input type="hidden" name="maintenance" value="0">
-
-                            <div class="row align-items-center">
-                                <div class="col-12">
-                                    <div class="mb-0">
-                                        <label class="d-block font-weight-bold mb-2" for="maintenanceSwitch">System Maintenance Mode</label>
-                                        <input type="checkbox" id="maintenanceSwitch" name="maintenance" value="1"
-                                               data-bootstrap-switch data-off-color="danger" data-on-color="success"
-                                               {{ $settings->maintenance ? 'checked' : '' }}>
-                                        <small class="form-text text-muted mt-2">
-                                            Changes save automatically. When enabled, the login form and Google sign-in are replaced by the Under Maintenance page for everyone, including administrators. Keep this session open so you can turn maintenance mode off again.
-                                        </small>
-                                        <small id="maintenanceSaving" class="form-text text-success mt-1 d-none">
-                                            <i class="fas fa-spinner fa-spin mr-1"></i> Saving maintenance setting...
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-
                 </div>
             </div>
         </div>
@@ -192,25 +193,42 @@
 </div>
 
 <script>
-    window.addEventListener('load', function () {
-        if (!window.jQuery || !jQuery.fn.bootstrapSwitch) {
-            return;
-        }
-
-        jQuery('#systemSettingsForm').on('submit', function () {
-            jQuery('#saveSettingsBtn').prop('disabled', true)
-                .html('<i class="fas fa-spinner fa-spin mr-1"></i> Saving...');
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('systemSettingsForm').addEventListener('submit', function () {
+            const btn = document.getElementById('saveSettingsBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Saving...';
         });
 
-        const maintenanceSwitch = jQuery('#maintenanceSwitch');
-        let isSubmitting = false;
+        // Time entry restriction: show what the chosen level does.
+        document.querySelectorAll('input[name="te_rstrct_lvl"]').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                document.getElementById('teRestrictionHelp').textContent = radio.dataset.help;
+            });
+        });
 
-        maintenanceSwitch.on('switchChange.bootstrapSwitch', function () {
+        // "N selected" next to the access lists.
+        document.querySelectorAll('.set-count').forEach(function (badge) {
+            const select = document.getElementById(badge.dataset.countFor);
+            const update = function () {
+                const n = select.selectedOptions.length;
+                badge.textContent = '(' + n + ' selected)';
+            };
+            update();
+            $(select).on('change', update);
+        });
+
+        // Maintenance mode saves as soon as it is switched.
+        const maintenanceSwitch = document.getElementById('maintenanceSwitch');
+        let isSubmitting = false;
+        maintenanceSwitch.addEventListener('change', function () {
             if (isSubmitting) {
                 return;
             }
-
             isSubmitting = true;
+            maintenanceSwitch.disabled = true;
+            // A disabled checkbox isn't posted, so carry its value in the hidden field.
+            maintenanceSwitch.form.querySelector('input[type="hidden"][name="maintenance"]').value = maintenanceSwitch.checked ? 1 : 0;
             document.getElementById('maintenanceSaving').classList.remove('d-none');
             document.getElementById('maintenanceSettingsForm').submit();
         });

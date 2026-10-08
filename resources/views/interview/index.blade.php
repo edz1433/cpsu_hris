@@ -1,158 +1,221 @@
 @extends('layouts.master')
 
 @section('body')
-<style>
-    .interview-page .card { border:0; border-radius:16px; box-shadow:0 8px 28px rgba(15,23,42,.07); }
-    .interview-head { align-items:center; display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; padding:18px 20px; }
-    .interview-head h1 { font-size:1.15rem; font-weight:800; margin:0; }
-    .interview-page .table td, .interview-page .table th { vertical-align:middle; }
-    .panel-chip { background:#eef7f2; border:1px solid #cfe8d8; border-radius:999px; color:#206a3b; display:inline-block; font-size:.76rem; margin:2px; padding:4px 8px; }
-    .interview-page .modal-content { border:0; border-radius:16px; overflow:hidden; }
-</style>
-
-<div class="container-fluid interview-page">
-    <div class="card card-info card-outline">
-        <div class="interview-head">
-            <h1><i class="fas fa-comments mr-1"></i> Interview Assessment</h1>
-            <button class="btn btn-success" data-toggle="modal" data-target="#addInterviewModal">
-                <i class="fas fa-plus"></i> Add Interview
-            </button>
+@php
+    $isRankingAdmin = auth()->guard('web')->check() && in_array(auth()->guard('web')->user()->role, ['Administrator', 'HR Administrator'], true);
+    $panelName = fn ($panel) => trim(($panel->employee->lname ?? '') . ', ' . ($panel->employee->fname ?? ''), ', ');
+    $panelInitials = fn ($panel) => strtoupper(mb_substr($panel->employee->fname ?? '', 0, 1) . mb_substr($panel->employee->lname ?? '', 0, 1));
+    $liveCount = $interviews->filter(fn ($interview) => $interview->activeApplication)->count();
+@endphp
+<div class="container-fluid dash interview-page">
+    <div class="dtr-head">
+        <div>
+            <h1>Interview Assessment</h1>
+            <p>Panel interviews per position: cast a candidate, follow the panel's ratings and open the ranking.</p>
         </div>
+        <button type="button" class="lv-btn is-primary" data-toggle="modal" data-target="#addInterviewModal">
+            <i class="fas fa-plus"></i> New interview
+        </button>
+    </div>
 
-        <div class="card-body">
+    <div class="dash-card">
+        <div class="dash-card-header">
+            <h5><i class="fas fa-comments" style="color: var(--cpsu-green-600);"></i>Interviews <span class="eli-count">{{ count($interviews) }}</span></h5>
+            @if($liveCount > 0)
+                <span class="lv-pill is-added set-state"><i class="fas fa-circle"></i> {{ $liveCount }} with a candidate on the floor</span>
+            @endif
+        </div>
+        <div class="dash-card-body">
+            @if($interviews->isEmpty())
+                <div class="dtr-empty">
+                    <div class="dtr-empty-icon"><i class="fas fa-comments"></i></div>
+                    <h6>No interviews yet</h6>
+                    <p>Create one from an ETE evaluation with <b>New interview</b>.</p>
+                </div>
+            @else
             <div class="table-responsive">
-                <table id="example1" class="table table-hover">
-                    <thead class="thead-light">
+                <table id="example1" class="table table-hover lv-table ete-table">
+                    <thead>
                         <tr>
-                            <th>No</th>
+                            <th class="text-center">#</th>
                             <th>Position</th>
-                            <th>ETE Source</th>
-                            <th>Interview Date</th>
-                            <th>Panels</th>
-                            <th>Active Candidate</th>
-                            <th class="text-center">Ratings</th>
-                            <th class="text-center">Action</th>
+                            <th>ETE source</th>
+                            <th>Interview date</th>
+                            <th>Panel</th>
+                            <th>Active candidate</th>
+                            <th>Ratings</th>
+                            <th class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($interviews as $interview)
+                            @php
+                                $panelNames = $interview->panels->map($panelName)->filter()->values();
+                                $shownPanel = $interview->panels->take(4);
+                                $morePanel = $interview->panels->count() - $shownPanel->count();
+                                $ratingTotal = $interview->ratings->count();
+                                $ratingDone = $interview->ratings->whereNotNull('submitted_at')->count();
+                                $ratingPct = $ratingTotal > 0 ? round($ratingDone / $ratingTotal * 100) : 0;
+                                $active = $interview->activeApplication;
+                            @endphp
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>
-                                    <strong>{{ $interview->job->title ?? 'N/A' }}</strong>
+                                <td data-label="No." class="text-center lv-muted lv-num">{{ $loop->iteration }}</td>
+
+                                <td data-label="Position" style="min-width: 200px;">
+                                    <div class="um-name">{{ $interview->job->title ?? 'N/A' }}</div>
                                     @if($interview->job && $interview->job->plantilla_item_no)
-                                        <small class="d-block text-muted">{{ $interview->job->plantilla_item_no }}</small>
+                                        <div class="app-sub"><i class="fas fa-hashtag"></i>{{ $interview->job->plantilla_item_no }}</div>
                                     @endif
                                 </td>
-                                <td>
-                                    <span class="badge badge-light border">ETE #{{ $interview->ete_id }}</span>
-                                    <small class="d-block text-muted">{{ $interview->eteEvaluation->office->office_name ?? '' }}</small>
+
+                                <td data-label="ETE source">
+                                    <span class="um-page mb-0">ETE #{{ $interview->ete_id }}</span>
+                                    @if($interview->eteEvaluation->office->office_name ?? false)
+                                        <div class="app-sub">{{ $interview->eteEvaluation->office->office_name }}</div>
+                                    @endif
                                 </td>
-                                <td>{{ $interview->interview_date ? $interview->interview_date->format('M. d, Y h:i A') : 'N/A' }}</td>
-                                <td>
-                                    @forelse($interview->panels as $panel)
-                                        <span class="panel-chip">{{ $panel->employee->lname ?? '' }}, {{ $panel->employee->fname ?? '' }}</span>
-                                    @empty
-                                        <span class="text-muted">No panel</span>
-                                    @endforelse
-                                </td>
-                                <td>
-                                    @if($interview->activeApplication)
-                                        <strong>{{ trim($interview->activeApplication->first_name.' '.$interview->activeApplication->last_name) }}</strong>
-                                        <small class="d-block text-muted">{{ $interview->activeApplication->app_number }}</small>
+
+                                <td data-label="Interview date" class="app-date" data-order="{{ optional($interview->interview_date)->format('Y-m-d H:i:s') }}">
+                                    @if($interview->interview_date)
+                                        <div>{{ $interview->interview_date->format('M d, Y') }}</div>
+                                        <div class="lv-muted">{{ $interview->interview_date->format('h:i A') }}</div>
                                     @else
-                                        <span class="badge badge-secondary">No cast candidate</span>
+                                        <span class="lv-muted">Not set</span>
                                     @endif
                                 </td>
-                                <td class="text-center">
-                                    <span class="badge badge-info p-2">{{ $interview->ratings->whereNotNull('submitted_at')->count() }} submitted</span>
-                                </td>
-                                <td class="text-center">
-                                    <a href="{{ route('interviewEvaluationShow', $interview->id) }}" class="btn btn-sm btn-primary" title="Manage">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    @if(auth()->guard('web')->check() && in_array(auth()->guard('web')->user()->role, ['Administrator', 'HR Administrator'], true))
-                                        <a href="{{ route('interviewConsolidatedScreen', $interview->id) }}" target="_blank" class="btn btn-sm btn-warning" title="Ranking">
-                                            <i class="fas fa-ranking-star"></i>
-                                        </a>
-                                        <a href="{{ route('interviewSummaryRatingPdf', $interview->id) }}" target="_blank" class="btn btn-sm btn-danger" title="Summary Rating of Applicants">
-                                            <i class="fas fa-file-pdf"></i>
-                                        </a>
+
+                                <td data-label="Panel" data-order="{{ $interview->panels->count() }}">
+                                    @if($interview->panels->isNotEmpty())
+                                        <div class="ete-panel" title="{{ $panelNames->implode("\n") }}">
+                                            <span class="ete-stack" aria-hidden="true">
+                                                @foreach($shownPanel as $panel)
+                                                    <span class="ete-face">{{ $panelInitials($panel) }}</span>
+                                                @endforeach
+                                                @if($morePanel > 0)
+                                                    <span class="ete-face is-more">+{{ $morePanel }}</span>
+                                                @endif
+                                            </span>
+                                            <span class="ete-panel-count">{{ $interview->panels->count() }} {{ $interview->panels->count() == 1 ? 'member' : 'members' }}</span>
+                                            {{-- Names stay in the cell so the table search still finds them. --}}
+                                            <span class="sr-only">{{ $panelNames->implode('; ') }}</span>
+                                        </div>
+                                    @else
+                                        <span class="lv-muted">No panel</span>
                                     @endif
-                                    <form action="{{ route('interviewEvaluationDelete', $interview->id) }}"
-                                          method="POST"
-                                          class="d-inline-block interview-delete-form"
-                                          data-interview-title="{{ $interview->job->title ?? 'Interview Assessment' }}">
-                                        @csrf
-                                        <button class="btn btn-sm btn-danger" title="Delete">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                </td>
+
+                                <td data-label="Active candidate">
+                                    @if($active)
+                                        <div class="iv-active">
+                                            <span class="iv-live-dot" aria-hidden="true"></span>
+                                            <div>
+                                                <div class="app-position">{{ trim($active->first_name . ' ' . $active->last_name) }}</div>
+                                                <div class="app-sub">{{ $active->app_number }}</div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <span class="lv-pill app-st-0">No cast candidate</span>
+                                    @endif
+                                </td>
+
+                                <td data-label="Ratings" data-order="{{ $ratingDone }}" style="min-width: 130px;">
+                                    <div class="iv-progress-label">
+                                        <b>{{ $ratingDone }}</b> <span class="lv-muted">of {{ $ratingTotal }} submitted</span>
+                                    </div>
+                                    <div class="iv-progress {{ $ratingTotal > 0 && $ratingDone == $ratingTotal ? 'is-done' : '' }}" role="progressbar" aria-valuenow="{{ $ratingPct }}" aria-valuemin="0" aria-valuemax="100" aria-label="Ratings submitted">
+                                        <span style="width: {{ $ratingPct }}%;"></span>
+                                    </div>
+                                </td>
+
+                                <td data-label="Actions" class="text-center">
+                                    <span class="lv-row-actions app-actions">
+                                        <a href="{{ route('interviewEvaluationShow', $interview->id) }}" class="lv-icon-btn is-go" title="Manage" aria-label="Manage interview for {{ $interview->job->title ?? 'this position' }}">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </a>
+                                        @if($isRankingAdmin)
+                                            <a href="{{ route('interviewConsolidatedScreen', $interview->id) }}" target="_blank" rel="noopener" class="lv-icon-btn" title="Ranking" aria-label="Ranking">
+                                                <i class="fas fa-trophy"></i>
+                                            </a>
+                                            <a href="{{ route('interviewSummaryRatingPdf', $interview->id) }}" target="_blank" rel="noopener" class="lv-icon-btn" title="Summary Rating of Applicants (PDF)" aria-label="Summary rating PDF">
+                                                <i class="fas fa-file-pdf" style="color: #c0392b;"></i>
+                                            </a>
+                                        @endif
+                                        <form action="{{ route('interviewEvaluationDelete', $interview->id) }}"
+                                              method="POST"
+                                              class="d-inline-block m-0 interview-delete-form"
+                                              data-interview-title="{{ $interview->job->title ?? 'Interview Assessment' }}">
+                                            @csrf
+                                            <button type="submit" class="lv-icon-btn is-danger" title="Delete" aria-label="Delete interview">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </span>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
+            @endif
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="addInterviewModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade ev-modal app-modal" id="addInterviewModal" tabindex="-1" role="dialog" aria-labelledby="addInterviewLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
-        <form action="{{ route('interviewEvaluationStore') }}" method="POST">
+        <form action="{{ route('interviewEvaluationStore') }}" method="POST" class="dtr-form">
             @csrf
             <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title"><i class="fas fa-comments mr-1"></i> Create Interview Assessment</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addInterviewLabel"><i class="fas fa-comments"></i>New interview assessment</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
-                <div class="modal-body bg-light">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="form-group">
-                                <label>ETE Select</label>
-                                <select name="ete_id" class="form-control select2" required>
-                                    <option value="">Select ETE Evaluation</option>
-                                    @foreach($etes as $ete)
-                                        <option value="{{ $ete->id }}">
-                                            ETE #{{ $ete->id }} - {{ $ete->job->title ?? 'N/A' }}{{ $ete->job && $ete->job->plantilla_item_no ? ' - '.$ete->job->plantilla_item_no : '' }}{{ $ete->office ? ' - '.$ete->office->office_name : '' }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                <div class="modal-body">
+                    <div class="job-form-group">Source</div>
+                    <div class="form-row">
+                        <div class="col-md-8 dtr-field">
+                            <label class="dtr-label" for="ivEte">ETE evaluation</label>
+                            <select name="ete_id" id="ivEte" class="form-control select2" required>
+                                <option value="">Select ETE evaluation</option>
+                                @foreach($etes as $ete)
+                                    <option value="{{ $ete->id }}" {{ (string) old('ete_id') === (string) $ete->id ? 'selected' : '' }}>
+                                        ETE #{{ $ete->id }} - {{ $ete->job->title ?? 'N/A' }}{{ $ete->job && $ete->job->plantilla_item_no ? ' - '.$ete->job->plantilla_item_no : '' }}{{ $ete->office ? ' - '.$ete->office->office_name : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Interview Date</label>
-                                <input type="datetime-local" name="interview_date" class="form-control" value="{{ now()->format('Y-m-d\TH:i') }}">
-                            </div>
+                        <div class="col-md-4 dtr-field">
+                            <label class="dtr-label" for="ivDate">Interview date</label>
+                            <input type="datetime-local" name="interview_date" id="ivDate" class="form-control" value="{{ old('interview_date', now()->format('Y-m-d\TH:i')) }}">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Interview Panel Employees</label>
-                        <select name="panels[]" class="form-control select2" multiple required>
+
+                    <div class="job-form-group">Interview panel</div>
+                    <div class="dtr-field">
+                        <label class="dtr-label" for="ivPanels">Panel employees</label>
+                        <select name="panels[]" id="ivPanels" class="form-control select2" multiple required>
                             @foreach($employees as $employee)
-                                <option value="{{ $employee->id }}">{{ $employee->lname }}, {{ $employee->fname }} {{ $employee->mname }}</option>
+                                <option value="{{ $employee->id }}" {{ in_array((string) $employee->id, array_map('strval', (array) old('panels', [])), true) ? 'selected' : '' }}>{{ $employee->lname }}, {{ $employee->fname }} {{ $employee->mname }}</option>
                             @endforeach
                         </select>
-                        <small class="text-muted">Each selected employee gets a rating form when a candidate is cast.</small>
+                        <p class="pds-hint mt-1 mb-0">Each selected employee gets a rating form when a candidate is cast.</p>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light border" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Save Interview</button>
+                    <button type="button" class="lv-btn" data-dismiss="modal">Close</button>
+                    <button type="submit" class="lv-btn is-primary"><i class="fas fa-save"></i> Save interview</button>
                 </div>
             </div>
         </form>
     </div>
 </div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-$(function () {
+// Uses the page's jQuery, select2 and SweetAlert from masterScript (loaded after this section).
+document.addEventListener('DOMContentLoaded', function () {
     $('#addInterviewModal').on('shown.bs.modal', function () {
-        $('.select2').select2({
+        // select2's own container also has the .select2 class; only take the <select>s.
+        $('#addInterviewModal select.select2').select2({
             dropdownParent: $('#addInterviewModal'),
             width: '100%',
             placeholder: 'Search...'
@@ -162,7 +225,7 @@ $(function () {
     $(document).on('submit', '.interview-delete-form', function (e) {
         e.preventDefault();
         const form = this;
-        const title = $(form).data('interview-title') || 'Interview Assessment';
+        const title = $('<div>').text($(form).data('interview-title') || 'Interview Assessment').html();
 
         Swal.fire({
             title: 'Delete interview assessment?',
@@ -170,7 +233,7 @@ $(function () {
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
+            cancelButtonColor: '#6c757d',
             confirmButtonText: 'Yes, delete it',
             cancelButtonText: 'Cancel'
         }).then((result) => {

@@ -169,6 +169,11 @@
         .font1{
             font-size: 15.3px;
         }
+
+        /* Keep the bullet on the first line when a value wraps. */
+        .table1 td.font1 {
+            vertical-align: top;
+        }
     </style>
 </head>
 <body>
@@ -189,6 +194,77 @@
                 </tr>
             </tbody>
         </table>
+        @php
+            // Most recent first, as the instructions above ask. One block per Work Experience entry.
+            $sheetEntries = collect($workexperience)->sortByDesc(fn ($w) => $w->inc_date1 . '|' . ($w->inc_date2 ?: '9999'))->values();
+            $sheetMonth = function ($value) {
+                try { return \Carbon\Carbon::parse($value)->format('M Y'); } catch (\Exception $e) { return $value; }
+            };
+        @endphp
+        @forelse($sheetEntries as $work)
+        @php
+            $duration = ($work->inc_date1 ? $sheetMonth($work->inc_date1) : '') . ' - ' . ($work->inc_date2 ? $sheetMonth($work->inc_date2) : 'Present');
+            $accomplishments = array_values(array_filter(array_map('trim', explode(';', (string) $work->list_accom)), 'strlen'));
+            $duties = trim(str_replace(['<br>', '<br/>', '<br />'], "\n", (string) $work->actual_summary));
+        @endphp
+        <table class="table table1" style="margin-top: -1px; page-break-inside: avoid;">
+            <tbody>
+                <tr>
+                    <td class="font1 text-right" width="36">•</td>
+                    <td class="font1" colspan="2"><b>Duration:</b> {{ $duration }}</td>
+                </tr>
+                <tr>
+                    <td class="font1 text-right" width="36">•</td>
+                    <td class="font1" colspan="2"><b>Position:</b> {{ $work->position }}</td>
+                </tr>
+                <tr>
+                    <td class="font1 text-right" width="36">•</td>
+                    <td class="font1" colspan="2"><b>Name of Office/Unit:</b></td>
+                </tr>
+                <tr>
+                    <td class="font1 text-right" width="36">•</td>
+                    <td class="font1" colspan="2"><b>Immediate Supervisor:</b> {{ $work->supervisor }}</td>
+                </tr>
+                <tr>
+                    <td class="font1 text-right" width="36">•</td>
+                    <td class="font1" colspan="2"><b>Name of Agency/Organization and Location:</b> {{ $work->department }}</td>
+                </tr>
+                <tr>
+                    <td class="font1 text-right" width="36"></td>
+                    <td class="font1 text-right" width="5.6"></td>
+                    <td class="font1"><b></b></td>
+                </tr>
+                <tr>
+                    <td class="font1 text-right" width="36"></td>
+                    <td class="font1 text-right" width="5.6">•</td>
+                    <td class="font1"><b>List of Accomplishments and Contributions (if any)</b></td>
+                </tr>
+                @forelse($accomplishments as $item)
+                <tr>
+                    <td class="font1 text-right" width="36"></td>
+                    <td class="font1 text-right" width="5.6"></td>
+                    <td class="font1" style="padding-left: 24px;"><b>•</b> {{ $item }}</td>
+                </tr>
+                @empty
+                <tr>
+                    <td class="font1 text-right" width="36"></td>
+                    <td class="font1 text-right" width="5.6"></td>
+                    <td class="font1" style="padding-left: 24px;"><b>•</b></td>
+                </tr>
+                @endforelse
+                <tr>
+                    <td class="font1 text-right" width="36"></td>
+                    <td class="font1 text-right" width="5.6">•</td>
+                    <td class="font1"><b>Summary of Actual Duties</b></td>
+                </tr>
+                <tr>
+                    <td class="font1 text-right" width="36"></td>
+                    <td class="font1 text-right" width="5.6"></td>
+                    <td class="font1" style="padding-left: 24px;"><b>•</b> {!! nl2br(e($duties)) !!}</td>
+                </tr>
+            </tbody>
+        </table>
+        @empty
         <table class="table table1" style="margin-top: -1px;">
             <tbody>
                 <tr>
@@ -238,6 +314,7 @@
                 </tr>
             </tbody>
         </table>
+        @endforelse
     </div>
 </body>
 </html>

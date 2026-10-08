@@ -147,6 +147,7 @@ $(document).on('click', '.person-delete', function(e){
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var dropArea = document.getElementById('dropArea');
+        if (!dropArea) return; // no upload area on this page
 
         dropArea.addEventListener('dragover', function (e) {
             e.preventDefault();

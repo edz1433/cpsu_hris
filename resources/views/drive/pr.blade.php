@@ -52,44 +52,56 @@
     </div>
 </div>
 
-<div class="d-flex justify-content-between align-items-center gap-3 mb-3 flex-wrap">
-    {{-- Full Name on the Left --}}
-    <div class="d-flex align-items-center ml-2">
-        <span class="badge bg-primary text-light px-3 py-2 shadow-sm" style="font-size: 0.875rem;">
-            <i class="fas fa-user-circle me-1"></i> {{ strtoupper($fullname) }}
-        </span>
+@php
+    $periodLabels = [0 => 'All periods', 1 => '1st half', 2 => '2nd half'];
+@endphp
+<div class="container-fluid dash pr-page">
+<div class="dtr-head">
+    <div>
+        <nav class="spms-crumbs" aria-label="breadcrumb">
+            <a href="{{ route('drive') }}"><i class="fas fa-hdd"></i> My Drive</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{{ route('sub-folder', shortEncrypt($folder)) }}">OPCR</a>
+            <i class="fas fa-chevron-right"></i>
+            <span aria-current="page">{{ ucwords(strtolower($fullname)) }}</span>
+        </nav>
+        <h1>{{ strtoupper($fullname) }}</h1>
+        <p>Office Performance Commitment and Review &middot; {{ $periodLabels[$cat] ?? 'All periods' }}</p>
     </div>
 
-    {{-- Filter & Button on the Right --}}
-    <div class="d-flex align-items-center gap-2">
-        <div class="input-group" style="width: auto;">
-            <select class="form-control form-control-sm" id="categorySelect">
-                <option value="0" {{ ($cat == 0) ? 'selected' : '' }}>All</option>
-                <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>1st Half</option>
-                <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>2nd Half</option>
+    <div class="d-flex align-items-center flex-wrap" style="gap: 8px;">
+        {{-- The period filter reloads the page (see the #categorySelect script below). --}}
+        <label class="pr-period mb-0" for="categorySelect">
+            <i class="fas fa-filter" aria-hidden="true"></i>
+            <select id="categorySelect" aria-label="Rating period">
+                <option value="0" {{ ($cat == 0) ? 'selected' : '' }}>All periods</option>
+                <option value="1" {{ ($cat == 1) ? 'selected' : '' }}>1st half</option>
+                <option value="2" {{ ($cat == 2) ? 'selected' : '' }}>2nd half</option>
             </select>
-            <div class="input-group-append" style="margin-right: 5px;">
-                <span class="input-group-text"><i class="fas fa-filter"></i></span>
-            </div>
-        </div>
+        </label>
 
-        {{-- <button type="submit" class="btn btn-info btn-sm mr-1" data-toggle="modal" data-target="#modal-rating">
-            <i class="fas fa-star"></i> Rating
-        </button> --}}
-        
         <div class="dropdown d-inline">
-            <button class="btn btn-danger btn-sm dropdown-toggle" type="button" id="pdfDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-file-pdf"></i>
+            <button class="lv-btn is-primary" type="button" id="pdfDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-file-pdf"></i> Print / PDF <i class="fas fa-chevron-down" style="font-size: 10px;"></i>
             </button>
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="pdfDropdown">
-                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#modal-rating">Cover Page</a>
-                <a class="dropdown-item" href="#" data-toggle="modal" data-cat="2" data-target="#modal-rating">OPCR</a>
+            <div class="dropdown-menu dropdown-menu-right spms-new-menu" aria-labelledby="pdfDropdown">
+                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#modal-rating"><i class="fas fa-file-alt"></i> Cover page</a>
+                <a class="dropdown-item" href="#" data-toggle="modal" data-cat="2" data-target="#modal-rating"><i class="fas fa-file-pdf"></i> OPCR form</a>
             </div>
         </div>
     </div>
 </div>
 
-<div style="max-height: 500px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.25rem; padding: 10px;">
+<div class="dash-card">
+    <div class="dash-card-header flex-wrap">
+        <h5><i class="fas fa-table" style="color: var(--cpsu-green-600);"></i>Commitments and ratings</h5>
+        <div class="pr-legend">
+            <span><span class="pr-dot is-ok"><i class="fas fa-check"></i></span> All evidence in</span>
+            <span><span class="pr-dot is-missing">&times;</span> Evidence missing</span>
+            <span><i class="fas fa-mouse-pointer"></i> Click a row to assign, edit or delete</span>
+        </div>
+    </div>
+<div class="pr-sheet">
 <table id="table-form">
     <thead>
         <tr>
@@ -121,7 +133,7 @@
         </tr>
     </thead>
     <tbody id="tbody-form" style="max-height: 300px; overflow-y: auto;">
-        <tr>
+        <tr class="pr-section">
             <td><b>{{ $prs[0]->mfo ?? '' }} ({{ $prs[0]->percent ?? '' }}%)</b></td>
             <td></td>
             <td></td>
@@ -154,7 +166,7 @@
         </tr>
 
         @foreach($cores as $core)
-            <tr>
+            <tr class="pr-mfo">
                 <td>
                     @if(displayValue($core->mfo) || displayValue($core->functions) || displayValue($core->percent))
                         {{ displayValue($core->mfo) }} {{ displayValue($core->functions) }} ({{ displayValue($core->percent) }}%)
@@ -272,7 +284,7 @@
             @endforeach
         @endforeach
 
-        <tr>
+        <tr class="pr-section">
             <td><b>{{ $prs[1]->mfo ?? '' }} ({{ $prs[1]->percent ?? '' }}%)</b></td>
             <td></td>
             <td></td>
@@ -305,7 +317,7 @@
         </tr>
 
         @foreach($strats as $strat)
-            <tr>
+            <tr class="pr-mfo">
                 <td>{{ displayValue($strat->mfo) }} {{ displayValue($strat->functions) }} ({{ displayValue($strat->percent) }}%)</td>
                 <td class="text-center">{{ displayValue($strat->target) }}</td>
                 <td class="text-center">{{ displayValue($strat->in_support) }}</td>
@@ -418,7 +430,7 @@
             @endforeach
         @endforeach
 
-        <tr>
+        <tr class="pr-section">
             <td><b>{{ $prs[2]->mfo ?? '' }} ({{ $prs[2]->percent ?? '' }}%)</b></td>
             <td></td>
             <td></td>
@@ -448,7 +460,7 @@
             @endif
         </tr>
         @foreach($supports as $supp)
-            <tr>
+            <tr class="pr-mfo">
                 <td>{{ displayValue($supp->mfo) }} {{ displayValue($supp->functions) }} ({{ displayValue($supp->percent) }}%)</td>
                 <td class="text-center">{{ displayValue($supp->target) }}</td>
                 <td class="text-center">{{ displayValue($supp->in_support) }}</td>
@@ -563,12 +575,20 @@
     </tbody>
 </table>
 </div>
+</div>
 
-<div class="row mt-2 mb-3 justify-content-center">
-    <div class="col-md-12 text-right mt-3" style="cursor: pointer;">
-        <i class="fas fa-cog mr-2" style="font-size: 16px;" data-toggle="modal" data-target="#setupModal"></i>
+<div class="dash-card">
+    <div class="dash-card-header">
+        <h5><i class="fas fa-signature" style="color: var(--cpsu-green-600);"></i>Signatories</h5>
+        <button type="button" class="lv-btn" data-toggle="modal" data-target="#setupModal">
+            <i class="fas fa-cog"></i> Set up
+        </button>
     </div>
-    <div class="row">
+    <div class="dash-card-body">
+    @if($selectedEmployees->isEmpty())
+        <p class="pds-hint text-center my-2">No signatories yet. Use <b>Set up</b> to choose who assesses, reviews and approves this OPCR.</p>
+    @endif
+    <div class="pr-signatories">
        @php
             $printedAsignatoryLabels = [];
        @endphp
@@ -613,16 +633,16 @@
                 }
             @endphp
 
-            <div class="col text-center">
-                <div class="d-inline-block text-center" style="min-width: 180px;">
-                    <div class="text-left" style="margin-bottom: 24px; color: {{ $showAsignatoryLabel ? 'inherit' : '#fff' }};">{{ $asignatoryLabel }}</div>
-                    <div><strong>_________________________________</strong></div>
-                    <div><strong>{{ $displayName }}</strong></div>
-                    <div>{{ $designation }}</div>
-                </div>
+            <div class="pr-signatory">
+                <div class="pr-signatory-role {{ $showAsignatoryLabel ? '' : 'is-repeat' }}">{{ $asignatoryLabel }}</div>
+                <div class="pr-signatory-line"></div>
+                <div class="pr-signatory-name">{{ $displayName }}</div>
+                <div class="pr-signatory-title">{{ $designation }}</div>
             </div>
         @endforeach
     </div>
+    </div>
+</div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
