@@ -1,86 +1,47 @@
 @extends('layouts.master')
 
 @section('body')
-@include('emp.style')
-<section class="content">
-<div class="container-fluid">
+@php
+    // Stored as semicolon-separated lists; each input saves its own slot (data-array).
+    $refname = explode(';', $references->refname);
+    $refadd = explode(';', $references->refadd);
+    $reftelno = explode(';', $references->reftelno);
+@endphp
+<div class="container-fluid dash">
+    @include('emp.partials.pds-head', ['pdsTitle' => 'References', 'saveUrls' => [route('update.references')]])
+
     <div class="row">
         @include('emp.submenu-side')
-        <div class="col-lg-9">
-            <div class="card card-info card-outline">
-                <div class="card-header">
-                    <h2 class="card-title text-success1">
-                        <b>REFERENCES</b>
-                    </h2>
+        <div class="col-lg-9 dtr-form pds-form">
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <h5><i class="fas fa-address-book" style="color: var(--cpsu-green-600);"></i>Character references</h5>
+                    <span class="dash-card-hint d-none d-sm-inline">Three people who can vouch for you</span>
                 </div>
-                @php
-                    $refname = explode(';', $references->refname);
-                    $refadd = explode(';', $references->refadd);
-                    $reftelno = explode(';', $references->reftelno);
-                @endphp
-                <div class="card-body">
-                    <div class="form-group mtop">
-                        <div class="form-row lbel">
-                            <div class="col-md-12"><p class="text-muted"><b>REFERENCES (Person not related by consanguinity or affinity to applicant /appointee)</b></p>
-                                <div class="row">
-                                    <div class="col-4">
-                                        <div class="form-check">
-                                            <label class="badge badge-secondary w-100">NAME</label><input class="input-details updated-data" type="text" name="refname_0" data-array="0" value="{{ $refname[0] }}" id="refname-0">
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="form-check">
-                                            <label class="badge badge-secondary w-100">ADDRESS</label><input class="input-details updated-data" type="text" name="refadd_0" data-array="0" value="{{ $refadd[0] }}" id="refadd-0">
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="form-check">
-                                            <label class="badge badge-secondary w-100">TELEPHONE NO.</label><input class="input-details updated-data" type="text" name="reftelno_0" data-array="0" value="{{ $reftelno[0] }}" id="reftelno-0">
-                                        </div>
-                                    </div>
-
-
-                                    <div class="col-4">
-                                        <div class="form-check">
-                                            <input class="input-details updated-data" type="text" name="refname_1" data-array="1" value="{{ $refname[1] }}" id="refname-1">
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="form-check">
-                                            <input class="input-details updated-data" type="text" name="refadd_1" data-array="1" value="{{ $refadd[1] }}" id="refadd-1">
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="form-check">
-                                            <input class="input-details updated-data" type="text" name="reftelno_1" data-array="1" value="{{ $reftelno[1] }}" id="reftelno-1">
-                                        </div>
-                                    </div>
-
-                                    
-                                    <div class="col-4">
-                                        <div class="form-check">
-                                            <input class="input-details updated-data" type="text" name="refname_2" data-array="2" value="{{ $refname[2] }}" id="refname-2">
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="form-check">
-                                            <input class="input-details updated-data" type="text" name="refadd_1" data-array="2" value="{{ $refadd[2] }}" id="refadd-2">
-                                        </div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="form-check">
-                                            <input class="input-details updated-data" type="text" name="reftelno_2" data-array="2" value="{{ $reftelno[2] }}" id="reftelno-2">
-                                        </div>
-                                    </div>
-                                    
+                <div class="dash-card-body">
+                    <p class="pds-hint mt-0 mb-3">Persons not related by consanguinity or affinity to the applicant / appointee.</p>
+                    @for($i = 0; $i < 3; $i++)
+                        <div class="ref-item">
+                            <span class="ref-num" aria-hidden="true">{{ $i + 1 }}</span>
+                            <div class="form-row flex-grow-1">
+                                <div class="col-md-4 dtr-field">
+                                    <label class="dtr-label" for="refname-{{ $i }}">Name</label>
+                                    <input class="form-control input-details updated-data" type="text" name="refname_{{ $i }}" data-array="{{ $i }}" value="{{ $refname[$i] ?? '' }}" id="refname-{{ $i }}" placeholder="Full name" autocomplete="off">
+                                </div>
+                                <div class="col-md-5 dtr-field">
+                                    <label class="dtr-label" for="refadd-{{ $i }}">Address</label>
+                                    <input class="form-control input-details updated-data" type="text" name="refadd_{{ $i }}" data-array="{{ $i }}" value="{{ $refadd[$i] ?? '' }}" id="refadd-{{ $i }}" placeholder="Barangay, city / municipality, province" autocomplete="off">
+                                </div>
+                                <div class="col-md-3 dtr-field">
+                                    <label class="dtr-label" for="reftelno-{{ $i }}">Telephone / mobile no.</label>
+                                    <input class="form-control input-details updated-data" type="text" name="reftelno_{{ $i }}" data-array="{{ $i }}" value="{{ $reftelno[$i] ?? '' }}" id="reftelno-{{ $i }}" inputmode="tel" placeholder="N/A" autocomplete="off">
                                 </div>
                             </div>
                         </div>
-                    </div>                    
+                    @endfor
                 </div>
-            </div>                        
+            </div>
         </div>
     </div>
 </div>
-</section>
 @endsection

@@ -20,177 +20,102 @@
         padding: 9px 5px 2px 4px; /* top right bottom left */
         margin-left: 8px;
     }
-
 </style>
+@php
+    $imageUrl = asset('Profile/Employee/' . $employee->profile);
+    $imagePath = public_path('Profile/Employee/' . $employee->profile);
+
+    $interval = (new DateTime($employee->date_hired))->diff(new DateTime(date('Y-m-d')));
+    $serviceText = $employee->date_hired ? $interval->y . ' years ' . $interval->m . ' months' : '—';
+
+    // Employees open their own PDS; Personal Information has its own route for them.
+    $pdsLink = fn ($name) => ($guard == 'web') ? route($name, $employee->id) : route($name === 'PDS' ? 'empPDS' : $name);
+    $onPage = fn (...$paths) => collect($paths)->contains(fn ($path) => request()->is($path));
+    $hasRows = fn ($key) => isset($columnstatus[$key]) && count($columnstatus[$key]) > 0;
+    $isSet = fn ($key) => isset($columnstatus) && $columnstatus[$key] == 1;
+
+    // [route name, icon, label, is current page, is filled in]
+    $pdsSections = [
+        ['PDS', 'fa-user', 'Personal Information', $onPage('pds/personal-info/*', 'pds'), true],
+        ['familybg', 'fa-users', 'Family Background', $onPage('pds/family-bg', 'pds/family-bg/*'), $isSet('colfamstat')],
+        ['educbg', 'fa-graduation-cap', 'Educational Background', $onPage('pds/educ-bg', 'pds/educ-bg/*'), $isSet('coleducstat')],
+        ['eligibility', 'fa-certificate', 'Eligibility', $onPage('pds/eligibility', 'pds/eligibility/*') || isset($eligibilityedit), $hasRows('eligibility')],
+        ['work-experience', 'fa-briefcase', 'Work Experience', $onPage('pds/work-experience', 'pds/work-experience/*') || isset($workexperienceedit), $hasRows('workexperience')],
+        ['voluntary-work', 'fa-hand-holding-heart', 'Voluntary Work', $onPage('pds/voluntary-work', 'pds/voluntary-work/*') || isset($voluntaryworksedit), $hasRows('voluntaryworks')],
+        ['learning-dev', 'fa-book', 'Learning and Development', $onPage('pds/learning-dev', 'pds/learning-dev/*') || isset($learningdevedit), $hasRows('learningdev')],
+        ['otherInfo', 'fa-info-circle', 'Other Information', $onPage('pds/other-info', 'pds/other-info/*'), $isSet('colotherinfo')],
+        ['infoQuestion', 'fa-question-circle', 'Other Information Questions', $onPage('pds/info-question', 'pds/info-question/*'), $isSet('colinfoquestion')],
+        ['references', 'fa-address-book', 'References', $onPage('pds/references', 'pds/references/*'), $isSet('colreferences')],
+        ['govids', 'fa-id-card', 'Government Issued ID', $onPage('pds/government-id', 'pds/government-id/*'), $isSet('colgovids')],
+    ];
+    $pdsDone = collect($pdsSections)->filter(fn ($section) => $section[4])->count();
+    $pdsTotal = count($pdsSections);
+@endphp
 
 <div class="col-lg-3">
-    <div class="card card-info card-outline">
-        <div class="card-body box-profile">
-            <a href="#" onclick="openQRModal()"><i class="fas fa-qrcode text-primary" data-toggle="modal" data-target="#qrModal" style="font-size: 25px;"></i></a>
-            <div class="text-center position-relative">
-                <div class="profile-image-container">
-                    @php
-                        $imageUrl = asset('Profile/Employee/' . $employee->profile);
-                        $imagePath = public_path('Profile/Employee/' . $employee->profile);
-                    @endphp
-                    <img src="{{ file_exists($imagePath) ? $imageUrl : asset('Profile/Employee/default.png') }}" alt="User Image" class="profile-user-img img-fluid" id="changeProfilePicture">
-                </div>
-                <input type="file" id="profilePictureInput" style="display: none;" accept="image/*">
+    <div class="dash-card lv-profile">
+        <div class="lv-profile-head">
+            {{-- Clicks on the photo are handled by the #changeProfilePicture listener; this covers keyboard use. --}}
+            <button type="button" class="pds-avatar" title="Change profile picture" aria-label="Change profile picture" onclick="if (event.target === this) document.getElementById('profilePictureInput').click()">
+                <img src="{{ file_exists($imagePath) ? $imageUrl : asset('Profile/Employee/default.png') }}" alt="" class="lv-avatar" id="changeProfilePicture">
+                <span class="pds-avatar-edit" aria-hidden="true"><i class="fas fa-camera"></i></span>
+            </button>
+            <input type="file" id="profilePictureInput" style="display: none;" accept="image/*">
+            <div style="min-width: 0; flex: 1;">
+                <h3 class="lv-name">{{ ucwords(strtolower(str_replace('Ñ', 'ñ', $employee->fname))) }} {{ ucwords(strtolower(str_replace('Ñ', 'ñ', $employee->lname))) }}</h3>
+                <p class="lv-position">{{ $employee->position ?: '—' }}</p>
+                <span class="lv-pill {{ $employee->stat_1 == 1 ? 'is-added' : 'is-deducted' }} mt-1">{{ $employee->stat_1 == 1 ? 'Active' : 'Suspended' }}</span>
             </div>
-            
-            <h3 class="profile-username text-center">
-            {{ ucwords(strtolower(str_replace('Ñ', 'ñ', $employee->fname))) }} {{ ucwords(strtolower(str_replace('Ñ', 'ñ', $employee->lname))) }}</h3>
-            <p class="text-muted text-center">{{ $employee->position }}</p>
-    
-            <ul class="list-group list-group-unbordered custom-gap">
-                @php
-                    $hireDate = $employee->date_hired;
-                    $currentDate = date('Y-m-d'); 
-
-                    $startDate = new DateTime($hireDate);
-                    $endDate = new DateTime($currentDate);
-
-                    $interval = $startDate->diff($endDate);
-
-                    $years = $interval->y;
-                    $months = $interval->m;
-                @endphp
-                <li class="list-group-item">
-                    <b>Employee ID. :</b> <span class="float-right text-muted">{{ $employee->emp_ID }}</span>
-                </li>
-                <li class="list-group-item">
-                    <b>Item No. :</b> <span class="float-right text-muted">{{ $employee->item_no }}</span>
-                </li>
-                <li class="list-group-item">
-                    <b>Service :</b> <span class="float-right text-muted">{{ $years.' years' .' '. $months. ' months' }}</span>
-                </li>
-            </ul>
-            @if($employee->stat_1 == 1)
-            <a href="#" class="btn btn-success btn-sm btn-block mt-2"><b>Active</b></a>
-            @else
-            <a href="#" class="btn btn-danger btn-sm btn-block mt-2"><b>Suspended</b></a>
-            @endif
+            <button type="button" class="lv-icon-btn align-self-start" onclick="openQRModal()" data-toggle="modal" data-target="#qrModal" title="Show QR code" aria-label="Show QR code">
+                <i class="fas fa-qrcode"></i>
+            </button>
         </div>
-        <!-- /.card-body -->
+        <ul class="lv-balances pds-facts">
+            <li><span>Employee ID</span> <span>{{ $employee->emp_ID }}</span></li>
+            <li><span>Item No.</span> <span>{{ $employee->item_no ?: '—' }}</span></li>
+            <li><span>Service</span> <span>{{ $serviceText }}</span></li>
+        </ul>
     </div>
 
-    <div class="card card-info">
-        <div class="card-header" style="padding: 6px !important;">
-            <i class="fas fa-id-card"></i><b> PERSONAL DATA SHEET</b> 
+    <div class="dash-card">
+        <div class="dash-card-header">
+            <h5><i class="fas fa-id-card" style="color: var(--cpsu-green-600);"></i>Personal data sheet</h5>
+            <span class="dash-card-hint">{{ $pdsDone }} of {{ $pdsTotal }}</span>
         </div>
-        <div class="card-footer p-0">
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a href="{{ ($guard == "web") ? route('PDS', $employee->id) : route('empPDS') }}" class="nav-link">
-                        <i class="{{ request()->is('pds/personal-info/*') ||  request()->is('pds') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-user" style="width: 20px; margin-left: 3px;"></i> 
-                        <span class="{{ request()->is('pds/personal-info/*') || request()->is('pds') ? 'text-dark' : 'text-muted' }} text-bold">Personal Information</span> 
-                        <i class="float-right fas fa-check-circle text-success pt-1"></i>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ ($guard == "web") ? route('familybg', $employee->id) : route('familybg') }}" class="nav-link">
-                        <i class="{{ request()->is('pds/family-bg') || request()->is('pds/family-bg/*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-users" style="width: 20px;"></i>
-                        <span class="{{ request()->is('pds/family-bg') || request()->is('pds/family-bg/*') ? 'text-dark' : 'text-muted' }} text-bold">Family Background</span>
-                        <i class="float-right fas {{ (isset($columnstatus) && ($columnstatus['colfamstat'] == 1)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
-                    </a>
-                </li>                        
-                <li class="nav-item">
-                    <a href="{{ ($guard == "web") ? route('educbg', $employee->id) : route('educbg') }}" class="nav-link">
-                        <i class="{{ request()->is('pds/educ-bg') || request()->is('pds/educ-bg/*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-graduation-cap" style="width: 20px;"></i>
-                        <span class="{{ request()->is('pds/educ-bg') || request()->is('pds/educ-bg/*') ? 'text-dark' : 'text-muted' }} text-bold">Educational Background</span>
-                        <i class="float-right fas {{ (isset($columnstatus) && ($columnstatus['coleducstat'] == 1)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ ($guard == "web") ? route('eligibility', $employee->id) : route('eligibility') }}" class="nav-link">
-                        <i class="{{ request()->is('pds/eligibility') || request()->is('pds/eligibility/*') || isset($eligibilityedit) ? 'text-dark' : 'text-muted' }} pr-2 fas fas fa-certificate" style="width: 20px;"></i>
-                        <span class="{{ request()->is('pds/eligibility') || request()->is('pds/eligibility/*') || isset($eligibilityedit) ? 'text-dark' : 'text-muted' }} text-bold">Eligibility</span>
-                        <i class="float-right fas {{ (isset($columnstatus['eligibility']) && (count($columnstatus['eligibility']) > 0)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ ($guard == "web") ? route('work-experience', $employee->id) : route('work-experience') }}" class="nav-link">
-                        <i class="{{ request()->is('pds/work-experience') || request()->is('pds/work-experience/*') || isset($workexperienceedit) ? 'text-dark' : 'text-muted' }} pr-2 fas fa-briefcase" style="width: 20px;"></i>
-                        <span class="{{ request()->is('pds/work-experience') || request()->is('pds/work-experience/*') || isset($workexperienceedit) ? 'text-dark' : 'text-muted' }} text-bold">Work Experience</span>
-                        <i class="float-right fas {{ (isset($columnstatus['workexperience']) && (count($columnstatus['workexperience']) > 0)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ ($guard == "web") ? route('voluntary-work', $employee->id) : route('voluntary-work') }}" class="nav-link">
-                        <i class="{{ request()->is('pds/voluntary-work') || request()->is('pds/voluntary-work/*') || isset($voluntaryworksedit) ? 'text-dark' : 'text-muted' }} pr-2 fas fa-hand-holding-heart" style="width: 20px;"></i>
-                        <span class="{{ request()->is('pds/voluntary-work') || request()->is('pds/voluntary-work/*') || isset($voluntaryworksedit) ? 'text-dark' : 'text-muted' }} text-bold">Voluntary Work</span>
-                        <i class="float-right fas {{ (isset($columnstatus['voluntaryworks']) && (count($columnstatus['voluntaryworks']) > 0)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
-                    </a>
-                </li> 
-                <li class="nav-item">
-                    <a href="{{ ($guard == "web") ? route('learning-dev', $employee->id) : route('learning-dev') }}" class="nav-link">
-                        <i class="{{ request()->is('pds/learning-dev') || request()->is('pds/learning-dev/*') || isset($learningdevedit) ? 'text-dark' : 'text-muted' }} pr-2 fas fas fa-book" style="width: 20px;"></i>
-                        <span class="{{ request()->is('pds/learning-dev') || request()->is('pds/learning-dev/*') || isset($learningdevedit) ? 'text-dark' : 'text-muted' }} text-bold">Learning and Development</span>
-                        <i class="float-right fas {{ (isset($columnstatus['learningdev']) && (count($columnstatus['learningdev']) > 0)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ ($guard == "web") ? route('otherInfo', $employee->id) : route('otherInfo') }}" class="nav-link">
-                        <i class="{{ request()->is('pds/other-info') || request()->is('pds/other-info/*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-info-circle" style="width: 20px;"></i>
-                        <span class="{{ request()->is('pds/other-info') || request()->is('pds/other-info/*') ? 'text-dark' : 'text-muted' }} text-bold">Other Information</span>
-                        <i class="float-right fas {{ (isset($columnstatus) && ($columnstatus['colotherinfo'] == 1)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
-                    </a>
-                </li>  
-                <li class="nav-item">
-                    <a href="{{ ($guard == "web") ? route('infoQuestion', $employee->id) : route('infoQuestion') }}" class="nav-link">
-                        <i class="{{ request()->is('pds/info-question') || request()->is('pds/info-question/*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-question-circle" style="width: 20px;"></i>
-                        <span class="{{ request()->is('pds/info-question') || request()->is('pds/info-question/*') ? 'text-dark' : 'text-muted' }} text-bold">Other Information Questions</span>
-                        <i class="float-right fas {{ (isset($columnstatus) && ($columnstatus['colinfoquestion'] == 1)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ ($guard == "web") ? route('references', $employee->id) : route('references') }}" class="nav-link">
-                        <i class="{{ request()->is('pds/references') || request()->is('pds/references/*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-address-book" style="width: 20px;"></i>
-                        <span class="{{ request()->is('pds/references') || request()->is('pds/references/*') ? 'text-dark' : 'text-muted' }} text-bold">References</span>
-                        <i class="float-right fas {{ (isset($columnstatus) && ($columnstatus['colreferences'] == 1)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ ($guard == "web") ? route('govids', $employee->id) : route('govids') }}" class="nav-link">
-                        <i class="{{ request()->is('pds/government-id') || request()->is('pds/government-id/*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-id-card" style="width: 20px;"></i>
-                        <span class="{{ request()->is('pds/government-id') || request()->is('pds/government-id/*') ? 'text-dark' : 'text-muted' }} text-bold">Government Issued ID</span>
-                        <i class="float-right fas {{ (isset($columnstatus) && ($columnstatus['colgovids'] == 1)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
-                    </a>
-                </li>
-                {{-- <li class="nav-item">
-                    <a href="{{ ($guard == "web") ? route('signature', $employee->id) : route('signature') }}" class="nav-link">
-                        <i class="{{ request()->is('pds/esign') || request()->is('pds/esign/*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-id-card" style="width: 20px;"></i>
-                        <span class="{{ request()->is('pds/esign') || request()->is('pds/esign/*') ? 'text-dark' : 'text-muted' }} text-bold">Signature</span>
-                        <i class="float-right fas {{ (isset($employee) && ($employee->signature !== null)) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger' }} pt-1"></i>
-                    </a>
-                </li> --}}
-                {{-- <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="text-muted pr-2 fas fa-coins" style="width: 20px;"></i>
-                        <span class="text-muted text-bold">Income And Deductions</span>
-                        <i class="float-right fas fa-times-circle text-muted pt-1"></i>
-                    </a>
-                </li> --}}
-                <li class="nav-item">
-                    <a href="{{ ($guard == "web") ? route('generatepds', $employee->id) : route('generatepds') }}" target="_blank" class="nav-link">
-                        <i class="text-muted pr-2 fas fa-eye" style="width: 20px;"></i>
-                        <span class="text-muted text-bold">Preview Personal Data Sheet</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ ($guard == "web") ? route('genpdsAtthachment', $employee->id) : route('genpdsAtthachment') }}" target="_blank" class="nav-link">
-                        <i class="text-muted pr-2 fas fa-eye" style="width: 20px;"></i>
-                        <span class="text-muted text-bold">Attachment to CS Form No. 212</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ ($guard == 'web') ? route('signature', $employee->id) : route('signature') }}" class="nav-link">
-                        <i class="{{ request()->is('pds/signature') || request()->is('pds/signature/*') ? 'text-dark' : 'text-muted' }} pr-2 fas fa-signature" style="width: 20px;"></i>
-                        <span class="{{ request()->is('pds/signature') || request()->is('pds/signature/*') ? 'text-dark' : 'text-muted' }} text-bold">E-Signature</span>
-                    </a>
-                </li>
-            </ul> 
+        <div class="pds-progress" role="progressbar" aria-label="Sections filled in" aria-valuemin="0" aria-valuemax="{{ $pdsTotal }}" aria-valuenow="{{ $pdsDone }}">
+            <span style="width: {{ round($pdsDone / $pdsTotal * 100) }}%;"></span>
         </div>
+        <nav class="pds-nav" aria-label="Personal data sheet sections">
+            @foreach($pdsSections as [$routeName, $icon, $label, $isCurrent, $isDone])
+                <a href="{{ $pdsLink($routeName) }}" class="{{ $isCurrent ? 'is-active' : '' }}" @if($isCurrent) aria-current="page" @endif>
+                    <i class="fas {{ $icon }} pds-nav-icon"></i>
+                    <span class="pds-nav-label">{{ $label }}</span>
+                    @if($isDone)
+                        <i class="fas fa-check-circle pds-nav-state is-done" title="Filled in"></i>
+                    @else
+                        <i class="far fa-circle pds-nav-state" title="Not filled in yet"></i>
+                    @endif
+                </a>
+            @endforeach
+        </nav>
+        <div class="pds-nav-group">Documents</div>
+        <nav class="pds-nav pb-2" aria-label="Personal data sheet documents">
+            <a href="{{ $pdsLink('generatepds') }}" target="_blank" rel="noopener">
+                <i class="fas fa-eye pds-nav-icon"></i>
+                <span class="pds-nav-label">Preview Personal Data Sheet</span>
+                <i class="fas fa-external-link-alt pds-nav-state"></i>
+            </a>
+            <a href="{{ $pdsLink('genpdsAtthachment') }}" target="_blank" rel="noopener">
+                <i class="fas fa-paperclip pds-nav-icon"></i>
+                <span class="pds-nav-label">Attachment to CS Form No. 212</span>
+                <i class="fas fa-external-link-alt pds-nav-state"></i>
+            </a>
+            @php $onSignature = $onPage('pds/signature', 'pds/signature/*'); @endphp
+            <a href="{{ $pdsLink('signature') }}" class="{{ $onSignature ? 'is-active' : '' }}" @if($onSignature) aria-current="page" @endif>
+                <i class="fas fa-signature pds-nav-icon"></i>
+                <span class="pds-nav-label">E-Signature</span>
+            </a>
+        </nav>
     </div>
 </div>
 <!-- Modal -->
@@ -221,7 +146,7 @@
                             <p style="margin: 4px 0; font-style: italic;">{{ ($employee->emp_status == 1) ? $employee->position : 'OFFICE STAFF'  }}</p>
                             {{-- <p style="margin: 0; font-weight: bold;">MAIN CAMPUS</p> --}}
                         </div>
-                        
+
                     </div>
                 </div>
             </div>
@@ -235,7 +160,7 @@
     function openQRModal() {
         const qrElements = ['qrcode', 'qrcode1'];
         const token = "{{ $shortEncrypted }}";
-        
+
         qrElements.forEach(elementId => {
             const qrElement = document.getElementById(elementId);
             if (qrElement) {

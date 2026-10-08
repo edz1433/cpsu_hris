@@ -75,8 +75,8 @@ $(document).on('click', '.learningdev_approve', function(e) {
                     
                     $("#status-" + id)
                     .text("Reviewed") 
-                    .removeClass("badge-warning")
-                    .addClass("badge-success"); 
+                    .removeClass("is-start")
+                    .addClass("is-added");
                 },
                 error: function(xhr) {
                     Swal.fire({
@@ -93,18 +93,23 @@ $(document).on('click', '.learningdev_approve', function(e) {
 });
 
 
+// Filter the training cards by any text in them.
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.querySelector('input[name="table_search"]');
-    const tableRows = document.querySelectorAll('.table tbody');
+    if (!searchInput) return;
+    const items = document.querySelectorAll('.eli-item');
+    const noMatch = document.getElementById('learnNoMatch');
 
     searchInput.addEventListener('input', function() {
-        const searchTerm = searchInput.value.toLowerCase();
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        let shown = 0;
 
-        tableRows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            const found = Array.from(cells).some(cell => cell.textContent.toLowerCase().includes(searchTerm));
-            row.style.display = found ? '' : 'none';
+        items.forEach(item => {
+            const found = item.textContent.toLowerCase().includes(searchTerm);
+            item.style.display = found ? '' : 'none';
+            if (found) shown++;
         });
+        noMatch.classList.toggle('d-none', shown > 0);
     });
 });
 </script>

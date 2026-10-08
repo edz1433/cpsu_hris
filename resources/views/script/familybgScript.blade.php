@@ -48,22 +48,15 @@ $(document).ready(function() {
     $('#add-row-familybg').click(function() {
         var newRowIndex = $('#form-container .form-row').length;
         var newRow = `
-            <div class="form-row mt-3 lbel" data-index="${newRowIndex}">
-                <div class="col-md-6">
-                    <input type="text" name="name_child[]" class="form-control form-control-sm update-child" placeholder="N/A">
-                </div>
-                
-                <div class="col-md-5">
-                    <input type="date" name="date_birth[]" class="form-control form-control-sm update-child" placeholder="N/A">
-                </div>
-                
-                <div class="col-md-1">
-                    <button type="button" class="btn btn-outline-danger btn-sm btn-delete"><i class="fas fa-trash fa-sm"></i> </button>    
-                </div>
+            <div class="form-row fam-kid" data-index="${newRowIndex}">
+                <input type="text" name="name_child[]" class="form-control update-child" placeholder="N/A" aria-label="Child's full name">
+                <input type="date" name="date_birth[]" class="form-control update-child" aria-label="Child's date of birth">
+                <button type="button" class="lv-icon-btn is-danger btn-delete" title="Remove child" aria-label="Remove child"><i class="fas fa-trash"></i></button>
             </div>
         `;
 
         $('#form-container').append(newRow);
+        $('#form-container .fam-kid:last input[type="text"]').trigger('focus');
 
         updateData();
     });

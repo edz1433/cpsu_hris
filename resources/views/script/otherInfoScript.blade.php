@@ -51,28 +51,16 @@
         $('#add-row-familybg').click(function() {
             var newRowIndex = $('#form-container .form-row').length;
             var newRow = `
-                <div class="form-row mt-3 lbel" data-index="${newRowIndex}">
-                    <div class="col-md-3">
-                        <input type="text" name="skills_hob[]" class="form-control form-control-sm update-child update-field-array" placeholder="N/A">
-                    </div>
-                    
-                    <div class="col-md-4">
-                        <input type="text" name="recognition[]" class="form-control form-control-sm update-child update-field-array" placeholder="N/A">
-                    </div>
-                    
-                    <div class="col-md-4">
-                        <input type="text" name="mem_org[]" class="form-control form-control-sm update-child update-field-array" placeholder="N/A">
-                    </div>
-                    
-                    <div class="col-md-1">
-                        <button type="button" class="btn btn-outline-danger btn-sm btn-delete">
-                            <i class="fas fa-trash fa-sm"></i>
-                        </button>    
-                    </div>
+                <div class="form-row oi-row" data-index="${newRowIndex}">
+                    <input type="text" name="skills_hob[]" class="form-control update-child" placeholder="N/A" aria-label="Special skill or hobby">
+                    <input type="text" name="recognition[]" class="form-control update-child" placeholder="N/A" aria-label="Non-academic distinction or recognition">
+                    <input type="text" name="mem_org[]" class="form-control update-child" placeholder="N/A" aria-label="Membership in association or organization">
+                    <button type="button" class="lv-icon-btn is-danger btn-delete" title="Remove row" aria-label="Remove row"><i class="fas fa-trash"></i></button>
                 </div>
             `;
-    
+
             $('#form-container').append(newRow);
+            $('#form-container .oi-row:last input').first().trigger('focus');
             updateData();
         });
     

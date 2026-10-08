@@ -65,41 +65,10 @@
     
         // Add new row for educational background
         $('#add-row-college').click(function() {
-            var newRowIndex = $('#college-container .form-row').length;
-            var newRow = `
-                <div class="form-row mt-3 lbel" data-index="${newRowIndex}">
-                    <div class="col-md-12">
-                        <button type="button" class="btn btn-outline-danger btn-sm btn-delete" style="float: right;">
-                            <i class="fas fa-times fa-sm"></i>
-                        </button>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="badge badge-secondary text-wrap lbel">Name of School</label>
-                        <input type="text" name="coll_school[]" class="form-control form-control-sm update-child" placeholder="N/A">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="badge badge-secondary text-wrap lbel">Degree/Course</label>
-                        <input type="text" name="coll_course[]" class="form-control form-control-sm update-child" placeholder="N/A">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="badge badge-secondary text-wrap lbel">Period of Attendance</label>
-                        <input type="text" name="coll_period[]" class="form-control form-control-sm update-child" placeholder="ex: 2021 - 2024">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="badge badge-secondary text-wrap lbel">Highest Level/Units Earned</label>
-                        <input type="text" name="coll_level[]" class="form-control form-control-sm update-child" placeholder="N/A">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="badge badge-secondary text-wrap lbel">Year Graduated</label>
-                        <input type="number" name="coll_grad[]" class="form-control form-control-sm update-child" placeholder="N/A">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="badge badge-secondary text-wrap lbel">Honors Received</label>
-                        <input type="text" name="coll_honor[]" class="form-control form-control-sm update-child" placeholder="N/A">
-                    </div>
-                </div>
-            `;
+            // Same markup as the saved entries (emp.partials.educ-entry), kept in a <template> on the page.
+            var newRow = $($('#college-container-template').html().trim());
             $('#college-container').append(newRow);
+            newRow.find('input').first().trigger('focus');
             updateData();
         });
 
@@ -164,41 +133,10 @@
         }
 
         $('#add-row-graduate').click(function() {
-            var newRowIndex = $('#graduate-container .form-row').length;
-            var newRow = `
-                <div class="form-row mt-3 lbel" data-index="${newRowIndex}">
-                    <div class="col-md-12">
-                        <button type="button" class="btn btn-outline-danger btn-sm btn-delete-grad" style="float: right;">
-                            <i class="fas fa-times fa-sm"></i>
-                        </button>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="badge badge-secondary text-wrap lbel">Name of School</label>
-                        <input type="text" name="grad_school[]" class="form-control form-control-sm update-grad" placeholder="N/A">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="badge badge-secondary text-wrap lbel">Degree/Course</label>
-                        <input type="text" name="grad_course[]" class="form-control form-control-sm update-grad" placeholder="N/A">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="badge badge-secondary text-wrap lbel">Period of Attendance</label>
-                        <input type="text" name="grad_period[]" class="form-control form-control-sm update-grad" placeholder="ex: 2021 - 2024">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="badge badge-secondary text-wrap lbel">Highest Level/Units Earned</label>
-                        <input type="text" name="grad_level[]" class="form-control form-control-sm update-grad" placeholder="N/A">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="badge badge-secondary text-wrap lbel">Year Graduated</label>
-                        <input type="number" name="grad_grad[]" class="form-control form-control-sm update-grad" placeholder="N/A">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="badge badge-secondary text-wrap lbel">Honors Received</label>
-                        <input type="text" name="grad_honor[]" class="form-control form-control-sm update-grad" placeholder="N/A">
-                    </div>
-                </div>
-            `;
+            // Same markup as the saved entries (emp.partials.educ-entry), kept in a <template> on the page.
+            var newRow = $($('#graduate-container-template').html().trim());
             $('#graduate-container').append(newRow);
+            newRow.find('input').first().trigger('focus');
             updateGraduateData();
         });
 

@@ -1,235 +1,131 @@
 @extends('layouts.master')
 
 @section('body')
-<style>
-    .custom-label {
-        width: 45px;
-        padding: 0px;
-        padding-left: 5px;
-        text-align: center; /* Center align the text */
-    }
-</style>
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="card-header border-0 pb-0">
-                        <div class="card-tools d-flex align-items-center w-100 justify-content-between">
-                            <div class="input-group input-group-sm" style="width: 300px;">
-                                <input type="text" name="table_search" id="empSearchInput" class="form-control" placeholder="Search employee..." autocomplete="off">
-                                <div class="input-group-append">
-                                    <button type="button" class="btn btn-default" id="btnEmpSearch">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div>
-                                <a href="{{ route('empQr') }}" target="_blank" class="btn btn-outline-primary btn-sm mr-1">
-                                    <i class="fas fa-qrcode"></i> 
-                                </a>
-                                <a href="{{ route('genEmp') }}" target="_blank" class="btn btn-outline-danger btn-sm mr-1">
-                                    <i class="fas fa-file-pdf"></i> 
-                                </a>
-                                <a href="{{ route('empAdd') }}" class="btn btn-outline-success btn-sm">
-                                    <i class="fas fa-user-plus"></i> ADD NEW
-                                </a>
-                            </div>
+@php
+    // [day prefix used by the form fields, label]
+    $workDays = [
+        ['mon', 'Monday'],
+        ['tue', 'Tuesday'],
+        ['wed', 'Wednesday'],
+        ['thu', 'Thursday'],
+        ['fri', 'Friday'],
+    ];
+@endphp
+<div class="container-fluid dash">
+    <div class="dtr-head">
+        <div>
+            <h1>Employees</h1>
+            <p>Everyone on record, with their status, length of service and account access.</p>
+        </div>
+        <div class="lv-actions emp-head-actions">
+            <a href="{{ route('empQr') }}" target="_blank" rel="noopener" class="lv-btn" title="Print employee QR codes">
+                <i class="fas fa-qrcode"></i> QR codes
+            </a>
+            <a href="{{ route('genEmp') }}" target="_blank" rel="noopener" class="lv-btn" title="Generate the employee list as PDF">
+                <i class="fas fa-file-pdf"></i> PDF list
+            </a>
+            <a href="{{ route('empAdd') }}" class="lv-btn is-primary">
+                <i class="fas fa-user-plus"></i> Add employee
+            </a>
+        </div>
+    </div>
+
+    <div class="dash-card">
+        <div class="dash-card-header flex-wrap">
+            <h5><i class="fas fa-users" style="color: var(--cpsu-green-600);"></i>Employee list</h5>
+            <label class="emp-search mb-0" for="empSearchInput">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input type="search" name="table_search" id="empSearchInput" placeholder="Search name, ID, position, email..." autocomplete="off" aria-label="Search employees">
+            </label>
+        </div>
+        <div class="table-responsive emp-scroll">
+            <table class="table table-hover lv-table emp-table" id="employeeTable">
+                <thead>
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th>Employee</th>
+                        <th>Emp ID</th>
+                        <th>Campus</th>
+                        <th>Status</th>
+                        <th>Email</th>
+                        <th>Service</th>
+                        <th>Date hired</th>
+                        <th class="text-center">Account</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="employeeTableBody">
+                    @include('emp.partials.employee_rows')
+                </tbody>
+            </table>
+        </div>
+        <div id="empBatchStatusContainer" class="emp-footer">
+            <span id="empBatchInfoText">
+                Showing <strong id="empLoadedCount">{{ count($employee) }}</strong> of <strong id="empTotalCount">{{ $totalCount }}</strong> employees
+            </span>
+            <div class="d-flex align-items-center">
+                <div id="empBatchLoadingSpinner" class="spinner-border spinner-border-sm mr-2 d-none" style="color: var(--cpsu-green-600);" role="status">
+                    <span class="sr-only">Loading batch...</span>
+                </div>
+                <button type="button" id="btnLoadNextEmpBatch" class="lv-btn {{ $hasMore ? '' : 'd-none' }}">
+                    <i class="fas fa-angle-double-down"></i> Load more
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ev-modal" id="officialTime" tabindex="-1" role="dialog" aria-labelledby="officialTimeLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form class="dtr-form add-form" action="{{ route('OfficialTimeCreate') }}" method="POST">
+                @csrf
+                <input type="hidden" name="empid">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="officialTimeLabel"><i class="fas fa-clock"></i>Official working hours</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p class="lv-note mb-3">The schedule the employee's DTR is checked against, Monday to Friday.</p>
+                    <div class="emp-hours">
+                        <div class="emp-hours-head">
+                            <span></span>
+                            <span>Morning in</span>
+                            <span>Morning out</span>
+                            <span>Afternoon in</span>
+                            <span>Afternoon out</span>
                         </div>
-                    </div>
-                    <div class="card-body pt-3">
-                        <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
-                            <table class="table table-collapsed table-hover" id="employeeTable">
-                                <thead>
-                                    <tr>
-                                        <th>NO.</th>
-                                        <th>Full Name</th>
-                                        <th>Emp_ID</th> 
-                                        <th>Campus</th>
-                                        <th>Status</th>
-                                        <th>Email</th>
-                                        <th>Service</th>
-                                        <th>Date Hired</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead> 
-                                <tbody id="employeeTableBody">
-                                    @include('emp.partials.employee_rows')
-                                </tbody> 
-                            </table>
-                        </div>
-                        <div id="empBatchStatusContainer" class="p-2 border-top d-flex justify-content-between align-items-center bg-light">
-                            <span id="empBatchInfoText" class="text-muted" style="font-size: 0.875rem;">
-                                Showing <strong id="empLoadedCount">{{ count($employee) }}</strong> of <strong id="empTotalCount">{{ $totalCount }}</strong> employees
-                            </span>
-                            <div class="d-flex align-items-center">
-                                <div id="empBatchLoadingSpinner" class="spinner-border spinner-border-sm text-primary mr-2 d-none" role="status">
-                                    <span class="sr-only">Loading batch...</span>
-                                </div>
-                                <button id="btnLoadNextEmpBatch" class="btn btn-outline-primary btn-sm {{ $hasMore ? '' : 'd-none' }}">
-                                    <i class="fas fa-download mr-1"></i> Load Next Batch
-                                </button>
+                        @foreach($workDays as [$day, $label])
+                            <div class="emp-hours-row">
+                                <span class="emp-hours-day">{{ $label }}</span>
+                                <input type="time" name="{{ $day }}_mornin" class="form-control" aria-label="{{ $label }} morning in" required>
+                                <input type="time" name="{{ $day }}_mornout" class="form-control" aria-label="{{ $label }} morning out" required>
+                                <input type="time" name="{{ $day }}_noonin" class="form-control" aria-label="{{ $label }} afternoon in" required>
+                                <input type="time" name="{{ $day }}_noonout" class="form-control" aria-label="{{ $label }} afternoon out" required>
                             </div>
-                        </div>
+                        @endforeach
                     </div>
                 </div>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="lv-btn" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="lv-btn is-primary"><i class="fas fa-save"></i> Save hours</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-<div class="modal fade" id="officialTime">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">    
-            <div class="card-header">
-                <h2 class="card-title text-success1">
-                    <b>OFFICIAL WORKING HOURS</b>
-                </h2>
-            </div>        
-            <div class="card-body bg-form">
-                <form class="form-horizontal add-form" action="{{ route('OfficialTimeCreate') }}" method="POST">
-                    @csrf
-                    <div class="form-group mtop">
-                        {{-- Monday --}}
-                        <div class="form-row">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <input type="hidden" name="empid" class="form-control form-control-sm">
-                                        <div class="input-group-append">
-                                            <span class="input-group-text custom-label"><b>MON.</b></span>
-                                        </div>
-                                        <input type="time" name="mon_mornin" class="form-control form-control-sm" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="time" name="mon_mornout" class="form-control form-control-sm" required>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="time" name="mon_noonin" class="form-control form-control-sm" required>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="time" name="mon_noonout" class="form-control form-control-sm" required>
-                            </div>
-                        </div>
-                        {{-- Tuesday --}}
-                        <div class="form-row">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <div class="input-group-append">
-                                            <span class="input-group-text custom-label"><b>TUE.</b></span>
-                                        </div>
-                                        <input type="time" name="tue_mornin" class="form-control form-control-sm" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="time" name="tue_mornout" class="form-control form-control-sm" required>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="time" name="tue_noonin" class="form-control form-control-sm" required>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="time" name="tue_noonout" class="form-control form-control-sm" required>
-                            </div>
-                        </div>
-                        {{-- Wednesday --}}
-                        <div class="form-row">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <div class="input-group-append">
-                                            <span class="input-group-text custom-label"><b>WED.</b></span>
-                                        </div>
-                                        <input type="time" name="wed_mornin" class="form-control form-control-sm" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="time" name="wed_mornout" class="form-control form-control-sm" required>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="time" name="wed_noonin" class="form-control form-control-sm" required>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="time" name="wed_noonout" class="form-control form-control-sm" required>
-                            </div>
-                        </div>
-                        {{-- Thursday --}}
-                        <div class="form-row">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <div class="input-group-append">
-                                            <span class="input-group-text custom-label"><b>THU.</b></span>
-                                        </div>
-                                        <input type="time" name="thu_mornin" class="form-control form-control-sm" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="time" name="thu_mornout" class="form-control form-control-sm" required>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="time" name="thu_noonin" class="form-control form-control-sm" required>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="time" name="thu_noonout" class="form-control form-control-sm" required>
-                            </div>
-                        </div>
-                        {{-- Friday --}}
-                        <div class="form-row">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <div class="input-group-append">
-                                            <span class="input-group-text custom-label"><b>FRI.</b></span>
-                                        </div>
-                                        <input type="time" name="fri_mornin" class="form-control form-control-sm" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="time" name="fri_mornout" class="form-control form-control-sm" required>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="time" name="fri_noonin" class="form-control form-control-sm" required>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="time" name="fri_noonout" class="form-control form-control-sm" required>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row" style="float: right;">
-                            <div class="col-md-12">
-                                <button class="btn btn-success"><i class="fas fa-save"></i> SAVE</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="toggleConfirmModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+
+<div class="modal fade ev-modal" id="toggleConfirmModal" tabindex="-1" role="dialog" aria-labelledby="toggleConfirmLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header bg-danger">
-                <h5 class="modal-title text-white">Confirm Action</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span>&times;</span>
-                </button>
+            <div class="modal-header">
+                <h5 class="modal-title" id="toggleConfirmLabel"><i class="fas fa-user-shield"></i>Change account access</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
-            <div class="modal-body p-4" id="confirmMessage" style="font-size: 16px;"></div>
+            <div class="modal-body pb-3" id="confirmMessage" style="font-size: 14px;"></div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    Cancel
-                </button>
-                <button type="button" class="btn btn-danger" id="confirmToggle">
-                    Confirm
-                </button>
+                <button type="button" class="lv-btn" data-dismiss="modal">Cancel</button>
+                <button type="button" class="lv-btn is-primary" id="confirmToggle">Confirm</button>
             </div>
         </div>
     </div>
@@ -245,9 +141,13 @@ function openToggleDialog(checkbox, fullname, empId) {
     pendingCheckbox = checkbox;
     checkbox.checked = !pendingNewState;
     const action = pendingNewState ? "enable" : "disable";
+    const confirmBtn = document.getElementById("confirmToggle");
+    confirmBtn.textContent = pendingNewState ? "Enable account" : "Disable account";
+    confirmBtn.classList.toggle("is-primary", pendingNewState);
+    confirmBtn.classList.toggle("is-danger", !pendingNewState);
     document.getElementById("confirmMessage").innerHTML =
-        "Are you sure you want to <b>" + action + "</b> this employee's account?<br><br>" +
-        "<span class='text-dark font-weight-bold' style='font-size:18px;'>" + fullname + "</span>";
+        "Are you sure you want to <b>" + action + "</b> this employee's account?" +
+        "<div class='emp-confirm-name'>" + fullname + "</div>";
     $("#toggleConfirmModal").modal("show");
 }
 
@@ -273,19 +173,19 @@ document.getElementById("confirmToggle").onclick = function () {
 
     function loadEmpBatch(reset = false) {
         if (empState.isLoading) return;
-        
+
         if (reset) {
             empState.page = 1;
             empState.hasMore = false;
-            $('#employeeTableBody').html('<tr><td colspan="10" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin fa-2x mb-2"></i><br>Loading employees...</td></tr>');
+            $('#employeeTableBody').html('<tr class="no-records"><td colspan="10"><div class="dtr-empty"><div class="dtr-empty-icon"><i class="fas fa-spinner fa-spin"></i></div><h6>Loading employees...</h6></div></td></tr>');
         }
-        
+
         if (!reset && !empState.hasMore) return;
-        
+
         empState.isLoading = true;
         $('#empBatchLoadingSpinner').removeClass('d-none');
         $('#btnLoadNextEmpBatch').prop('disabled', true);
-        
+
         $.ajax({
             url: empRouteBase,
             type: 'GET',
@@ -299,21 +199,21 @@ document.getElementById("confirmToggle").onclick = function () {
             success: function(res) {
                 empState.isLoading = false;
                 $('#empBatchLoadingSpinner').addClass('d-none');
-                
+
                 if (res.success) {
                     if (reset) {
                         $('#employeeTableBody').html(res.html);
                     } else {
                         $('#employeeTableBody').append(res.html);
                     }
-                    
+
                     empState.total = res.total;
                     empState.hasMore = res.has_more;
-                    
+
                     let loaded = $('#employeeTableBody tr:not(.no-records)').length;
                     $('#empLoadedCount').text(loaded);
                     $('#empTotalCount').text(empState.total);
-                    
+
                     if (empState.hasMore) {
                         $('#btnLoadNextEmpBatch').removeClass('d-none').prop('disabled', false);
                     } else {
@@ -338,7 +238,7 @@ document.getElementById("confirmToggle").onclick = function () {
             }
         });
 
-        $('.table-responsive').on('scroll', function() {
+        $('.emp-scroll').on('scroll', function() {
             let container = $(this);
             if (container.scrollTop() + container.innerHeight() >= container[0].scrollHeight - 60) {
                 if (empState.hasMore && !empState.isLoading) {
