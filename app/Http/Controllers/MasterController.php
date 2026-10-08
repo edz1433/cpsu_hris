@@ -547,10 +547,9 @@ class MasterController extends Controller
         ]);
 
         $settings = Setting::firstOrCreate([], ['maintenance' => false]);
-        $previousPres = (int) $settings->suc_pres;
         $previousHr = (int) $settings->hr;
 
-        DB::transaction(function () use ($settings, $validated, $previousPres, $previousHr) {
+        DB::transaction(function () use ($settings, $validated, $previousHr) {
             $settings->fill([
                 'suc_pres' => $validated['suc_pres'],
                 'vpaa' => $validated['vpaa'] ?? null,
@@ -564,18 +563,8 @@ class MasterController extends Controller
                 'sync_backups' => $validated['sync_backups'],
             ])->save();
 
-            // Applications still waiting on a signature move to the newly assigned
-            // signatory, so the new president/HR head can act on them and the
-            // printed form carries their name. Signed ones keep the original signer.
-            if ($previousPres !== (int) $settings->suc_pres) {
-                LeaveApplication::where('history', 1)
-                    ->where(fn ($q) => $q->whereNull('pres_sign')->orWhere('pres_sign', '!=', 2))
-                    ->update([
-                        'president' => $settings->suc_pres,
-                        'pres_prefix' => Employee::whereKey($settings->suc_pres)->value('prefix'),
-                    ]);
-            }
-
+            // The SUC President stored on each existing leave application stays
+            // assigned until that application is changed individually.
             if ($previousHr !== (int) $settings->hr) {
                 LeaveApplication::where('history', 1)
                     ->where('status', 1)

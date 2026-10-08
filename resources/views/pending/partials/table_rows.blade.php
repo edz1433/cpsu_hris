@@ -242,6 +242,19 @@
 
             <td class="text-center">
                 <!-- Action Button -->
+                @if(auth()->guard('web')->check() && auth()->guard('web')->user()->role === 'Administrator'
+                    && in_array((int) $emp->history, [0, 1], true)
+                    && in_array((int) $emp->status, [1, 2, 3], true)
+                    && (int) $emp->pres_sign !== 2)
+                    <button type="button" class="btn btn-outline-primary btn-sm change-leave-president"
+                        data-toggle="modal" data-target="#leavePresidentModal"
+                        data-id="{{ $emp->id }}" data-transnum="{{ $emp->transnum }}"
+                        data-president-id="{{ $emp->president }}"
+                        data-president-name="{{ trim(implode(' ', array_filter([$emp->sucpres_fname, $emp->sucpres_mname, $emp->sucpres_lname]))) }}"
+                        title="Change SUC President for this application">
+                        <i class="fas fa-user-edit"></i> President
+                    </button>
+                @endif
                 @if($emp->status != 4)
                     <a href="#" data-id="{{ $emp->id }}" data-url-template="{{ url('leave/preview-leave/__ID__') }}" 
                         data-toggle="modal" data-target="#pdfModalPending" 

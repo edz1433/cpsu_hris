@@ -262,7 +262,7 @@
                                         <div class="timeline-item">
                                             <span class="time time-pres{{ $leaves->id }}">{{ (!empty($leaves->pres_sdate)) ? \Carbon\Carbon::parse($leaves->pres_sdate)->format('F j, Y h:i A') : '' }}</span>
                                             <h3 class="timeline-header border-0">
-                                                <a href="#">{{ strtoupper($setting->sucpres_lname) }}, {{ strtoupper($setting->sucpres_fname) }} {{ isset($setting->sucpres_suffix) ? strtoupper($setting->sucpres_suffix).'.' : '' }}</a><br>
+                                                <a href="#">{{ strtoupper($leaves->president_lname ?? '') }}, {{ strtoupper($leaves->president_fname ?? '') }} {{ isset($leaves->president_suffix) ? strtoupper($leaves->president_suffix).'.' : '' }}</a><br>
                                                 <span><i>SUC President</i></span>
                                                 @if($leaves->remarks_stat == 3)<br>
                                                 <div class="callout callout-danger" style="margin: 8px 0px 0px 0px !important; padding: 10px !important;">
@@ -272,7 +272,7 @@
                                                 <div id="status-remarks-presedent{{ $leaves->id }}"></div>
                                             </h3>
                                             @if($guard == "employee")
-                                                @if($setting->suc_pres == auth()->guard($guard)->user()->id && $leaves->status == 3 && $leaves->remarks_stat !== 3)
+                                                @if($leaves->president == auth()->guard($guard)->user()->id && $leaves->status == 3 && $leaves->remarks_stat !== 3)
                                                     <div class="timeline-footer mb-4" id="action-button2{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
                                                             <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="3"><i class="fas fa-undo"></i> Return</button>
@@ -295,7 +295,6 @@
                                 </div>
                             @endforeach
 
-                            {{-- @if(($oic->oic_id == auth()->guard($guard)->user()->id) || ($isOfficeHead) || ($setting->suc_pres == auth()->guard($guard)->user()->id)) --}}
                             @if(count($leavesapphead))
                                 @foreach($leavesapphead as $leaves)
                                     @php $rowOic = $officeOics[$leaves->department] ?? null; @endphp
@@ -474,7 +473,7 @@
                                             <div class="timeline-item">
                                                 <span class="time time-pres{{ $leaves->id }}">{{ (!empty($leaves->pres_sdate)) ? \Carbon\Carbon::parse($leaves->pres_sdate)->format('F j, Y h:i A') : '' }}</span>
                                                 <h3 class="timeline-header border-0">
-                                                    <a href="#">{{ strtoupper($setting->sucpres_lname) }}, {{ strtoupper($setting->sucpres_fname) }} {{ isset($setting->sucpres_suffix) ? strtoupper($setting->sucpres_suffix).'.' : '' }}</a><br>
+                                                    <a href="#">{{ strtoupper($leaves->president_lname ?? '') }}, {{ strtoupper($leaves->president_fname ?? '') }} {{ isset($leaves->president_suffix) ? strtoupper($leaves->president_suffix).'.' : '' }}</a><br>
                                                     <span><i>SUC President</i></span>
                                                     @if($leaves->remarks_stat == 3)<br>
                                                         <div class="callout callout-danger" style="margin: 8px 0px 0px 0px !important; padding: 10px !important;">
@@ -484,7 +483,7 @@
                                                     <div id="status-remarks-presedent{{ $leaves->id }}"></div>
                                                 </h3>
                                                 @if($guard == "employee")
-                                                    @if($setting->suc_pres == auth()->guard($guard)->user()->id && $leaves->status == 3 && $leaves->remarks_stat !== 3)
+                                                    @if($leaves->president == auth()->guard($guard)->user()->id && $leaves->status == 3 && $leaves->remarks_stat !== 3)
                                                         <div class="timeline-footer mb-4" id="action-button2{{ $leaves->id }}" style="margin-top: -15px;">
                                                             <div class="float-right">
                                                                 <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="3"><i class="fas fa-undo"></i> Return</button>

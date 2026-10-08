@@ -62,7 +62,7 @@
                         </div>
                         <div class="ete-note mb-0">
                             <i class="fas fa-info-circle"></i>
-                            <span>Changing the SUC President or HR Head moves leave applications still waiting on their signature to the new person. Applications they already signed keep the original signatory.</span>
+                            <span>The SUC President selected here is used for new leave applications. Existing applications keep their assigned president; change one from Pending Leave Applications if needed. Changing the HR Head still moves applications waiting for HR approval.</span>
                         </div>
                     </div>
                 </div>

@@ -47,10 +47,12 @@ use App\Http\Controllers\EteEvaluationController;
 use App\Http\Controllers\InterviewEvaluationController;
 use App\Http\Controllers\ContractPeriodController;
 use App\Http\Controllers\EmployeeContractController;
+use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\LeavePresidentAssignmentController;
 
 //login
 Route::middleware('maintenance.login')->group(function () {
-    Route::get('/hr-admin',[LoginAuthController::class,'getLoginAdmin'])->name('getLoginAdmin');
+    // Route::get('/hr-admin',[LoginAuthController::class,'getLoginAdmin'])->name('getLoginAdmin');
     Route::get('/',[LoginAuthController::class,'getLogin'])->name('getLogin')->middleware([NoCacheMiddleware::class]);
     Route::post('/post-login',[LoginAuthController::class,'postLogin'])->name('postLogin');
     // Route::get('/update-pass', [EmployeeController::class, 'updateEmployeePasswords']);
@@ -293,6 +295,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
 
     Route::prefix('pending')->group(function(){
+        Route::get('/president-options', [LeavePresidentAssignmentController::class, 'options'])->name('pending.president-options');
+        Route::post('/leave/{leaveApplication}/president', [LeavePresidentAssignmentController::class, 'update'])->name('pending.leave-president.update');
         Route::get('/{type}/{cat?}', [PendingController::class, 'readPending'])->name('readPending');
         Route::post('/undo/{id?}', [PendingController::class, 'leaveUndo'])->name('pendingLeaveUndo');
     });
@@ -462,6 +466,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
 
     Route::get('/settings', [MasterController::class, 'systemSetting'])->name('settings')->middleware('page.access:settings');
+    Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+    Route::get('/audit-logs/options', [AuditLogController::class, 'options'])->name('audit-logs.options');
     Route::patch('/settings', [MasterController::class, 'updateSettings'])->name('settings.update')->middleware('page.access:settings');
     Route::patch('/settings/maintenance', [MasterController::class, 'updateMaintenance'])->name('settings.maintenance.update')->middleware('page.access:settings');
     Route::get('/leave/disapprove', [LeaveApplicationController::class, 'leaveDisapprove']);

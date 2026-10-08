@@ -156,6 +156,7 @@ class LeaveApplicationController extends Controller
         ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
         ->join('employees as emp', 'emp.emp_ID', '=', 'leave_applications.empid')
         ->join('employees as hr', 'hr.id', '=', 'leave_applications.hr')
+        ->leftJoin('employees as pres', 'pres.id', '=', 'leave_applications.president')
         ->select(
             'leave_applications.*', 
             'emp.id as employid',
@@ -167,7 +168,9 @@ class LeaveApplicationController extends Controller
             'hr.fname as hr_fname', 
             'hr.mname as hr_mname', 
             'hr.suffix as hr_suffix',
-            'hr.id as hr_id'
+            'hr.id as hr_id',
+            'pres.fname as president_fname', 'pres.mname as president_mname',
+            'pres.lname as president_lname', 'pres.suffix as president_suffix'
         )
         ->orderBy('leave_applications.id', 'desc')
         ->where('leave_applications.history', 1)
@@ -175,42 +178,30 @@ class LeaveApplicationController extends Controller
 
         // dd($leavesapp);
 
-        // Left joins so a missing HR Head or President in settings doesn't hide
-        // the settings row, which is what identifies the president below.
+        // Settings supply the HR Head. Each application's president comes from
+        // leave_applications.president in the queries above and below.
         $setting = Setting::leftJoin('employees as hr', 'hr.id', '=', 'settings.hr')
-        ->leftJoin('employees as sucpres', 'sucpres.id', '=', 'settings.suc_pres')
         ->select(
             'settings.*',
             'hr.lname as hr_lname',
             'hr.fname as hr_fname',
             'hr.mname as hr_mname',
             'hr.suffix as hr_suffix',
-            'sucpres.lname as sucpres_lname',
-            'sucpres.fname as sucpres_fname',
-            'sucpres.mname as sucpres_mname',
-            'sucpres.suffix as sucpres_suffix',
         )
         ->first();
 
         $leavesapphead = LeaveApplication::join('employees as emp', 'emp.emp_ID', '=', 'leave_applications.empid')
             ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
-            ->join('employees as hr', 'hr.id', '=', 'leave_applications.hr');
+            ->join('employees as hr', 'hr.id', '=', 'leave_applications.hr')
+            ->leftJoin('employees as pres', 'pres.id', '=', 'leave_applications.president');
             
-        // if ($setting->suc_pres !== auth()->guard($guard)->user()->id) {
-        //     $leavesapphead->where('leave_applications.supervisor', auth()->guard($guard)->user()->id);
-        // }else{
-        //     $leavesapphead->whereIn('leave_applications.status', [3]);
-        // }
-
         $authid = auth()->guard($guard)->user()->id;
 
         // Offices the signed-in user answers for, aside from being an immediate supervisor.
         $headOfficeIds = Office::where('office_head_id', $authid)->pluck('id')->all();
         $oicOfficeIds = Office::where('oic_id', $authid)->pluck('id')->all();
 
-        $isPresident = (int) optional($setting)->suc_pres === (int) $authid;
-
-        $leavesapphead->where(function ($query) use ($isPresident, $employee, $authid, $headOfficeIds, $oicOfficeIds) {
+        $leavesapphead->where(function ($query) use ($employee, $authid, $headOfficeIds, $oicOfficeIds) {
             // Applications the user has to act on: the ones filed under them as
             // immediate supervisor, plus those of the office they head or sit as
             // OIC for. Their own application never shows up here.
@@ -232,9 +223,10 @@ class LeaveApplicationController extends Controller
             // The president also gives the final approval on every application
             // that has cleared the supervisor, and still signs as supervisor for
             // the employees reporting directly to them.
-            if ($isPresident) {
-                $query->orWhere('leave_applications.status', 3);
-            }
+            $query->orWhere(function ($query) use ($authid) {
+                $query->where('leave_applications.president', $authid)
+                    ->where('leave_applications.status', 3);
+            });
         });
         
         $leavesapphead = $leavesapphead->select(
@@ -253,6 +245,8 @@ class LeaveApplicationController extends Controller
             'sup.mname as supervisor_mname', 
             'sup.suffix as supervisor_suffix',
             'sup.emp_dept as supervisor_emp_dept', 
+            'pres.fname as president_fname', 'pres.mname as president_mname',
+            'pres.lname as president_lname', 'pres.suffix as president_suffix',
         )
         ->orderBy('leave_applications.id', 'desc')
         ->where('leave_applications.history', 1)
@@ -595,6 +589,10 @@ class LeaveApplicationController extends Controller
         $leaveApplication = LeaveApplication::find($request->id);
         $currdate1 = Carbon::now('Asia/Manila')->format('F j, Y h:i A');
 
+        if ((int) $request->by === 3 && ($guard !== 'employee' || (int) $authid !== (int) $leaveApplication->president)) {
+            return response()->json(['success' => false, 'message' => 'Only the assigned SUC President can approve this application.'], 403);
+        }
+
         $status = 1;
         switch ($request->by) {
             case 0:
@@ -779,6 +777,12 @@ class LeaveApplicationController extends Controller
         ]);
 
         $leaveApplication = LeaveApplication::find($request->id);
+        if (!\Auth::guard('employee')->check()
+            || (int) \Auth::guard('employee')->user()->id !== (int) $leaveApplication->president
+            || (int) $leaveApplication->status !== 3
+            || (int) $leaveApplication->pres_sign === 2) {
+            return response()->json(['success' => false, 'message' => 'Only the assigned SUC President can approve this application.'], 403);
+        }
         $currdate1 = Carbon::now('Asia/Manila')->format('F j, Y h:i A');
 
         // Handle uploaded file if provided
@@ -848,6 +852,9 @@ class LeaveApplicationController extends Controller
         $currdate = Carbon::now('Asia/Manila')->toDateTimeString();
         $currdate1 = Carbon::now('Asia/Manila')->format('F j, Y h:i A');
         if ($leaveApplication) {
+            if ((int) $request->by === 3 && ($guard !== 'employee' || (int) $authid !== (int) $leaveApplication->president)) {
+                return response()->json(['success' => false, 'message' => 'Only the assigned SUC President can act on this application.'], 403);
+            }
             if ($request->by == 2 && $guard == 'employee') {
                 $signatory = $this->leaveSupervisorSignatory($leaveApplication);
 
@@ -952,6 +959,11 @@ class LeaveApplicationController extends Controller
         }
 
         $guard = $this->getGuard();
+
+        if ((int) $request->to === 3 && ($guard !== 'employee'
+            || (int) optional(auth()->guard('employee')->user())->id !== (int) $leaveApplication->president)) {
+            return response()->json(['success' => false, 'message' => 'Only the assigned SUC President can return this application.'], 403);
+        }
 
         if ($request->to == 2 && $guard == 'employee') {
             $signatory = $this->leaveSupervisorSignatory($leaveApplication);

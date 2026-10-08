@@ -453,7 +453,7 @@
 
         }).buttons().container().appendTo('#example3_wrapper .col-md-6:eq(0)');
 
-        $('.select2').select2()
+        $('select.select2').select2()
     });
    
 </script>

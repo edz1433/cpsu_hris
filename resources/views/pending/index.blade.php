@@ -144,6 +144,30 @@
         </div>
     </div>
 </div>
+@if(auth()->guard('web')->check() && auth()->guard('web')->user()->role === 'Administrator')
+<div class="modal fade" id="leavePresidentModal" tabindex="-1" role="dialog" aria-labelledby="leavePresidentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form id="leavePresidentForm" class="modal-content">
+            @csrf
+            <div class="modal-header">
+                <h5 class="modal-title" id="leavePresidentModalLabel">Change SUC President</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">This changes the signatory for this leave application only.</p>
+                <p class="mb-2"><strong>Application:</strong> <span id="leavePresidentTransnum"></span></p>
+                <label for="leavePresidentSelect">New SUC President</label>
+                <select id="leavePresidentSelect" name="president" class="form-control" required style="width:100%"></select>
+                <div id="leavePresidentError" class="text-danger small mt-2" role="alert"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-success" id="leavePresidentSave">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endif
 <div class="modal fade" id="pdfModalPending" tabindex="-1" role="dialog" aria-labelledby="pdfModalPendingLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
@@ -197,6 +221,64 @@
         isLoading: false,
         search: ''
     };
+
+    @if(auth()->guard('web')->check() && auth()->guard('web')->user()->role === 'Administrator')
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = $('#leavePresidentModal');
+        const select = $('#leavePresidentSelect');
+        select.select2({
+            theme: 'bootstrap4',
+            width: '100%',
+            dropdownParent: modal,
+            placeholder: 'Search employees by name or ID',
+            minimumInputLength: 2,
+            ajax: {
+                url: @json(route('pending.president-options')),
+                dataType: 'json',
+                delay: 250,
+                data: params => ({ q: params.term || '' }),
+                processResults: data => ({ results: data.results || [] })
+            }
+        });
+
+        $(document).on('click', '.change-leave-president', function () {
+            const button = $(this);
+            $('#leavePresidentForm').data('id', button.attr('data-id'));
+            $('#leavePresidentTransnum').text(button.attr('data-transnum'));
+            $('#leavePresidentError').text('');
+            select.empty();
+            const currentId = button.attr('data-president-id');
+            if (currentId) {
+                select.append(new Option(button.attr('data-president-name'), currentId, true, true));
+            }
+            select.trigger('change');
+        });
+
+        $('#leavePresidentForm').on('submit', function (event) {
+            event.preventDefault();
+            $('#leavePresidentError').text('');
+            $('#leavePresidentSave').prop('disabled', true);
+            const url = @json(route('pending.leave-president.update', ['leaveApplication' => '__ID__']))
+                .replace('__ID__', encodeURIComponent($(this).data('id')));
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: $(this).serialize(),
+                success: function () {
+                    modal.modal('hide');
+                    loadPendingBatch(true);
+                },
+                error: function (xhr) {
+                    $('#leavePresidentError').text(xhr.responseJSON?.errors?.president?.[0]
+                        || xhr.responseJSON?.message || 'Could not update the SUC President.');
+                },
+                complete: function () {
+                    $('#leavePresidentSave').prop('disabled', false);
+                }
+            });
+        });
+    });
+    @endif
 
     function loadPendingBatch(reset = false) {
         if (pendingState.isLoading) return;
