@@ -52,6 +52,7 @@ class FdtController
             $this->selectColumnOrNull($officeColumns, 'updated_at'),
         ];
 
+        //
         $employeeSelect = collect([
             'id', 'fname', 'mname', 'lname', 'position', 'emp_ID', 'camp_id', 'emp_status',
             'emp_dept', 'supervisor', 'prefix', 'title_prefix', 'suffix', 'sex',
