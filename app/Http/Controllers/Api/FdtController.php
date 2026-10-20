@@ -53,9 +53,9 @@ class FdtController
         ];
 
         $employeeSelect = collect([
-            'id', 'fname', 'mname', 'lname', 'emp_ID', 'camp_id', 'emp_status',
-            'emp_dept', 'supervisor', 'org_email', 'stat_1', 'esign',
-            'created_at', 'updated_at',
+            'id', 'fname', 'mname', 'lname', 'position', 'emp_ID', 'camp_id', 'emp_status',
+            'emp_dept', 'supervisor', 'prefix', 'title_prefix', 'suffix', 'sex',
+            'org_email', 'stat_1', 'esign', 'created_at', 'updated_at',
         ])->filter(fn ($column) => in_array($column, $employeeColumns, true))->values()->all();
 
         $offices = $withSharedData
