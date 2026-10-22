@@ -169,7 +169,7 @@ class AuditLogController extends Controller
             'latestKioskUpload' => $latestKioskUpload,
             'registrationHistory' => $this->registrationHistory($filters),
             'modules' => collect(config('audit.modules', []))->values()
-                ->merge(['dtr', 'tardiness', 'system', 'authentication', $filters['module'] ?? null])
+                ->merge(['dtr', 'tardiness', 'system', 'authentication', 'registration', $filters['module'] ?? null])
                 ->filter()->unique()->sort()->values(),
             'campuses' => Campus::orderBy('name')->get(['id', 'name']),
             'offices' => Office::orderBy('office_name')->get(['id', 'office_name']),

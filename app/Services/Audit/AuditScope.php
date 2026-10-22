@@ -42,6 +42,6 @@ class AuditScope
             || str_contains($action, 'TimeEntryDtrController')
             || str_contains($action, 'TirednessController')
             || str_contains($action, 'FdtController')
-            || $request->is('dtr', 'dtr/*', 'tardiness', 'tardiness/*', 'tirdeness*', 'employees/official-time*');
+            || $request->is('dtr', 'dtr/*', 'tardiness', 'tardiness/*', 'tirdeness*');
     }
 }

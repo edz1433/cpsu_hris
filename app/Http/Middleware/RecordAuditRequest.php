@@ -152,6 +152,8 @@ class RecordAuditRequest
             if (str_contains($message, 'suspended')) return 'account_suspended';
             if (str_contains($message, 'invalid verification')) return 'invalid_verification_code';
             if (str_contains($message, 'invalid credentials')) return 'invalid_credentials';
+            // LoginAuth's signed-out redirect; its wording also contains "access".
+            if (str_contains($message, 'sign in first')) return 'unauthenticated';
             if (str_contains($message, 'permission') || str_contains($message, 'access')) return 'access_denied';
         }
 

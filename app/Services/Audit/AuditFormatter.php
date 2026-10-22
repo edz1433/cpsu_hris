@@ -88,7 +88,7 @@ class AuditFormatter
         $type = (string) ($entry->target_type ?? '');
         $name = (string) ($entry->target_name ?? '');
         $target = $name ?: Str::headline($type ?: (string) ($entry->module ?? 'this action'));
-        if ($name !== '' && in_array($action, ['created', 'updated', 'deleted'], true) && $type !== '' && $type !== 'route') {
+        if ($name !== '' && in_array($action, ['created', 'updated', 'deleted', 'no_change'], true) && $type !== '' && $type !== 'route') {
             $target = Str::headline($type).' '.$name;
         }
         if (($entry->reason_code ?? null) === 'time_in_after_time_out_60_seconds' && isset($details['seconds_remaining'])) {
@@ -109,6 +109,7 @@ class AuditFormatter
             '{seconds_remaining}' => (string) ($details['seconds_remaining'] ?? 0),
             '{attendance_action}' => ['time_in' => 'Time In', 'time_out' => 'Time Out', 'overtime' => 'Overtime'][$action] ?? 'attendance',
             '{attendance_time}' => $attendanceTime,
+            '{finger}' => (string) ($details['finger'] ?? '?'),
         ]);
         if (($details['source'] ?? null) === 'desktop_sync') {
             $flags = is_array($details['timing_flags'] ?? null) ? $details['timing_flags'] : [];

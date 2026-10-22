@@ -14,6 +14,7 @@ return [
         'created' => '{actor} created {target} at {time}.',
         'updated' => '{actor} updated {target} at {time}.',
         'deleted' => '{actor} deleted {target} at {time}.',
+        'no_change' => '{actor} saved {target} with no changes at {time}.',
         'login' => '{actor} signed in at {time}.',
         'logout' => '{actor} signed out at {time}.',
         'failed_login' => '{target} could not sign in at {time}: {reason}.',
@@ -47,6 +48,13 @@ return [
         'dtr_action_rejected' => '{actor} was rejected while using {target} at {time}: {reason}.',
         'dtr_action_unchanged' => '{actor} had no new result for {target} at {time}: {reason}.',
         'dtr_action_error' => '{actor} encountered an error with {target} at {time}: {reason}.',
+        // Recorded by database triggers for HR Kiosk writes that bypass Laravel.
+        'fingerprint_enrolled' => '{target}: fingerprint {finger} was saved directly to the database at {time}, outside the HRIS web app.',
+        'fingerprint_replaced' => '{target}: fingerprint {finger} was replaced directly in the database at {time}, outside the HRIS web app.',
+        'fingerprint_removed' => '{target}: fingerprint {finger} was removed directly in the database at {time}, outside the HRIS web app.',
+        'kiosk_registration_recorded' => '{actor} registered fingerprint {finger} for {target} on an HR Kiosk at {time}.',
+        'registration_history_modified' => '{target} was changed directly in the database at {time}.',
+        'registration_history_deleted' => '{target} was deleted directly in the database at {time}.',
     ],
 
     // Only these ordinary fields may have their values shown in old_data/new_data.
@@ -123,6 +131,13 @@ return [
         'leavescreditDeduct' => [
             'connection' => 'mysql', 'table' => 'employees', 'id_input' => 'empid',
             'target_type' => 'employee', 'fields' => ['fname', 'lname', 'sl', 'vl'],
+        ],
+        // Official Time is saved through Eloquent but its model events are not audited.
+        'OfficialTimeCreate' => [
+            'connection' => 'mysql', 'table' => 'official_times', 'key' => 'empid', 'id_input' => 'empid',
+            'target_type' => 'official_time', 'record_unchanged' => true,
+            'fields' => ['morn_mon', 'aft_mon', 'morn_tue', 'aft_tue', 'morn_wed', 'aft_wed',
+                'morn_thu', 'aft_thu', 'morn_fri', 'aft_fri'],
         ],
     ],
 ];

@@ -34,7 +34,8 @@ class DesktopDtrAuditTest extends TestCase
         config()->set('database.connections.mysql', [
             'driver' => 'mysql', 'host' => '127.0.0.1',
             'port' => (int) getenv('HRIS_AUDIT_MYSQL_PORT'), 'database' => 'hris_audit_test',
-            'username' => 'root', 'password' => '', 'charset' => 'utf8mb4',
+            'username' => getenv('HRIS_AUDIT_MYSQL_USER') ?: 'root',
+            'password' => (string) getenv('HRIS_AUDIT_MYSQL_PASSWORD'), 'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci', 'prefix' => '', 'strict' => true,
         ]);
         config()->set('audit', require config_path('audit.php'));
@@ -372,7 +373,8 @@ $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 config()->set('database.default', 'mysql');
 config()->set('database.connections.mysql', [
     'driver' => 'mysql', 'host' => '127.0.0.1', 'port' => (int) $argv[2],
-    'database' => 'hris_audit_test', 'username' => 'root', 'password' => '',
+    'database' => 'hris_audit_test', 'username' => getenv('HRIS_AUDIT_MYSQL_USER') ?: 'root',
+    'password' => (string) getenv('HRIS_AUDIT_MYSQL_PASSWORD'),
     'charset' => 'utf8mb4', 'collation' => 'utf8mb4_unicode_ci', 'prefix' => '', 'strict' => true,
 ]);
 config()->set('logging.default', 'null');
@@ -411,7 +413,8 @@ PHP;
                 $output .= $buffer;
                 return str_contains($output, 'snapshot-ready');
             });
-            $this->assertTrue($ready, $worker->getErrorOutput());
+            // CLI PHP prints uncaught errors to STDOUT, so include both streams.
+            $this->assertTrue($ready, $output.$worker->getErrorOutput());
             $probeAcquired = (int) DB::selectOne('SELECT GET_LOCK(?, 0) AS acquired', [$lockName], false)->acquired === 1;
             $this->assertFalse($probeAcquired, 'A second upload must not enter while the first snapshot is active.');
             file_put_contents($releaseFile, 'continue');

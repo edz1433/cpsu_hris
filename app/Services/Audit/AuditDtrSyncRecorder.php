@@ -11,6 +11,9 @@ use Throwable;
 
 class AuditDtrSyncRecorder
 {
+    // Shown with upload_counts in the Details panel; not stored per row (it is the same for every row).
+    public const COUNT_BASIS = 'Audit parsing: valid rows contain at least one valid punch; valid punches have an employee code, calendar date and HH:MM:SS time. Submitted punches count CSV slots in nonempty scalar time fields. Skipped means not represented by punch audit entries, not rejected by sync. Completion counts refer to unique punches observed before/after this upload.';
+
     // Audit only; the controller's insertion, merge and deduplication stay unchanged.
     public function punches(array $data, ?array &$counts = null): array
     {
@@ -178,7 +181,6 @@ class AuditDtrSyncRecorder
             'source' => 'desktop_sync', 'endpoint' => 'api/dtrs',
             'server_received_at' => $request->attributes->get('audit_sync_received_at'),
             'submitted_rows' => $counts['submitted_rows'] ?? null, 'upload_counts' => $counts,
-            'count_basis' => 'Audit parsing: valid rows contain at least one valid punch; valid punches have an employee code, calendar date and HH:MM:SS time. Submitted punches count CSV slots in nonempty scalar time fields. Skipped means not represented by punch audit entries, not rejected by sync. Completion counts refer to unique punches observed before/after this upload.',
         ];
     }
 

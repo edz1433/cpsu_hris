@@ -48,7 +48,7 @@ class AuditAttendance
                 // ponytail: one desktop sync per database. The legacy controller merges whole dates;
                 // use date-scoped locks if upload throughput later requires parallelism.
                 // Acquire before starting the transaction so a waiting upload gets a fresh snapshot.
-                $lock = $connection->selectOne('SELECT GET_LOCK(?, 30) AS acquired', [$desktopLockName], false);
+                $lock = $connection->selectOne('SELECT GET_LOCK(?, 10) AS acquired', [$desktopLockName], false);
                 if ((int) ($lock->acquired ?? 0) !== 1) {
                     throw new RuntimeException('Desktop sync is busy.');
                 }

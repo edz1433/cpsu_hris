@@ -182,6 +182,10 @@
                         @php
                             $details = json_decode($log->details ?: '{}', true);
                             if (!is_array($details)) $details = [];
+                            // Older rows stored this text themselves.
+                            if (($details['source'] ?? null) === 'desktop_sync' && isset($details['upload_counts'])) {
+                                $details['count_basis'] ??= \App\Services\Audit\AuditDtrSyncRecorder::COUNT_BASIS;
+                            }
                             $displayModule = $log->module === 'dtr' && in_array($log->route_name, ['readTiredness', 'tirednessSearch', 'pdfTirednes'], true)
                                 ? 'tardiness' : $log->module;
                             $details = array_merge($details, [

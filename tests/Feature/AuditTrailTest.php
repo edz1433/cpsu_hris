@@ -6,6 +6,7 @@ use App\Http\Middleware\RecordAuditRequest;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Middleware\CaptureAuditSnapshot;
 use App\Models\ContractPeriod;
+use App\Models\OfficialTime;
 use App\Models\User;
 use App\Services\Audit\AuditFormatter;
 use App\Services\Audit\AuditModuleCatalog;
@@ -197,14 +198,73 @@ class AuditTrailTest extends TestCase
         $this->assertSame('created', $logs[0]->action);
     }
 
-    public function test_web_official_time_route_is_audited_as_dtr(): void
+    public function test_web_official_time_failure_is_audited_under_employees(): void
     {
         $request = $this->bindRequest('/employees/official-time/update', 'POST');
         app(RecordAuditRequest::class)->handle($request, fn () => response()->json(['success' => false], 200));
 
         $log = DB::connection('mysql')->table('audit_logs')->first();
-        $this->assertSame('dtr', $log->module);
-        $this->assertSame('rejected', $log->outcome);
+        $this->assertSame('employees', $log->module);
+        $this->assertSame('failure', $log->outcome);
+    }
+
+    public function test_official_time_change_records_only_changed_schedule_fields(): void
+    {
+        $this->prepareOfficialTime(['morn_mon' => '08:00:00-12:00:00', 'aft_mon' => '13:00:00-17:00:00']);
+        $this->saveOfficialTime(['morn_mon' => '07:30:00-12:00:00', 'aft_mon' => '13:00:00-17:00:00']);
+
+        $logs = DB::connection('mysql')->table('audit_logs')->get();
+        $this->assertCount(1, $logs);
+        $log = $logs[0];
+        $this->assertSame(['employees', 'updated', 'success', 'official_time', 'Juan Cruz', 'E-8'],
+            [$log->module, $log->action, $log->outcome, $log->target_type, $log->target_name, $log->employee_code]);
+        $details = json_decode($log->details, true);
+        $this->assertSame(['morn_mon' => '08:00:00-12:00:00'], $details['old_data']);
+        $this->assertSame(['morn_mon' => '07:30:00-12:00:00'], $details['new_data']);
+        $this->assertStringContainsString('updated Official Time Juan Cruz', AuditFormatter::describe($log));
+    }
+
+    public function test_official_time_saved_with_same_values_is_recorded_as_unchanged(): void
+    {
+        $times = ['morn_mon' => '08:00:00-12:00:00', 'aft_mon' => '13:00:00-17:00:00'];
+        $this->prepareOfficialTime($times);
+        $this->saveOfficialTime($times);
+
+        $logs = DB::connection('mysql')->table('audit_logs')->get();
+        $this->assertCount(1, $logs);
+        $this->assertSame(['no_change', 'unchanged', 'no_changes'], [$logs[0]->action, $logs[0]->outcome, $logs[0]->reason_code]);
+        $this->assertSame(['old_data' => [], 'new_data' => []], json_decode($logs[0]->details, true));
+        $this->assertStringContainsString('saved Official Time Juan Cruz with no changes', AuditFormatter::describe($logs[0]));
+    }
+
+    public function test_first_official_time_is_recorded_as_created(): void
+    {
+        $this->prepareOfficialTime(null);
+        $this->saveOfficialTime(['morn_mon' => '08:00:00-12:00:00']);
+
+        $logs = DB::connection('mysql')->table('audit_logs')->get();
+        $this->assertCount(1, $logs);
+        $this->assertSame('created', $logs[0]->action);
+        $this->assertSame('08:00:00-12:00:00', json_decode($logs[0]->details, true)['new_data']['morn_mon']);
+    }
+
+    public function test_signed_out_web_requests_are_recorded_as_unauthenticated_failures(): void
+    {
+        foreach (['POST', 'GET'] as $method) {
+            $request = $this->bindRequest('/leave/store', $method);
+            $session = new Store('audit-test', new ArraySessionHandler(120));
+            $session->start();
+            // LoginAuth's redirect for a visitor without a session.
+            $session->flash('error1', 'You have to sign in first to access this page');
+            $request->setLaravelSession($session);
+            app(RecordAuditRequest::class)->handle($request, fn () => redirect('/'));
+        }
+
+        $logs = DB::connection('mysql')->table('audit_logs')->get();
+        $this->assertCount(2, $logs);
+        foreach ($logs as $log) {
+            $this->assertSame(['leave', 'failure', 'unauthenticated'], [$log->module, $log->outcome, $log->reason_code]);
+        }
     }
 
     public function test_all_three_attendance_actions_and_result_branches_are_audited(): void
@@ -1019,7 +1079,8 @@ class AuditTrailTest extends TestCase
             unset($row['time']);
             DB::table('audit_logs')->insert($row + [
                 'module' => 'dtr', 'action' => 'time_out', 'reason_code' => 'sync_failed',
-                'details' => json_encode(['source' => 'desktop_sync', 'submitted_device_id' => '99', 'attendance_at' => $time]),
+                'details' => json_encode(['source' => 'desktop_sync', 'submitted_device_id' => '99', 'attendance_at' => $time,
+                    'upload_counts' => ['submitted_rows' => 1]]),
             ]);
         }
         $data = $this->kioskAuditPage(['kiosk_id' => '99', 'person' => 'E-8',
@@ -1034,6 +1095,7 @@ class AuditTrailTest extends TestCase
         $this->assertStringNotContainsString('HR Kiosk #99', $html);
         $this->assertStringContainsString('sync failed', $html);
         $this->assertStringContainsString('Across all dates and employees', $html);
+        $this->assertStringContainsString('not rejected by sync', $html);
         $empty = $this->kioskAuditPage(['kiosk_id' => '100'])->getData();
         $this->assertNull($empty['latestKioskUpload']);
         $this->assertSame(0, $empty['logs']->count());
@@ -1185,7 +1247,8 @@ class AuditTrailTest extends TestCase
                 $this->assertSame('api/dtrs', $details['endpoint']);
                 $this->assertSame('2026-10-12 11:00:00.000000', $details['server_received_at']);
                 $this->assertSame('2026-10-12 11:00:30', substr($event->occurred_at, 0, 19));
-                $this->assertStringContainsString('not rejected by sync', $details['count_basis']);
+                // Shown by the Details panel instead of stored on every row.
+                $this->assertArrayNotHasKey('count_basis', $details);
                 $this->assertStringNotContainsString('private-query', $event->details);
             }
             $this->assertSame(10800, json_decode($events[1]->details, true)['upload_lag_seconds']);
@@ -1727,6 +1790,45 @@ class AuditTrailTest extends TestCase
             'id' => 8, 'emp_ID' => 'E-8', 'fname' => 'Juan', 'lname' => 'Cruz',
             'camp_id' => 2, 'emp_dept' => 4,
         ]);
+    }
+
+    private function prepareOfficialTime(?array $existing): void
+    {
+        Schema::connection('mysql')->create('employees', function (Blueprint $table) {
+            $table->id();
+            $table->string('emp_ID');
+            $table->string('fname');
+            $table->string('mname')->nullable();
+            $table->string('lname');
+        });
+        Schema::connection('mysql')->create('official_times', function (Blueprint $table) {
+            $table->id();
+            $table->string('empid');
+            foreach (['mon', 'tue', 'wed', 'thu', 'fri'] as $day) {
+                $table->string('morn_'.$day)->nullable();
+                $table->string('aft_'.$day)->nullable();
+            }
+            $table->timestamps();
+        });
+        DB::connection('mysql')->table('employees')->insert(['id' => 8, 'emp_ID' => 'E-8', 'fname' => 'Juan', 'lname' => 'Cruz']);
+        if ($existing !== null) {
+            DB::connection('mysql')->table('official_times')->insert($existing + ['empid' => 'E-8']);
+        }
+    }
+
+    // Same Eloquent save path as EmployeeController::OfficialTimeCreate, through both audit middlewares.
+    private function saveOfficialTime(array $times): void
+    {
+        $request = Request::create('/employees/official-time-create', 'POST', ['empid' => 'E-8']);
+        $route = new Route('POST', 'employees/official-time-create', fn () => null);
+        $route->name('OfficialTimeCreate');
+        $request->setRouteResolver(fn () => $route);
+        app()->instance('request', $request);
+        app(RecordAuditRequest::class)->handle($request, fn ($request) => app(CaptureAuditSnapshot::class)->handle($request,
+            function () use ($times) {
+                OfficialTime::firstOrNew(['empid' => 'E-8'])->fill($times)->save();
+                return response('saved');
+            }));
     }
 
     private function bindRequest(string $path, string $method): Request
