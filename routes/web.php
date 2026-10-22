@@ -49,10 +49,11 @@ use App\Http\Controllers\ContractPeriodController;
 use App\Http\Controllers\EmployeeContractController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\LeavePresidentAssignmentController;
+use App\Http\Controllers\LeaveCardController;
 
 //login
 Route::middleware('maintenance.login')->group(function () {
-    // Route::get('/hr-admin',[LoginAuthController::class,'getLoginAdmin'])->name('getLoginAdmin');
+    Route::get('/hr-admin',[LoginAuthController::class,'getLoginAdmin'])->name('getLoginAdmin');
     Route::get('/',[LoginAuthController::class,'getLogin'])->name('getLogin')->middleware([NoCacheMiddleware::class]);
     Route::post('/post-login',[LoginAuthController::class,'postLogin'])->name('postLogin');
     // Route::get('/update-pass', [EmployeeController::class, 'updateEmployeePasswords']);
@@ -442,6 +443,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/preview-leave/{id}', [LeaveApplicationController::class, 'previewLeave'])->name('previewLeave');   
         Route::post('/leave-live/{id?}', [LeaveApplicationController::class, 'leaveLive'])->name('leaveLive');
         Route::get('/history/{id?}', [LeaveApplicationController::class, 'historyRead'])->name('historyRead');
+        Route::get('/card-pdf', [LeaveCardController::class, 'leaveCardPdf'])->name('leaveCardPdf');
+        Route::get('/card/{id?}', [LeaveCardController::class, 'leaveCard'])->name('leaveCard');
         Route::post('/return/{id?}', [LeaveApplicationController::class, 'leaveReturn'])->name('leaveReturn');
 
         Route::post('/undo/{id?}', [LeaveApplicationController::class, 'leaveUndo'])->name('leaveUndo');

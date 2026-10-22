@@ -7,6 +7,8 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LoginAuthController;
+use App\Http\Middleware\NoCacheMiddleware;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -36,6 +38,19 @@ class RouteServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->configureRateLimiting();
+
+        // With cached routes, Laravel 9 trims the trailing slash from the
+        // request URI. When installed below a path such as /hris/public/, this
+        // loses the base path and the cached matcher rejects GET /.
+        // A dynamic route lets the normal Laravel matcher handle that request.
+        $this->booted(function () {
+            $this->app->booted(function () {
+                if ($this->app->routesAreCached()) {
+                    Route::middleware(['web', 'maintenance.login', NoCacheMiddleware::class])
+                        ->get('/', [LoginAuthController::class, 'getLogin']);
+                }
+            });
+        });
 
         $this->routes(function () {
             Route::prefix('api')

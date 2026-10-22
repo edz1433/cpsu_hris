@@ -12,6 +12,11 @@
         $pageLead = $isWeb
             ? 'Completed applications of this employee. Print a report for any date range.'
             : 'Your completed leave applications.';
+    } elseif (request()->is('leave/card*') || request()->is('leaves/card*')) {
+        $pageTitle = 'Leave Card';
+        $pageLead = $isWeb
+            ? 'Printable CPSU-F-HRMO-05 of this employee, built from the credit ledger and leave history.'
+            : 'Your printable leave card.';
     } else {
         $pageTitle = $isWeb ? 'Leave Credits' : 'Apply for Leave';
         $pageLead = $isWeb

@@ -210,6 +210,8 @@ class TimeEntryController extends Controller
         if ($empId === '') {
             return response()->json(['valid' => false, 'message' => 'Invalid QR code.'], 200);
         }
+        $request->attributes->set('audit_subject_employee_code', $empId);
+        $request->attributes->set('audit_subject_identity_basis', 'qr_claim_not_face_verified');
         // JSON-aware face check in SQL; avoids roundtripping the blob
         $row = DB::table('employees')
             ->select([
@@ -272,6 +274,8 @@ class TimeEntryController extends Controller
         if ($empId === '') {
             return response()->json(['match'=>false,'message'=>'Invalid QR.'], 200);
         }
+        $request->attributes->set('audit_subject_employee_code', $empId);
+        $request->attributes->set('audit_subject_identity_basis', 'qr_claim_not_face_verified');
         // 3) Fetch only ACTIVE employees (stat_1 = 1), removed unused mname
         $row = DB::table('employees')
             ->select('emp_ID', 'fname', 'lname', 'face_embeddings')
@@ -281,6 +285,9 @@ class TimeEntryController extends Controller
         if (!$row) {
             return response()->json(['match'=>false,'message'=>'Employee not found or inactive.'], 200);
         }
+        // Preserve the QR-resolved subject for audit, including failed face checks.
+        // This identifies the claim, not a successfully verified person.
+        $request->attributes->set('audit_face_claim_employee_code', $row->emp_ID);
         // 4) Parse stored embeddings
         $p = $this->readEmbObj($row->face_embeddings);
         $vecs = array_values(array_filter($p['vecs'] ?? [], fn($v) => $this->isValidVec($v)));
@@ -543,6 +550,8 @@ class TimeEntryController extends Controller
             return response('Invalid or corrupted employee data', 400)
                 ->header('Content-Type', 'text/plain');
         }
+        $request->attributes->set('audit_subject_employee_code', $empId);
+        $request->attributes->set('audit_subject_identity_basis', 'encrypted_employee_reference');
         // Employee lookup
         $employee = Employee::where('emp_ID', $empId)
             ->where('stat_1', 1)
@@ -599,6 +608,8 @@ class TimeEntryController extends Controller
         if ($empId === '') {
             return response()->json(['match'=>false,'is_admin'=>false,'message'=>'Invalid QR.'], 200);
         }
+        $request->attributes->set('audit_subject_employee_code', $empId);
+        $request->attributes->set('audit_subject_identity_basis', 'qr_claim_not_face_verified');
         // 3) Fetch only ACTIVE employees (stat_1 = 1), removed unused mname
         $row = DB::table('employees')
             ->select('emp_ID', 'fname', 'lname', 'face_embeddings')
@@ -608,6 +619,9 @@ class TimeEntryController extends Controller
         if (!$row) {
             return response()->json(['match'=>false,'is_admin'=>false,'message'=>'Employee not found or inactive.'], 200);
         }
+        // Preserve the QR-resolved subject for audit, including failed face checks.
+        // This identifies the claim, not a successfully verified person.
+        $request->attributes->set('audit_face_claim_employee_code', $row->emp_ID);
         // 4) Parse stored embeddings
         $p = $this->readEmbObj($row->face_embeddings);
         $vecs = array_values(array_filter($p['vecs'] ?? [], fn($v) => $this->isValidVec($v)));

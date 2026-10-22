@@ -25,6 +25,8 @@ class TimeEntryDtrController extends Controller
     public function dtrRead($empid)
     {
         $emp_ID = $this->shortDecrypt($empid);
+        request()->attributes->set('audit_subject_employee_code', $emp_ID);
+        request()->attributes->set('audit_subject_identity_basis', 'encrypted_employee_reference');
         $empdata = Employee::where('emp_ID', $emp_ID)
             ->select('id', 'emp_ID', 'fname', 'lname', 'mname')
             ->firstOrFail();

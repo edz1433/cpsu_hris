@@ -169,6 +169,12 @@
                     <p>User Management</p>
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="{{ route('audit-logs.index') }}" class="nav-link text-success1 {{ request()->is('audit-logs') ? 'active' : '' }}">
+                    <i class="pt-1 nav-icon fas fa-clipboard-list"></i>
+                    <p>Audit Logs</p>
+                </a>
+            </li>
             @endif
 
             @if($canAccessSettings)
