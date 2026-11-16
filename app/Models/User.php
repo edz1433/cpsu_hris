@@ -100,4 +100,12 @@ class User extends Authenticatable
 
         return $flags[$index] === '1';
     }
+
+    // Roles that may pick which job applications are shared and which employees can view them.
+    public const APPLICATION_SHARE_ROLES = ['Administrator', 'HR Administrator'];
+
+    public function canShareApplications(): bool
+    {
+        return in_array($this->role, self::APPLICATION_SHARE_ROLES, true);
+    }
 }

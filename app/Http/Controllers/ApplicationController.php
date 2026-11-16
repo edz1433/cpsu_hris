@@ -18,7 +18,7 @@ class ApplicationController extends Controller
     public function shareApplications(Request $request)
     {
         abort_unless(auth()->guard('web')->check()
-            && auth()->guard('web')->user()->role === 'Administrator', 403);
+            && auth()->guard('web')->user()->canShareApplications(), 403);
 
         $validated = $request->validate([
             'application_ids' => 'nullable|array',
@@ -54,7 +54,7 @@ class ApplicationController extends Controller
     public function toggleSharedApplications(Request $request)
     {
         abort_unless(auth()->guard('web')->check()
-            && auth()->guard('web')->user()->role === 'Administrator', 403);
+            && auth()->guard('web')->user()->canShareApplications(), 403);
 
         $validated = $request->validate([
             'application_ids' => 'required|array|min:1',

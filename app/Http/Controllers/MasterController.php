@@ -375,7 +375,7 @@ class MasterController extends Controller
     public function appList(Request $request){
         $guard = $this->getGuard();
         $canShareApplications = $guard === 'web'
-            && auth()->guard('web')->user()->role === 'Administrator';
+            && auth()->guard('web')->user()->canShareApplications();
         $request->validate([
             'position_id' => 'nullable|integer|exists:job_hirings,id',
             'status' => 'nullable|integer|in:0,1,2,3,4,5,6,7',
