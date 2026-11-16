@@ -108,6 +108,8 @@ return [
         'getFormData', 'searchReport', 'leaveReport', 'getPdfPath',
         'contracts.downloadSelected', 'OfficialTimeRead', 'leaveLive',
         'opcrData', 'dpcrData', 'ipcrData',
+        // Modal/search lookups sent as POST.
+        'leavesEdit', 'dtrSearch', 'tirednessSearch',
     ],
 
     'access_routes' => [

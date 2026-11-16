@@ -69,10 +69,12 @@ class RecordAuditRequest
         $catalog = app(AuditModuleCatalog::class);
         $failed = $this->failedResponse($request, $response);
         $databaseWrites = app(AuditDatabaseWrites::class)->unmatched($request);
-        // Page views and lookups are never recorded, even when they fail.
-        if ($databaseWrites || ($catalog->isAction($request) && ($failed || $catalog->isTrackedAccess($request)
-            || (!(int) $request->attributes->get('audit_model_events', 0)
-                && !(int) $request->attributes->get('audit_auth_events', 0))))) {
+        // Only what matters is kept, to save storage: data that changed (model events
+        // record themselves; raw writes are caught here), generated reports/downloads,
+        // and actions that were refused or crashed. Page views, lookups, requests that
+        // saved nothing and ordinary validation mistakes are not recorded.
+        if ($databaseWrites || ($catalog->isAction($request)
+            && ($catalog->isTrackedAccess($request) || ($failed && $this->isImportantFailure($request, $response))))) {
             $module = $this->module($request);
             $employee = app(AuditAffectedPerson::class)->resolve($request, $module);
             $employeeName = $employee ? trim(implode(' ', array_filter([$employee->fname, $employee->mname, $employee->lname]))) : null;
@@ -95,6 +97,17 @@ class RecordAuditRequest
         }
 
         return $response;
+    }
+
+    // Refused (no permission / not signed in) or server errors; not form mistakes.
+    private function isImportantFailure(Request $request, Response $response): bool
+    {
+        $status = $response->getStatusCode();
+        if ($status >= 500 || in_array($status, [401, 403, 419], true)) {
+            return true;
+        }
+
+        return in_array($this->failureReason($request, $response), ['access_denied', 'unauthenticated', 'account_suspended'], true);
     }
 
     private function recordFailedAuthentication(Request $request, Response $response): void

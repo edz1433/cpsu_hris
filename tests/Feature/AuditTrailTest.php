@@ -98,10 +98,13 @@ class AuditTrailTest extends TestCase
     {
         $request = $this->bindRequest('/employees/update', 'POST');
         app(RecordAuditRequest::class)->handle($request, fn () => response()->json(['success' => false, 'error' => 'Failed'], 200));
+        // A rejected form that saved nothing is not worth the storage.
+        $this->assertSame(0, DB::connection('mysql')->table('audit_logs')->count());
+        app(RecordAuditRequest::class)->handle($request, fn () => response()->json(['success' => false, 'error' => 'Failed'], 403));
 
         $log = DB::connection('mysql')->table('audit_logs')->first();
         $this->assertSame('failure', $log->outcome);
-        $this->assertSame('request_rejected', $log->reason_code);
+        $this->assertSame('access_denied', $log->reason_code);
 
         $dtrRequest = $this->bindRequest('/api/app/log-attendance', 'POST');
         $dtrRequest->merge(['action' => 1, 'embedding' => 'biometric-secret']);
@@ -136,11 +139,14 @@ class AuditTrailTest extends TestCase
     {
         $request = Request::create('/office/create', 'POST', ['password' => 'never-log-this']);
         app()->instance('request', $request);
+        // Nothing was saved, so nothing is recorded.
         app(RecordAuditRequest::class)->handle($request, fn () => response()->json(['success' => true], 200));
+        $this->assertSame(0, DB::connection('mysql')->table('audit_logs')->count());
 
+        app(RecordAuditRequest::class)->handle($request, fn () => response()->json(['success' => false], 403));
         $log = DB::connection('mysql')->table('audit_logs')->first();
         $this->assertSame('request', $log->action);
-        $this->assertSame('success', $log->outcome);
+        $this->assertSame('failure', $log->outcome);
         $this->assertStringNotContainsString('never-log-this', $log->details);
     }
 
@@ -201,7 +207,7 @@ class AuditTrailTest extends TestCase
     public function test_web_official_time_failure_is_audited_under_employees(): void
     {
         $request = $this->bindRequest('/employees/official-time/update', 'POST');
-        app(RecordAuditRequest::class)->handle($request, fn () => response()->json(['success' => false], 200));
+        app(RecordAuditRequest::class)->handle($request, fn () => response()->json(['success' => false], 500));
 
         $log = DB::connection('mysql')->table('audit_logs')->first();
         $this->assertSame('employees', $log->module);
@@ -484,11 +490,14 @@ class AuditTrailTest extends TestCase
     {
         $request = $this->bindRequest('/career/delete', 'POST');
         app(RecordAuditRequest::class)->handle($request, fn () => response()->json(['status' => 404, 'message' => 'Job not found'], 200));
+        // "Not found" is not important enough to keep.
+        $this->assertSame(0, DB::connection('mysql')->table('audit_logs')->count());
+        app(RecordAuditRequest::class)->handle($request, fn () => response()->json(['status' => 403, 'message' => 'Job not found'], 200));
 
         $log = DB::connection('mysql')->table('audit_logs')->first();
         $this->assertSame('careers', $log->module);
         $this->assertSame('failure', $log->outcome);
-        $this->assertSame('not_found', $log->reason_code);
+        $this->assertSame('access_denied', $log->reason_code);
         $this->assertStringNotContainsString('Job not found', $log->details);
     }
 
@@ -509,7 +518,7 @@ class AuditTrailTest extends TestCase
         ]);
         $request = Request::create('/leaves/leaves-deduct', 'POST', ['empid' => 9]);
         app()->instance('request', $request);
-        app(RecordAuditRequest::class)->handle($request, fn () => response()->json(['success' => true]));
+        app(RecordAuditRequest::class)->handle($request, fn () => response()->json(['success' => false], 403));
 
         $log = DB::connection('mysql')->table('audit_logs')->first();
         $this->assertSame('Juan Cruz', $log->target_name);
