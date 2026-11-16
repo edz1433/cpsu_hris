@@ -22,6 +22,14 @@
                 <p>Dashboard</p>
             </a>
         </li>
+        @if($guard === 'employee' && $navUser->can_view_career_applications)
+        <li class="nav-item">
+            <a href="{{ route('appList') }}" class="nav-link text-success1 {{ request()->is('career/applications') ? 'active' : '' }}">
+                <i class="pt-1 nav-icon fas fa-briefcase"></i>
+                <p>Applications</p>
+            </a>
+        </li>
+        @endif
         @if(auth()->guard($guard)->user()->role !== "employee")
             @if($canOpen('employees'))
             <li class="nav-item">

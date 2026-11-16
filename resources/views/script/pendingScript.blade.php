@@ -30,7 +30,7 @@
         });
     });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="{{ asset('plugins/flatpickr/flatpickr.min.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format

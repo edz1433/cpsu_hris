@@ -156,8 +156,13 @@
                                     $remarks = "Your application for " . strtolower($leaveTypes[$notif->leave_type] ?? '') . " (Application No: #{$notif->transnum}) has been approved.";
                                 @endphp
                             @break
+                                @case(5)
+                                @php
+                                    $remarks = "Your approved application for " . strtolower($leaveTypes[$notif->leave_type] ?? '') . " (Application No: #{$notif->transnum}) has been canceled by HR. Your leave credits have been restored.";
+                                @endphp
+                            @break
                         @endswitch
-                        <a href="{{ route('leaveStatus') }}" class="dropdown-item d-flex align-items-center">
+                        <a href="{{ $notif->category == 5 ? route('historyRead') : route('leaveStatus') }}" class="dropdown-item d-flex align-items-center">
                             <div class="mr-3">
                                 <span class="notification-initials">HR</span>
                             </div>

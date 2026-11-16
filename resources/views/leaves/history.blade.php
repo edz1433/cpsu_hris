@@ -102,20 +102,28 @@
                                 @endphp
                                 @foreach($leaveApplication as $leaves)
                                     @php
-                                        if (strpos($leaves->date_range, 'to') !== false) {
-                                            [$startDate, $endDate] = explode(' to ', $leaves->date_range);
-                                            
-                                            $formattedStartDate = \Carbon\Carbon::parse($startDate)->format('M d, Y');
-                                            $formattedEndDate = \Carbon\Carbon::parse($endDate)->format('M d, Y');
-                                        } else {
-                                            $startDate = $leaves->date_range;
-                                            $formattedStartDate = \Carbon\Carbon::parse($leaves->date_range)->format('M d, Y');
+                                        // Malformed date_range values are shown as-is instead of breaking the page.
+                                        try {
+                                            if (strpos($leaves->date_range, ' to ') !== false) {
+                                                [$startDate, $endDate] = explode(' to ', $leaves->date_range);
+
+                                                $formattedStartDate = \Carbon\Carbon::parse($startDate)->format('M d, Y');
+                                                $formattedEndDate = \Carbon\Carbon::parse($endDate)->format('M d, Y');
+                                            } else {
+                                                $startDate = $leaves->date_range;
+                                                $formattedStartDate = \Carbon\Carbon::parse($leaves->date_range)->format('M d, Y');
+                                                $formattedEndDate = null;
+                                            }
+                                            $sortDate = \Carbon\Carbon::parse($startDate)->format('Y-m-d');
+                                        } catch (\Exception $e) {
+                                            $formattedStartDate = (string) $leaves->date_range;
                                             $formattedEndDate = null;
+                                            $sortDate = '';
                                         }
                                     @endphp
                                     <tr>
                                         <td>{{ strtoupper($leavetype[$leaves->leave_type]) }}</td>
-                                        <td data-order="{{ \Carbon\Carbon::parse($startDate)->format('Y-m-d') }}">
+                                        <td data-order="{{ $sortDate }}">
                                             @if($formattedEndDate)
                                                 {{ strtoupper($formattedStartDate) }} - {{ strtoupper($formattedEndDate) }}
                                             @else
@@ -144,7 +152,9 @@
                                         </td>
                                         <td>
                                             @if($guard == "web")
-                                                <button type="button" class="btn btn-warning btn-sm @if($leaves->remarks_stat !== 0) cancel @endif disapprove-leave" data-id="{{ $leaves->id }}" data-by="4" @if($leaves->remarks_stat !== 0) disabled @endif><i class="fas fa-times"></i></button>
+                                                @if(\App\Http\Controllers\LeaveApplicationController::isApprovedLeave($leaves) && auth()->guard('web')->user()->canAccessPage('leave'))
+                                                    <button type="button" class="btn btn-warning btn-sm cancel-approved-leave" title="Cancel approved leave" data-id="{{ $leaves->id }}"><i class="fas fa-ban"></i> Cancel</button>
+                                                @endif
                                             @endif
                                             <button type="button" class="btn btn-danger btn-sm" title="view" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModalHistory"><i class="fas fa-file-pdf"></i></button>
                                         </td>
@@ -152,20 +162,28 @@
                                 @endforeach
                                 @foreach($leaveApplication1 as $leaves)
                                     @php
-                                        if (strpos($leaves->date_range, 'to') !== false) {
-                                            [$startDate, $endDate] = explode(' to ', $leaves->date_range);
-                                            
-                                            $formattedStartDate = \Carbon\Carbon::parse($startDate)->format('M d, Y');
-                                            $formattedEndDate = \Carbon\Carbon::parse($endDate)->format('M d, Y');
-                                        } else {
-                                            $startDate = $leaves->date_range;
-                                            $formattedStartDate = \Carbon\Carbon::parse($leaves->date_range)->format('M d, Y');
+                                        // Malformed date_range values are shown as-is instead of breaking the page.
+                                        try {
+                                            if (strpos($leaves->date_range, ' to ') !== false) {
+                                                [$startDate, $endDate] = explode(' to ', $leaves->date_range);
+
+                                                $formattedStartDate = \Carbon\Carbon::parse($startDate)->format('M d, Y');
+                                                $formattedEndDate = \Carbon\Carbon::parse($endDate)->format('M d, Y');
+                                            } else {
+                                                $startDate = $leaves->date_range;
+                                                $formattedStartDate = \Carbon\Carbon::parse($leaves->date_range)->format('M d, Y');
+                                                $formattedEndDate = null;
+                                            }
+                                            $sortDate = \Carbon\Carbon::parse($startDate)->format('Y-m-d');
+                                        } catch (\Exception $e) {
+                                            $formattedStartDate = (string) $leaves->date_range;
                                             $formattedEndDate = null;
+                                            $sortDate = '';
                                         }
                                     @endphp
                                     <tr>
                                         <td>{{ strtoupper($leavetype[$leaves->leave_type]) }}</td>
-                                        <td data-order="{{ \Carbon\Carbon::parse($startDate)->format('Y-m-d') }}">
+                                        <td data-order="{{ $sortDate }}">
                                             @if($formattedEndDate)
                                                 {{ strtoupper($formattedStartDate) }} - {{ strtoupper($formattedEndDate) }}
                                             @else
@@ -183,7 +201,7 @@
                                             @elseif($leaves->remarks_stat == 4)
                                                 <span class="badge badge-danger">canceled</span>
                                                 <div class="callout callout-danger remarks-details" style="padding: 4px !important; display:none;">
-                                                    <p>{{ $leaves->remarks_details1 }}</p>
+                                                    <p>{{ $leaves->remarks_details2 }}</p>
                                                 </div>
                                             @else
                                                 <span class="badge badge-danger">disapproved</span>
@@ -194,7 +212,9 @@
                                         </td>
                                         <td class="text-center">
                                             @if($guard == "web")
-                                                <button type="button" class="btn btn-warning btn-sm @if($leaves->remarks_stat !== 0) cancel @endif disapprove-leave" data-id="{{ $leaves->id }}" data-by="4" @if($leaves->remarks_stat !== 0) disabled @endif><i class="fas fa-times"></i></button>
+                                                @if(\App\Http\Controllers\LeaveApplicationController::isApprovedLeave($leaves) && auth()->guard('web')->user()->canAccessPage('leave'))
+                                                    <button type="button" class="btn btn-warning btn-sm cancel-approved-leave" title="Cancel approved leave" data-id="{{ $leaves->id }}"><i class="fas fa-ban"></i> Cancel</button>
+                                                @endif
                                             @endif
                                             <button type="button" class="btn btn-danger btn-sm" title="view" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModalHistory"><i class="fas fa-file-pdf"></i></button>
                                         </td>

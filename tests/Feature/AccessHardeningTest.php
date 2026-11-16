@@ -66,6 +66,7 @@ class AccessHardeningTest extends TestCase
             $table->unsignedBigInteger('emp_dept')->nullable();
             $table->string('mobile')->nullable();
             $table->string('org_email')->nullable();
+            $table->boolean('can_view_career_applications')->default(false);
             $table->decimal('vl')->default(0);
             $table->text('esign')->nullable();
             $table->string('verification_code')->nullable();
@@ -162,6 +163,32 @@ class AccessHardeningTest extends TestCase
         $this->assertEquals(0, $this->me->fresh()->vl);
     }
 
+    public function test_hr_with_leave_access_can_edit_other_leave_balances_in_settings_modal(): void
+    {
+        Schema::table('users', fn (Blueprint $table) => $table->string('access')->nullable());
+        Schema::table('employees', fn (Blueprint $table) => $table->decimal('special_pl')->default(0));
+        $leaveOnly = new \App\Models\User(['role' => 'HR Administrator', 'access' => '0,0,0,0,0,0,0,1', 'username' => 'hr']);
+        $leaveOnly->save();
+        $noLeave = new \App\Models\User(['role' => 'HR Administrator', 'access' => '1,0,0,0,0,0,0,0', 'username' => 'hr2']);
+        $noLeave->save();
+
+        $this->actingAs($leaveOnly, 'web');
+        $this->postJson('/employees/employee-update', ['id' => $this->me->id, 'column' => 'special_pl', 'value' => '3'])
+            ->assertOk();
+        // Leave access alone does not open PDS fields.
+        $this->postJson('/employees/employee-update', ['id' => $this->me->id, 'column' => 'mobile', 'value' => '0917'])
+            ->assertStatus(422);
+
+        $this->actingAs($noLeave, 'web');
+        $this->postJson('/employees/employee-update', ['id' => $this->me->id, 'column' => 'special_pl', 'value' => '9'])
+            ->assertStatus(422);
+        $this->postJson('/employees/employee-update', ['id' => $this->me->id, 'column' => 'mobile', 'value' => '0917'])
+            ->assertOk();
+
+        $this->assertEquals(3, $this->me->fresh()->special_pl);
+        $this->assertSame('0917', $this->me->fresh()->mobile);
+    }
+
     public function test_employee_cannot_change_another_employees_signature_or_pds(): void
     {
         $this->actingAs($this->me, 'employee');
@@ -192,9 +219,30 @@ class AccessHardeningTest extends TestCase
         $this->getJson('/leave/preview-leave/'.$theirs->id)->assertStatus(403);
 
         // Filing leave for someone else is refused.
-        $this->post('/leave/create', ['empid' => 'E-2', 'date_range' => '2026-11-02'])
+        $this->post('/leave/create', ['empid' => 'E-2', 'date_range' => '2026-11-02', 'days' => 1])
             ->assertSessionHas('error', 'You can only file leave for yourself.');
         $this->assertSame(2, LeaveApplication::count());
+    }
+
+    public function test_leave_dates_must_come_from_the_calendar(): void
+    {
+        $this->actingAs($this->me, 'employee');
+
+        // "2026-19,20-11" was typed by hand and broke /leave/status.
+        foreach (['2026-19,20-11', '2026-11-19,20', 'Nov 19-20', '2026-02-30', '2026-11-20 to 2026-11-19', '2026-11-19 to 2026-11-20 to 2026-11-21'] as $bad) {
+            $this->post('/leave/create', ['empid' => 'E-1', 'date_range' => $bad, 'days' => 2])
+                ->assertSessionHas('error', 'Invalid leave dates. Please pick the dates from the calendar.');
+        }
+
+        $this->post('/leave/create', ['empid' => 'E-1', 'date_range' => '2026-11-19 to 2026-11-20'])
+            ->assertSessionHas('error', 'Days applied is missing. Please pick your leave dates from the calendar.');
+        $this->post('/leave/create', ['empid' => 'E-1', 'date_range' => '2026-11-21 to 2026-11-22', 'days' => 0])
+            ->assertSessionHas('error', 'The selected dates have no weekdays. Please pick your leave dates again.');
+
+        $this->assertSame(0, LeaveApplication::where('empid', 'E-1')->count());
+
+        $this->assertTrue(\App\Http\Controllers\LeaveApplicationController::isValidLeaveDateRange('2026-11-19'));
+        $this->assertTrue(\App\Http\Controllers\LeaveApplicationController::isValidLeaveDateRange('2026-11-19 to 2026-11-20'));
     }
 
     public function test_employee_cannot_read_another_employees_dtr(): void
@@ -220,4 +268,112 @@ class AccessHardeningTest extends TestCase
         $this->from('/dashboard-previous')->get('/career/view-application/1')->assertRedirect('/dashboard-previous');
         $this->post('/career/create')->assertRedirect(route('dashboard'));
     }
+
+    public function test_shared_applications_are_the_same_for_selected_employees_and_read_only(): void
+    {
+        Schema::create('spms_personnels', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('empid');
+            $table->integer('category');
+        });
+        Schema::connection('payroll')->create('offices', function (Blueprint $table) {
+            $table->id();
+            $table->string('office_name');
+            $table->unsignedBigInteger('office_head_id')->nullable();
+        });
+        Schema::create('interview_evaluations', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('active_application_id')->nullable();
+            $table->timestamps();
+        });
+        Schema::create('interview_applicants', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('interview_id');
+            $table->unsignedBigInteger('application_id');
+            $table->boolean('is_cast')->default(false);
+        });
+        Schema::create('interview_ratings', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('interview_id');
+            $table->unsignedBigInteger('application_id');
+            $table->unsignedBigInteger('panel_employee_id');
+        });
+        Schema::create('job_hirings', function (Blueprint $table) {
+            $table->id();
+            $table->string('title');
+            $table->string('plantilla_item_no')->nullable();
+        });
+        Schema::create('applications', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('jid');
+            $table->boolean('shared_for_viewing')->default(false);
+            $table->string('ctrl_no')->nullable();
+            $table->timestamps();
+        });
+        $job = DB::table('job_hirings')->insertGetId(['title' => 'Faculty']);
+        $first = DB::table('applications')->insertGetId(['jid' => $job, 'created_at' => now(), 'updated_at' => now()]);
+        $second = DB::table('applications')->insertGetId(['jid' => $job, 'created_at' => now(), 'updated_at' => now()]);
+
+        $this->actingAs($this->me, 'employee');
+        $this->get('/career/applications')->assertRedirect(route('dashboard'));
+
+        $admin = new \App\Models\User(['role' => 'Administrator', 'username' => 'admin@example.test']);
+        $admin->save();
+        $this->actingAs($admin, 'web');
+        $this->post('/career/applications/share', [
+            'application_ids' => [$first, $second],
+            'employee_ids' => [$this->me->id, $this->other->id],
+        ])->assertRedirect();
+
+        $this->assertEqualsCanonicalizing([$first, $second], DB::table('applications')->where('shared_for_viewing', 1)->pluck('id')->all());
+        $this->assertEqualsCanonicalizing([$this->me->id, $this->other->id], DB::table('employees')->where('can_view_career_applications', 1)->pluck('id')->all());
+
+        auth()->guard('web')->logout();
+        view()->share('notifications1', collect());
+        foreach ([$this->me, $this->other] as $employee) {
+            $this->actingAs($employee->fresh(), 'employee');
+            $view = app(\App\Http\Controllers\MasterController::class)
+                ->appList(\Illuminate\Http\Request::create('/career/applications', 'GET'));
+            $this->assertEqualsCanonicalizing([$first, $second], $view->getData()['applications']->pluck('id')->all());
+            $this->get('/career/applications')->assertOk()
+                ->assertDontSee('Set control no.')
+                ->assertDontSee('Edit applicant details')
+                ->assertDontSee('id="ctrlForm"', false)
+                ->assertDontSee('id="edit-applicant"', false);
+            $this->get('/career/applications/report?position_id=&status=&date_from=&date_to=')
+                ->assertRedirect(route('dashboard'));
+            $this->post('/career/application/setCtrlNo', ['id' => $first, 'ctrl_no' => 'EMP-123'])
+                ->assertRedirect(route('dashboard'));
+            $this->assertNull(DB::table('applications')->where('id', $first)->value('ctrl_no'));
+            $this->post('/career/application/update-status')->assertRedirect(route('dashboard'));
+            $this->post('/career/application-update', ['id' => $first, 'first_name' => 'Changed'])
+                ->assertRedirect(route('dashboard'));
+            $this->post('/career/application-store', ['first_name' => 'New'])
+                ->assertRedirect(route('dashboard'));
+            $this->post('/career/applications/share')->assertRedirect(route('dashboard'));
+        }
+
+        auth()->guard('employee')->logout();
+        $this->actingAs($admin, 'web');
+        $this->post('/career/applications/share', [
+            'application_ids' => [$second],
+            'employee_ids' => [$this->other->id],
+        ])->assertRedirect();
+        $this->assertFalse($this->me->fresh()->can_view_career_applications);
+        $this->assertTrue($this->other->fresh()->can_view_career_applications);
+        $this->assertEquals([$second], DB::table('applications')->where('shared_for_viewing', 1)->pluck('id')->all());
+
+        auth()->guard('web')->logout();
+        $this->actingAs($this->other->fresh(), 'employee');
+        $view = app(\App\Http\Controllers\MasterController::class)
+            ->appList(\Illuminate\Http\Request::create('/career/applications', 'GET'));
+        $this->assertEquals([$second], $view->getData()['applications']->pluck('id')->all());
+
+        auth()->guard('employee')->logout();
+        $this->actingAs($admin, 'web');
+        $this->post('/career/applications/share', [])->assertRedirect();
+        $this->assertSame(0, DB::table('applications')->where('shared_for_viewing', 1)->count());
+        $this->assertSame(0, DB::table('employees')->where('can_view_career_applications', 1)->count());
+    }
+
 }

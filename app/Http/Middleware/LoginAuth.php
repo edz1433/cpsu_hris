@@ -38,6 +38,7 @@ class LoginAuth
                 'pds/voluntary-work/*', 'pds/learning-dev/*', 'pds/other-info/*', 'pds/info-question/*',
                 'pds/references/*', 'pds/government-id/*'
             ) && !$request->is('employees/employee-update', 'employees/update-profile/*')
+              && !$this->canViewSharedApplications($request)
               && !$this->isJobApplicationReview($request)) {
                 return redirect()->route('dashboard')->with('error1', 'You do not have permission to access this page');
             }
@@ -68,5 +69,12 @@ class LoginAuth
     {
         return in_array(auth()->guard('employee')->user()->org_email, \App\Models\Employee::JOB_APPLICATION_REVIEWERS, true)
             && $request->is('career/view-applications', 'career/view-application/*', 'career/mark-forwarded/*');
+    }
+
+    private function canViewSharedApplications(Request $request): bool
+    {
+        return $request->isMethod('GET')
+            && $request->is('career/applications')
+            && (bool) auth()->guard('employee')->user()->can_view_career_applications;
     }
 }

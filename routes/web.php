@@ -210,6 +210,8 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         // optional extra route if applicants can apply directly
         Route::get('/applications', [MasterController::class, 'appList'])->name('appList');
         Route::get('/applications/report', [MasterController::class, 'applicationReport'])->name('applicationReport');
+        Route::post('/applications/share', [ApplicationController::class, 'shareApplications'])->name('shareApplications');
+        Route::post('/applications/share-toggle', [ApplicationController::class, 'toggleSharedApplications'])->name('toggleSharedApplications');
         Route::post('/applications/create', [ApplicationController::class, 'appCreate'])->name('appCreate');
         Route::post('/application/setCtrlNo', [ApplicationController::class, 'setCtrlNo'])->name('setCtrlNo');
         Route::get('/application/update-status', function () {
@@ -281,7 +283,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         // Employees edit their own profile here; own.records keeps them to their own record.
         Route::post('/update-profile/{id}', [EmployeeController::class, 'updateProfilePicture'])->name('updateProfilePicture')->middleware(['page.access:employees', 'own.records']);
         Route::post('/update', [EmployeeController::class, 'empUpdate'])->name('empUpdate')->middleware('page.access:employees');
-        Route::post('/employee-update', [EmployeeController::class, 'employeeUpdate'])->name('employeeUpdate')->middleware(['page.access:employees', 'own.records']);
+        Route::post('/employee-update', [EmployeeController::class, 'employeeUpdate'])->name('employeeUpdate')->middleware('own.records'); // per-field access is checked in employeeUpdate
         Route::post('/toggle-acct-stat', [EmployeeController::class, 'toggleAcctStat'])->name('toggleAcctStat')->middleware('page.access:employees');
         Route::post('/official-time/{empid}', [EmployeeController::class, 'OfficialTimeRead'])->name('OfficialTimeRead')->middleware('page.access:employees');
         Route::post('/official-time-create', [EmployeeController::class, 'OfficialTimeCreate'])->name('OfficialTimeCreate')->middleware('page.access:employees');
@@ -441,6 +443,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/approve', [LeaveApplicationController::class, 'leaveApprove'])->name('leaveApprove');
         Route::post('/approve-pres', [LeaveApplicationController::class, 'leaveApprovePres'])->name('leaveApprovePres');
         Route::post('/dis-approve', [LeaveApplicationController::class, 'leaveDisapprove'])->name('leaveDisapprove');
+        Route::post('/cancel-approved', [LeaveApplicationController::class, 'leaveCancelApproved'])->name('leaveCancelApproved');
         Route::get('/preview-leave/{id}', [LeaveApplicationController::class, 'previewLeave'])->name('previewLeave');   
         Route::post('/leave-live/{id?}', [LeaveApplicationController::class, 'leaveLive'])->name('leaveLive');
         Route::get('/history/{id?}', [LeaveApplicationController::class, 'historyRead'])->name('historyRead');

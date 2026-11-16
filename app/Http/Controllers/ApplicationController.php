@@ -10,10 +10,67 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class ApplicationController extends Controller
 {
+    public function shareApplications(Request $request)
+    {
+        abort_unless(auth()->guard('web')->check()
+            && auth()->guard('web')->user()->role === 'Administrator', 403);
+
+        $validated = $request->validate([
+            'application_ids' => 'nullable|array',
+            'application_ids.*' => 'required|integer|distinct|exists:applications,id',
+            'employee_ids' => 'nullable|array',
+            'employee_ids.*' => 'required|integer|distinct|exists:employees,id',
+        ]);
+
+        $applicationIds = array_map('intval', $validated['application_ids'] ?? []);
+        $employeeIds = array_map('intval', $validated['employee_ids'] ?? []);
+
+        DB::transaction(function () use ($applicationIds, $employeeIds) {
+            DB::table('applications')->where('shared_for_viewing', true)
+                ->update(['shared_for_viewing' => false]);
+            if ($applicationIds) {
+                DB::table('applications')->whereIn('id', $applicationIds)
+                    ->update(['shared_for_viewing' => true]);
+            }
+
+            DB::table('employees')->where('can_view_career_applications', true)
+                ->update(['can_view_career_applications' => false]);
+            if ($employeeIds) {
+                DB::table('employees')->whereIn('id', $employeeIds)
+                    ->update(['can_view_career_applications' => true]);
+            }
+        });
+
+        return back()->with('success', 'Shared applications and employee viewers updated.');
+    }
+
+    // Saves the Share checkboxes in the applicants table as soon as they change,
+    // so a checked application stays checked after a reload until it is unchecked.
+    public function toggleSharedApplications(Request $request)
+    {
+        abort_unless(auth()->guard('web')->check()
+            && auth()->guard('web')->user()->role === 'Administrator', 403);
+
+        $validated = $request->validate([
+            'application_ids' => 'required|array|min:1',
+            'application_ids.*' => 'required|integer|distinct|exists:applications,id',
+            'shared' => 'required|boolean',
+        ]);
+
+        DB::table('applications')->whereIn('id', array_map('intval', $validated['application_ids']))
+            ->update(['shared_for_viewing' => (bool) $validated['shared']]);
+
+        return response()->json([
+            'success' => true,
+            'count' => DB::table('applications')->where('shared_for_viewing', true)->count(),
+        ]);
+    }
+
     public function getGuard()
     {
         if(\Auth::guard('web')->check()) {
@@ -25,6 +82,8 @@ class ApplicationController extends Controller
 
     public function applicationStore(Request $request)
     {
+        abort_unless(auth()->guard('web')->check(), 403);
+
         $request->validate([
             'jid' => 'required|array|min:1',
             'jid.*' => 'integer|exists:job_hirings,id',
@@ -119,6 +178,8 @@ class ApplicationController extends Controller
 
     public function applicationUpdate(Request $request)
     {
+        abort_unless(auth()->guard('web')->check(), 403);
+
         $request->validate([
             'id' => 'required|integer|exists:applications,id',
             'jid' => 'required|integer|exists:job_hirings,id',
@@ -275,6 +336,8 @@ class ApplicationController extends Controller
 
     public function setCtrlNo(Request $request)
     {
+        abort_unless(auth()->guard('web')->check(), 403);
+
         $request->validate([
             'id' => 'required|integer|exists:applications,id',
             'ctrl_no' => 'required|string|max:50',
@@ -367,6 +430,8 @@ class ApplicationController extends Controller
 
     public function updateStatus(Request $request)
     {
+        abort_unless(auth()->guard('web')->check(), 403);
+
         // ------------------------------
         // 🔍 Validate Incoming Request
         // ------------------------------

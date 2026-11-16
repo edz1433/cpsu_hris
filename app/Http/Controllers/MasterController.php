@@ -374,6 +374,8 @@ class MasterController extends Controller
 
     public function appList(Request $request){
         $guard = $this->getGuard();
+        $canShareApplications = $guard === 'web'
+            && auth()->guard('web')->user()->role === 'Administrator';
         $request->validate([
             'position_id' => 'nullable|integer|exists:job_hirings,id',
             'status' => 'nullable|integer|in:0,1,2,3,4,5,6,7',
@@ -383,6 +385,10 @@ class MasterController extends Controller
 
         $query = Application::join('job_hirings', 'applications.jid', '=', 'job_hirings.id')
             ->select('applications.*', 'job_hirings.title as position', 'job_hirings.plantilla_item_no');
+
+        if ($guard === 'employee') {
+            $query->where('applications.shared_for_viewing', true);
+        }
 
         if ($request->filled('position_id')) {
             $query->where('applications.jid', $request->position_id);
@@ -404,8 +410,15 @@ class MasterController extends Controller
             ->orderByDesc('applications.created_at')
             ->get();
         $jobs = JobHiring::orderBy('title')->get();
+        $shareableEmployees = $canShareApplications
+            ? Employee::select('id', 'fname', 'mname', 'lname', 'emp_ID', 'org_email', 'can_view_career_applications')
+                ->orderBy('lname')->orderBy('fname')->get()
+            : collect();
+        $sharedApplicationIds = $canShareApplications
+            ? Application::where('shared_for_viewing', true)->pluck('id')->map(fn ($id) => (int) $id)->all()
+            : [];
 
-        return view('career.application', compact('applications', 'jobs', 'guard'));
+        return view('career.application', compact('applications', 'jobs', 'guard', 'canShareApplications', 'shareableEmployees', 'sharedApplicationIds'));
     }
 
     public function applicationReport(Request $request)

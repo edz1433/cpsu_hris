@@ -3,6 +3,7 @@
 @section('body')
 @php
     $current_route = request()->route()->getName();
+    $canManageApplications = $guard === 'web';
     // [label, pill tone]
     $status_labels = [
         0 => 'Application Submitted',
@@ -60,9 +61,18 @@
             <h1>Applications</h1>
             <p>Applicants for posted positions: their documents, screening status and next steps.</p>
         </div>
-        <button type="button" class="lv-btn is-primary" data-toggle="modal" data-target="#add-applicant">
-            <i class="fas fa-user-plus"></i> Add applicant
-        </button>
+        @if($canManageApplications)
+        <div class="d-flex align-items-center" style="gap: 8px;">
+            @if($canShareApplications)
+                <button type="button" class="lv-btn" id="shareApplicationsButton" data-toggle="modal" data-target="#shareApplicationsModal">
+                    <i class="fas fa-share-alt"></i> Share <span id="sharedApplicationCount">({{ count($sharedApplicationIds) }})</span>
+                </button>
+            @endif
+            <button type="button" class="lv-btn is-primary" data-toggle="modal" data-target="#add-applicant">
+                <i class="fas fa-user-plus"></i> Add applicant
+            </button>
+        </div>
+        @endif
     </div>
 
     {{-- Filters --}}
@@ -119,9 +129,11 @@
                         @if($hasAnyFilter)
                             <a href="{{ route('appList') }}" class="dash-card-hint">Clear filters</a>
                         @endif
-                        <button type="submit" class="lv-btn" formaction="{{ route('applicationReport') }}" formtarget="_blank" title="Generate report">
-                            <i class="fas fa-file-pdf" style="color: #c0392b;"></i> Report
-                        </button>
+                        @if($canManageApplications)
+                            <button type="submit" class="lv-btn" formaction="{{ route('applicationReport') }}" formtarget="_blank" title="Generate report">
+                                <i class="fas fa-file-pdf" style="color: #c0392b;"></i> Report
+                            </button>
+                        @endif
                     </div>
                 </div>
             </form>
@@ -132,13 +144,18 @@
     <div class="dash-card">
         <div class="dash-card-header">
             <h5><i class="fas fa-users" style="color: var(--cpsu-green-600);"></i>Applicants <span class="eli-count">{{ count($applications) }}</span></h5>
-            <span class="dash-card-hint">Set a control number to unlock an applicant's files</span>
+            @if($canShareApplications)
+                <span class="dash-card-hint">Check applications to share with the selected employees</span>
+            @elseif($canManageApplications)
+                <span class="dash-card-hint">Set a control number to unlock an applicant's files</span>
+            @endif
         </div>
         <div class="dash-card-body">
             <div class="table-responsive">
                 <table id="example1" class="table table-hover lv-table app-table">
                     <thead>
                         <tr>
+                            @if($canShareApplications)<th class="text-center" title="Share this application">Share</th>@endif
                             <th class="text-center">#</th>
                             <th>Applicant</th>
                             <th>Position</th>
@@ -146,7 +163,7 @@
                             <th>Documents</th>
                             <th>Applied</th>
                             <th class="text-center">Status</th>
-                            <th class="text-center">Actions</th>
+                            @if($canManageApplications)<th class="text-center">Actions</th>@endif
                         </tr>
                     </thead>
                     <tbody>
@@ -154,7 +171,7 @@
                             @php
                                 $fullName = trim(preg_replace('/\s+/', ' ', "{$app->first_name} {$app->middle_name} {$app->last_name}"));
                                 $initials = strtoupper(mb_substr($app->first_name ?? '', 0, 1) . mb_substr($app->last_name ?? '', 0, 1));
-                                $editPayload = [
+                                $editPayload = $canManageApplications ? [
                                     'id'          => $app->id,
                                     'jid'         => $app->jid,
                                     'first_name'  => $app->first_name,
@@ -168,7 +185,7 @@
                                     'education'   => $app->education,
                                     'eligibility' => $app->eligibility,
                                     'created_at'  => optional($app->created_at)->format('Y-m-d\TH:i'),
-                                ];
+                                ] : [];
 
                                 // Edit is only for manually-added applicants — those with
                                 // no uploaded documents at all. Once any file exists, hide it.
@@ -181,6 +198,13 @@
                                     && empty($app->cert_training);
                             @endphp
                             <tr id="tr-{{ $app->id }}">
+                                @if($canShareApplications)
+                                    <td class="text-center" data-order="{{ $loop->iteration }}">
+                                        <input type="checkbox" class="application-share-checkbox" value="{{ $app->id }}"
+                                            aria-label="Share application from {{ $fullName }}"
+                                            {{ $app->shared_for_viewing ? 'checked' : '' }}>
+                                    </td>
+                                @endif
                                 <td class="text-center lv-muted lv-num">{{ $loop->iteration }}</td>
                                 <td>
                                     <div class="emp-person" style="min-width: 210px;">
@@ -208,7 +232,7 @@
                                     @if($app->sex)<div class="app-sub">{{ ucfirst($app->sex) }}{{ $app->age ? ' · ' . $app->age . ' yrs' : '' }}</div>@endif
                                 </td>
                                 <td>
-                                    @if (empty($app->ctrl_no))
+                                    @if (empty($app->ctrl_no) && $canManageApplications)
                                         <button type="button"
                                                 class="app-unlock set-ctrl"
                                                 value="{{ $app->id }}"
@@ -217,6 +241,11 @@
                                                 title="Set Control Number to unlock file access">
                                             <i class="fas fa-lock"></i> Set control no.
                                         </button>
+                                    @elseif(empty($app->ctrl_no))
+                                        {{-- Shared viewers see files only after HR sets the control number. --}}
+                                        <span class="lv-muted app-sub" title="Files are available once HR sets the control number">
+                                            <i class="fas fa-lock"></i> Pending control no.
+                                        </span>
                                     @elseif($hasNoFiles)
                                         <span class="lv-muted app-sub">No files uploaded</span>
                                     @else
@@ -240,6 +269,7 @@
                                         {{ $status_short[$app->status] ?? 'Unknown' }}
                                     </span>
                                 </td>
+                                @if($canManageApplications)
                                 <td class="text-center">
                                     <span class="lv-row-actions app-actions">
                                         @if($hasNoFiles)
@@ -321,6 +351,7 @@
                                         @endif
                                     </span>
                                 </td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody>
@@ -330,6 +361,180 @@
     </div>
 </div>
 
+@if($canShareApplications)
+<div class="modal fade ev-modal app-modal" id="shareApplicationsModal" tabindex="-1" role="dialog" aria-labelledby="shareApplicationsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <form method="POST" action="{{ route('shareApplications') }}" id="shareApplicationsForm" class="dtr-form w-100">
+            @csrf
+            <div id="sharedApplicationInputs"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="shareApplicationsLabel"><i class="fas fa-share-alt"></i> Share applications</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>Every checked employee can view the same checked applications and their uploaded files. They cannot use table actions or open the report.</p>
+                    <p class="dash-card-hint"><span id="sharedApplicationsSummary">{{ count($sharedApplicationIds) }}</span> applications selected. Existing selections outside the current filters remain selected.</p>
+                    <button type="button" class="lv-btn mb-3" id="clearSharedApplications">Clear selected applications</button>
+                    <div class="dtr-field mb-3">
+                        <label class="dtr-label" for="shareEmployeeSearch">Find employee</label>
+                        <input type="search" id="shareEmployeeSearch" class="form-control" placeholder="Search name, ID, or email" autocomplete="off">
+                    </div>
+                    <label class="d-flex align-items-center mb-2" style="gap: 8px;">
+                        <input type="checkbox" id="shareSelectAllEmployees">
+                        <strong>Select all employees</strong>
+                    </label>
+                    <div id="shareEmployeeList" style="max-height: 320px; overflow-y: auto;">
+                        @forelse($shareableEmployees as $employee)
+                            <label class="d-flex align-items-center px-2 py-2 border-bottom share-employee-row"
+                                style="gap: 10px; cursor: pointer;"
+                                data-search="{{ mb_strtolower(trim($employee->fname . ' ' . $employee->mname . ' ' . $employee->lname . ' ' . $employee->emp_ID . ' ' . $employee->org_email)) }}">
+                                <input type="checkbox" name="employee_ids[]" value="{{ $employee->id }}" class="share-employee-checkbox"
+                                    {{ $employee->can_view_career_applications ? 'checked' : '' }}>
+                                <span>{{ $employee->fname }} {{ $employee->lname }} <span class="lv-muted">{{ $employee->emp_ID }} {{ $employee->org_email }}</span></span>
+                            </label>
+                        @empty
+                            <p class="lv-muted">No employees found.</p>
+                        @endforelse
+                        <p class="lv-muted px-2 py-2 mb-0" id="shareEmployeeNoMatch" style="display: none;">No employees match your search.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="lv-btn" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="lv-btn is-primary"><i class="fas fa-save"></i> Save viewing access</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const selectedApplications = new Set(@json($sharedApplicationIds));
+    const shareForm = document.getElementById('shareApplicationsForm');
+    const employeeChecks = Array.from(document.querySelectorAll('.share-employee-checkbox'));
+    const selectAllEmployees = document.getElementById('shareSelectAllEmployees');
+
+    function updateApplicationCount() {
+        document.getElementById('sharedApplicationCount').textContent = '(' + selectedApplications.size + ')';
+        document.getElementById('sharedApplicationsSummary').textContent = selectedApplications.size;
+    }
+
+    function updateEmployeeSelectAll() {
+        const checked = employeeChecks.filter(input => input.checked).length;
+        selectAllEmployees.checked = employeeChecks.length > 0 && checked === employeeChecks.length;
+        selectAllEmployees.indeterminate = checked > 0 && checked < employeeChecks.length;
+    }
+
+    // Each Share checkbox is saved right away, so it survives a page reload.
+    function saveSharedApplications(ids, shared) {
+        return $.ajax({
+            url: "{{ route('toggleSharedApplications') }}",
+            type: 'POST',
+            headers: { 'X-CSRF-TOKEN': "{{ csrf_token() }}", 'Accept': 'application/json' },
+            data: { application_ids: ids, shared: shared ? 1 : 0 },
+        });
+    }
+
+    function setApplicationChecks(ids, checked) {
+        document.querySelectorAll('.application-share-checkbox').forEach(function (input) {
+            if (ids.includes(Number(input.value))) input.checked = checked;
+        });
+    }
+
+    $(document).on('change', '.application-share-checkbox', function () {
+        const input = this;
+        const id = Number(input.value);
+        const shared = input.checked;
+        if (shared) selectedApplications.add(id);
+        else selectedApplications.delete(id);
+        updateApplicationCount();
+
+        input.disabled = true;
+        saveSharedApplications([id], shared)
+            .fail(function () {
+                // Put the checkbox back so the screen matches what is saved.
+                if (shared) selectedApplications.delete(id);
+                else selectedApplications.add(id);
+                input.checked = !shared;
+                updateApplicationCount();
+                alert('Could not save this selection. Please try again.');
+            })
+            .always(function () { input.disabled = false; });
+    });
+
+    $('#example1').on('draw.dt', function () {
+        document.querySelectorAll('.application-share-checkbox').forEach(function (input) {
+            input.checked = selectedApplications.has(Number(input.value));
+        });
+    });
+
+    $('#shareApplicationsModal').on('show.bs.modal', function () {
+        updateApplicationCount();
+        updateEmployeeSelectAll();
+    });
+
+    document.getElementById('clearSharedApplications').addEventListener('click', function () {
+        const ids = Array.from(selectedApplications);
+        if (!ids.length) return;
+        if (!confirm('Unshare all ' + ids.length + ' selected applications?')) return;
+
+        const button = this;
+        button.disabled = true;
+        saveSharedApplications(ids, false)
+            .done(function () {
+                selectedApplications.clear();
+                setApplicationChecks(ids, false);
+                updateApplicationCount();
+            })
+            .fail(function () { alert('Could not clear the selected applications. Please try again.'); })
+            .always(function () { button.disabled = false; });
+    });
+
+    employeeChecks.forEach(input => input.addEventListener('change', updateEmployeeSelectAll));
+    selectAllEmployees.addEventListener('change', function () {
+        employeeChecks.forEach(input => { input.checked = selectAllEmployees.checked; });
+        updateEmployeeSelectAll();
+    });
+
+    // Filters as the user types. Rows use .d-flex (display:flex !important),
+    // so hiding needs an !important inline style to win.
+    function filterShareEmployees() {
+        const words = document.getElementById('shareEmployeeSearch').value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+        let visible = 0;
+        document.querySelectorAll('.share-employee-row').forEach(function (row) {
+            const text = row.dataset.search || '';
+            const match = words.every(word => text.includes(word));
+            if (match) {
+                row.style.removeProperty('display');
+                visible++;
+            } else {
+                row.style.setProperty('display', 'none', 'important');
+            }
+        });
+        const noMatch = document.getElementById('shareEmployeeNoMatch');
+        if (noMatch) noMatch.style.display = visible === 0 && words.length ? '' : 'none';
+    }
+    const shareEmployeeSearch = document.getElementById('shareEmployeeSearch');
+    shareEmployeeSearch.addEventListener('input', filterShareEmployees);
+    shareEmployeeSearch.addEventListener('search', filterShareEmployees); // the clear (x) button
+    $('#shareApplicationsModal').on('shown.bs.modal', filterShareEmployees);
+
+    shareForm.addEventListener('submit', function () {
+        const holder = document.getElementById('sharedApplicationInputs');
+        holder.replaceChildren();
+        selectedApplications.forEach(function (id) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'application_ids[]';
+            input.value = id;
+            holder.appendChild(input);
+        });
+    });
+});
+</script>
+@endif
+
+@if($canManageApplications)
 {{-- Add Applicant Modal --}}
 <div class="modal fade ev-modal app-modal" id="add-applicant" role="dialog" aria-labelledby="addApplicantLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -659,6 +864,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+@endif
 <script>
 // Uses the page's single jQuery (loaded via masterScript). Wait for DOM + deferred
 // scripts (jQuery, select2, bootstrap) so $ and .select2 are guaranteed available.
@@ -668,6 +874,7 @@ document.addEventListener('DOMContentLoaded', function () {
         placeholder: 'All Positions'
     });
 
+    @if($canManageApplications)
     $('#add-applicant').on('shown.bs.modal', function () {
         // select2's own container also has the .select2 class; only take the <select>.
         var $sel = $('#add-applicant select.select2');
@@ -764,6 +971,7 @@ document.addEventListener('DOMContentLoaded', function () {
             form.submit();
         }
     });
+    @endif
 });
 </script>
 @endsection

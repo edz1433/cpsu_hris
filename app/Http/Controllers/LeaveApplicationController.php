@@ -39,12 +39,50 @@ class LeaveApplicationController extends Controller
             || in_array((int) $employee->id, array_map('intval', [$leave->supervisor, $leave->oic, $leave->president, $leave->hr]), true));
     }
 
+    /**
+     * A leave date range must be exactly what the calendar produces:
+     * "Y-m-d" or "Y-m-d to Y-m-d", real dates, end not before start.
+     * Free text such as "2026-19,20-11" is rejected.
+     */
+    public static function isValidLeaveDateRange($value): bool
+    {
+        if (!is_string($value) || !preg_match('/^\d{4}-\d{2}-\d{2}( to \d{4}-\d{2}-\d{2})?$/', trim($value))) {
+            return false;
+        }
+
+        $dates = [];
+        foreach (explode(' to ', trim($value)) as $part) {
+            $d = \DateTime::createFromFormat('!Y-m-d', $part);
+            if (!$d || $d->format('Y-m-d') !== $part) {
+                return false;
+            }
+            $dates[] = $d;
+        }
+
+        return count($dates) === 1 || $dates[1] >= $dates[0];
+    }
+
     public function LeaveAppCreate(Request $request)
     {
-        $validatedData = $request->validate([
+        $validator = \Validator::make($request->all(), [
             'empid' => 'required|exists:employees,emp_ID',
-            'date_range' => 'required|string',
+            'date_range' => ['required', 'string', function ($attribute, $value, $fail) {
+                if (!self::isValidLeaveDateRange($value)) {
+                    $fail('Invalid leave dates. Please pick the dates from the calendar.');
+                }
+            }],
+            'days' => 'required|numeric|min:0.5',
+        ], [
+            'date_range.required' => 'Please pick your leave dates from the calendar.',
+            'days.required' => 'Days applied is missing. Please pick your leave dates from the calendar.',
+            'days.numeric' => 'Days applied is invalid. Please pick your leave dates from the calendar.',
+            'days.min' => 'The selected dates have no weekdays. Please pick your leave dates again.',
         ]);
+
+        if ($validator->fails()) {
+            // This page shows flash "error" as a toast; plain $errors are not rendered.
+            return redirect()->back()->withInput()->withErrors($validator)->with('error', $validator->errors()->first());
+        }
 
         // Employees file only for themselves.
         if ($this->getGuard() === 'employee' && (string) $request->empid !== (string) auth()->guard('employee')->user()->emp_ID) {
@@ -606,6 +644,10 @@ class LeaveApplicationController extends Controller
         $leaveApplication = LeaveApplication::find($request->id);
         $currdate1 = Carbon::now('Asia/Manila')->format('F j, Y h:i A');
 
+        if (self::isCanceledLeave($leaveApplication)) {
+            return response()->json(['success' => false, 'message' => 'This leave application has been canceled.'], 409);
+        }
+
         if ((int) $request->by === 3 && ($guard !== 'employee' || (int) $authid !== (int) $leaveApplication->president)) {
             return response()->json(['success' => false, 'message' => 'Only the assigned SUC President can approve this application.'], 403);
         }
@@ -797,7 +839,8 @@ class LeaveApplicationController extends Controller
         if (!\Auth::guard('employee')->check()
             || (int) \Auth::guard('employee')->user()->id !== (int) $leaveApplication->president
             || (int) $leaveApplication->status !== 3
-            || (int) $leaveApplication->pres_sign === 2) {
+            || (int) $leaveApplication->pres_sign === 2
+            || self::isCanceledLeave($leaveApplication)) {
             return response()->json(['success' => false, 'message' => 'Only the assigned SUC President can approve this application.'], 403);
         }
         $currdate1 = Carbon::now('Asia/Manila')->format('F j, Y h:i A');
@@ -861,7 +904,15 @@ class LeaveApplicationController extends Controller
             'remarks' => 'required|string',
             'day_wpay' => 'nullable|integer',
         ]);
-    
+
+        // "by = 4" (cancel) used to run here with no permission check.
+        if ((int) $request->by === 4) {
+            return $this->leaveCancelApproved($request);
+        }
+        if (self::isCanceledLeave(LeaveApplication::find($request->id))) {
+            return response()->json(['success' => false, 'message' => 'This leave application has been canceled.'], 409);
+        }
+
         $guard = $this->getGuard();
         $authid = optional(auth()->guard($guard)->user())->id;
 
@@ -904,29 +955,6 @@ class LeaveApplicationController extends Controller
                 $leaveApplication->history = 2;
             }
 
-            if ($request->by == 4) {
-                $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
-                if (in_array($leaveApplication->leave_type, [1, 2, 3])){
-                    $employee->vl += $leaveApplication->less_vl ?? 0;
-                    $employee->sl += $leaveApplication->less_sl ?? 0;
-                }
-                if($leaveApplication->leave_type == 6){
-                    $employee->special_pl += ($leaveApplication->days - $leaveApplication->day_wpay);
-                }
-                if($leaveApplication->leave_type == 14){
-                    $employee->servcred_leave += ($leaveApplication->days - $leaveApplication->day_wpay);
-                }
-                if($leaveApplication->leave_type == 15){
-                    $employee->well_leave += ($leaveApplication->days - $leaveApplication->day_wpay);
-                }
-
-                $employee->save();
-                
-                $leaveApplication->remarks_stat = 4;
-                $leaveApplication->remarks_details2 = $request->remarks;
-                $leaveApplication->history = 2;
-            }
-
             $leaveApplication->save();
 
             $this->genApplication($leaveApplication->id);
@@ -955,6 +983,127 @@ class LeaveApplicationController extends Controller
         ], 404);
     }
 
+    /**
+     * HRMO/admin accounts (web guard with Leave access) may cancel a leave
+     * that has already been approved. Employee accounts never can.
+     */
+    private function canCancelApprovedLeave(): bool
+    {
+        $user = auth()->guard('web')->user();
+
+        return $this->getGuard() === 'web' && $user && $user->canAccessPage('leave');
+    }
+
+    // Approved = signed by the supervisor/OIC (credits already deducted) or by
+    // the President, and not disapproved or canceled at any step.
+    public static function isApprovedLeave(LeaveApplication $leave): bool
+    {
+        return in_array((int) $leave->status, [3, 4], true) && (int) $leave->remarks_stat === 0;
+    }
+
+    public static function isCanceledLeave(?LeaveApplication $leave): bool
+    {
+        return $leave && (int) $leave->remarks_stat === 4;
+    }
+
+    // Gives back exactly what leaveApprove (by = 2) deducted.
+    private function restoreLeaveCredits(LeaveApplication $leave, Employee $employee): void
+    {
+        $paidDays = $leave->days - $leave->day_wpay;
+
+        if (in_array((int) $leave->leave_type, [1, 2, 3], true)) {
+            $employee->vl = ($employee->vl ?? 0) + ($leave->less_vl ?? 0);
+            $employee->sl = ($employee->sl ?? 0) + ($leave->less_sl ?? 0);
+        }
+        if ((int) $leave->leave_type === 6) {
+            $employee->special_pl += $paidDays;
+        }
+        if ((int) $leave->leave_type === 14) {
+            $employee->servcred_leave += $paidDays;
+        }
+        if ((int) $leave->leave_type === 15) {
+            $employee->well_leave += $paidDays;
+        }
+
+        $employee->save();
+    }
+
+    /**
+     * Cancel an already approved leave application (HRMO/admin only).
+     * Restores the employee's leave credits, closes the application into
+     * history as "canceled" with the reason, and notifies the employee.
+     */
+    public function leaveCancelApproved(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer',
+            'remarks' => 'required|string|max:1000',
+        ]);
+
+        if (!$this->canCancelApprovedLeave()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only HRMO or administrator accounts can cancel an approved leave application.',
+            ], 403);
+        }
+
+        $result = \DB::transaction(function () use ($request) {
+            // Lock the row so two clicks cannot refund the credits twice.
+            $leave = LeaveApplication::whereKey($request->id)->lockForUpdate()->first();
+
+            if (!$leave) {
+                return ['Leave application not found.', 404];
+            }
+            if (self::isCanceledLeave($leave)) {
+                return ['This leave application is already canceled.', 409];
+            }
+            if (!self::isApprovedLeave($leave)) {
+                return ['Only approved leave applications can be canceled here.', 422];
+            }
+
+            $employee = Employee::where('emp_ID', $leave->empid)->first();
+            if (!$employee) {
+                return ['Employee not found.', 404];
+            }
+
+            $this->restoreLeaveCredits($leave, $employee);
+
+            $leave->remarks_stat = 4;
+            $leave->remarks_details2 = $request->remarks;
+            $leave->history = 2;
+            $leave->save();
+
+            // Close pending notifications (e.g. the President's) and tell the employee.
+            Notification::where('lapp_id', $leave->id)->where('module', 'leave')->update(['status' => 1]);
+            Notification::create([
+                'empid' => $leave->empid,
+                'lapp_id' => $leave->id,
+                'category' => 5,
+                'utype' => 'employee',
+                'module' => 'leave',
+            ]);
+
+            return [$leave, 200];
+        });
+
+        [$leave, $code] = $result;
+        if ($code !== 200) {
+            return response()->json(['success' => false, 'message' => $leave], $code);
+        }
+
+        try {
+            $this->genApplication($leave->id);
+        } catch (\Throwable $e) {
+            // The cancellation stands even if the PDF cannot be regenerated now.
+            report($e);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Approved leave application canceled and leave credits restored.',
+        ]);
+    }
+
     public function leaveReturn(Request $request, $id = null)
     {
         $validatedData = $request->validate([
@@ -973,6 +1122,10 @@ class LeaveApplicationController extends Controller
                 'success' => false,
                 'message' => 'Leave application not found.'
             ], 404);
+        }
+
+        if (self::isCanceledLeave($leaveApplication)) {
+            return response()->json(['success' => false, 'message' => 'This leave application has been canceled.'], 409);
         }
 
         $guard = $this->getGuard();

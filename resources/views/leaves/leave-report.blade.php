@@ -173,16 +173,21 @@
                 <td class="text-center">{{ $leaveTypes[$row['leave_type']] }}</td>
                 <td class="text-center">
                     @php
-                        $dates = explode(' to ', $row['date_range']); // split if it's a range
+                        $dates = explode(' to ', (string) $row['date_range']); // split if it's a range
 
-                        if(count($dates) === 2) {
-                            // It's a range
-                            $start = (new DateTime($dates[0]))->format('M j, Y');
-                            $end   = (new DateTime($dates[1]))->format('M j, Y');
-                            $formatted = "$start - $end";
-                        } else {
-                            // Single date
-                            $formatted = (new DateTime($dates[0]))->format('M j, Y');
+                        try {
+                            if(count($dates) === 2) {
+                                // It's a range
+                                $start = (new DateTime($dates[0]))->format('M j, Y');
+                                $end   = (new DateTime($dates[1]))->format('M j, Y');
+                                $formatted = "$start - $end";
+                            } else {
+                                // Single date
+                                $formatted = (new DateTime($dates[0]))->format('M j, Y');
+                            }
+                        } catch (\Exception $e) {
+                            // Malformed date_range: show it as stored instead of failing the report.
+                            $formatted = (string) $row['date_range'];
                         }
                     @endphp
                     {{ $formatted }}

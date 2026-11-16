@@ -178,7 +178,7 @@
         });
     });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="{{ asset('plugins/flatpickr/flatpickr.min.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
@@ -221,16 +221,46 @@
         const daysField = document.getElementById('day');
 
         if (selectedDates.length === 2) {
-            const startDate = selectedDates[0];
-            const endDate = selectedDates[1];
-
-            const weekdayCount = countWeekdays(startDate, endDate);
-            
-            daysField.value = weekdayCount;
+            daysField.value = countWeekdays(selectedDates[0], selectedDates[1]);
+        } else if (selectedDates.length === 1) {
+            // Single-day leave: the picker submits just "Y-m-d".
+            daysField.value = countWeekdays(selectedDates[0], selectedDates[0]);
         } else {
             daysField.value = '';
         }
     }
+
+    // Guard: only submit dates that came from the calendar ("Y-m-d" or "Y-m-d to Y-m-d").
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('leaveApplyForm');
+        if (!form) return;
+
+        form.addEventListener('submit', function(e) {
+            const rangeField = document.getElementById('date_range');
+            const daysField = document.getElementById('day');
+            const value = (rangeField.value || '').trim();
+            const validFormat = /^\d{4}-\d{2}-\d{2}( to \d{4}-\d{2}-\d{2})?$/.test(value);
+            const days = parseFloat(daysField.value);
+            let message = null;
+
+            if (typeof flatpickr === 'undefined' || !rangeField._flatpickr) {
+                message = 'The calendar did not load. Please refresh the page and try again.';
+            } else if (!validFormat) {
+                message = 'Please pick your leave dates from the calendar.';
+            } else if (!(days > 0)) {
+                message = 'The selected dates have no weekdays. Please pick your leave dates again.';
+            }
+
+            if (message) {
+                e.preventDefault();
+                if (window.Swal) {
+                    Swal.fire({ icon: 'error', title: 'Invalid leave dates', text: message });
+                } else {
+                    alert(message);
+                }
+            }
+        });
+    });
 
     function countWeekdays(startDate, endDate) {
         let count = 0;
@@ -1011,6 +1041,60 @@
                     }
                 });
             }
+        });
+    });
+
+    // HRMO/admin: cancel a leave that was already approved (credits are restored server-side).
+    $(document).on('click', '.cancel-approved-leave', function() {
+        var id = $(this).data('id');
+
+        Swal.fire({
+            title: 'Cancel Approved Leave',
+            html: 'This leave is already approved. Canceling it restores the employee\'s leave credits and notifies them.<br><br>Please provide the reason for cancellation:',
+            icon: 'warning',
+            input: 'textarea',
+            inputPlaceholder: 'Enter your reason...',
+            showCancelButton: true,
+            confirmButtonText: 'Cancel this leave',
+            cancelButtonText: 'Keep it',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            inputValidator: (value) => {
+                if (!value || !value.trim()) {
+                    return 'A reason is required!';
+                }
+            }
+        }).then((result) => {
+            if (!result.isConfirmed || !result.value) {
+                return;
+            }
+
+            $('#loading-spinner').show();
+            $.ajax({
+                type: "POST",
+                url: "{{ route('leaveCancelApproved') }}",
+                data: {
+                    id: id,
+                    remarks: result.value.trim(),
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    Swal.fire({
+                        title: 'Canceled',
+                        text: response.message,
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(function() { location.reload(); });
+                },
+                error: function(xhr) {
+                    var message = (xhr.responseJSON && xhr.responseJSON.message) || 'Could not cancel the leave application.';
+                    Swal.fire('Not canceled', message, 'error');
+                },
+                complete: function() {
+                    $('#loading-spinner').hide();
+                }
+            });
         });
     });
 

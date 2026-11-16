@@ -382,12 +382,26 @@ class EmployeeController extends Controller
     ];
     // Shown to HR only on the same page.
     private const PDS_ADMIN_FIELDS = ['item_no', 'emp_status', 'org_email'];
+    // Other-leave balances edited by HR in the Leave settings modal (leaves/settings-modal).
+    private const LEAVE_CREDIT_FIELDS = [
+        'special_pl', 'solo_pl', 'study_leave', 'vawc_leave', 'rehab_leave',
+        'benefits_leave', 'calamity_leave', 'adopt_leave', 'servcred_leave', 'well_leave',
+    ];
 
     public function employeeUpdate(Request $request)
     {
         $employee = Employee::findOrFail($request->id);
         $column = $request->column;
-        $allowed = auth()->guard('web')->check() ? array_merge(self::PDS_FIELDS, self::PDS_ADMIN_FIELDS) : self::PDS_FIELDS;
+        $admin = auth()->guard('web')->user();
+        if ($admin) {
+            // PDS fields need Employees access; leave balances need Leave access.
+            $allowed = array_merge(
+                $admin->canAccessPage('employees') ? array_merge(self::PDS_FIELDS, self::PDS_ADMIN_FIELDS) : [],
+                $admin->canAccessPage('leave') ? self::LEAVE_CREDIT_FIELDS : []
+            );
+        } else {
+            $allowed = self::PDS_FIELDS;
+        }
         if (!is_string($column) || !in_array($column, $allowed, true) || !is_scalar($request->value ?? '')) {
             return response()->json(['success' => false, 'message' => 'This field cannot be changed here.'], 422);
         }
@@ -578,6 +592,7 @@ class EmployeeController extends Controller
         
         return response()->json(['success' => true, 'message' => 'User role updated successfully.']);
     }    
+
 
     public function OfficialTimeRead(Request $request, $empid)
     {

@@ -9,6 +9,10 @@ class Application extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'shared_for_viewing' => 'boolean',
+    ];
+
     protected $fillable = [
         'jid',
         'app_number',

@@ -35,6 +35,7 @@ class Employee extends Authenticatable
 
     protected $casts = [
         'role' => 'string',
+        'can_view_career_applications' => 'boolean',
     ];
 
     public function leaveApplications()

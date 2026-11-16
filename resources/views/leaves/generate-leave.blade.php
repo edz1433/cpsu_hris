@@ -158,11 +158,16 @@
                         &nbsp;<span style="width: 58%;  display: inline-block; margin-bottom: -8px;  border-bottom: 1px solid black; text-align: center;">
                         @php
                             // Extract start date from date_range
-                            $dates = explode(' to ', $leaveApplication->date_range);
-                            $startDate = new DateTime($dates[0]);
-                            $filingDate = new DateTime($leaveApplication->date_filing);
-                            // Check if Emergency applies
-                            $isEmergency = $startDate < $filingDate;
+                            // Malformed date_range values must not break the printout.
+                            try {
+                                $dates = explode(' to ', (string) $leaveApplication->date_range);
+                                $startDate = new DateTime(trim($dates[0]));
+                                $filingDate = new DateTime($leaveApplication->date_filing);
+                                // Check if Emergency applies
+                                $isEmergency = $startDate < $filingDate;
+                            } catch (\Exception $e) {
+                                $isEmergency = false;
+                            }
                         @endphp
 
                         @if($leaveApplication->leave_type == 14) <b>Vacation Service Credit</b> @endif 
@@ -221,15 +226,21 @@
             <tr>
                 <td colspan="3" class="bordered details vlt" width="116">
                     @php
-                        if (strpos($leaveApplication->date_range, 'to') !== false) {
-                            // Split date range into start and end date
-                            [$startDate, $endDate] = explode(' to ', $leaveApplication->date_range);
-                            
-                            $formattedStartDate = \Carbon\Carbon::parse($startDate)->format('M d, Y');
-                            $formattedEndDate = \Carbon\Carbon::parse($endDate)->format('M d, Y');
-                        } else {
-                            // Only a single date is provided
-                            $formattedStartDate = \Carbon\Carbon::parse($leaveApplication->date_range)->format('M d, Y');
+                        try {
+                            if (strpos($leaveApplication->date_range, ' to ') !== false) {
+                                // Split date range into start and end date
+                                [$startDate, $endDate] = explode(' to ', $leaveApplication->date_range);
+
+                                $formattedStartDate = \Carbon\Carbon::parse($startDate)->format('M d, Y');
+                                $formattedEndDate = \Carbon\Carbon::parse($endDate)->format('M d, Y');
+                            } else {
+                                // Only a single date is provided
+                                $formattedStartDate = \Carbon\Carbon::parse($leaveApplication->date_range)->format('M d, Y');
+                                $formattedEndDate = null;
+                            }
+                        } catch (\Exception $e) {
+                            // Malformed date_range: print it as stored instead of failing.
+                            $formattedStartDate = (string) $leaveApplication->date_range;
                             $formattedEndDate = null;
                         }
                     @endphp

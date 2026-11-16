@@ -232,7 +232,7 @@
                         <div class="row">
                             <div class="col-md-6 dtr-field">
                                 <label class="dtr-label" for="date_range">Dates</label>
-                                <input type="text" id="date_range" name="date_range" class="form-control" placeholder="Pick the first and last day" required>
+                                <input type="text" id="date_range" name="date_range" class="form-control" placeholder="Pick the first and last day" autocomplete="off" readonly required>
                             </div>
                             <div class="col-md-3 col-6 dtr-field">
                                 <label class="dtr-label" for="day">Days applied</label>

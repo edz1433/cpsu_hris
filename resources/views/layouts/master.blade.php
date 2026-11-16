@@ -36,7 +36,7 @@
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('template/img/CPSU_L.png') }}">
     @include('partials.pwa')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="{{ asset('plugins/flatpickr/flatpickr.min.css') }}">
     <style>
     .profile-image {
         width: 32px;

@@ -102,12 +102,17 @@
                                                     // Only check Emergency if leave_type is 15
                                                     $emergency = '';
                                                     if($leaves->leave_type == 15) {
-                                                        $dates = explode(' to ', $leaves->date_range);
-                                                        $startDate = new DateTime($dates[0]);
-                                                        $filingDate = new DateTime($leaves->date_filing);
+                                                        // Malformed date_range values must not break the page.
+                                                        try {
+                                                            $dates = explode(' to ', (string) $leaves->date_range);
+                                                            $startDate = new DateTime(trim($dates[0]));
+                                                            $filingDate = new DateTime($leaves->date_filing);
 
-                                                        if($startDate < $filingDate) {
-                                                            $emergency = ' "Emergency"';
+                                                            if($startDate < $filingDate) {
+                                                                $emergency = ' "Emergency"';
+                                                            }
+                                                        } catch (\Exception $e) {
+                                                            $emergency = '';
                                                         }
                                                     }
                                                 @endphp
@@ -282,6 +287,13 @@
                                                     </div>
                                                 @endif
                                             @endif
+                                            @if($guard == "web" && auth()->guard('web')->user()->canAccessPage('leave') && \App\Http\Controllers\LeaveApplicationController::isApprovedLeave($leaves))
+                                                <div class="timeline-footer mb-4" style="margin-top: -15px;">
+                                                    <div class="float-right">
+                                                        <button type="button" class="btn btn-warning btn-sm cancel-approved-leave" data-id="{{ $leaves->id }}"><i class="fas fa-ban"></i> Cancel approved leave</button>
+                                                    </div>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                     <div>
@@ -319,12 +331,17 @@
                                                         // Only check Emergency if leave_type is 15
                                                         $emergency = '';
                                                         if($leaves->leave_type == 15) {
-                                                            $dates = explode(' to ', $leaves->date_range);
-                                                            $startDate = new DateTime($dates[0]);
-                                                            $filingDate = new DateTime($leaves->date_filing);
+                                                            // Malformed date_range values must not break the page.
+                                                            try {
+                                                                $dates = explode(' to ', (string) $leaves->date_range);
+                                                                $startDate = new DateTime(trim($dates[0]));
+                                                                $filingDate = new DateTime($leaves->date_filing);
 
-                                                            if($startDate < $filingDate) {
-                                                                $emergency = ' "Emergency"';
+                                                                if($startDate < $filingDate) {
+                                                                    $emergency = ' "Emergency"';
+                                                                }
+                                                            } catch (\Exception $e) {
+                                                                $emergency = '';
                                                             }
                                                         }
                                                     @endphp
