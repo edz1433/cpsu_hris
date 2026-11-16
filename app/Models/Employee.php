@@ -13,7 +13,10 @@ class Employee extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'employees';
-    
+
+    // HR staff who review job applications from their employee accounts.
+    public const JOB_APPLICATION_REVIEWERS = ['cbaligyan@cpsu.edu.ph', 'janetoledo@cpsu.edu.ph', 'wbantigue@cpsu.edu.ph'];
+
     protected $fillable = [
         'fname', 'mname', 'lname', 'position', 'profile', 'area_id', 'camp_id', 'emp_ID', 'android_id', 'emp_status', 'emp_dept', 'item_no',
         'username', 'verification_code', 'password', 'role', 'date_hired', 'prefix', 'title_prefix', 'suffix', 'bdate', 'age',

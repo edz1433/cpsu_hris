@@ -106,7 +106,8 @@ return [
     // POST endpoints that only fetch or generate data should not report a write.
     'read_only_routes' => [
         'getFormData', 'searchReport', 'leaveReport', 'getPdfPath',
-        'contracts.downloadSelected', 'OfficialTimeRead',
+        'contracts.downloadSelected', 'OfficialTimeRead', 'leaveLive',
+        'opcrData', 'dpcrData', 'ipcrData',
     ],
 
     'access_routes' => [
@@ -118,8 +119,7 @@ return [
     ],
 
     'mutating_get_routes' => [
-        'delete-folder', 'document-delete', 'empDelete', 'officeDelete',
-        'eventDelete', 'updateNotif',
+        'updateNotif',
     ],
 
     // Focused before/after snapshots for writes that bypass Eloquent events.

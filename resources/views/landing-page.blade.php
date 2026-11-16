@@ -16,6 +16,7 @@
         <link rel="stylesheet" href="{{ asset('template/dist/css/adminlte.css') }}">
         <!-- Logo  -->
         <link rel="shortcut icon" type="" href="{{ asset('template/img/CPSU_L.png') }}">
+        @include('partials.pwa')
 
         <style>
             body {

@@ -105,6 +105,11 @@ class FamilybgController extends Controller
         $employee = Employee::find($request->id);
         $familybg = FamilyBg::where("empid", $employee->emp_ID)->first();
         $column = $request->column;
+
+        // Only this record's own fields; never its owner (empid).
+        if (!in_array($column, array_diff(\Illuminate\Support\Facades\Schema::getColumnListing((new FamilyBg)->getTable()), ['id', 'empid', 'created_at', 'updated_at']), true)) {
+            return response()->json(['success' => false, 'message' => 'This field cannot be changed here.'], 422);
+        }
         $value = $request->value;
 
         $familybg->update([

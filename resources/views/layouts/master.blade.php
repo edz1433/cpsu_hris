@@ -35,6 +35,7 @@
     <script src="{{ asset('template/dist/js/qrcode.min.js') }}"></script>
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('template/img/CPSU_L.png') }}">
+    @include('partials.pwa')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
     .profile-image {
@@ -87,6 +88,13 @@
             
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
+                <!-- Shown by partials/pwa only when the browser can install the app -->
+                <li class="nav-item" id="pwaInstallNavItem" style="display:none;">
+                    <a class="nav-link text-success1" href="#" id="pwaInstallBtn" title="Install CPSU HRIS as an app">
+                        <i class="fas fa-download"></i> <span class="d-none d-sm-inline">Install App</span>
+                    </a>
+                </li>
+
                 @if($guard == "web")
                     @include('layouts.notif-admin')
                 @else

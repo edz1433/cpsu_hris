@@ -21,6 +21,22 @@ class AuditScope
         );
     }
 
+    // Screens, searches and employee lookups that only read DTR data.
+    // Admin kiosk sign-ins and device linking are not reads and stay recorded.
+    public static function isDtrRead(Request $request): bool
+    {
+        return self::isDtrUtility($request)
+            || in_array(optional($request->route())->getName(), [
+                'dtr-read', 'dtrSearch', 'dtrLogs', 'dtrLogspost', 'readTiredness', 'tirednessSearch',
+            ], true)
+            || $request->is('dtr', 'dtr/dtr-logs', 'tardiness/data')
+            || ($request->is('api/app-dtr/*') && !$request->is('api/app-dtr/pdf/*'))
+            || $request->is(
+                'api/app/fetch-employees', 'api/app/validate-qr', 'api/app/face-claim', 'api/app/face-verify',
+                'api/app/check-coordinates'
+            );
+    }
+
     public static function isTardiness(Request $request): bool
     {
         return $request->is('tardiness', 'tardiness/*', 'tirdeness*')

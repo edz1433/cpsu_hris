@@ -75,6 +75,10 @@ class InfoQuestionController extends Controller
         $value = $request->input('value');
     
         $column = preg_replace('/_\d+$/', '', $columnWithSuffix);
+        // Only this record's own fields; never its owner (empid).
+        if (!in_array($column, array_diff(\Illuminate\Support\Facades\Schema::getColumnListing((new InfoQuestion)->getTable()), ['id', 'empid', 'created_at', 'updated_at']), true)) {
+            return response()->json(['success' => false, 'message' => 'This field cannot be changed here.'], 422);
+        }
     
         $employee = Employee::find($empid);
         $infoQuestion = InfoQuestion::where('empid', $employee->emp_ID)->first();

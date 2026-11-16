@@ -14,7 +14,8 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    type: "GET",
+                    type: "POST",
+                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                     url: url,
                     success: function (response) {
                         $("#folder-" + id).fadeOut(2000, function () {
@@ -54,7 +55,8 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    type: "GET",
+                    type: "POST",
+                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                     url: url,
                     success: function (response) {
                         $("#tr-file-" + id).fadeOut(2000, function () {

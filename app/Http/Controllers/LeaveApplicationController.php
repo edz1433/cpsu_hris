@@ -25,7 +25,19 @@ class LeaveApplicationController extends Controller
         } elseif(\Auth::guard('employee')->check()) {
             return 'employee';
         }
-    }  
+    }
+
+    // Admin accounts see every leave; an employee only their own or one they sign.
+    private function canSeeLeave(?LeaveApplication $leave): bool
+    {
+        if ($this->getGuard() === 'web') {
+            return true;
+        }
+        $employee = auth()->guard('employee')->user();
+
+        return $leave && $employee && ((string) $leave->empid === (string) $employee->emp_ID
+            || in_array((int) $employee->id, array_map('intval', [$leave->supervisor, $leave->oic, $leave->president, $leave->hr]), true));
+    }
 
     public function LeaveAppCreate(Request $request)
     {
@@ -33,6 +45,11 @@ class LeaveApplicationController extends Controller
             'empid' => 'required|exists:employees,emp_ID',
             'date_range' => 'required|string',
         ]);
+
+        // Employees file only for themselves.
+        if ($this->getGuard() === 'employee' && (string) $request->empid !== (string) auth()->guard('employee')->user()->emp_ID) {
+            return redirect()->back()->with('error', 'You can only file leave for yourself.');
+        }
 
         $checkleave = LeaveApplication::where('empid', $request->empid)->where('history', 1)->whereNotIn('status', [3, 4])->get();
 
@@ -1158,6 +1175,7 @@ class LeaveApplicationController extends Controller
     
     public function previewLeave($id){
         $guard = $this->getGuard();
+        abort_unless($this->canSeeLeave(LeaveApplication::find($id)), 403);
         $leaveApplication = LeaveApplication::with(['office:id,office_name,office_abbr'])
             ->join('employees', 'leave_applications.empid', '=', 'employees.emp_ID')
             ->join('employees as sup', 'sup.id', '=', 'leave_applications.supervisor')
@@ -1298,7 +1316,10 @@ class LeaveApplicationController extends Controller
     {
         $leaveId = $request->input('id');
         $leave = LeaveApplication::find($leaveId);
-        
+        if (!$this->canSeeLeave($leave)) {
+            return response()->json(['error' => 'PDF not found'], 404);
+        }
+
         if ($leave && $leave->gen_app) {
             // Ensure the file path starts with 'public/'
             $filePath = 'public/' . $leave->gen_app;

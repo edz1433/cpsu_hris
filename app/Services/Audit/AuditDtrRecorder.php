@@ -23,8 +23,8 @@ class AuditDtrRecorder
         $data = $this->responseData($response);
         $action = $this->action($request);
         [$outcome, $reason] = $received ? ['received', null] : $this->result($request, $action, $response, $data, $exception);
-        // Keep routine successful reads quiet, but retain every non-success result.
-        if (AuditScope::isDtrUtility($request) && $outcome === 'success') return true;
+        // Views and lookups are not actions; keep only their rejections and errors.
+        if (AuditScope::isDtrRead($request) && in_array($outcome, ['success', 'unchanged'], true)) return true;
         $employee = $this->employee($request, $data);
         $name = $employee ? trim(implode(' ', array_filter([$employee->fname, $employee->mname, $employee->lname]))) : null;
         $seconds = $data['wait_seconds'] ?? null;

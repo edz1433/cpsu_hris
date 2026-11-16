@@ -35,7 +35,8 @@ class RecordAuditRequest
                 app(AuditDtrRecorder::class)->record($request, null, $e);
                 throw $e;
             }
-            if (!AuditScope::excludes($request)) {
+            if (!AuditScope::excludes($request)
+                && ($this->isAuthentication($request) || app(AuditModuleCatalog::class)->isAction($request))) {
                 app(AuditWriter::class)->record([
                     'module' => $this->module($request),
                     'action' => $this->isAuthentication($request) ? 'failed_login' : 'error',
@@ -66,12 +67,12 @@ class RecordAuditRequest
         }
 
         $catalog = app(AuditModuleCatalog::class);
-        $mutating = !in_array($request->method(), ['GET', 'HEAD', 'OPTIONS'], true) || $catalog->isMutatingGet($request);
         $failed = $this->failedResponse($request, $response);
         $databaseWrites = app(AuditDatabaseWrites::class)->unmatched($request);
-        if ($failed || $databaseWrites || $catalog->isTrackedAccess($request) || ($mutating && !$catalog->isReadOnly($request)
-            && !(int) $request->attributes->get('audit_model_events', 0)
-            && !(int) $request->attributes->get('audit_auth_events', 0))) {
+        // Page views and lookups are never recorded, even when they fail.
+        if ($databaseWrites || ($catalog->isAction($request) && ($failed || $catalog->isTrackedAccess($request)
+            || (!(int) $request->attributes->get('audit_model_events', 0)
+                && !(int) $request->attributes->get('audit_auth_events', 0))))) {
             $module = $this->module($request);
             $employee = app(AuditAffectedPerson::class)->resolve($request, $module);
             $employeeName = $employee ? trim(implode(' ', array_filter([$employee->fname, $employee->mname, $employee->lname]))) : null;

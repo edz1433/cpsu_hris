@@ -1,5 +1,5 @@
 <!-- Job Application Notifications -->
-@if(in_array(auth()->guard('employee')->user()->org_email, ['cbaligyan@cpsu.edu.ph','janetoledo@cpsu.edu.ph','wbantigue@cpsu.edu.ph']))
+@if(in_array(auth()->guard('employee')->user()->org_email, \App\Models\Employee::JOB_APPLICATION_REVIEWERS))
 <li class="nav-item dropdown">
     <a class="nav-link" href="#" data-toggle="dropdown" title="{{ $jobapplication->count() }} Job Applications">
         <i class="fas fa-envelope text-success1"></i>

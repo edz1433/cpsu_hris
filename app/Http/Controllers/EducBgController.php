@@ -126,6 +126,11 @@ class EducBgController extends Controller
         }
     
         $column = $request->column; 
+
+        // Only this record's own fields; never its owner (empid).
+        if (!in_array($column, array_diff(\Illuminate\Support\Facades\Schema::getColumnListing((new EducBg)->getTable()), ['id', 'empid', 'created_at', 'updated_at']), true)) {
+            return response()->json(['success' => false, 'message' => 'This field cannot be changed here.'], 422);
+        }
         $value = $request->value; 
     
         $educBg->update([

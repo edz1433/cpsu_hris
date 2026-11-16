@@ -50,6 +50,17 @@ class AuditModuleCatalog
         return in_array(optional($request->route())->getName(), config('audit.access_routes', []), true);
     }
 
+    // Only changes and generated documents belong in the trail, never page views or lookups.
+    public function isAction(Request $request): bool
+    {
+        if ($this->isTrackedAccess($request)) {
+            return true;
+        }
+
+        $mutating = !in_array($request->method(), ['GET', 'HEAD', 'OPTIONS'], true) || $this->isMutatingGet($request);
+        return $mutating && !$this->isReadOnly($request);
+    }
+
     public function isMutatingGet(Request $request): bool
     {
         return $request->method() === 'GET'

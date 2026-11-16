@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="{{ asset('template/plugins/toastr/toastr.min.css') }}">
     <!-- Logo  -->
     <link rel="shortcut icon" type="" href="{{ asset('template/img/CPSU_L.png') }}">
+    @include('partials.pwa')
     <style>
         :root {
             --green-900: #0b3d24;

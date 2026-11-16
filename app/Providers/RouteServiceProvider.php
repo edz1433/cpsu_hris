@@ -74,5 +74,24 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
+
+        // Slow down password and code guessing per account (or per browser for codes).
+        // The per-address cap is loose on purpose: a whole campus can share one IP.
+        $tooMany = fn () => redirect()->route('getLogin')
+            ->with('error', 'Too many sign-in attempts. Please wait a minute and try again.');
+        RateLimiter::for('login', function (Request $request) use ($tooMany) {
+            $username = strtolower(trim((string) $request->input('username')));
+            return [
+                Limit::perMinute(5)->by('login:'.$username.'|'.$request->ip())->response($tooMany),
+                Limit::perMinute(300)->by('login-ip:'.$request->ip())->response($tooMany),
+            ];
+        });
+
+        RateLimiter::for('verify-code', function (Request $request) use ($tooMany) {
+            return [
+                Limit::perMinute(5)->by('verify:'.$request->session()->getId())->response($tooMany),
+                Limit::perMinute(300)->by('verify-ip:'.$request->ip())->response($tooMany),
+            ];
+        });
     }
 }

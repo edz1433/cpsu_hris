@@ -370,10 +370,27 @@ class EmployeeController extends Controller
         ]);
     }    
 
+    // Personal Information fields the PDS page saves one at a time. Anything else
+    // (password, role, leave credits, device links...) is never accepted here.
+    private const PDS_FIELDS = [
+        'fname', 'mname', 'lname', 'suffix', 'prefix', 'title_prefix', 'position', 'camp_id', 'emp_dept',
+        'supervisor', 'date_hired', 'bdate', 'b_place', 'sex', 'civil_status', 'height_cm', 'height_m',
+        'weight_kg', 'weight_lb', 'b_type', 'gsis', 'pagibig', 'philhealth', 'sss', 'tin', 'citizenship',
+        'c_category', 'country', 'telephone', 'mobile',
+        'add_block', 'add_street', 'add_village', 'add_brgy', 'add_city', 'add_region', 'add_prov', 'add_zcode',
+        'padd_block', 'padd_street', 'padd_village', 'padd_brgy', 'padd_city', 'padd_region', 'padd_prov', 'padd_zcode',
+    ];
+    // Shown to HR only on the same page.
+    private const PDS_ADMIN_FIELDS = ['item_no', 'emp_status', 'org_email'];
+
     public function employeeUpdate(Request $request)
     {
         $employee = Employee::findOrFail($request->id);
         $column = $request->column;
+        $allowed = auth()->guard('web')->check() ? array_merge(self::PDS_FIELDS, self::PDS_ADMIN_FIELDS) : self::PDS_FIELDS;
+        if (!is_string($column) || !in_array($column, $allowed, true) || !is_scalar($request->value ?? '')) {
+            return response()->json(['success' => false, 'message' => 'This field cannot be changed here.'], 422);
+        }
     
         if ($column == 'bdate') {
             $bdate = Carbon::parse($request->value);

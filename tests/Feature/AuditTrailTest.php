@@ -248,7 +248,7 @@ class AuditTrailTest extends TestCase
         $this->assertSame('08:00:00-12:00:00', json_decode($logs[0]->details, true)['new_data']['morn_mon']);
     }
 
-    public function test_signed_out_web_requests_are_recorded_as_unauthenticated_failures(): void
+    public function test_signed_out_web_actions_are_recorded_and_page_views_are_not(): void
     {
         foreach (['POST', 'GET'] as $method) {
             $request = $this->bindRequest('/leave/store', $method);
@@ -261,10 +261,33 @@ class AuditTrailTest extends TestCase
         }
 
         $logs = DB::connection('mysql')->table('audit_logs')->get();
-        $this->assertCount(2, $logs);
-        foreach ($logs as $log) {
-            $this->assertSame(['leave', 'failure', 'unauthenticated'], [$log->module, $log->outcome, $log->reason_code]);
+        $this->assertCount(1, $logs);
+        $this->assertSame(['leave', 'failure', 'unauthenticated', 'POST'],
+            [$logs[0]->module, $logs[0]->outcome, $logs[0]->reason_code, $logs[0]->http_method]);
+    }
+
+    public function test_page_views_and_lookups_are_not_recorded(): void
+    {
+        foreach ([
+            ['/dashboard', 'GET', null, 200],
+            ['/hris/missing', 'GET', null, 404],
+            ['/leave/leave-live/9', 'POST', 'leaveLive', 200],
+            ['/dtr', 'GET', 'dtr-read', 200],
+            ['/dtr', 'POST', 'dtrSearch', 200],
+            ['/tardiness/data', 'GET', 'readTiredness', 200],
+        ] as [$uri, $method, $name, $status]) {
+            $request = Request::create($uri, $method);
+            if ($name) {
+                $route = new Route($method, ltrim($uri, '/'), fn () => null);
+                $route->name($name);
+                $route->bind($request);
+                $request->setRouteResolver(fn () => $route);
+            }
+            app()->instance('request', $request);
+            app(RecordAuditRequest::class)->handle($request, fn () => response('page', $status));
         }
+
+        $this->assertSame(0, DB::connection('mysql')->table('audit_logs')->count());
     }
 
     public function test_all_three_attendance_actions_and_result_branches_are_audited(): void
@@ -587,9 +610,9 @@ class AuditTrailTest extends TestCase
         }
     }
 
-    public function test_tardiness_attempt_is_recorded_under_its_own_module(): void
+    public function test_tardiness_pdf_is_recorded_under_its_own_module(): void
     {
-        $request = Request::create('/tardiness/data', 'POST');
+        $request = Request::create('/tardiness/pdf/9/2026-10', 'GET');
         app()->instance('request', $request);
         app(RecordAuditRequest::class)->handle($request, fn () => response('ok', 200));
 
@@ -723,6 +746,7 @@ class AuditTrailTest extends TestCase
         ] as $endpoint => $label) {
             foreach ([null, 'generated::randomCacheName'] as $routeName) {
                 foreach ([true, false] as $success) {
+                    $before = DB::table('audit_logs')->count();
                     $request = Request::create('/api/app/'.$endpoint, 'POST', ['qr' => 'private-qr']);
                     $route = new Route('POST', 'api/app/'.$endpoint, fn () => null);
                     if ($routeName) $route->name($routeName);
@@ -732,6 +756,11 @@ class AuditTrailTest extends TestCase
                     app(RecordAuditRequest::class)->handle($request, fn () => response()->json($success
                         ? ['match' => true, 'emp_id' => 'E-8', 'is_admin' => $endpoint === 'admin-face-claim']
                         : ['match' => false, 'error' => 'Face did not match'], $success ? 200 : 403));
+                    // A successful employee lookup is not an action; admin sign-ins are.
+                    if ($success && $endpoint !== 'admin-face-claim') {
+                        $this->assertSame($before, DB::table('audit_logs')->count());
+                        continue;
+                    }
                     $event = DB::table('audit_logs')->orderByDesc('id')->first();
                     $this->assertSame('dtr_'.str_replace('-', '_', $endpoint), $event->action);
                     $this->assertSame($label, AuditFormatter::actionLabel($event));
@@ -747,7 +776,7 @@ class AuditTrailTest extends TestCase
                 }
             }
         }
-        $this->assertSame(12, DB::table('audit_logs')->count());
+        $this->assertSame(8, DB::table('audit_logs')->count());
     }
 
     public function test_resolved_face_identity_is_attributed_without_logging_qr_or_embedding(): void
@@ -756,10 +785,12 @@ class AuditTrailTest extends TestCase
         $request = Request::create('/api/app/face-claim', 'POST', ['qr' => 'private-qr', 'embedding' => 'private-biometric']);
         app()->instance('request', $request);
         app(RecordAuditRequest::class)->handle($request, fn () => response()->json(['match' => true, 'emp_id' => 'E-8']));
+        $this->assertSame(0, DB::connection('mysql')->table('audit_logs')->count());
+        app(RecordAuditRequest::class)->handle($request, fn () => response()->json(['match' => false, 'emp_id' => 'E-8']));
         $event = DB::connection('mysql')->table('audit_logs')->first();
         $this->assertSame('E-8', $event->employee_code);
         $this->assertSame(8, $event->employee_id);
-        $this->assertSame('success', $event->outcome);
+        $this->assertSame('rejected', $event->outcome);
         $this->assertStringNotContainsString('private-qr', $event->details);
         $this->assertStringNotContainsString('private-biometric', $event->details);
     }
@@ -1475,10 +1506,11 @@ class AuditTrailTest extends TestCase
         $this->assertSame('E-8', $event->employee_code);
         $this->assertStringContainsString('was rejected', AuditFormatter::describe($event));
         // is_admin=false is expected on a normal employee QR; it is not an admin denial.
+        $before = DB::table('audit_logs')->count();
         $request = $this->androidAuditRequest('validate-qr', ['qr' => shortEncrypt('E-8'), 'mode' => 'emp']);
         $response = app(RecordAuditRequest::class)->handle($request, fn () => $controller->validateQr($request));
         $this->assertTrue($response->getData(true)['valid']);
-        $this->assertSame('success', DB::table('audit_logs')->orderByDesc('id')->value('outcome'));
+        $this->assertSame($before, DB::table('audit_logs')->count());
         foreach ([
             ['wrong', 'rejected', 'invalid_credentials'],
             [null, 'error', 'password_not_configured'],
@@ -1526,7 +1558,8 @@ class AuditTrailTest extends TestCase
         $request = $this->androidAuditRequest('validate-qr', ['qr' => shortEncrypt('DOES-NOT-EXIST'), 'emp_id' => 'E-8']);
         app(RecordAuditRequest::class)->handle($request, fn () => $controller->validateQr($request));
         $this->assertNull(DB::table('audit_logs')->orderByDesc('id')->value('employee_code'));
-        // DTR reader resolves the encrypted route parameter before building its view.
+        // DTR reader resolves the encrypted route parameter; a successful view is not recorded.
+        $before = DB::table('audit_logs')->count();
         $reader = (new \ReflectionClass(\App\Http\Controllers\Api\TimeEntryDtrController::class))->newInstanceWithoutConstructor();
         $request = Request::create('/api/app-dtr/'.shortEncrypt('E-8'), 'POST');
         $route = new Route('POST', 'api/app-dtr/{empid}', fn () => null);
@@ -1539,7 +1572,7 @@ class AuditTrailTest extends TestCase
             // The HTTP router converts the controller view to a response.
             return response('', 200);
         });
-        $this->assertSame('E-8', DB::table('audit_logs')->orderByDesc('id')->value('employee_code'));
+        $this->assertSame($before, DB::table('audit_logs')->count());
     }
 
     public function test_early_android_http_errors_are_audited_by_the_real_kernel_without_request_data(): void
@@ -1591,13 +1624,13 @@ class AuditTrailTest extends TestCase
             $this->assertArrayNotHasKey('embeddings', json_decode($event->details, true));
             $this->assertStringContainsString('Face Registration was rejected', AuditFormatter::describe($event));
         }
+        // An empty directory lookup is not an action.
         DB::table('employees')->update(['stat_1' => 0]);
+        $before = DB::table('audit_logs')->count();
         $request = $this->androidAuditRequest('fetch-employees');
         $response = app(RecordAuditRequest::class)->handle($request, fn () => $controller->fetchEmployees($request));
         $this->assertSame([], $response->getData(true));
-        $event = DB::table('audit_logs')->orderByDesc('id')->first();
-        $this->assertSame('unchanged', $event->outcome);
-        $this->assertSame('no_employees_available', $event->reason_code);
+        $this->assertSame($before, DB::table('audit_logs')->count());
 
         foreach ([[], ['e' => 'invalid-reference']] as $input) {
             $request = $this->androidAuditRequest('download-dtr', $input + ['emp_id' => 'E-8']);

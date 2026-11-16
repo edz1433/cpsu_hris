@@ -53,15 +53,15 @@ use App\Http\Controllers\LeaveCardController;
 
 //login
 Route::middleware('maintenance.login')->group(function () {
-    // Route::get('/hr-admin',[LoginAuthController::class,'getLoginAdmin'])->name('getLoginAdmin');
+    Route::get('/hr-admin',[LoginAuthController::class,'getLoginAdmin'])->name('getLoginAdmin');
     Route::get('/',[LoginAuthController::class,'getLogin'])->name('getLogin')->middleware([NoCacheMiddleware::class]);
-    Route::post('/post-login',[LoginAuthController::class,'postLogin'])->name('postLogin');
+    Route::post('/post-login',[LoginAuthController::class,'postLogin'])->name('postLogin')->middleware('throttle:login');
     // Route::get('/update-pass', [EmployeeController::class, 'updateEmployeePasswords']);
 
     Route::get('/auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('google.login');
     Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
     Route::get('/verify', [GoogleAuthController::class, 'verifyForm'])->name('verify');
-    Route::post('/verify', [GoogleAuthController::class, 'verify'])->name('verify.code');
+    Route::post('/verify', [GoogleAuthController::class, 'verify'])->name('verify.code')->middleware('throttle:verify-code');
 });
 
 // Lightweight heartbeat used to remove already-authenticated employees when
@@ -87,12 +87,12 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/create', [DocumentFolderController::class, 'createFolder'])->name('create-folder');
         Route::post('/update', [DocumentFolderController::class, 'updateFolder'])->name('update-folder');
         Route::post('/create-sub/{id}', [DocumentFolderController::class, 'createSubFolder'])->name('create-subfolder');
-        Route::get('/delete/{id}', [DocumentFolderController::class, 'deleteFolder'])->name('delete-folder');
+        Route::post('/delete/{id}', [DocumentFolderController::class, 'deleteFolder'])->name('delete-folder');
         
         // Upload File
         Route::post('/upload/{id}', [DocumentController::class, 'storeFile'])->name('document-store');
         Route::post('/update-file', [DocumentController::class, 'updateFile'])->name('document-update');
-        Route::get('/delete-file/{id}', [DocumentController::class, 'deleteFile'])->name('delete-file');
+        Route::post('/delete-file/{id}', [DocumentController::class, 'deleteFile'])->name('delete-file');
          
         //performance rating
         Route::get('/opcr/{cat}/{empid?}/{prnumber}', [DocumentController::class, 'perRatingOpcr'])->name('perRatingOpcr');
@@ -277,16 +277,17 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/add', [EmployeeController::class, 'empAdd'])->name('empAdd')->middleware('page.access:employees');
         Route::get('/generate', [EmployeeController::class, 'genEmp'])->name('genEmp')->middleware('page.access:employees');
 
-        Route::post('/create', [EmployeeController::class, 'empCreate'])->name('empCreate');
-        Route::post('/update-profile/{id}', [EmployeeController::class, 'updateProfilePicture'])->name('updateProfilePicture');
-        Route::post('/update', [EmployeeController::class, 'empUpdate'])->name('empUpdate');
-        Route::post('/employee-update', [EmployeeController::class, 'employeeUpdate'])->name('employeeUpdate');
-        Route::post('/toggle-acct-stat', [EmployeeController::class, 'toggleAcctStat'])->name('toggleAcctStat');
-        Route::post('/official-time/{empid}', [EmployeeController::class, 'OfficialTimeRead'])->name('OfficialTimeRead');
-        Route::post('/official-time-create', [EmployeeController::class, 'OfficialTimeCreate'])->name('OfficialTimeCreate');
+        Route::post('/create', [EmployeeController::class, 'empCreate'])->name('empCreate')->middleware('page.access:employees');
+        // Employees edit their own profile here; own.records keeps them to their own record.
+        Route::post('/update-profile/{id}', [EmployeeController::class, 'updateProfilePicture'])->name('updateProfilePicture')->middleware(['page.access:employees', 'own.records']);
+        Route::post('/update', [EmployeeController::class, 'empUpdate'])->name('empUpdate')->middleware('page.access:employees');
+        Route::post('/employee-update', [EmployeeController::class, 'employeeUpdate'])->name('employeeUpdate')->middleware(['page.access:employees', 'own.records']);
+        Route::post('/toggle-acct-stat', [EmployeeController::class, 'toggleAcctStat'])->name('toggleAcctStat')->middleware('page.access:employees');
+        Route::post('/official-time/{empid}', [EmployeeController::class, 'OfficialTimeRead'])->name('OfficialTimeRead')->middleware('page.access:employees');
+        Route::post('/official-time-create', [EmployeeController::class, 'OfficialTimeCreate'])->name('OfficialTimeCreate')->middleware('page.access:employees');
         Route::get('/emp-qr', [EmployeeController::class, 'empQr'])->name('empQr')->middleware('page.access:employees');
 
-        Route::get('/delete/{id}', [EmployeeController::class, 'empDelete'])->name('empDelete')->middleware('page.access:employees');
+        Route::post('/delete/{id}', [EmployeeController::class, 'empDelete'])->name('empDelete')->middleware('page.access:employees');
     });
     
     Route::prefix('tardiness')->middleware('page.access:dtr')->group(function(){
@@ -303,7 +304,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     });
     
     //pds
-    Route::prefix('pds')->middleware('page.access:employees')->group(function() {
+    Route::prefix('pds')->middleware(['page.access:employees', 'own.records'])->group(function() {
         Route::get('/', [PdsController::class, 'empPDS'])->name('empPDS');  
         Route::get('/generate/{id?}', [PdsController::class, 'generatepds'])->name('generatepds');
         Route::get('/attachment/{id?}', [PdsController::class, 'genpdsAtthachment'])->name('genpdsAtthachment');
@@ -391,7 +392,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::post('/create', [OfficeController::class, 'officeCreate'])->name('officeCreate');
         Route::get('/edit/{id}', [OfficeController::class, 'officeEdit'])->name('officeEdit');
         Route::post('/update', [OfficeController::class, 'officeUpdate'])->name('officeUpdate');
-        Route::get('/delete/{id}', [OfficeController::class, 'officeDelete'])->name('officeDelete');
+        Route::post('/delete/{id}', [OfficeController::class, 'officeDelete'])->name('officeDelete');
     });
 
     //Address
@@ -408,7 +409,7 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         // Route::post('/create', [CalendarController::class, 'eventCreate'])->name('eventCreate');
         Route::get('/edit/{id}', [CalendarController::class, 'eventEdit'])->name('eventEdit');
         Route::post('/update', [CalendarController::class, 'eventUpdate'])->name('eventUpdate');
-        Route::get('/delete/{id}', [CalendarController::class, 'eventDelete'])->name('eventDelete');
+        Route::post('/delete/{id}', [CalendarController::class, 'eventDelete'])->name('eventDelete');
     });
     
     //Leave-Credits
@@ -473,7 +474,6 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
     Route::get('/audit-logs/options', [AuditLogController::class, 'options'])->name('audit-logs.options');
     Route::patch('/settings', [MasterController::class, 'updateSettings'])->name('settings.update')->middleware('page.access:settings');
     Route::patch('/settings/maintenance', [MasterController::class, 'updateMaintenance'])->name('settings.maintenance.update')->middleware('page.access:settings');
-    Route::get('/leave/disapprove', [LeaveApplicationController::class, 'leaveDisapprove']);
     Route::post('/logout', [MasterController::class, 'logout'])->name('logout');
 
     // Contract of Services

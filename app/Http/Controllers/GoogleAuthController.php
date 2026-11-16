@@ -18,111 +18,6 @@ class GoogleAuthController extends Controller
         return Socialite::driver('google')->redirect();
     }
 
-    // public function handleGoogleCallback()
-    // {
-    //     // try {
-    //         $google_user = Socialite::driver('google')->user();
-    //         $email = $google_user->getEmail();
-
-    //         $user = User::where('username', $email)->first();
-    //         $employee = Employee::where('username', $email)->first();
-
-    //         if (!$user && !$employee) {
-    //             return redirect()->back()->with('error', 'We couldn\'t find your email. Please contact HR for assistance.');
-    //         }
-
-    //         $verification_code = mt_rand(100000, 999999);
-    //         $recipient = $user ?? $employee;
-    //         $recipient->verification_code = $verification_code;
-    //         $recipient->save();
-
-    //         $accounts = [
-    //             [
-    //                 'email' => 'hris-no-reply4@cpsu.edu.ph',
-    //                 'password' => 'bqqc dtpt ypvr dfnh',
-    //                 'name' => 'HRIS G-auth4',
-    //             ],
-    //             [
-    //                 'email' => 'hris-no-reply3@cpsu.edu.ph',
-    //                 'password' => 'erua ixxc mehl btkp',
-    //                 'name' => 'HRIS G-auth3',
-    //             ],
-    //             [
-    //                 'email' => 'hris-no-reply2@cpsu.edu.ph',
-    //                 'password' => 'eweq azia fffi dsxs',
-    //                 'name' => 'HRIS G-auth2',
-    //             ],
-    //             [
-    //                 'email' => 'hris-no-reply1@cpsu.edu.ph',
-    //                 'password' => 'idte slaa rnyy dzjh',
-    //                 'name' => 'HRIS G-auth1',
-    //             ],
-    //             [
-    //                 'email' => 'hris-no-reply7@cpsu.edu.ph',
-    //                 'password' => 'zcjh pryj fvqu kqwo',
-    //                 'name' => 'HRIS G-auth7',
-    //             ],
-    //             [
-    //                 'email' => 'hris-no-reply8@cpsu.edu.ph',
-    //                 'password' => 'ktcn tmua bozb wdvp',
-    //                 'name' => 'HRIS G-auth8',
-    //             ],
-    //             [
-    //                 'email' => 'hris-no-reply9@cpsu.edu.ph',
-    //                 'password' => 'tmbj oiwy jkpg qjxl',
-    //                 'name' => 'HRIS G-auth9',
-    //             ],
-    //             [
-    //                 'email' => 'hris-no-reply10@cpsu.edu.ph',
-    //                 'password' => 'yryg gghl lflq baga',
-    //                 'name' => 'HRIS G-auth10',
-    //             ],
-    //         ];
-
-    //         $mailSent = false;
-
-    //         foreach ($accounts as $account) {
-    //             try {
-    //                 // Override config for this mail attempt
-    //                 Config::set('mail.mailers.smtp', [
-    //                     'transport' => 'smtp',
-    //                     'host' => 'smtp.gmail.com',
-    //                     'port' => 587,
-    //                     'encryption' => 'tls',
-    //                     'username' => $account['email'],
-    //                     'password' => $account['password'],
-    //                 ]);
-
-    //                 Config::set('mail.from.address', $account['email']);
-    //                 Config::set('mail.from.name', $account['name']);
-
-    //                 Mail::mailer('smtp')->raw("Your verification code is: $verification_code", function ($message) use ($recipient) {
-    //                     $message->to($recipient->username)
-    //                             ->subject('Verification Code');
-    //                 });
-
-    //                 $mailSent = true;
-    //                 break; // success, break loop
-
-    //             } catch (\Exception $e) {
-    //                 Log::warning("Email send failed using {$account['email']}: " . $e->getMessage());
-    //                 continue; // try next fallback
-    //             }
-    //         }
-
-    //         if (!$mailSent) {
-    //             return redirect()->back()->with('error', 'All mail accounts failed. Please try again later.');
-    //         }
-
-    //         session()->flash('email', $recipient->username);
-    //         return redirect()->route('verify');
-
-    //     // } catch (\Exception $e) {
-    //     //     Log::error('Google OAuth error: ' . $e->getMessage());
-    //     //     return redirect()->back()->with('error', 'There was an issue with Google OAuth. Please try again.');
-    //     // }
-    // }
-
     public function handleGoogleCallback()
     {
         try {
@@ -136,7 +31,7 @@ class GoogleAuthController extends Controller
                 return redirect()->back()->with('error', 'We couldn\'t find your email. Please contact HR for assistance.');
             }
 
-            $verification_code = mt_rand(100000, 999999);
+            $verification_code = (string) random_int(100000, 999999);
             $green = '#187744';
 
             // 🧩 Determine recipient (User or Employee)
@@ -181,6 +76,11 @@ class GoogleAuthController extends Controller
 
             // 🧠 Store session for verification page
             session()->flash('email', $recipient->username);
+            // The code is only accepted for the account Google confirmed, in this browser, for 10 minutes.
+            session()->put('google_verify', [
+                'email' => $recipient->username,
+                'expires_at' => now()->addMinutes(10)->getTimestamp(),
+            ]);
 
             return redirect()->route('verify');
 
@@ -198,13 +98,27 @@ class GoogleAuthController extends Controller
 
     public function verify(Request $request)
     {
-        $verification_code = $request->input('verification_code');
-        $email = $request->input('email'); 
+        $verification_code = (string) $request->input('verification_code');
+        // Trust only the email Google confirmed for this session, never the posted one.
+        $pending = $request->session()->get('google_verify');
+        $email = is_array($pending) && ($pending['expires_at'] ?? 0) >= now()->getTimestamp()
+            ? $pending['email'] : null;
+
+        if (!$email || !preg_match('/^\d{6}$/', $verification_code)) {
+            return redirect()->route('getLogin')->with('error', 'Invalid verification code, or it has expired. Please sign in again.');
+        }
 
         $user = User::where('username', $email)->first();
         $employee = Employee::where('username', $email)->first();
-    
-        if ($user && $user->verification_code == $verification_code) {
+        // A used code is cleared to null, so an empty stored code must never match.
+        $matches = fn ($account) => $account && (string) $account->verification_code !== ''
+            && hash_equals((string) $account->verification_code, $verification_code);
+
+        if ($matches($user) || $matches($employee)) {
+            $request->session()->forget('google_verify');
+        }
+
+        if ($matches($user)) {
             $user->verification_code = null;
             $user->save();
     
@@ -218,7 +132,7 @@ class GoogleAuthController extends Controller
             return redirect()->route('dashboard')->with('success', 'Login Successfully');
         } 
         
-        if ($employee && $employee->verification_code == $verification_code) {
+        if ($matches($employee)) {
             $employee->verification_code = null;
             $employee->save();
     

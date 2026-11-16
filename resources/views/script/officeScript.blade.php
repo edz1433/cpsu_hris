@@ -20,7 +20,7 @@
         }).then((result) => {
             if (result.isConfirmed){
                 $.ajax({
-                    type: "GET",
+                    type: "POST",
                     url: url,
                     success: function (response) {  
                         $("#tr-"+id).fadeOut(2000);

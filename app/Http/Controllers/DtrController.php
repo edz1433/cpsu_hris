@@ -55,34 +55,42 @@ class DtrController extends Controller
         }
     }
 
+    // Employees whose DTR the signed-in account may see: admins see everyone; an
+    // employee sees their campus when listed in the DTR accounts setting, else only themselves.
+    private function dtrScope(): array
+    {
+        $guard = $this->getGuard();
+        // Decide by account type, not by the editable role column.
+        if ($guard === 'web') {
+            return [Employee::all(), 1];
+        }
+
+        $setting = Setting::first();
+        if (!$setting) {
+            return [collect(), 0];
+        }
+
+        $accntlist = explode(',', $setting->dtr_acct);
+        $empid = auth()->guard($guard)->user()->emp_ID;
+        $emp = Employee::where('emp_ID', $empid)->first();
+
+        if (in_array($emp->id, $accntlist)) {
+            return [Employee::where('camp_id', $emp->camp_id)->get(), 1];
+        }
+
+        return [Employee::where('emp_ID', $empid)->get(), 0];
+    }
+
+    private function authorizeDtrEmployee($employeeall, $empId): void
+    {
+        if ($this->getGuard() === 'web') return;
+        abort_unless($employeeall->contains(fn ($emp) => (string) $emp->emp_ID === (string) $empId), 403);
+    }
+
     public function dtrRead()
     {
         $guard = $this->getGuard();
-        $acctstat = 0;
-        if (auth()->guard($guard)->user()->role == "employee") {
-            $setting = Setting::first();
-        
-            if ($setting) {
-                $accntlist = explode(',', $setting->dtr_acct);
-                $empid = auth()->guard($guard)->user()->emp_ID;
-        
-                $emp = Employee::where('emp_ID', $empid)->first();
-        
-                if (in_array($emp->id, $accntlist)) {
-                    $employeeall = Employee::where('camp_id', $emp->camp_id)->get();
-                    $acctstat = 1;
-                } else {
-                    $employeeall = Employee::where('emp_ID', $empid)->get();
-                    $acctstat = 0;
-                }
-            } else {
-                $employeeall = collect();
-                $acctstat = 0;
-            }
-        } else {
-            $employeeall = Employee::all();
-            $acctstat = 1;
-        }    
+        [$employeeall, $acctstat] = $this->dtrScope();
 
         $canTardiness = $this->canShowTardiness();
 
@@ -100,8 +108,8 @@ class DtrController extends Controller
 
         $empid = $request->employee ?? auth()->guard($guard)->user()->emp_ID;
 
-        $employeeall = null;
-        $employeeall = Employee::all();
+        [$employeeall, $acctstat] = $this->dtrScope();
+        $this->authorizeDtrEmployee($employeeall, $empid);
 
         $employee = Employee::where('emp_ID', $empid)->first();
 
@@ -111,7 +119,6 @@ class DtrController extends Controller
         $overtime = $request->input('overtime');
         $canTardiness = $this->canShowTardiness();
         $tardiness = $canTardiness ? $request->input('tardiness') : null;
-        $acctstat = $request->input('acctstat');
 
         $dtr = Dtr::where('emp_ID', $employ)
                 ->whereYear('date', substr($date, 0, 4))
@@ -132,6 +139,7 @@ class DtrController extends Controller
         ]);
 
         $employeeId = $request->input('employee');
+        $this->authorizeDtrEmployee($this->dtrScope()[0], $employeeId);
         $period = $request->input('period');
         $date = $request->input('date');
         $overtime = $request->input('overtime');
@@ -457,37 +465,13 @@ class DtrController extends Controller
     public function dtrLogs(Request $request)
     {
         $guard = $this->getGuard();
-        
-        $acctstat = 0;
-        if (auth()->guard($guard)->user()->role == "employee") {
-            $setting = Setting::first();
-        
-            if ($setting) {
-                $accntlist = explode(',', $setting->dtr_acct);
-                $empid = auth()->guard($guard)->user()->emp_ID;
-        
-                $emp = Employee::where('emp_ID', $empid)->first();
-        
-                if (in_array($emp->id, $accntlist)) {
-                    $employeeall = Employee::where('camp_id', $emp->camp_id)->get();
-                    $acctstat = 1;
-                } else {
-                    $employeeall = Employee::where('emp_ID', $empid)->get();
-                    $acctstat = 0;
-                }
-            } else {
-                $employeeall = collect();
-                $acctstat = 0;
-            }
-        } else {
-            $employeeall = Employee::all();
-            $acctstat = 1;
-        }    
+        [$employeeall, $acctstat] = $this->dtrScope();
 
         $data = null;
 
         if ($request->isMethod('post')) {
             $employeeId = $request->input('employee') ?? auth()->guard($guard)->user()->emp_ID;
+            $this->authorizeDtrEmployee($employeeall, $employeeId);
             $dateFrom = $request->input('date_from', null);
             $dateTo = $request->input('date_to', null);
             $overtime = $request->input('overtime', null);
@@ -582,6 +566,7 @@ class DtrController extends Controller
     public function logDtrView($employeeId, $dateFrom = null, $dateTo = null, $overtime = null)
     {
         $guard = $this->getGuard();
+        $this->authorizeDtrEmployee($this->dtrScope()[0], $employeeId);
         $currentDate = Carbon::now()->toDateString();
 
         $data = [

@@ -70,6 +70,7 @@ class Kernel extends HttpKernel
         'login_auth' => \App\Http\Middleware\LoginAuth::class,
         'maintenance.login' => \App\Http\Middleware\PreventLoginDuringMaintenance::class,
         'page.access' => \App\Http\Middleware\PageAccess::class,
+        'own.records' => \App\Http\Middleware\OwnEmployeeRecords::class,
         'role' => \App\Http\Middleware\LoginAuth::class,
     ];
 }

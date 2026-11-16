@@ -25,10 +25,20 @@ class LoginAuth
                 }
             }
         } elseif (auth()->guard('employee')->check()) {
-            if ($request->is('users') || $request->is('users/*') || $request->is('office') || $request->is('office/*') || $request->is('employees') || $request->is('leave/status/*') || $request->is('leave/history/*')
-            || $request->is('tardiness') || $request->is('leaves') || $request->is('pending/*') || $request->is('pds/family-bg/*') || $request->is('pds/educ-bg/*') || $request->is('pds/eligibility/*') 
-            || $request->is('pds/work-experience/*') || $request->is('pds/voluntary-work/*') || $request->is('pds/learning-dev/*') || $request->is('pds/other-info/*') || $request->is('pds/info-question/*') 
-            || $request->is('pds/references/*') || $request->is('pds/government-id/*')) {
+            // Admin-only areas. page.access checks admin accounts only, so employee
+            // accounts are kept out here. Their own profile edits under employees/*
+            // stay open and are limited to their own record by own.records.
+            if ($request->is(
+                'user', 'user/*', 'users', 'users/*', 'office', 'office/*', 'employees', 'employees/*',
+                'leaves', 'leaves/*', 'leave/status/*', 'leave/history/*', 'leave/leave-wpay', 'leave/leaves-report',
+                'leave/cacelLeave/*', 'leave/undo', 'leave/undo/*',
+                'tardiness', 'tardiness/*', 'pending', 'pending/*', 'career', 'career/*',
+                'pds/*-approve/*', 'pds/*-cancel',
+                'pds/family-bg/*', 'pds/educ-bg/*', 'pds/eligibility/*', 'pds/work-experience/*',
+                'pds/voluntary-work/*', 'pds/learning-dev/*', 'pds/other-info/*', 'pds/info-question/*',
+                'pds/references/*', 'pds/government-id/*'
+            ) && !$request->is('employees/employee-update', 'employees/update-profile/*')
+              && !$this->isJobApplicationReview($request)) {
                 return redirect()->route('dashboard')->with('error1', 'You do not have permission to access this page');
             }
             // Events are managed from the admin side only. The dashboard calendar
@@ -51,5 +61,12 @@ class LoginAuth
         $response->headers->set('Expires', 'Sat, 01 Jan 1990 00:00:00 GMT');
 
         return $response;
+    }
+
+    // The job-application pages the HR reviewers open from their employee accounts.
+    private function isJobApplicationReview(Request $request): bool
+    {
+        return in_array(auth()->guard('employee')->user()->org_email, \App\Models\Employee::JOB_APPLICATION_REVIEWERS, true)
+            && $request->is('career/view-applications', 'career/view-application/*', 'career/mark-forwarded/*');
     }
 }
