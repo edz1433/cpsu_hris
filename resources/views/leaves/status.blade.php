@@ -47,7 +47,8 @@
                                 12 => 'Special Emergency (Calamity) Leave',
                                 13 => 'Adoption Leave',
                                 14 => 'Vacation Service Credit',
-                                15 => 'Wellness Leave'
+                                15 => 'Wellness Leave',
+                                16 => 'Compensatory Time-Off (CTO)'
                             ];
 
                             $leavedetails = [
@@ -79,6 +80,11 @@
                                 </div>
                             @endif
                             @foreach($leavesapp as $leaves)
+                                @if($leaves->leave_type == 16)
+                                    {{-- CTO has its own supervisor -> HR chain. --}}
+                                    @include('leaves.cto-status')
+                                    @continue
+                                @endif
                                 <div class="timeline timeline-inverse">
                                     <!-- Step 1 -->
                                     <div class="time-label">
@@ -122,7 +128,7 @@
                                                 <span><b>DETAILS OF LEAVE :</b> {{ $leavedetails[$leaves->leave_purpose] ?? null }} @if($leaves->leave_detail) ({{ $leaves->leave_detail }}) @endif</span><br>
                                                 <span><b>INCLUSIVE DATES :</b> {{ $leaves->date_range }}</span><br>
                                                 <span><b>DAYS :</b> {{ ($leaves->emp_esign == 0) ? $leaves->days : ($leaves->days + $leaves->holiday) }}</span><br>
-                                                
+
                                                 <span><b>DAYS WITH PAY :</b> <span id="days-wpay{{ $leaves->id }}">{{ ($leaves->emp_esign !== 0) ? $leaves->days - $leaves->day_wpay : '' }}</span></span><br>
                                                 <span><b>DAYS WITHOUT PAY:</b> <span id="days-withoutpay{{ $leaves->id }}">{{ ($leaves->emp_esign !== 0) ? $leaves->day_wpay : '' }}<span> </span><br>
                                                 <span><b>HOLIDAYS:</b> <span id="days-withoutpay{{ $leaves->id }}">{{ ($leaves->emp_esign !== 0) ? $leaves->holiday : 0 }}<span> </span>
@@ -309,6 +315,10 @@
 
                             @if(count($leavesapphead))
                                 @foreach($leavesapphead as $leaves)
+                                    @if($leaves->leave_type == 16)
+                                        @include('leaves.cto-status')
+                                        @continue
+                                    @endif
                                     @php $rowOic = $officeOics[$leaves->department] ?? null; @endphp
                                     <div class="timeline timeline-inverse">
                                         <!-- Step 1 -->
@@ -349,10 +359,10 @@
                                                     <span><b>DETAILS OF LEAVE :</b> {{ $leavedetails[$leaves->leave_purpose] ?? null }} @if($leaves->leave_detail) ({{ $leaves->leave_detail }}) @endif</span><br>
                                                     <span><b>INCLUSIVE DATES :</b> {{ $leaves->date_range }}</span><br>
                                                     <span><b>DAYS :</b> {{ $leaves->days }}</span><br>
-                                                    
+
                                                     <span><b>DAYS WITH PAY :</b> <span id="days-wpay{{ $leaves->id }}">{{ ($leaves->emp_esign !== 0) ? $leaves->days - $leaves->day_wpay : '' }}</span></span><br>
                                                     <span><b>DAYS WITHOUT PAY:</b> <span id="days-withoutpay{{ $leaves->id }}">{{ ($leaves->emp_esign !== 0) ? $leaves->day_wpay : '' }}<span> </span>
-                                                    
+
                                                     @if($guard == "web")
                                                         <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
                                                             <div class="float-right">

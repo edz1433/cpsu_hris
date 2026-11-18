@@ -36,6 +36,7 @@ class LeaveCardLedger
         13 => 'AL',
         14 => 'VSC',
         15 => 'WL',
+        16 => 'CTO',
     ];
 
     public const LEAVE_NAMES = [
@@ -54,6 +55,7 @@ class LeaveCardLedger
         13 => 'Adoption Leave',
         14 => 'Vacation Service Credit',
         15 => 'Wellness Leave',
+        16 => 'Compensatory Time-Off (CTO)',
     ];
 
     // Order of entries inside one month: the opening balance, then leaves and
@@ -152,7 +154,9 @@ class LeaveCardLedger
 
         $first = $credits->first();
 
-        return $credits->map(function (LeaveCredit $credit) use ($first) {
+        // toBase(): an empty Eloquent collection stays Eloquent after map(),
+        // and merging the application events into it would then fail.
+        return $credits->toBase()->map(function (LeaveCredit $credit) use ($first) {
             $vl = round((float) $credit->earn_vl, 3);
             $sl = round((float) $credit->earn_sl, 3);
             $remarks = trim(preg_replace('/\s+/', ' ', (string) $credit->remarks));
@@ -205,6 +209,7 @@ class LeaveCardLedger
     {
         return LeaveApplication::where('empid', $empId)
             ->whereIn('status', [3, 4])
+            ->with('ctoDates')
             ->orderBy('id')
             ->get()
             ->map(function (LeaveApplication $application) {
@@ -232,8 +237,15 @@ class LeaveCardLedger
 
                 // The card lists plain day numbers for VL and SL; every
                 // other leave type carries its code, e.g. "5 (SpL)".
-                $days = $this->formatDays($start, $end, (int) $application->days + (int) $application->holiday);
-                $particulars = in_array($type, [1, 3], true) ? $days : "{$days} ({$code})";
+                // CTO is charged to COC hours, never to VL/SL, so its row only
+                // lists the dates and hours, e.g. "3,4 (CTO 12 hrs)".
+                if ($type === LeaveApplication::TYPE_CTO) {
+                    $particulars = $this->formatCtoDays($application) . " ({$code} "
+                        . LeaveApplication::formatHours($application->cto_hours) . ' hrs)';
+                } else {
+                    $days = $this->formatDays($start, $end, (int) $application->days + (int) $application->holiday);
+                    $particulars = in_array($type, [1, 3], true) ? $days : "{$days} ({$code})";
+                }
 
                 $event = array_merge($this->event($start->format('Y-m'), $start->format('Y-m-d'), $application->id), [
                     'group' => self::GROUP_DEBIT,
@@ -349,6 +361,25 @@ class LeaveCardLedger
         }
 
         return $end->lt($start) ? [$end, $start] : [$start, $end];
+    }
+
+    // The CTO dates as day numbers, "3,4" or "28,30 Dec 1" across months.
+    private function formatCtoDays(LeaveApplication $application): string
+    {
+        $out = '';
+        $month = null;
+
+        foreach ($application->ctoDates as $index => $row) {
+            $day = Carbon::parse($row->cto_date);
+            if ($month !== null && $day->format('Y-m') !== $month) {
+                $out .= ' ' . $day->format('M') . ' ' . $day->format('j');
+            } else {
+                $out .= ($index === 0 ? '' : ',') . $day->format('j');
+            }
+            $month = $day->format('Y-m');
+        }
+
+        return $out;
     }
 
     /**

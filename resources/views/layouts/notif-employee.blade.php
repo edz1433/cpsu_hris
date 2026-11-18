@@ -145,24 +145,18 @@
             
                 @switch($notif->module)
                     @case('leave')
-                    @switch($notif->category)
-                            @case(1)
-                                @php
-                                    $remarks = "Your application for " . strtolower($leaveTypes[$notif->leave_type] ?? '') . " (Application No: #{$notif->transnum}) has been reviewed by HR and is awaiting your signature.";
-                                @endphp
-                            @break
-                                @case(2)
-                                @php
-                                    $remarks = "Your application for " . strtolower($leaveTypes[$notif->leave_type] ?? '') . " (Application No: #{$notif->transnum}) has been approved.";
-                                @endphp
-                            @break
-                                @case(5)
-                                @php
-                                    $remarks = "Your approved application for " . strtolower($leaveTypes[$notif->leave_type] ?? '') . " (Application No: #{$notif->transnum}) has been canceled by HR. Your leave credits have been restored.";
-                                @endphp
-                            @break
-                        @endswitch
-                        <a href="{{ $notif->category == 5 ? route('historyRead') : route('leaveStatus') }}" class="dropdown-item d-flex align-items-center">
+                        @php
+                            // Same wording as the web push (App\Services\LeaveNotice).
+                            $notice = \App\Services\LeaveNotice::employee(
+                                (int) $notif->category,
+                                $notif->leave_type,
+                                $notif->transnum ?? ((int) $notif->category === \App\Services\LeaveNotice::REMOVED ? $notif->esign_id : null),
+                                $notif->leave_remarks_stat
+                            );
+                            $remarks = $notice['body'] ?? null;
+                        @endphp
+                        @if($notice)
+                        <a href="{{ route($notice['route']) }}" class="dropdown-item d-flex align-items-center">
                             <div class="mr-3">
                                 <span class="notification-initials">HR</span>
                             </div>
@@ -175,8 +169,9 @@
                                 </span>
                             </div>
                         </a>
+                        @endif
                         @break
-                    
+
                     @case('pds')
                         @switch($notif->category)
                             @case(1)

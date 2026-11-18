@@ -97,7 +97,8 @@
                                         '12' => 'Special Emergency (Calamity) Leave',
                                         '13' => 'Adoption Leave',
                                         '14' => 'Vacation Service Credit',
-                                        '15' => 'Wellness Leave'
+                                        '15' => 'Wellness Leave',
+                                        '16' => 'Compensatory Time-Off (CTO)'
                                     ];
                                 @endphp
                                 @foreach($leaveApplication as $leaves)
@@ -130,7 +131,7 @@
                                                 {{ strtoupper($formattedStartDate) }}
                                             @endif
                                         </td>
-                                        <td class="text-center">{{ $leaves->days }}</td>
+                                        <td class="text-center">{{ $leaves->leave_type == 16 ? \App\Models\LeaveApplication::formatHours($leaves->cto_hours) . ' hrs' : $leaves->days }}</td>
                                         <td class="text-center">{{ ($leaves->day_wpay) ? $leaves->day_wpay : '' }}</td>
                                         <td data-order="{{ isset($leaves->date_filing) ? \Carbon\Carbon::parse($leaves->date_filing)->format('Y-m-d') : '' }}">
                                             {{ isset($leaves->date_filing) ? strtoupper(\Carbon\Carbon::parse($leaves->date_filing)->format('M d, Y')) : '' }}
@@ -190,7 +191,7 @@
                                                 {{ strtoupper($formattedStartDate) }}
                                             @endif
                                         </td>
-                                        <td class="text-center">{{ $leaves->days }}</td>
+                                        <td class="text-center">{{ $leaves->leave_type == 16 ? \App\Models\LeaveApplication::formatHours($leaves->cto_hours) . ' hrs' : $leaves->days }}</td>
                                         <td class="text-center">{{ ($leaves->day_wpay) ? $leaves->day_wpay : '' }}</td>
                                         <td data-order="{{ isset($leaves->date_filing) ? \Carbon\Carbon::parse($leaves->date_filing)->format('Y-m-d') : '' }}">
                                             {{ isset($leaves->date_filing) ? strtoupper(\Carbon\Carbon::parse($leaves->date_filing)->format('M d, Y')) : '' }}

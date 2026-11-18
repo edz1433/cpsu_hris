@@ -78,7 +78,3 @@ Route::prefix('app')->group(function() {
     Route::post('/face-verify', [TimeEntryController::class, 'faceVerify']);                // deprecated
     Route::post('/admin-face-verify', [TimeEntryController::class, 'adminFaceVerify']);     // deprecated
 });
-
-// Route::prefix('clinic')->group(function() {
-//     Route::get('/employees', [ClinicController::class, 'emplList']);    
-// });

@@ -50,6 +50,7 @@ use App\Http\Controllers\EmployeeContractController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\LeavePresidentAssignmentController;
 use App\Http\Controllers\LeaveCardController;
+use App\Http\Controllers\PushSubscriptionController;
 
 //login
 Route::middleware('maintenance.login')->group(function () {
@@ -431,12 +432,16 @@ Route::group(['middleware' => ['login_auth', NoCacheMiddleware::class]], functio
         Route::get('/load', [NotificationController::class, 'loadMore'])->name('notificationload');
         Route::get('/update-notif/{menid}/{lappid}/{menu}', [NotificationController::class, 'updateNotif'])->name('updateNotif');
         Route::post('/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+        Route::post('/push/subscribe', [PushSubscriptionController::class, 'store'])->name('push.subscribe')->middleware('throttle:30,1');
+        Route::post('/push/unsubscribe', [PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe')->middleware('throttle:30,1');
     });
 
     // leave
     Route::prefix('leave')->middleware('page.access:leave')->group(function() {
         Route::get('/', [LeaveCreditController::class, 'leavesReadEmp'])->name('leavesReadEmp');
         Route::post('/create', [LeaveApplicationController::class, 'LeaveAppCreate'])->name('LeaveAppCreate');
+Route::post('/cto/create', [\App\Http\Controllers\CtoApplicationController::class, 'create'])->name('ctoCreate');
+Route::post('/cto/{leaveApplication}/decide', [\App\Http\Controllers\CtoApplicationController::class, 'decide'])->name('ctoDecide');
         
         Route::get('/status/{id?}', [LeaveApplicationController::class, 'leaveStatus'])->name('leaveStatus');
         Route::post('/leave-wpay', [LeaveApplicationController::class, 'leaveWpay'])->name('leaveWpay');

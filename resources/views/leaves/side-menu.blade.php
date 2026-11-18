@@ -67,6 +67,8 @@
             @foreach($otherCredits as [$id, $label, $value])
                 <li><span>{{ $label }}</span> <span id="{{ $id }}">{{ $value ?? 0 }}</span></li>
             @endforeach
+            {{-- Compensatory Overtime Credits are tracked in hours, not days --}}
+            <li><span>Compensatory Overtime Credits</span> <span><span id="coc-leave">{{ $employee->coc_leave + 0 }}</span> hrs</span></li>
         </ul>
     </div>
 </div>

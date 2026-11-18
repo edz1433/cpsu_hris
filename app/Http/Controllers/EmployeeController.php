@@ -385,7 +385,7 @@ class EmployeeController extends Controller
     // Other-leave balances edited by HR in the Leave settings modal (leaves/settings-modal).
     private const LEAVE_CREDIT_FIELDS = [
         'special_pl', 'solo_pl', 'study_leave', 'vawc_leave', 'rehab_leave',
-        'benefits_leave', 'calamity_leave', 'adopt_leave', 'servcred_leave', 'well_leave',
+        'benefits_leave', 'calamity_leave', 'adopt_leave', 'servcred_leave', 'well_leave', 'coc_leave',
     ];
 
     public function employeeUpdate(Request $request)

@@ -9,13 +9,40 @@
             <td>
                 <div class="w-100 mb-1">
                     <span class="badge badge-success"><b>#{{ $emp->transnum }}</b></span>
-                    @if($formattedDateRange)
+                    @if((int) $emp->leave_type === \App\Models\LeaveApplication::TYPE_CTO)
+                        {{-- CTO is filed in hours on picked dates, not as a day range. --}}
+                        @php $ctoDates = $emp->ctoDates; @endphp
+                        <span class="badge ml-1" style="background: #efeafb; color: #5b3fa0;" title="Compensatory Time-Off">
+                            <i class="fas fa-business-time mr-1"></i>CTO
+                        </span>
+                        <span class="badge badge-info ml-1" title="CTO dates and hours">
+                            <i class="far fa-calendar-alt mr-1"></i>{{ $ctoDates->map(fn ($d) => $d->cto_date->format('M j'))->implode(', ') }}
+                            ({{ \App\Models\LeaveApplication::formatHours($emp->cto_hours) }} hrs)
+                        </span>
+                    @elseif($formattedDateRange)
                         <span class="badge badge-info ml-1" title="Applied Leave Period">
                             <i class="far fa-calendar-alt mr-1"></i>{{ $formattedDateRange }} @if($calculatedDays > 0)({{ $calculatedDays }} {{ \Illuminate\Support\Str::plural('day', $calculatedDays) }})@endif
                         </span>
                     @endif
                 </div>
-                @if($emp->status == 1)
+                @if((int) $emp->leave_type === \App\Models\LeaveApplication::TYPE_CTO)
+                    {{-- CTO chain: employee (signed on filing) -> supervisor -> HR (final). --}}
+                    @php
+                        $ctoSteps = [
+                            ['fa-user', "{$emp->employee_lname}, {$emp->employee_fname}", true],
+                            ['fa-user-check', "{$emp->supervisor_lname}, {$emp->supervisor_fname}", in_array((int) $emp->status, [2, 4], true)],
+                            ['fa-user-tie', "{$emp->hr_lname}, {$emp->hr_fname}", (int) $emp->status === 4],
+                        ];
+                    @endphp
+                    <div class="d-flex flex-wrap align-items-center">
+                        @foreach($ctoSteps as [$stepIcon, $stepName, $stepDone])
+                            <span class="badge bg-{{ $stepDone ? 'success' : 'danger' }} mr-1"><i class="fas fa-{{ $stepDone ? 'check' : 'times' }}"></i></span>
+                            <div class="mr-1">
+                                <span class="badge bg-secondary span-fix"><i class="fas {{ $stepIcon }}"></i> {{ $stepName }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @elseif($emp->status == 1)
                     <div class="d-flex flex-wrap align-items-center">
                         <!-- Employee E-sign Status -->
                         <div class="mr-1">

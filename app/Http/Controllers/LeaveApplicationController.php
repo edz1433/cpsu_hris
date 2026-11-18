@@ -10,6 +10,7 @@ use App\Models\LeaveApplication;
 use App\Models\Notification;
 use App\Models\Office;
 use App\Models\Setting;
+use App\Services\LeaveNotice;
 use Carbon\Carbon;
 use Picqer\Barcode\BarcodeGeneratorPNG;
 use Illuminate\Support\Facades\File;
@@ -153,9 +154,10 @@ class LeaveApplicationController extends Controller
             12 => 'Special Emergency (Calamity) Leave',
             13 => 'Adoption Leave',
             14 => 'Vacation Service Credit',
-            15 => 'Wellness Leave'
+            15 => 'Wellness Leave',
+            16 => 'Compensatory Time-Off (CTO)',
         ];
-        
+
         Notification::create([
             'empid' => $request->empid,
             'lapp_id' => $leaveApplication->id,
@@ -335,7 +337,7 @@ class LeaveApplicationController extends Controller
     
         // $leaveApplication->hr_sdate = Carbon::now();
         $leaveApplication->holiday = $request->holiday;
-        
+
         $leaveApplication->days -= $request->holiday;
 
         $leaveApplication->day_wpay = $request->day_wpay;
@@ -612,22 +614,7 @@ class LeaveApplicationController extends Controller
      */
     protected function leaveSupervisorSignatory($leaveApplication)
     {
-        $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
-        $officeid = $leaveApplication->department ?: optional($employee)->emp_dept;
-        $office = $officeid ? Office::find($officeid) : null;
-        $supervisor = (int) ($leaveApplication->supervisor ?: optional($employee)->supervisor);
-
-        // An office with no OIC, or one pointing at an employee who no longer
-        // exists, leaves the immediate supervisor as the signatory.
-        $oicid = ($office && $office->oic_id && Employee::where('id', $office->oic_id)->exists())
-            ? (int) $office->oic_id
-            : null;
-
-        return [
-            'id' => $oicid ?: $supervisor,
-            'supervisor' => $supervisor,
-            'is_oic' => (bool) $oicid,
-        ];
+        return $leaveApplication->supervisorSignatory();
     }
 
     public function leaveApprove(Request $request)
@@ -689,9 +676,10 @@ class LeaveApplicationController extends Controller
             12 => 'Special Emergency (Calamity) Leave',
             13 => 'Adoption Leave',
             14 => 'Vacation Service Credit',
-            15 => 'Wellness Leave'
+            15 => 'Wellness Leave',
+            16 => 'Compensatory Time-Off (CTO)',
         ];
-        
+
         if($request->by == 0){
             $leaveApplication->emp_esign = $emp_esign;
             $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
@@ -730,6 +718,8 @@ class LeaveApplicationController extends Controller
                 ->where('module', 'leave')
                 ->where('utype', 'hr')
                 ->update(['status' => 1]);
+
+            LeaveNotice::notify($leaveApplication, LeaveNotice::HR_APPROVED);
         }
 
         if($request->by == 2){
@@ -793,6 +783,8 @@ class LeaveApplicationController extends Controller
                 ->where('module', 'leave')
                 ->where('utype', 'supervisor')
                 ->update(['status' => 1]);
+
+            LeaveNotice::notify($leaveApplication, LeaveNotice::SUPERVISOR_APPROVED);
         }
 
         if ($request->by == 3) {
@@ -957,8 +949,16 @@ class LeaveApplicationController extends Controller
 
             $leaveApplication->save();
 
+            // The step that was waiting on this signatory is done; tell the employee.
+            $pendingStep = [2 => [3, 'supervisor'], 3 => [4, 'president']][(int) $request->by] ?? null;
+            if ($pendingStep) {
+                Notification::where('lapp_id', $leaveApplication->id)->where('module', 'leave')
+                    ->where('category', $pendingStep[0])->where('utype', $pendingStep[1])->update(['status' => 1]);
+            }
+            LeaveNotice::notify($leaveApplication, LeaveNotice::DISAPPROVED);
+
             $this->genApplication($leaveApplication->id);
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Leave disapproved successfully.'
@@ -1023,6 +1023,9 @@ class LeaveApplicationController extends Controller
         }
         if ((int) $leave->leave_type === 15) {
             $employee->well_leave += $paidDays;
+        }
+        if ($leave->isCto()) {
+            $employee->coc_leave = round((float) ($employee->coc_leave ?? 0) + (float) $leave->cto_hours, 3);
         }
 
         $employee->save();
@@ -1181,7 +1184,7 @@ class LeaveApplicationController extends Controller
                 }if($leaveApplication->leave_type == 15){
                     $employee->well_leave += ($leaveApplication->days - $leaveApplication->day_wpay);
                 }
-                
+
                 $employee->save();
 
                 break;
@@ -1193,12 +1196,18 @@ class LeaveApplicationController extends Controller
         }
         
         $leaveApplication->save();
-    
+
+        LeaveNotice::notify($leaveApplication, [
+            1 => LeaveNotice::RETURNED_TO_YOU,
+            2 => LeaveNotice::RETURNED_TO_HR,
+            3 => LeaveNotice::RETURNED_TO_SUPERVISOR,
+        ][(int) $request->to]);
+
         return response()->json([
             'success' => true,
             'message' => 'Leave updated successfully.'
         ]);
-    }    
+    }
 
     public function leaveUndo(Request $request, $id = null)
     {
@@ -1246,6 +1255,12 @@ class LeaveApplicationController extends Controller
         ]);
     } 
 
+    // CTO applications print on the Compensatory Time Off Form instead of CS Form 6.
+    private function formView(LeaveApplication $leaveApplication): string
+    {
+        return $leaveApplication->isCto() ? 'leaves.generate-cto' : 'leaves.generate-leave';
+    }
+
     public function genApplication($id)
     {
         $leaveApplication = LeaveApplication::with(['office:id,office_name,office_abbr'])
@@ -1286,7 +1301,7 @@ class LeaveApplicationController extends Controller
         imagedestroy($image);
             
         $customPaper = [0, 0, 595.28, 841.89];
-        $pdf = \PDF::loadView('leaves.generate-leave', compact('leaveApplication', 'barcodePath'))->setPaper($customPaper, 'portrait')
+        $pdf = \PDF::loadView($this->formView($leaveApplication), compact('leaveApplication', 'barcodePath'))->setPaper($customPaper, 'portrait')
             ->setOption('margin-top', 0)
             ->setOption('margin-right', 0)
             ->setOption('margin-bottom', 0)
@@ -1401,7 +1416,7 @@ class LeaveApplicationController extends Controller
         }
     
         $customPaper = array(0, 0, 595.28, 841.89);
-        $pdf = \PDF::loadView('leaves.generate-leave', compact('leaveApplication'))->setPaper($customPaper, 'portrait');
+        $pdf = \PDF::loadView($this->formView($leaveApplication), compact('leaveApplication'))->setPaper($customPaper, 'portrait');
         
         $pdf->setOption('margin-top', 0);
         $pdf->setOption('margin-right', 0);
@@ -1621,6 +1636,7 @@ public function leaveReport(Request $request)
             'adopt_leave' => $employee->adopt_leave,
             'servcred_leave' => $employee->servcred_leave,
             'well_leave' => $employee->well_leave,
+            'coc_leave' => $employee->coc_leave,
         ]);
     }
     
@@ -1684,13 +1700,25 @@ public function leaveReport(Request $request)
             // }
 
             $empid = $leave->empid;
-    
+
+            $leave->ctoDates()->delete();
             $leave->delete();
     
             Notification::where('lapp_id', $id)
                 ->where('empid', $empid)
                 ->where('module', '=', 'leave')
                 ->delete();
+
+            // The application is gone, so the transaction number goes in esign_id
+            // for the message (see LeaveNotice::REMOVED).
+            Notification::create([
+                'empid' => $empid,
+                'lapp_id' => $id,
+                'esign_id' => $leave->transnum,
+                'category' => LeaveNotice::REMOVED,
+                'utype' => 'employee',
+                'module' => 'leave',
+            ]);
         }
     
         return response()->json(['success' => true, 'message' => 'Leave application canceled.']);

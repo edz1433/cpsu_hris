@@ -77,6 +77,12 @@
                         <div class="col-md-3 mt-1">                            
                             <input class="form-control form-control-sm text-center update-field" type="number" name="well_leave" value="{{ $employee->well_leave }}" data-column-id="{{ $empid ?? null }}" data-column-name="well_leave" step="0.001" min="0" max="30" placeholder="0.00" autocomplete="off">
                         </div>
+                        <div class="col-md-9 mt-1">
+                            <strong>Compensatory Overtime Credits</strong> <small class="text-muted">(hours)</small>
+                        </div>
+                        <div class="col-md-3 mt-1">
+                            <input class="form-control form-control-sm text-center update-field" type="number" name="coc_leave" value="{{ $employee->coc_leave }}" data-column-id="{{ $empid ?? null }}" data-column-name="coc_leave" step="0.5" min="0" placeholder="0 hrs" autocomplete="off">
+                        </div>
                     </div>
                 </form>          
             </div>

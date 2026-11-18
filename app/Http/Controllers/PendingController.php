@@ -116,8 +116,14 @@ class PendingController extends Controller
                     // The name is looked for in every signatory of the application,
                     // not just the applicant: an employee shows up on their own
                     // leave and on every leave they have to sign.
-                    $query->where(function($q) use ($like, $nameLike) {
-                        $q->whereRaw($nameLike('emp'), [$like, $like])
+                    // "cto" (or "compensatory") also finds the CTO applications.
+                    $wantsCto = in_array(strtolower($search), ['cto', 'compensatory', 'compensatory time-off', 'compensatory time off'], true);
+
+                    $query->where(function($q) use ($like, $nameLike, $wantsCto) {
+                        if ($wantsCto) {
+                            $q->orWhere('leave_applications.leave_type', LeaveApplication::TYPE_CTO);
+                        }
+                        $q->orWhereRaw($nameLike('emp'), [$like, $like])
                           ->orWhereRaw($nameLike('hr'), [$like, $like])
                           ->orWhereRaw($nameLike('sup'), [$like, $like])
                           ->orWhereRaw($nameLike('sucpres'), [$like, $like])
@@ -150,8 +156,14 @@ class PendingController extends Controller
                     ->skip(($page - 1) * $limit)
                     ->take($limit)
                     ->get();
-                       
-                break;            
+
+                // Only CTO rows show their dates, so only those load them.
+                $ctoRows = $employees->filter(fn ($row) => (int) $row->leave_type === LeaveApplication::TYPE_CTO);
+                if ($ctoRows->isNotEmpty()) {
+                    (new \Illuminate\Database\Eloquent\Collection($ctoRows->values()->all()))->load('ctoDates');
+                }
+
+                break;
     
             case '2':
                 $empids = Eligibility::where('status', 0)

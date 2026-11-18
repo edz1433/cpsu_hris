@@ -529,6 +529,59 @@
     });
 </script>
 <script>
+    // CTO: approve or decline at the supervisor or HR step (CtoApplicationController@decide).
+    $(document).on('click', '.cto-decide', function() {
+        var id = $(this).data('id');
+        var step = $(this).data('step');
+        var approve = $(this).data('action') === 'approve';
+        var who = step === 'hr' ? 'HR' : 'immediate supervisor';
+
+        Swal.fire({
+            title: approve ? 'Approve this CTO?' : 'Decline this CTO?',
+            text: approve
+                ? (step === 'hr'
+                    ? 'This is the final approval. The hours will be deducted from the employee\'s Compensatory Overtime Credits.'
+                    : 'Your e-signature will be added and the CTO goes to HR for final approval.')
+                : 'The employee will be told it was declined by the ' + who + '.',
+            icon: approve ? 'question' : 'warning',
+            input: approve ? undefined : 'textarea',
+            inputPlaceholder: 'Reason for declining',
+            inputValidator: approve ? undefined : (value) => !value.trim() && 'Give the reason for declining.',
+            showCancelButton: true,
+            confirmButtonColor: approve ? '#28a745' : '#d33',
+            confirmButtonText: approve ? 'Approve' : 'Decline',
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+            $('#loading-spinner').show();
+
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('ctoDecide', ['leaveApplication' => '__ID__']) }}".replace('__ID__', id),
+                data: {
+                    step: step,
+                    action: approve ? 'approve' : 'decline',
+                    remarks: approve ? '' : result.value,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    Swal.fire({ title: approve ? 'Approved' : 'Declined', text: response.message, icon: 'success', showConfirmButton: false, timer: 1800 })
+                        .then(() => location.reload());
+                },
+                error: function(xhr) {
+                    var response = xhr.responseJSON || {};
+                    var message = response.message || 'Something went wrong. Please try again.';
+                    if (response.errors) {
+                        message = Object.values(response.errors)[0][0];
+                    }
+                    Swal.fire({ title: 'Not saved', text: message, icon: 'error' });
+                },
+                complete: function() {
+                    $('#loading-spinner').hide();
+                }
+            });
+        });
+    });
+
     $('.day-wpay').on('click', function() {
         var id = $(this).data('id');
         var max = $(this).data('max');
@@ -1311,6 +1364,8 @@ $(document).ready(function() {
                         $('#calamity-leave').text(response.calamity_leave ?? 0);
                         $('#adopt-leave').text(response.adopt_leave ?? 0);
                         $('#servcred-leave').text(response.servcred_leave ?? 0);
+                        $('#wellness-leave').text(response.well_leave ?? 0);
+                        $('#coc-leave').text(parseFloat(response.coc_leave ?? 0));
                     }
                 }
             });

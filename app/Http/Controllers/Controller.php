@@ -311,7 +311,8 @@ class Controller extends BaseController
                 'notifications.created_at as notif_created_at',
                 'leave_applications.leave_type',
                 'leave_applications.transnum',
-                
+                'leave_applications.remarks_stat as leave_remarks_stat',
+
                 'pds_emp_eligi.profile as pds_emp_eligi_profile',
                 'pds_emp_workexp.profile as pds_emp_workexp_profile',
                 'pds_emp_volworks.profile as pds_emp_volworks_profile',

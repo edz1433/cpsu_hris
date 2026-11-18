@@ -19,15 +19,31 @@
             if (item) item.style.display = show ? '' : 'none';
         }
 
+        // Shared with the required setup popup (partials/push).
+        window.hrisPwa = {
+            canPrompt: function () { return !!deferredPrompt; },
+            prompt: function () {
+                if (!deferredPrompt) return Promise.resolve('unavailable');
+                var p = deferredPrompt;
+                deferredPrompt = null;
+                toggleButton(false);
+                p.prompt();
+                return p.userChoice.then(function (choice) { return choice.outcome; });
+            }
+        };
+
         window.addEventListener('beforeinstallprompt', function (e) {
             e.preventDefault();
             deferredPrompt = e;
             toggleButton(true);
+            document.dispatchEvent(new Event('hris:installable'));
         });
 
         window.addEventListener('appinstalled', function () {
             deferredPrompt = null;
             toggleButton(false);
+            try { localStorage.setItem('hrisInstalled', '1'); } catch (e) {}
+            document.dispatchEvent(new Event('hris:installed'));
         });
 
         document.addEventListener('DOMContentLoaded', function () {

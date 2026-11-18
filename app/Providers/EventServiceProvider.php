@@ -20,6 +20,10 @@ class EventServiceProvider extends ServiceProvider
         ],
     ];
 
+    protected $observers = [
+        \App\Models\Notification::class => [\App\Observers\NotificationObserver::class],
+    ];
+
     /**
      * Register any events for your application.
      *

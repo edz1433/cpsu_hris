@@ -7,7 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class LeaveApplication extends Model
 {
+    // Compensatory Time-Off: filed in hours against the employee's COC balance
+    // (employees.coc_leave), with its dates in leave_cto_dates.
+    public const TYPE_CTO = 16;
+
     protected $fillable = [
+        'cto_hours',
+        'coc_balance',
         'id',
         'transnum',
         'empid',
@@ -62,6 +68,48 @@ class LeaveApplication extends Model
     public function employee()
     {
         return $this->belongsTo(Employee::class, 'empid', 'emp_ID');
+    }
+
+    public function ctoDates()
+    {
+        return $this->hasMany(LeaveCtoDate::class)->orderBy('cto_date');
+    }
+
+    public function isCto(): bool
+    {
+        return (int) $this->leave_type === self::TYPE_CTO;
+    }
+
+    // "8" instead of "8.00", "4.5" instead of "4.50".
+    public static function formatHours($hours): string
+    {
+        return rtrim(rtrim(number_format((float) $hours, 2, '.', ''), '0'), '.');
+    }
+
+    /**
+     * Who signs this application at the supervisor step (employees.id).
+     * An OIC takes over the signing while assigned to the office.
+     *
+     * @return array{id:int, supervisor:int, is_oic:bool}
+     */
+    public function supervisorSignatory(): array
+    {
+        $employee = Employee::where('emp_ID', $this->empid)->first();
+        $officeid = $this->department ?: optional($employee)->emp_dept;
+        $office = $officeid ? Office::find($officeid) : null;
+        $supervisor = (int) ($this->supervisor ?: optional($employee)->supervisor);
+
+        // An office with no OIC, or one pointing at an employee who no longer
+        // exists, leaves the immediate supervisor as the signatory.
+        $oicid = ($office && $office->oic_id && Employee::where('id', $office->oic_id)->exists())
+            ? (int) $office->oic_id
+            : null;
+
+        return [
+            'id' => $oicid ?: $supervisor,
+            'supervisor' => $supervisor,
+            'is_oic' => (bool) $oicid,
+        ];
     }
 
     // public function leaveApplications()

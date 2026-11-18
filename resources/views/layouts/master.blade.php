@@ -36,6 +36,7 @@
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('template/img/CPSU_L.png') }}">
     @include('partials.pwa')
+    @include('partials.push')
     <link rel="stylesheet" href="{{ asset('plugins/flatpickr/flatpickr.min.css') }}">
     <style>
     .profile-image {
@@ -88,9 +89,9 @@
             
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
-                <!-- Shown by partials/pwa only when the browser can install the app -->
-                <li class="nav-item" id="pwaInstallNavItem" style="display:none;">
-                    <a class="nav-link text-success1" href="#" id="pwaInstallBtn" title="Install CPSU HRIS as an app">
+                <!-- Optional: shown by partials/push while this browser can install the app -->
+                <li class="nav-item" id="hrisSetupNavItem" style="display:none;">
+                    <a class="nav-link text-success1 hs-nav" href="#" id="hrisSetupBtn" title="Install CPSU HRIS as an app">
                         <i class="fas fa-download"></i> <span class="d-none d-sm-inline">Install App</span>
                     </a>
                 </li>
