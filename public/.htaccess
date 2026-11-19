@@ -22,4 +22,6 @@
 
 <IfModule mod_mime.c>
     AddType application/manifest+json .webmanifest
+    # App downloads (public/apps): Android
+    AddType application/vnd.android.package-archive .apk
 </IfModule>
