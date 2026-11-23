@@ -90,6 +90,12 @@ class LeaveApplicationController extends Controller
             return redirect()->back()->with('error', 'You can only file leave for yourself.');
         }
 
+        // The employee signs by submitting, so the e-signature must already be on file.
+        $signedByFiler = $this->getGuard() === 'employee';
+        if ($signedByFiler && empty(auth()->guard('employee')->user()->esign)) {
+            return redirect()->back()->withInput()->with('error', 'Upload your e-signature first (PDS > E-Signature). It is attached to your leave application when you submit.');
+        }
+
         $checkleave = LeaveApplication::where('empid', $request->empid)->where('history', 1)->whereNotIn('status', [3, 4])->get();
 
         if ($checkleave->isNotEmpty()) {
@@ -137,6 +143,7 @@ class LeaveApplicationController extends Controller
             'hr' => $setting->hr,
             'hr_prefix' => $hremp->prefix,
             'department' => $employee->emp_dept,
+            'emp_signed_at' => $signedByFiler ? Carbon::now('Asia/Manila') : null,
         ]);
 
         $leaveTypes = [
@@ -395,17 +402,19 @@ class LeaveApplicationController extends Controller
             unlink(public_path($originalPath));
         }
         
-        $leaveApplication->emp_esign = 1;
+        // Signed at filing: go straight to HR approval. Older applications still wait for the employee.
+        $alreadySigned = !empty($leaveApplication->emp_signed_at);
+        $leaveApplication->emp_esign = $alreadySigned ? 2 : 1;
         $leaveApplication->as_of = Carbon::now();
         $leaveApplication->save();
-        
+
         Notification::where('lapp_id', $leaveApplication->id)->where('category', 1)->where('module', '=', 'leave')->where('utype', '=', 'hr')->update(['status' => 1]);
 
         Notification::create([
             'empid' => $leaveApplication->empid,
             'lapp_id' => $leaveApplication->id,
-            'category' => 1,
-            'utype' => 'employee',
+            'category' => $alreadySigned ? 2 : 1,
+            'utype' => $alreadySigned ? 'hr' : 'employee',
             'module' => 'leave',
         ]);
 
@@ -682,6 +691,7 @@ class LeaveApplicationController extends Controller
 
         if($request->by == 0){
             $leaveApplication->emp_esign = $emp_esign;
+            $leaveApplication->emp_signed_at = Carbon::now('Asia/Manila');
             $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
 
             Notification::create([
@@ -1153,7 +1163,9 @@ class LeaveApplicationController extends Controller
     
         switch ($request->to) {
             case 1:
+                // Returned to the employee, who must review and sign it again.
                 $leaveApplication->emp_esign = 1;
+                $leaveApplication->emp_signed_at = null;
                 if (file_exists(public_path($originalPath)) && !is_dir(public_path($originalPath))) {
                     unlink(public_path($originalPath));
                 }
@@ -1232,6 +1244,7 @@ class LeaveApplicationController extends Controller
         switch ($request->to) {
             case 1:
                 $leaveApplication->emp_esign = 1;
+                $leaveApplication->emp_signed_at = null;
                 $leaveApplication->status = 1;
                 break;
             case 2:

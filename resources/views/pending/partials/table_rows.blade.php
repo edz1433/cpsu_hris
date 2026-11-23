@@ -46,8 +46,9 @@
                     <div class="d-flex flex-wrap align-items-center">
                         <!-- Employee E-sign Status -->
                         <div class="mr-1">
-                            <span class="badge bg-{{ in_array($emp->emp_esign, [0, 1]) ? 'danger' : 'success' }}">
-                                <i class="fas fa-{{ in_array($emp->emp_esign, [0, 1]) ? 'times' : 'check' }}"></i> 
+                            @php $employeeSigned = $emp->emp_esign == 2 || $emp->emp_signed_at; @endphp
+                            <span class="badge bg-{{ $employeeSigned ? 'success' : 'danger' }}">
+                                <i class="fas fa-{{ $employeeSigned ? 'check' : 'times' }}"></i>
                             </span>
                         </div>
 

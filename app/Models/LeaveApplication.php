@@ -31,6 +31,7 @@ class LeaveApplication extends Model
         'less_sl',
         'recommend',
         'emp_esign',
+        'emp_signed_at',
         'supervisor',
         'oic',
         'sup_prefix',
@@ -84,6 +85,24 @@ class LeaveApplication extends Model
     public static function formatHours($hours): string
     {
         return rtrim(rtrim(number_format((float) $hours, 2, '.', ''), '0'), '.');
+    }
+
+    /**
+     * The "As of" date on the leave form: the last day of the month before the
+     * leave starts. A date range that can't be read keeps the stored as_of.
+     */
+    public function certificationAsOf(): ?\Carbon\Carbon
+    {
+        if (preg_match('/^\s*(\d{4})-(\d{2})-(\d{2})/', (string) $this->date_range, $start)
+            && checkdate((int) $start[2], (int) $start[3], (int) $start[1])) {
+            return \Carbon\Carbon::create((int) $start[1], (int) $start[2], 1)->subDay();
+        }
+
+        try {
+            return $this->as_of ? \Carbon\Carbon::parse($this->as_of) : null;
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**

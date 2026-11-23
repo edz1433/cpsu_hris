@@ -96,7 +96,7 @@
                                             <span class="time time-{{ $leaves->id }}">{{ (isset($leaves->date_filing)) ? \Carbon\Carbon::parse($leaves->date_filing)->format('F j, Y h:i A') : '' }}</span>
                                             <h3 class="timeline-header"><a href="#">Leave Application</a></h3>
                                             <div class="timeline-body">
-                                                @if($leaves->emp_esign == 1 || $leaves->emp_esign == 2)
+                                                @if($leaves->emp_esign == 1 || $leaves->emp_esign == 2 || $leaves->emp_signed_at)
                                                     <button type="button" class="btn btn-danger btn-round btn-sm" style="float: right;" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
                                                         <i class="fas fa-file-pdf"></i>
                                                     </button>

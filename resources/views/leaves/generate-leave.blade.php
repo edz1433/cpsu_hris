@@ -269,7 +269,7 @@
                                 <input type="checkbox" class="checkbox1" @if($leaveApplication->leave_purpose !== 7 && $leaveApplication->leave_purpose !== 8) checked @endif> Not Requested<br>
                                 <input type="checkbox" class="checkbox1" @if($leaveApplication->leave_purpose == 7 || $leaveApplication->leave_purpose == 8) checked @endif> Requested<br>                        
                                 <center>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="width: 94%; display: inline-block;  margin-bottom: -14px;  border-bottom: 1px solid black;"></span></center>
-                                @if($leaveApplication->emp_esign == 2)
+                                @if(($leaveApplication->emp_esign == 2 || $leaveApplication->emp_signed_at) && $leaveApplication->employee_esign)
                                     <img src="{{ $leaveApplication->employee_esign }}" class="signature" width="100" height="40" style="position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 10;">
                                 @endif
                                 <center>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>(Signature of Applicant)</center>
@@ -292,7 +292,7 @@
             <tr>
                 <td colspan="3" class="bordered details vlt" width="116" style="height: 100px !important;">
                     <span>7.A CERTIFICATION OF LEAVE CREDITS</span><br>
-                    <center>As of <span style="width: 45.9%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ isset($leaveApplication->as_of) ? strtoupper(\Carbon\Carbon::parse($leaveApplication->as_of)->format('M d, Y')) : '' }}</b></span></center>
+                    <center>As of <span style="width: 45.9%; display: inline-block;  border-bottom: 1px solid black;"><b>{{ optional($leaveApplication->certificationAsOf())->format('M d, Y') ? strtoupper($leaveApplication->certificationAsOf()->format('M d, Y')) : '' }}</b></span></center>
                     <div style="margin-top: 17%; margin-left: 29%;">
                         <span style="font-size: 8px !important; color: white;">.</span>
                     </div>

@@ -252,8 +252,19 @@
                                 <input type="date" id="date-filing" name="date_filing" class="form-control" value="{{ \Carbon\Carbon::now()->toDateString() }}" readonly>
                             </div>
                         </div>
+                        @if(empty($employee->esign))
+                            <div class="cto-notice mb-3">
+                                <i class="fas fa-signature"></i>
+                                <span>You need an e-signature before you can file leave. <a href="{{ url('pds/signature') }}">Upload it here</a>, then come back.</span>
+                            </div>
+                        @else
+                            <p class="cto-help">
+                                <i class="fas fa-info-circle"></i>
+                                Your e-signature is placed on the leave form when you submit.
+                            </p>
+                        @endif
                         <div class="d-flex justify-content-end">
-                            <button type="submit" class="dtr-generate">
+                            <button type="submit" class="dtr-generate" @if(empty($employee->esign)) disabled @endif>
                                 <i class="fas fa-paper-plane mr-1"></i> Submit application
                             </button>
                         </div>
