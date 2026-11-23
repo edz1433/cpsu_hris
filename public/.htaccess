@@ -14,6 +14,10 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
+    # App downloads (public/apps): served as-is; a missing file gets Apache's 404, not Laravel
+    # (kiosks check for new installers every minute).
+    RewriteRule ^apps/ - [L]
+
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
