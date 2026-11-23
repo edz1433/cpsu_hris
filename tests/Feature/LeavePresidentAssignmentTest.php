@@ -51,6 +51,8 @@ class LeavePresidentAssignmentTest extends TestCase
             $table->integer('hr_sign')->nullable();
             $table->unsignedBigInteger('supervisor')->nullable();
             $table->integer('emp_esign')->nullable();
+            $table->string('as_of')->nullable();
+            $table->integer('leave_type')->nullable();
             $table->string('pres_prefix')->nullable();
             $table->integer('pres_sign')->nullable();
             $table->integer('status');

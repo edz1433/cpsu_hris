@@ -46,7 +46,7 @@
                     <div class="d-flex flex-wrap align-items-center">
                         <!-- Employee E-sign Status -->
                         <div class="mr-1">
-                            @php $employeeSigned = $emp->emp_esign == 2 || $emp->emp_signed_at; @endphp
+                            @php $employeeSigned = $emp->emp_esign == 2; @endphp
                             <span class="badge bg-{{ $employeeSigned ? 'success' : 'danger' }}">
                                 <i class="fas fa-{{ $employeeSigned ? 'check' : 'times' }}"></i>
                             </span>
@@ -301,7 +301,7 @@
                 @endif
                 <a href="{{ route('leaveStatus', $emp->employid) }}" 
                 target="_blank" 
-                class="btn btn-{{ (in_array($emp->emp_esign, [1, 2])) ? 'success' : 'info' }} btn-sm" 
+                class="btn btn-{{ $emp->needsHrDays() ? 'info' : 'success' }} btn-sm"
                 style="width: 30px; padding: 0px !important;" 
                 value="{{ $emp->id }}">
                     <i class="fas fa-exclamation-circle"></i>

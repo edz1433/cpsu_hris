@@ -25,7 +25,7 @@ class PendingController extends Controller
     public function readPending(Request $request, $type, $cat = null) {
         $guard = $this->getGuard();
 
-        $leaveappCount = LeaveApplication::where('emp_esign', '=', 0)->where('history', 1)->where('status', 1)->count('empid');
+        $leaveappCount = LeaveApplication::awaitingHrDays()->where('history', 1)->where('status', 1)->count('empid');
         $eliCount = Eligibility::where('status', 0)->count();
         $workexpCount = WorkExperience::where('status', 0)->count();
         $learDevCount = LearningDev::where('status', 0)->count();
@@ -73,11 +73,11 @@ class PendingController extends Controller
                 // Add a filter for $cat
                 if ($cat !== null && in_array((string)$cat, ['1', '0.1', '0.2'])) {
                     if ((string)$cat === '0.1') {
-                        $query->where('leave_applications.emp_esign', '=', 0);
+                        $query->awaitingHrDays();
                     } elseif ((string)$cat === '0.2') {
                         $query->where('leave_applications.emp_esign', '=', 1);
                     } elseif ((string)$cat === '1') {
-                        $query->where('leave_applications.emp_esign', '=', 2);
+                        $query->signedAndVerified();
                     }
                     $query->where('leave_applications.status', '=', 1);
                     $query->whereIn('leave_applications.history', [0, 1]);

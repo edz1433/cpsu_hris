@@ -269,7 +269,7 @@
                                 <input type="checkbox" class="checkbox1" @if($leaveApplication->leave_purpose !== 7 && $leaveApplication->leave_purpose !== 8) checked @endif> Not Requested<br>
                                 <input type="checkbox" class="checkbox1" @if($leaveApplication->leave_purpose == 7 || $leaveApplication->leave_purpose == 8) checked @endif> Requested<br>                        
                                 <center>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="width: 94%; display: inline-block;  margin-bottom: -14px;  border-bottom: 1px solid black;"></span></center>
-                                @if(($leaveApplication->emp_esign == 2 || $leaveApplication->emp_signed_at) && $leaveApplication->employee_esign)
+                                @if($leaveApplication->emp_esign == 2 && $leaveApplication->employee_esign)
                                     <img src="{{ $leaveApplication->employee_esign }}" class="signature" width="100" height="40" style="position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 10;">
                                 @endif
                                 <center>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>(Signature of Applicant)</center>
@@ -357,7 +357,8 @@
                 $leave_days = $leaveApplication->days - $leaveApplication->day_wpay;
                 $is_vl_sl = in_array($leaveApplication->leave_type, [1, 2]);
                 $leavetype = $leaveApplication->leave_type;
-                $emp_esign = $leaveApplication->emp_esign;
+                // Credits stay at 0 until HR enters the days with pay, even though it is already signed.
+                $emp_esign = $leaveApplication->needsHrDays() ? 0 : $leaveApplication->emp_esign;
 
                 $totalvl = $leaveApplication->total_vl;
                 $totalsl = $leaveApplication->total_sl;

@@ -96,7 +96,7 @@
                                             <span class="time time-{{ $leaves->id }}">{{ (isset($leaves->date_filing)) ? \Carbon\Carbon::parse($leaves->date_filing)->format('F j, Y h:i A') : '' }}</span>
                                             <h3 class="timeline-header"><a href="#">Leave Application</a></h3>
                                             <div class="timeline-body">
-                                                @if($leaves->emp_esign == 1 || $leaves->emp_esign == 2 || $leaves->emp_signed_at)
+                                                @if($leaves->emp_esign == 1 || $leaves->emp_esign == 2)
                                                     <button type="button" class="btn btn-danger btn-round btn-sm" style="float: right;" data-id="{{ $leaves->id }}" data-toggle="modal" data-target="#pdfModal">
                                                         <i class="fas fa-file-pdf"></i>
                                                     </button>
@@ -136,7 +136,7 @@
                                                 @if($guard == "web")
                                                     <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
-                                                            @if($leaves->emp_esign == 0)
+                                                            @if($leaves->needsHrDays())
                                                                 <button class="btn btn-info btn-sm day-wpay ml-1" data-id="{{ $leaves->id }}" data-max="{{ $leaves->days }}"><i class="fas fa-circle-info"></i></button>
                                                             @endif
                                                         </div>
@@ -204,7 +204,7 @@
                                                         </div>
                                                     </div>
                                                 @endif
-                                                @if($leaves->status == 1 && $leaves->remarks_stat != 1 && $leaves->emp_esign == 2 && $accesarray[7] == 1)
+                                                @if($leaves->status == 1 && $leaves->remarks_stat != 1 && $leaves->emp_esign == 2 && !$leaves->needsHrDays() && $accesarray[7] == 1)
                                                     <div class="timeline-footer mb-4" id="action-button{{ $leaves->id }}" style="margin-top: -15px;">
                                                         <div class="float-right">
                                                             <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="1"><i class="fas fa-undo"></i> Return</button>
@@ -366,7 +366,7 @@
                                                     @if($guard == "web")
                                                         <div class="timeline-footer mb-4" id="action-button0{{ $leaves->id }}" style="margin-top: -15px;">
                                                             <div class="float-right">
-                                                                @if($leaves->emp_esign == 0)
+                                                                @if($leaves->needsHrDays())
                                                                     <button class="btn btn-info btn-sm day-wpay" data-id="{{ $leaves->id }}" data-max="{{ $leaves->days }}"><i class="fas fa-circle-info"></i></button>
                                                                 @endif
                                                             </div>
@@ -406,7 +406,7 @@
                                                 </h3>
                                                 
                                                 @if($guard == "web")
-                                                    @if($leaves->status == 1 && $leaves->remarks_stat != 1 && $leaves->emp_esign == 2 && $accesarray[7] == 1)
+                                                    @if($leaves->status == 1 && $leaves->remarks_stat != 1 && $leaves->emp_esign == 2 && !$leaves->needsHrDays() && $accesarray[7] == 1)
                                                         <div class="timeline-footer mb-4" id="action-button{{ $leaves->id }}" style="margin-top: -15px;">
                                                             <div class="float-right">
                                                                 <button class="btn btn-warning btn-sm return-leave text-black" data-id="{{ $leaves->id }}" data-to="1"><i class="fas fa-undo"></i> Return</button>

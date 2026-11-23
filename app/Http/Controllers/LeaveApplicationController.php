@@ -143,7 +143,7 @@ class LeaveApplicationController extends Controller
             'hr' => $setting->hr,
             'hr_prefix' => $hremp->prefix,
             'department' => $employee->emp_dept,
-            'emp_signed_at' => $signedByFiler ? Carbon::now('Asia/Manila') : null,
+            'emp_esign' => $signedByFiler ? 2 : 0,
         ]);
 
         $leaveTypes = [
@@ -403,7 +403,7 @@ class LeaveApplicationController extends Controller
         }
         
         // Signed at filing: go straight to HR approval. Older applications still wait for the employee.
-        $alreadySigned = !empty($leaveApplication->emp_signed_at);
+        $alreadySigned = (int) $leaveApplication->emp_esign === 2;
         $leaveApplication->emp_esign = $alreadySigned ? 2 : 1;
         $leaveApplication->as_of = Carbon::now();
         $leaveApplication->save();
@@ -648,6 +648,11 @@ class LeaveApplicationController extends Controller
             return response()->json(['success' => false, 'message' => 'Only the assigned SUC President can approve this application.'], 403);
         }
 
+        // Days with pay set the credit deduction, so HR can't approve before entering them.
+        if ((int) $request->by === 1 && $leaveApplication->needsHrDays()) {
+            return response()->json(['success' => false, 'message' => 'Enter the days with pay first.'], 409);
+        }
+
         $status = 1;
         switch ($request->by) {
             case 0:
@@ -691,7 +696,6 @@ class LeaveApplicationController extends Controller
 
         if($request->by == 0){
             $leaveApplication->emp_esign = $emp_esign;
-            $leaveApplication->emp_signed_at = Carbon::now('Asia/Manila');
             $employee = Employee::where('emp_ID', $leaveApplication->empid)->first();
 
             Notification::create([
@@ -1165,7 +1169,6 @@ class LeaveApplicationController extends Controller
             case 1:
                 // Returned to the employee, who must review and sign it again.
                 $leaveApplication->emp_esign = 1;
-                $leaveApplication->emp_signed_at = null;
                 if (file_exists(public_path($originalPath)) && !is_dir(public_path($originalPath))) {
                     unlink(public_path($originalPath));
                 }
@@ -1244,7 +1247,6 @@ class LeaveApplicationController extends Controller
         switch ($request->to) {
             case 1:
                 $leaveApplication->emp_esign = 1;
-                $leaveApplication->emp_signed_at = null;
                 $leaveApplication->status = 1;
                 break;
             case 2:

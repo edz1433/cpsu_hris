@@ -31,7 +31,6 @@ class LeaveApplication extends Model
         'less_sl',
         'recommend',
         'emp_esign',
-        'emp_signed_at',
         'supervisor',
         'oic',
         'sup_prefix',
@@ -74,6 +73,43 @@ class LeaveApplication extends Model
     public function ctoDates()
     {
         return $this->hasMany(LeaveCtoDate::class)->orderBy('cto_date');
+    }
+
+    /**
+     * HR still has to enter days with pay. A leave is signed on filing
+     * (emp_esign 2), and HR's step is what fills as_of. CTO has no such step.
+     */
+    public function needsHrDays(): bool
+    {
+        if ((int) $this->emp_esign === 0) {
+            return true;
+        }
+
+        return (int) $this->emp_esign === 2 && (int) $this->status === 1
+            && $this->as_of === null && !$this->isCto();
+    }
+
+    public function scopeAwaitingHrDays($query)
+    {
+        return $query->where(function ($query) {
+            $query->where('leave_applications.emp_esign', 0)
+                ->orWhere(function ($query) {
+                    $query->where('leave_applications.emp_esign', 2)
+                        ->where('leave_applications.status', 1)
+                        ->whereNull('leave_applications.as_of')
+                        ->where('leave_applications.leave_type', '!=', self::TYPE_CTO);
+                });
+        });
+    }
+
+    // Signed, and past HR's days-with-pay step (CTO never has that step).
+    public function scopeSignedAndVerified($query)
+    {
+        return $query->where('leave_applications.emp_esign', 2)
+            ->where(function ($query) {
+                $query->whereNotNull('leave_applications.as_of')
+                    ->orWhere('leave_applications.leave_type', self::TYPE_CTO);
+            });
     }
 
     public function isCto(): bool

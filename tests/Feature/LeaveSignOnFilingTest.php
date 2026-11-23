@@ -58,9 +58,6 @@ class LeaveSignOnFilingTest extends TestCase
             $table->integer('history')->default(1);
             $table->timestamps();
         });
-        Schema::connection('mysql')->table('leave_applications', function (Blueprint $table) {
-            $table->timestamp('emp_signed_at')->nullable();
-        });
 
         Schema::connection('mysql')->create('notifications', function (Blueprint $table) {
             $table->id();
@@ -109,8 +106,16 @@ class LeaveSignOnFilingTest extends TestCase
         $this->file();
 
         $leave = LeaveApplication::firstOrFail();
-        $this->assertSame(now('Asia/Manila')->toDateString(), substr((string) $leave->emp_signed_at, 0, 10));
-        $this->assertSame(0, (int) $leave->emp_esign); // HR's days-with-pay step is still open.
+        $this->assertSame(2, (int) $leave->emp_esign);
+        $this->assertTrue($leave->needsHrDays()); // HR's days-with-pay step is still open.
+        $this->assertSame(1, LeaveApplication::awaitingHrDays()->count());
+        $this->assertSame(0, LeaveApplication::signedAndVerified()->count());
+
+        // HR can't approve before entering the days, or no credits would be deducted.
+        $this->be(Employee::find(4), 'employee');
+        $blocked = $this->controller()->leaveApprove(Request::create('/', 'POST', ['id' => $leave->id, 'by' => 1]));
+        $this->assertSame(409, $blocked->getStatusCode());
+        $this->assertSame(1, (int) $leave->refresh()->status);
 
         $response = $this->controller()->leaveWpay(Request::create('/', 'POST', ['id' => $leave->id, 'day_wpay' => 0, 'holiday' => 0]));
         $this->assertTrue($response->getData(true)['success']);
@@ -134,7 +139,7 @@ class LeaveSignOnFilingTest extends TestCase
 
     public function test_returning_to_the_employee_removes_the_filing_signature(): void
     {
-        $leave = LeaveApplication::create(['transnum' => '000001', 'empid' => 'E-1', 'leave_type' => 1, 'days' => 2, 'emp_esign' => 2, 'emp_signed_at' => now(), 'status' => 1]);
+        $leave = LeaveApplication::create(['transnum' => '000001', 'empid' => 'E-1', 'leave_type' => 1, 'days' => 2, 'emp_esign' => 2, 'as_of' => '2026-11-23 08:00:00', 'status' => 1]);
 
         $controller = Mockery::mock(LeaveApplicationController::class)->makePartial();
         $controller->shouldReceive('genApplication')->once();
@@ -142,7 +147,6 @@ class LeaveSignOnFilingTest extends TestCase
 
         $leave->refresh();
         $this->assertSame(1, (int) $leave->emp_esign);
-        $this->assertNull($leave->emp_signed_at);
     }
 
     private function file(): void
