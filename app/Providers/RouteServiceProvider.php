@@ -75,6 +75,18 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        // HR Kiosk DTR uploads (/api/dtrs): own bucket, so kiosks behind a campus IP don't use up Time Entry's 'api' limit.
+        // Kept modest: the endpoint has no authentication. A kiosk uploads at most ~4/min (plus manual syncs).
+        RateLimiter::for('kiosk', function (Request $request) {
+            return Limit::perMinute(120)->by('kiosk:'.$request->ip());
+        });
+
+        // CPSU Time Entry employee flows (/api/app/*, ~6 calls per punch): a campus on one Wi-Fi IP needs far more than 60/min at peak.
+        // Admin, directory and legacy routes stay on 'api'.
+        RateLimiter::for('timeentry', function (Request $request) {
+            return Limit::perMinute(360)->by('te:'.$request->ip());
+        });
+
         // Slow down password and code guessing per account (or per browser for codes).
         // The per-address cap is loose on purpose: a whole campus can share one IP.
         $tooMany = fn () => redirect()->route('getLogin')

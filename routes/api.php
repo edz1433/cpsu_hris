@@ -14,7 +14,7 @@ use App\Http\Controllers\Api\GadController;
 use App\Http\Controllers\Api\CptController;
 
 
-Route::post('/dtrs', [DtrController::class, 'syncDtr'])->name('api.syncDtr');
+Route::post('/dtrs', [DtrController::class, 'syncDtr'])->name('api.syncDtr')->withoutMiddleware('throttle:api')->middleware('throttle:kiosk');
 Route::post('/dtrs-batch', [DtrController::class, 'syncDtrBatch'])->name('api.syncDtrBatch');
 Route::get('/event-list/{passcode}', [EventController::class, 'eventList'])->name('api.eventList');
 Route::get('/event-login/{passcode}/{eventid}/{empid}', [EventController::class, 'eventLogin'])->name('api.eventLogin');
@@ -52,18 +52,21 @@ Route::prefix('app')->group(function() {
     Route::get('/check-coordinates', [DtrController::class, 'checkCoordinates'])->name('checkCoordinates');
     
     // CPSU TIME ENTRY
-    // ── Health / readiness ─────────────────────────────────────────────
-    Route::post('/health', fn(Request $r) => response()->noContent());
+    // Health + employee flows: own limiter (see RouteServiceProvider 'timeentry').
+    Route::withoutMiddleware('throttle:api')->middleware('throttle:timeentry')->group(function () {
+        // ── Health / readiness ─────────────────────────────────────────────
+        Route::post('/health', fn(Request $r) => response()->noContent());
 
-    // ── Public/employee flows (primary UX) ─────────────────────────────
-    Route::post('/check-restriction-level', [TimeEntryController::class, 'checkRestrictionLevel']);
-    Route::post('/fetch-license', [TimeEntryController::class, 'fetchLicense']);
-    Route::post('/fetch-logzones-with-campuses', [TimeEntryController::class, 'fetchLogzonesWithCampuses']);
-    Route::post('/validate-qr', [TimeEntryController::class, 'validateQr']);
-    Route::post('/face-claim', [TimeEntryController::class, 'faceClaim']);
-    Route::post('/log-attendance', [TimeEntryController::class, 'logAttendance']);
-    Route::post('/fetch-latest-logs', [TimeEntryController::class, 'fetchLatestLogs']);
-    Route::post('/download-dtr', [TimeEntryController::class, 'downloadDtr']);
+        // ── Public/employee flows (primary UX) ─────────────────────────────
+        Route::post('/check-restriction-level', [TimeEntryController::class, 'checkRestrictionLevel']);
+        Route::post('/fetch-license', [TimeEntryController::class, 'fetchLicense']);
+        Route::post('/fetch-logzones-with-campuses', [TimeEntryController::class, 'fetchLogzonesWithCampuses']);
+        Route::post('/validate-qr', [TimeEntryController::class, 'validateQr']);
+        Route::post('/face-claim', [TimeEntryController::class, 'faceClaim']);
+        Route::post('/log-attendance', [TimeEntryController::class, 'logAttendance']);
+        Route::post('/fetch-latest-logs', [TimeEntryController::class, 'fetchLatestLogs']);
+        Route::post('/download-dtr', [TimeEntryController::class, 'downloadDtr']);
+    });
 
     // ── Admin/kiosk flows ──────────────────────────────────────────────
     Route::post('/admin-face-claim', [TimeEntryController::class, 'adminFaceClaim']);

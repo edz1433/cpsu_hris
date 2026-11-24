@@ -17,6 +17,15 @@ class TimeEntryController extends Controller
     private int   $embeddingLimit = 7;
     private float $dedupeThr2     = 0.28 * 0.28;
     private float $acceptThr2     = 0.65 * 0.65;    
+    // Server-side proof, no app change: log-attendance needs a recent server face match for that employee (the app always
+    // calls face-claim right before it); face-register needs an admin who recently passed the admin face check (admin-face-claim
+    // opens the app's Registration screen, whose session is 5 min).
+    private const FACE_VERIFIED_TTL = 180;     // face match -> punch: GPS fix (2 x 17.5s) + request (25s) fit well within this
+    private const ENROLLER_VERIFIED_TTL = 900; // admin face check -> registrations; renewed by each registration
+    private static function faceVerifiedKey(string $empId): string { return 'te:face:'.strtolower(trim($empId)); }
+    private static function enrollerVerifiedKey(string $empId): string { return 'te:enroller:'.strtolower(trim($empId)); }
+    private function markFaceVerified(string $empId): void { Cache::put(self::faceVerifiedKey($empId), true, self::FACE_VERIFIED_TTL); }
+    private function markEnrollerVerified(string $empId): void { Cache::put(self::enrollerVerifiedKey($empId), true, self::ENROLLER_VERIFIED_TTL); }
     // ==== HELPERS ====
     private function shortDecrypt($encrypted) { $key = 'fA7xB93kL0pTzWmQ'; $cipher = 'AES-128-ECB'; $encrypted = strtr($encrypted, '-_', '+/'); return openssl_decrypt(base64_decode($encrypted), $cipher, $key, 0); }
     private function l2Normalize(array $v): array {
@@ -313,6 +322,7 @@ class TimeEntryController extends Controller
         // 6) Threshold decision
         $passAbs = ($bestD2 < $this->acceptThr2);
         if ($passAbs) {
+            $this->markFaceVerified($row->emp_ID);
             $name = trim(preg_replace('/\s+/', ' ', "{$row->fname} {$row->lname}"));
             return response()->json([
                 'match'   => true,
@@ -339,6 +349,10 @@ class TimeEntryController extends Controller
                 return response()->json(['error' => 'Unknown emp_ID'], 404);
             }
             $empId    = $empRow->emp_ID;
+            // Only after a server-side face match for this employee (face-claim); a direct POST can't punch for someone.
+            if (!Cache::has(self::faceVerifiedKey($empId))) {
+                return response()->json(['error' => 'Face verification required. Please scan again.'], 403);
+            }
             $zoneId   = $validated['zone_id'];
             $action   = (int) $validated['action'];
             $deviceId = (string) $zoneId;
@@ -653,6 +667,7 @@ class TimeEntryController extends Controller
         $csv = (string) DB::table('settings')->value('hr_kiosk');
         $arr = array_filter(array_map('trim', preg_split('/\s*,\s*/', $csv, -1, PREG_SPLIT_NO_EMPTY)));
         $isAdmin = in_array($row->emp_ID, $arr, true);
+        if ($isAdmin) $this->markEnrollerVerified($row->emp_ID);
 
         $name = trim(preg_replace('/\s+/', ' ', "{$row->fname} {$row->lname}"));
 
@@ -746,6 +761,10 @@ class TimeEntryController extends Controller
         if (empty($incoming)) return response()->json(['error' => 'No valid embeddings'], 400);
         // NEW: server-side de-dup (order-preserving)  ← Change #1
         $incoming = $this->dedupeEmbeddings($incoming);
+        // Only for an admin who recently passed admin-face-claim (after the existing checks, so their responses are unchanged).
+        if (!Cache::has(self::enrollerVerifiedKey((string) $enrollerId))) {
+            return response()->json(['error' => 'Admin verification required. Please scan admin again.'], 403);
+        }
         try {
             $result = DB::transaction(function () use ($empId, $enrollerId, $incoming) {
                 $now     = now();
@@ -779,6 +798,7 @@ class TimeEntryController extends Controller
                 return ['total' => count($merged)];
             });
             Cache::forget('face_centroids');
+            $this->markEnrollerVerified((string) $enrollerId); // keep a long registration session working
             return response()->json([
                 'success'          => true,
                 'emp_ID'           => $empId,
@@ -912,6 +932,7 @@ class TimeEntryController extends Controller
         $passAbs   = ($bestD2 < $this->acceptThr2);
         $passRatio = is_finite($secondD2) && $secondD2 > 0 ? ($bestD2 < ($this->ratioThr * $this->ratioThr) * $secondD2) : true;
         if ($passAbs && $passRatio) {
+            $this->markFaceVerified($bestEmp->emp_ID); // deprecated flow (older app versions): same proof as face-claim
             return response()->json([
                 'match'    => true,
                 'emp_id'   => $bestEmp->emp_ID,
@@ -937,6 +958,7 @@ class TimeEntryController extends Controller
         $hrKioskCsv = (string) DB::table('settings')->value('hr_kiosk');
         $ids = array_filter(array_map('trim', preg_split('/\s*,\s*/', $hrKioskCsv, -1, PREG_SPLIT_NO_EMPTY)));
         $isAdmin = in_array($bestEmp->emp_ID, $ids, true);
+        if ($isAdmin) $this->markEnrollerVerified($bestEmp->emp_ID); // deprecated flow (older app versions)
         return response()->json([
             'match'    => true,
             'is_admin' => $isAdmin,

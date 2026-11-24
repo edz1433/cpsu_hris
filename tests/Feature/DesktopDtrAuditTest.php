@@ -27,9 +27,10 @@ class DesktopDtrAuditTest extends TestCase
         config()->set('cache.limiter', 'array');
         config()->set('logging.default', 'null');
         // The limiter was resolved during bootstrap before these overrides.
-        $apiLimiter = app(\Illuminate\Cache\RateLimiter::class)->limiter('api');
+        $bootLimiter = app(\Illuminate\Cache\RateLimiter::class);
         $limiter = new \Illuminate\Cache\RateLimiter(app('cache')->store('array'));
-        $limiter->for('api', $apiLimiter);
+        // /api/dtrs uses 'kiosk', /api/app employee flows use 'timeentry' (RouteServiceProvider).
+        foreach (['api', 'kiosk', 'timeentry'] as $name) $limiter->for($name, $bootLimiter->limiter($name));
         app()->instance(\Illuminate\Cache\RateLimiter::class, $limiter);
         config()->set('database.connections.mysql', [
             'driver' => 'mysql', 'host' => '127.0.0.1',
@@ -71,6 +72,8 @@ class DesktopDtrAuditTest extends TestCase
             ['id' => 8, 'emp_ID' => 'E-8', 'fname' => 'Juan', 'lname' => 'Cruz', 'camp_id' => 2, 'emp_dept' => 4],
             ['id' => 9, 'emp_ID' => 'E-9', 'fname' => 'Maria', 'lname' => 'Santos', 'camp_id' => 3, 'emp_dept' => 5],
         ]);
+        // log-attendance requires a recent face-claim match (TimeEntryController::faceVerifiedKey).
+        \Illuminate\Support\Facades\Cache::put('te:face:e-8', true, 3600);
     }
 
     public function test_sync_preserves_response_merge_dedup_and_records_each_submitted_punch(): void

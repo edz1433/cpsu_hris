@@ -55,6 +55,8 @@ class AuditTrailTest extends TestCase
             $table->timestamps();
             $table->softDeletes();
         });
+        // log-attendance requires a recent face-claim match (TimeEntryController::faceVerifiedKey).
+        \Illuminate\Support\Facades\Cache::put('te:face:e-8', true, 3600);
     }
 
     public function test_model_changes_write_safe_json_and_keep_wording_configurable(): void
