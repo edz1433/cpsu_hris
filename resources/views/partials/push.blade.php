@@ -435,11 +435,52 @@
             });
         }
 
+        function siteSettingsStep() {
+            return 'Click ' + chip('<i class="fas fa-lock"></i>') + ' at the left of the address bar &rarr; '
+                + chip(isEdge ? 'Permissions for this site' : 'Site settings') + ', and set ' + chip('Notifications') + ' to <b>Allow</b>.';
+        }
+
         function blockedSteps() {
             if (isIos) return ['Open iPhone ' + chip('Settings') + ' &rarr; ' + chip('Notifications') + '.', 'Tap <b>CPSU HRIS</b> and turn on ' + chip('Allow Notifications') + '.', 'Come back and tap <b>Check again</b>.'];
             if (isAndroid && isInstalled()) return ['Long-press the <b>CPSU HRIS</b> icon &rarr; ' + chip('<i class="fas fa-info-circle"></i> App info') + ' &rarr; ' + chip('Notifications') + '.', 'Turn notifications <b>on</b>.', 'Come back and tap <b>Check again</b>.'];
-            if (isAndroid) return ['Tap ' + chip('<i class="fas fa-ellipsis-v"></i>') + ' &rarr; ' + chip('Settings') + ' &rarr; ' + chip('Site settings') + ' &rarr; ' + chip('Notifications') + '.', 'Set this site to <b>Allow</b>.', 'Come back and tap <b>Check again</b>.'];
-            return ['Click ' + chip('<i class="fas fa-sliders-h"></i>') + ' or ' + chip('<i class="fas fa-lock"></i>') + ' at the left of the address bar.', 'Set ' + chip('Notifications') + ' to <b>Allow</b>.', 'Click <b>Check again</b>.'];
+            if (isAndroid) return ['Tap ' + chip('<i class="fas fa-ellipsis-' + (isEdge ? 'h' : 'v') + '"></i>') + ' &rarr; ' + chip('Settings') + ' &rarr; ' + chip('Site settings') + ' (or ' + chip('Site permissions') + ') &rarr; ' + chip('Notifications') + '.', 'Set this site to <b>Allow</b>.', 'Come back and tap <b>Check again</b>.'];
+            return [siteSettingsStep(), 'Click <b>Check again</b>.'];
+        }
+
+        // Edge (and Chrome) often show a permission request "quietly": no pop-up,
+        // just a crossed-out bell in the address bar. Notification.permission then
+        // stays "default", so without these steps the card came back on every page.
+        function quietSteps() {
+            if (isIos || isAndroid) return blockedSteps();
+            return [
+                'Click ' + chip('<i class="fas fa-bell-slash"></i>') + ' at the right end of the address bar and choose ' + chip('Allow') + '.',
+                'No bell there? ' + siteSettingsStep(),
+                'Click <b>Check again</b>.'
+            ];
+        }
+
+        // Remember (for this tab) that the browser hid the request, so the next
+        // page shows the steps that work instead of a button that seems to do nothing.
+        function rememberQuiet(on) {
+            try { on ? sessionStorage.setItem('hrisNotifyQuiet', '1') : sessionStorage.removeItem('hrisNotifyQuiet'); } catch (e) {}
+        }
+        function wasQuiet() {
+            try { return sessionStorage.getItem('hrisNotifyQuiet') === '1'; } catch (e) { return false; }
+        }
+
+        // hidden: the browser answered without asking (true), or we're still waiting (false).
+        function showQuiet(hidden) {
+            show({
+                required: true, steps: notifySteps(), step: IOS_STEPS[1], icon: 'fa-bell',
+                title: hidden ? 'Your browser hid the request' : 'Allow notifications in your browser',
+                lead: hidden
+                    ? (isEdge ? 'Microsoft Edge' : 'Your browser') + ' kept the notification request quiet instead of asking you. To allow it:'
+                    : 'Choose <b>Allow</b> when your browser asks. Don\'t see a pop-up? Your browser may have hidden it:',
+                howto: quietSteps(),
+                button: '<i class="fas fa-redo"></i> Check again',
+                onClick: recheck,
+                alt: { label: 'Ask again', onClick: askPermission }
+            });
         }
 
         function showBlocked() {
@@ -447,45 +488,82 @@
                 required: true, steps: notifySteps(), step: IOS_STEPS[1], icon: 'fa-bell-slash', warn: true,
                 title: 'Notifications are blocked',
                 lead: 'HRIS notifications are required, but this device is blocking them. To turn them on:',
-                howto: blockedSteps(),
+                howto: blockedSteps().concat(isIos ? [] : ['In an <b>InPrivate</b> or <b>Incognito</b> window notifications can\'t be turned on. Open HRIS in a normal window instead.']),
                 button: '<i class="fas fa-redo"></i> Check again',
-                onClick: function () {
-                    if (Notification.permission === 'denied') {
-                        // Settings changes often need a reload to be seen.
-                        busy(true, 'Checking&hellip;');
-                        location.reload();
-                        return;
-                    }
-                    requireNotifications();
-                }
+                onClick: recheck
             });
+        }
+
+        var finishing = false;
+
+        // Permission is granted: link this device, then let the user in.
+        function finish() {
+            if (finishing) return;
+            finishing = true;
+            rememberQuiet(false);
+            if (el('hrisSetup')) busy(true, 'Finishing setup&hellip;');
+            (swReg ? subscribe(swReg) : Promise.reject()).then(function () {
+                finishing = false;
+                if (!el('hrisSetup')) return;
+                closeCard();
+                if (window.toastr) toastr.success('All set! You\'ll get HRIS notifications on this device.');
+            }, function () {
+                finishing = false;
+                showNotify();
+                note('Notifications are allowed, but this device could not be linked. Please try again.');
+            });
+        }
+
+        function recheck() {
+            if (Notification.permission === 'granted') return finish();
+            // Settings changes often need a reload to be seen.
+            busy(true, 'Checking&hellip;');
+            location.reload();
         }
 
         function askPermission() {
             busy(true, 'Waiting for your answer&hellip;');
+            var answered = false;
+            // A quiet request never shows a pop-up and may never answer, so
+            // after a few seconds show where the browser put it.
+            var hint = setTimeout(function () { if (!answered) showQuiet(false); }, 4000);
             Promise.resolve(Notification.requestPermission()).then(function (permission) {
-                if (permission === 'granted') {
-                    busy(true, 'Finishing setup&hellip;');
-                    return (swReg ? subscribe(swReg) : Promise.reject()).then(function () {
-                        closeCard();
-                        if (window.toastr) toastr.success('All set! You\'ll get HRIS notifications on this device.');
-                    }, function () {
-                        showNotify();
-                        note('Notifications are allowed, but this device could not be linked. Please try again.');
-                    });
-                }
+                answered = true;
+                clearTimeout(hint);
+                if (permission === 'granted') return finish();
                 if (permission === 'denied') return showBlocked();
-                showNotify();
-                note('Choose "Allow" when your browser asks.');
+                // "default" right after asking: dismissed, or hidden by the browser.
+                rememberQuiet(true);
+                showQuiet(true);
             }).catch(function () {
+                answered = true;
+                clearTimeout(hint);
                 showNotify();
                 note('Something went wrong. Please try again.');
             });
         }
 
         function requireNotifications() {
-            if (Notification.permission === 'granted') return closeCard();
-            return Notification.permission === 'denied' ? showBlocked() : showNotify();
+            if (Notification.permission === 'granted') return finish();
+            if (Notification.permission === 'denied') return showBlocked();
+            return wasQuiet() ? showQuiet(true) : showNotify();
+        }
+
+        // Close the card as soon as the user allows from the address bar or site
+        // settings, without needing "Check again" or a reload.
+        function watchPermission() {
+            var onChange = function () {
+                if (!required || !el('hrisSetup')) return;
+                if (Notification.permission === 'granted') finish();
+                else if (Notification.permission === 'denied') showBlocked();
+            };
+            if (navigator.permissions && navigator.permissions.query) {
+                navigator.permissions.query({ name: 'notifications' }).then(function (status) {
+                    status.onchange = onChange;
+                }).catch(function () {});
+            }
+            window.addEventListener('focus', onChange);
+            document.addEventListener('visibilitychange', function () { if (!document.hidden) onChange(); });
         }
 
         if (isInstalled()) remember(true);
@@ -510,9 +588,11 @@
             navigator.serviceWorker.ready.then(function (reg) {
                 swReg = reg;
                 if (Notification.permission === 'granted') {
+                    rememberQuiet(false);
                     // Re-link this device to the account now signed in (shared PCs, key changes).
                     subscribe(reg).catch(function () {});
                 } else {
+                    watchPermission();
                     requireNotifications();
                 }
 
